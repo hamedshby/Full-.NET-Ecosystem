@@ -36,3 +36,18 @@
 
 - No browser-based visual regression tool is configured in this repository, so visual review across browser engines remains a follow-up concern.
 - `script.js` is already referenced by the existing HTML but is not present in the worktree; this task intentionally did not add or alter JavaScript behavior.
+
+## Review round 1 — mobile menu and toast visibility
+
+### RED evidence
+
+1. Added smoke contracts for an ARIA-expanded mobile-menu selector and an empty-toast hiding selector.
+2. Ran `powershell -ExecutionPolicy Bypass -File tests\smoke.ps1` before CSS changes.
+3. The first run exited `1` with `The mobile menu must reveal navigation when expanded.`
+4. Added the menu rule only, then ran the test again; it exited `1` with `The empty toast must be hidden until it has content.`
+
+### GREEN evidence
+
+1. Added `#menu-toggle[aria-expanded="true"] + .nav-links { display: flex; }` inside the existing mobile breakpoint. This works with the current DOM because `#primary-navigation.nav-links` immediately follows the toggle button.
+2. Added `#toast:empty { display: none; }`; the base `#toast` styling remains active when content is later supplied.
+3. Ran `powershell -ExecutionPolicy Bypass -File tests\smoke.ps1`; it exited `0` with `Static smoke checks passed.`
