@@ -27,7 +27,9 @@ test('every sidebar question exposes its difficulty as a badge',()=>{
   for(const file of pages){
     const html=fs.readFileSync(path.join(courseRoot,file),'utf8');
     const badges=[...html.matchAll(/<small data-level="([^"]+)">/g)].map(match=>match[1]);
+    const gptBadges=[...html.matchAll(/<small data-source="gpt">Gpt<\/small>/g)];
     assert.equal(badges.length,30,`${file}: sidebar badge count`);
+    assert.equal(gptBadges.length,30,`${file}: Gpt badge count`);
     assert.deepEqual([...new Set(badges)].sort(),[...levels].sort(),`${file}: difficulty variants`);
   }
 });

@@ -40,6 +40,7 @@ foreach ($contract in @(
   @{ Pattern = 'prefers-reduced-motion'; Message = 'The stylesheet must respect reduced-motion preferences.' },
   @{ Pattern = '\.course-grid'; Message = 'The stylesheet must define the course grid.' },
   @{ Pattern = '\.course-card:focus-within'; Message = 'The stylesheet must visibly support focused course cards.' },
+  @{ Pattern = '#hero-title\s*\{[^}]*font-size:\s*clamp\(1rem,\s*3vw,\s*3rem\)[^}]*max-width:\s*none[^}]*white-space:\s*nowrap'; Message = 'The hero title must be smaller and stay on one line.' },
   @{ Pattern = '\.js-ready\s+#menu-toggle\[aria-expanded="true"\]\s*\+\s*\.nav-links'; Message = 'The ready mobile menu must reveal navigation when expanded.' },
   @{ Pattern = '#toast:empty\s*\{\s*display:\s*none'; Message = 'The empty toast must be hidden until it has content.' }
 )) {

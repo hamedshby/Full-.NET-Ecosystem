@@ -173,11 +173,12 @@ main > section { width: var(--content); margin: 0 auto; padding: clamp(4rem, 8vw
 
 .hero {
   position: relative;
-  min-height: 35rem;
+  min-height: 18rem;
   display: grid;
   align-content: center;
   max-width: none;
   width: 100%;
+  padding-block: clamp(1.75rem, 3.5vw, 3rem);
   padding-inline: max(1.25rem, calc((100% - 1120px) / 2));
   isolation: isolate;
   overflow: hidden;
@@ -210,12 +211,19 @@ main > section { width: var(--content); margin: 0 auto; padding: clamp(4rem, 8vw
 h1, h2, h3, p { overflow-wrap: break-word; }
 h1, h2, h3 { line-height: 1.32; }
 h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-spacing: -0.055em; }
-.hero > p:not(.eyebrow) { max-width: 40rem; margin: 1.25rem 0 0; color: var(--muted); font-size: clamp(1rem, 1.6vw, 1.16rem); }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.8rem; }
-.hero-stats { display: flex; flex-wrap: wrap; gap: 1.75rem; margin: 2.6rem 0 0; }
+#hero-title {
+  width: 100%;
+  font-size: clamp(1rem, 3vw, 3rem);
+  max-width: none;
+  white-space: nowrap;
+}
+.hero > p:not(.eyebrow) { max-width: 40rem; margin: 0.75rem 0 0; color: var(--muted); font-size: clamp(1rem, 1.6vw, 1.16rem); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 1.75rem; margin: 1.35rem 0 0; }
 .hero-stats div { min-width: 7rem; border-inline-start: 2px solid var(--aqua); padding-inline-start: 0.75rem; }
 .hero-stats dt { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
 .hero-stats dd { margin: 0.1rem 0 0; color: var(--brand); font-size: 1.55rem; font-weight: 900; direction: ltr; text-align: right; }
+#courses { padding-top: 1rem; }
 
 .section-heading { max-width: 42rem; margin-bottom: 2rem; }
 .section-heading h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.65rem); letter-spacing: -0.04em; }
@@ -306,7 +314,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
   .nav-actions { gap: 0.35rem; }
   .nav-actions .button-link { display: none; }
   .nav-actions button { min-height: 2.8rem; padding-inline: 0.45rem; }
-  .hero { min-height: 32rem; padding-inline: 1rem; }
+  .hero { min-height: 17rem; padding-inline: 1rem; }
   .hero::before { inset: 4rem -8rem auto auto; width: 20rem; }
   .hero::after { inset-inline-end: -3rem; }
   .hero-stats { gap: 1rem; }
@@ -324,7 +332,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
   .brand { font-size: 1rem; }
   .brand::before { display: none; }
   .nav-actions button { font-size: 0.72rem; }
-  .hero { min-height: 31rem; }
+  .hero { min-height: 16.5rem; }
   h1 { font-size: clamp(2.15rem, 12vw, 3rem); }
   .hero-actions { display: grid; grid-template-columns: 1fr; }
   .hero-actions .button-link { width: 100%; }
