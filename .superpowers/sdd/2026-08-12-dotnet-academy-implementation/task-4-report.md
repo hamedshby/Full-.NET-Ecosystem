@@ -72,3 +72,49 @@ git diff --check
 ## Concerns
 
 - The in-app browser's URL policy blocked navigation to the local `file:` page, so a browser-rendered viewport screenshot was not available. The responsive review above is based on the shipped HTML/CSS/JS and automated checks; a final visual spot-check in a normal local browser remains advisable.
+
+## Review round 1: light-theme contrast
+
+### RED/GREEN evidence
+
+Added `tests/contrast.test.js`, which reads the shipped CSS token blocks and calculates WCAG relative luminance/contrast for the actual rendered color relationships: aqua eyebrow text on the light surface, aqua focus outline against the light canvas, and `status-soon` gold text over its 16% gold-tinted card surface. It also keeps dark-theme aqua and gold relationships covered.
+
+RED command:
+
+```text
+node tests/contrast.test.js
+```
+
+The command exited `1` at the expected assertion: `Light-theme eyebrow text must reach 4.5:1 on its light surface.` The pre-fix values were 2.92:1 for aqua on white, 2.77:1 for aqua against the canvas, and 2.40:1 for gold on its tinted badge.
+
+Changed only the light-theme tokens:
+
+- `--aqua`: `#00a9a2` to `#05746f`
+- `--gold`: `#d88900` to `#955200`
+
+GREEN command:
+
+```text
+node tests/contrast.test.js
+```
+
+The command exited `0` and printed `Color contrast checks passed.` The resulting light-theme values are 5.62:1 (aqua on white), 5.34:1 (aqua against canvas), and 4.76:1 (gold against its tinted badge). Existing dark tokens remain readable at 10.08:1 for aqua on its surface and 7.30:1 for gold against its tinted badge.
+
+### Round 1 verification
+
+All commands exited `0`:
+
+```text
+node --check script.js
+node --check tests/contrast.test.js
+node tests/interactions.test.js
+node tests/contrast.test.js
+powershell -ExecutionPolicy Bypass -File tests/smoke.ps1
+git diff --check
+```
+
+### Round 1 files
+
+- `styles.css`
+- `tests/contrast.test.js`
+- `.superpowers/sdd/2026-08-12-dotnet-academy-implementation/task-4-report.md`
