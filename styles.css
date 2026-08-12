@@ -253,6 +253,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
 #newsletter .section-heading { margin-bottom: 1.5rem; }
 #newsletter .eyebrow, #newsletter .section-heading p:last-child { color: rgb(255 255 255 / 82%); }
 #newsletter :focus-visible { outline: 3px solid #ffffff; }
+[data-theme="dark"] #newsletter :focus-visible { outline: 3px solid #0b1223; }
 #newsletter-form { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.7rem; }
 #newsletter-form label { font-weight: 800; }
 #newsletter-form input { width: 100%; min-height: 3rem; padding: 0.55rem 0.8rem; border: 1px solid transparent; border-radius: 0.7rem; background: #fff; color: #14213d; direction: ltr; text-align: left; }

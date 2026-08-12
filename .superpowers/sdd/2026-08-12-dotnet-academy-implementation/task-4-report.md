@@ -165,3 +165,50 @@ git diff --check
 - `styles.css`
 - `tests/contrast.test.js`
 - `.superpowers/sdd/2026-08-12-dotnet-academy-implementation/task-4-report.md`
+
+## Review round 3: dark newsletter focus contrast
+
+### RED/GREEN evidence
+
+Extended `tests/contrast.test.js` to require an explicit dark-theme newsletter focus outline and calculate it against the real dark gradient stops: dark `--brand` (`#75a9ff`), the fixed middle stop (`#266fd3`), and dark `--aqua` (`#5cddd4`). Each must reach the 3:1 focus-indicator threshold.
+
+RED command:
+
+```text
+node tests/contrast.test.js
+```
+
+The command exited `1` with `Missing \[data-theme="dark"\]\s+#newsletter\s+:focus-visible focus treatment`, demonstrating that the light-only white focus outline did not adapt for dark tokens.
+
+Added only this dark-theme override while retaining the white outline for light theme:
+
+```css
+[data-theme="dark"] #newsletter :focus-visible { outline: 3px solid #0b1223; }
+```
+
+GREEN command:
+
+```text
+node tests/contrast.test.js
+```
+
+The command exited `0` and printed `Color contrast checks passed.` The deep-navy outline reaches 7.89:1 against `#75a9ff`, 3.82:1 against `#266fd3`, and 11.33:1 against `#5cddd4`.
+
+### Round 3 verification
+
+All commands exited `0`:
+
+```text
+node --check script.js
+node --check tests/contrast.test.js
+node tests/interactions.test.js
+node tests/contrast.test.js
+powershell -ExecutionPolicy Bypass -File tests/smoke.ps1
+git diff --check
+```
+
+### Round 3 files
+
+- `styles.css`
+- `tests/contrast.test.js`
+- `.superpowers/sdd/2026-08-12-dotnet-academy-implementation/task-4-report.md`
