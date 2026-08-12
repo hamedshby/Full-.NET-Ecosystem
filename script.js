@@ -36,7 +36,7 @@ function initApp() {
   const languageToggle = document.getElementById('language-toggle');
   const toast = document.getElementById('toast');
   const newsletterForm = document.getElementById('newsletter-form');
-  const emailInput = document.getElementById('email');
+  const emailInput = document.getElementById('newsletter-email');
   const themeStorageKey = 'dotnet-academy-theme';
   let toastTimer;
 

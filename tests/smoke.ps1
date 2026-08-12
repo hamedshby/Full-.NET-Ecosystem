@@ -20,6 +20,14 @@ function Assert-StyleContains([string]$pattern, [string]$message) {
 
 Assert-Contains '<html[^>]+lang="fa"[^>]+dir="rtl"' 'The document must be Persian and right-to-left.'
 Assert-Contains '<meta\s+name="description"' 'The meta description is missing.'
+Assert-Contains '<a[^>]+class="[^"]*skip-link[^"]*"[^>]+href="#main-content"' 'The skip link must target the main content.'
+Assert-Contains '<main[^>]+id="main-content"' 'The main content landmark must have the main-content identifier.'
+Assert-Contains '<div[^>]+id="toast"[^>]+aria-live="polite"' 'The toast must announce updates politely.'
+Assert-Contains '<label[^>]+for="newsletter-email"[^>]*>' 'The newsletter email input must have a matching label.'
+Assert-Contains '<input[^>]+id="newsletter-email"[^>]*>' 'The newsletter email input must use the newsletter-email identifier.'
+Assert-Contains '<button(?=[^>]*id="menu-toggle")(?=[^>]*type="button")[^>]*aria-expanded=' 'The mobile menu control must be a button with aria-expanded.'
+Assert-Contains '<button(?=[^>]*id="theme-toggle")(?=[^>]*type="button")[^>]*aria-pressed=' 'The theme toggle must be a button with aria-pressed.'
+Assert-Contains '<button(?=[^>]*id="language-toggle")(?=[^>]*type="button")[^>]*>' 'The language control must be an explicit button.'
 
 if (-not (Test-Path $stylesPath)) {
   $failures.Add('The stylesheet is missing.')
