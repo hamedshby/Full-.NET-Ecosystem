@@ -7,6 +7,16 @@
   <meta property="og:title" content="آکادمی دات‌نت">
   <meta property="og:description" content="مسیرهای روشن یادگیری دات‌نت، از یادگیری تا تسلط.">
   <title>آکادمی دات‌نت | آموزش حرفه‌ای توسعه نرم‌افزار</title>
+  <script>
+    (() => {
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
 </head>
@@ -24,7 +34,7 @@
       </div>
       <div class="nav-actions">
         <button id="language-toggle" type="button" aria-label="نمایش وضعیت زبان انگلیسی">انگلیسی</button>
-        <button id="theme-toggle" type="button" aria-label="تغییر پوستهٔ رنگی">تغییر پوسته</button>
+        <button id="theme-toggle" type="button" aria-label="تغییر پوستهٔ رنگی" aria-pressed="false">تغییر پوسته</button>
         <a class="button-link" href="#courses">مشاهدهٔ دوره‌ها</a>
       </div>
     </nav>
