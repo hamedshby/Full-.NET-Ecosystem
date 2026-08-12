@@ -1,7 +1,737 @@
 <!doctype html>
-<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="پاسخ کامل و مصاحبه‌محور به پرسش تفاوت Array، List<T> و LinkedList<T> چیست؟ همراه مثال C#، اشتباهات رایج و کاربرد پروژه‌ای."><title>تفاوت Array، List<T> و LinkedList<T> چیست؟ | آکادمی دات‌نت</title><script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}catch{}})()</script><link rel="stylesheet" href="../../course.css"><script defer src="../../course-navigation.js"></script><script defer src="../../course.js"></script></head>
-<body><a class="skip" href="#answer">پرش به پاسخ</a><header><a href="../../../../index.html">آکادمی دات‌نت</a><span>مسیر حرفه‌ای Senior در .NET</span><button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل</button><button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره"><svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"/></svg><svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></header><div class="course-shell"><aside id="course-sidebar" class="course-sidebar" aria-label="فهرست پرسش‌ها" data-current-question="array-list-linkedlist"></aside><main id="answer" class="answer-content"><nav class="crumb" aria-label="مسیر راهنما"><a href="../../../../index.html">دوره‌ها</a> / <span>Collections</span></nav><div class="meta"><span class="level-badge" data-level="مقدماتی">مقدماتی</span><span>زمان مطالعه: ۶ دقیقه</span></div><h1>تفاوت Array، List<T> و LinkedList<T> چیست؟</h1><section class="short"><h2>پاسخ کوتاه مصاحبه‌ای</h2><p>Array اندازه ثابت و storage پیوسته دارد؛ <code dir="ltr">List&lt;T&gt;</code> یک آرایه رشدپذیر با دسترسی سریع index است؛ <code dir="ltr">LinkedList&lt;T&gt;</code> nodeهای جدا دارد و درج یا حذف O(1) را فقط وقتی node مقصد از قبل در اختیار باشد فراهم می‌کند.</p></section><section class="mental-model"><h2>مدل ذهنی ساده</h2><p>اگر تعداد معلوم و ثابت است Array ساده است. اگر فهرست معمولی با append و index می‌خواهید، List انتخاب پیش‌فرض خوبی است. LinkedList را زمانی بررسی کنید که node پایدار دارید و مرتباً کنار همان node درج یا حذف می‌کنید؛ پیدا کردن node خودش O(n) است.</p></section><section><h2>توضیح کامل</h2><p>List ظرفیت جدا از Count دارد و هنگام پرشدن، buffer بزرگ‌تری می‌گیرد و elementها را کپی می‌کند؛ append به‌صورت amortized O(1) است. Array و List locality خوبی دارند و cache CPU از traversal آن‌ها سود می‌برد. LinkedList برای هر element node و referenceهای اضافی دارد، allocation و locality ضعیف‌تری ایجاد می‌کند و دسترسی index آن O(n) است. Big-O بدون درنظرگرفتن جست‌وجو، allocation و locality انتخاب کامل نمی‌دهد.</p></section><section><div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div><pre dir="ltr"><code>int[] fixedItems = new int[3];
-var growing = new List&lt;int&gt; { 1, 2, 3 };
-var chain = new LinkedList&lt;int&gt;();
-var node = chain.AddFirst(1);
-chain.AddAfter(node, 2);</code></pre><p class="example-explanation"><strong>رفتار مثال:</strong> افزودن یک میلیون item و پیمایش ترتیبی معمولاً با List مناسب است. اگر marker یک <code dir="ltr">LinkedListNode&lt;T&gt;</code> را نگه می‌دارد و باید دائماً قبل از همان marker item درج شود، LinkedList می‌تواند هزینه جابه‌جایی array را حذف کند. اگر هر بار ابتدا value را جست‌وجو کنیم، مزیت O(1) درج تحت‌الشعاع جست‌وجوی O(n) قرار می‌گیرد.</p></section><section><h2>نکات کلیدی</h2><ul><li>Array fixed-size و دارای locality خوب است.</li><li>List برای collection عمومی و indexمحور انتخاب رایج است.</li><li>LinkedList فقط با node موجود درج و حذف O(1) واقعی می‌دهد.</li></ul></section><section><h2>اشتباهات رایج</h2><ul><li>انتخاب LinkedList فقط به‌خاطر O(1) بدون داشتن node</li><li> فراموشی ظرفیت List.</li></ul></section><section class="further-details"><h2>جزئیات عمیق‌تر</h2><p>با تعیین capacity اولیه List می‌توان resizeهای قابل‌پیش‌بینی را کم کرد. <code dir="ltr">Span&lt;T&gt;</code> view کم‌هزینه روی storage پیوسته است اما Collection عمومی و قابل‌ذخیره‌سازی روی Heap نیست. انتخاب را با الگوی واقعی access و Benchmark انجام دهید، نه صرفاً جدول Big-O.</p></section><section><h2>در پروژهٔ واقعی</h2><p>برای buffer اندازه‌ثابت Array، برای فهرست عمومی List، و برای splice با nodeهای پایدار LinkedList را بررسی کنید.</p></section><section class="interview"><h2>جمع‌بندی برای مصاحبه</h2><p>اندازه، index، هزینهٔ رشد و locality را کنار پیچیدگی زمانی مقایسه کنید.</p></section><nav class="pager" aria-label="پرسش قبلی و بعدی"><a rel="prev" href="../generics/clr-generics.html">→ سؤال قبلی</a><a rel="next" href="dictionary-hashing.html">سؤال بعدی ←</a></nav></main></div><div id="copy-status" role="status" aria-live="polite"></div></body></html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description"
+        content="پاسخ کامل و مصاحبه‌محور به پرسش Conditional Operator ?: چه زمانی از if مناسب‌تر است؟ همراه مثال‌های ساده، خوانایی، nested ternary، return و assignment.">
+    <title>تفاوت Array، List و LinkedList چیست؟ | آکادمی دات‌نت</title>
+    <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+    <link rel="stylesheet" href="../../course.css">
+    <script defer src="../../course-navigation.js"></script>
+    <script defer src="../../course.js"></script>
+</head>
+
+<body><a class="skip" href="#answer">پرش به پاسخ</a>
+    <header><a href="../../../../index.html">آکادمی دات‌نت</a><span>مسیر حرفه‌ای Senior در .NET</span><button
+            id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست
+            فصل</button><button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره"
+            title="فعال‌کردن تم تیره"><svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z" />
+            </svg><svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.7" />
+                <path
+                    d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg></button></header>
+    <div class="course-shell">
+        <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست پرسش‌ها"
+            data-current-question="array-list-linkedlist"></aside>
+        <main id="answer" class="answer-content">
+            <nav class="crumb" aria-label="مسیر راهنما"><a href="../../../../index.html">دوره‌ها</a> / <span>Collections
+                    and Data Structures</span></nav>
+            <div class="meta"><span class="level-badge" data-level="متوسط">متوسط</span><span>زمان مطالعه: ۱۲
+                    دقیقه</span></div>
+
+            <h1>تفاوت Array، List و LinkedList چیست؟</h1>
+
+            <section class="short">
+                <h2>پاسخ کوتاه مصاحبه‌ای</h2>
+                <p>
+                    <code dir="ltr">Array</code> اندازه ثابت دارد و عناصرش به صورت پیوسته نگهداری می‌شوند؛ بنابراین
+                    دسترسی با Index بسیار سریع است.
+                    <code dir="ltr">List&lt;T&gt;</code> در داخل معمولاً از یک Array استفاده می‌کند، اما اندازه‌اش به
+                    صورت Dynamic مدیریت می‌شود و برای اکثر سناریوهای روزمره انتخاب پیش‌فرض خوبی است.
+                    <code dir="ltr">LinkedList&lt;T&gt;</code> از Nodeهایی تشکیل شده که هر Node به قبلی و بعدی وصل است؛
+                    دسترسی با Index سریع ندارد، اما اگر Node موردنظر را از قبل داشته باشیم، Insert و Remove در همان نقطه
+                    می‌تواند بدون جابه‌جایی بقیه عناصر انجام شود.
+                </p>
+            </section>
+
+            <section class="mental-model">
+                <h2>مدل ذهنی خیلی ساده</h2>
+                <p>
+                    برای فهم تفاوت این سه Collection، سه تصویر در ذهن داشته باشید:
+                </p>
+                <ul>
+                    <li><strong>Array:</strong> یک ردیف صندلی با تعداد ثابت.</li>
+                    <li><strong>List:</strong> یک ردیف صندلی که وقتی پر شد، سیستم یک ردیف بزرگ‌تر می‌سازد و افراد را
+                        منتقل می‌کند.</li>
+                    <li><strong>LinkedList:</strong> یک زنجیر؛ هر حلقه می‌داند حلقه قبلی و بعدی کدام است.</li>
+                </ul>
+                <p>
+                    همین مدل ذهنی تقریباً تمام تفاوت‌های Performance آن‌ها را توضیح می‌دهد.
+                </p>
+            </section>
+
+            <section>
+                <h2>Array چیست؟</h2>
+                <p>
+                    Array مجموعه‌ای از عناصر هم‌نوع با <strong>طول ثابت</strong> است.
+                    هنگام ساخت Array باید اندازه آن مشخص باشد.
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>int[] numbers = new int[3];
+
+numbers[0] = 10;
+numbers[1] = 20;
+numbers[2] = 30;</code></pre>
+
+                <p>
+                    این Array دقیقاً سه خانه دارد. بعداً نمی‌توانیم همان Array را تبدیل به چهار خانه کنیم.
+                </p>
+            </section>
+
+            <section>
+                <h2>دسترسی به عناصر Array چرا سریع است؟</h2>
+                <p>
+                    برای دسترسی به یک عنصر کافی است Index را بدانیم:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>int value = numbers[2];</code></pre>
+
+                <p>
+                    Runtime می‌تواند مستقیماً محل عنصر موردنظر را محاسبه کند؛ لازم نیست از عنصر اول تا عنصر سوم حرکت
+                    کند.
+                    به همین دلیل دسترسی با Index در Array از نظر Big-O برابر <code dir="ltr">O(1)</code> است.
+                </p>
+            </section>
+
+            <section>
+                <h2>مشکل اصلی Array چیست؟</h2>
+                <p>
+                    اندازه آن ثابت است. مثلاً:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>int[] numbers = new int[3];</code></pre>
+
+                <p>
+                    اگر بعداً بخواهیم عنصر چهارم اضافه کنیم، باید Array دیگری با اندازه بزرگ‌تر بسازیم و داده‌ها را
+                    منتقل کنیم.
+                    به همین دلیل اگر تعداد عناصر دائماً تغییر می‌کند، معمولاً <code dir="ltr">List&lt;T&gt;</code>
+                    راحت‌تر است.
+                </p>
+            </section>
+
+            <section>
+                <h2>List&lt;T&gt; چیست؟</h2>
+                <p>
+                    <code dir="ltr">List&lt;T&gt;</code> یک Collection Generic با اندازه Dynamic است:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var numbers = new List&lt;int&gt;();
+
+numbers.Add(10);
+numbers.Add(20);
+numbers.Add(30);
+numbers.Add(40);</code></pre>
+
+                <p>
+                    ما لازم نیست از ابتدا تعداد نهایی عناصر را بدانیم. List مدیریت فضای داخلی را خودش انجام می‌دهد.
+                </p>
+            </section>
+
+            <section>
+                <h2>List در داخل چگونه کار می‌کند؟</h2>
+                <p>
+                    نکته مهم مصاحبه‌ای این است که <code dir="ltr">List&lt;T&gt;</code> خودش Linked List نیست.
+                    در پیاده‌سازی معمول .NET، List در داخل یک <strong>Array</strong> نگه می‌دارد.
+                </p>
+
+                <div class="code-head"><span>Concept</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>List&lt;int&gt;
+    ↓
+Internal Array
+[10][20][30][40][ ][ ][ ][ ]</code></pre>
+
+                <p>
+                    به همین دلیل دسترسی با Index در List نیز سریع است:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>int value = numbers[2]; // O(1)</code></pre>
+            </section>
+
+            <section>
+                <h2>Count و Capacity در List چه فرقی دارند؟</h2>
+                <p>
+                    این دو مفهوم را حتماً از هم جدا کنید:
+                </p>
+                <ul>
+                    <li><code dir="ltr">Count</code>: تعداد عناصری که واقعاً داخل List داریم.</li>
+                    <li><code dir="ltr">Capacity</code>: تعداد عناصری که Array داخلی فعلی می‌تواند بدون Resize نگه دارد.
+                    </li>
+                </ul>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var numbers = new List&lt;int&gt;(10);
+
+numbers.Add(100);
+numbers.Add(200);
+
+Console.WriteLine(numbers.Count);    // 2
+Console.WriteLine(numbers.Capacity); // حداقل 10</code></pre>
+
+                <p class="example-explanation">
+                    یعنی فقط دو عنصر داریم، ولی از ابتدا برای حداقل ده عنصر ظرفیت رزرو کرده‌ایم.
+                </p>
+            </section>
+
+            <section>
+                <h2>وقتی Capacity پر شود چه اتفاقی می‌افتد؟</h2>
+                <p>
+                    اگر Array داخلی دیگر جا نداشته باشد، List به صورت مفهومی این کارها را انجام می‌دهد:
+                </p>
+                <ol>
+                    <li>فضای بزرگ‌تری برای نگهداری عناصر فراهم می‌کند.</li>
+                    <li>عناصر قبلی را به فضای جدید منتقل می‌کند.</li>
+                    <li>از آن به بعد از Storage جدید استفاده می‌کند.</li>
+                </ol>
+
+                <p>
+                    پس هر بار <code dir="ltr">Add</code> الزاماً Resize انجام نمی‌دهد.
+                    به همین دلیل اضافه کردن به انتهای List به طور معمول <strong>Amortized O(1)</strong> در نظر گرفته
+                    می‌شود.
+                </p>
+            </section>
+
+            <section>
+                <h2>Amortized O(1) یعنی چه؟</h2>
+                <p>
+                    ممکن است بعضی عملیات Add به دلیل Resize گران باشند، اما Resize در هر Add اتفاق نمی‌افتد.
+                    وقتی هزینه تعداد زیادی Add را با هم بررسی کنیم، متوسط هزینه هر Add ثابت و بسیار کم می‌شود.
+                    به این تحلیل <strong>Amortized</strong> می‌گوییم.
+                </p>
+
+                <p>
+                    پس در مصاحبه بهتر است نگوییم «Add در List همیشه O(1) است».
+                    دقیق‌تر این است:
+                    <strong>Add به انتهای List معمولاً Amortized O(1) است.</strong>
+                </p>
+            </section>
+
+            <section>
+                <h2>Insert وسط List چه هزینه‌ای دارد؟</h2>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var numbers = new List&lt;int&gt;
+{
+    10, 20, 30, 40
+};
+
+numbers.Insert(1, 15);</code></pre>
+
+                <p>
+                    برای اینکه 15 در Index شماره 1 قرار بگیرد، عناصر بعدی باید جابه‌جا شوند:
+                </p>
+
+                <div class="code-head"><span>Before / After</span><button type="button" data-copy-code>کپی</button>
+                </div>
+                <pre dir="ltr"><code>Before:
+[10][20][30][40]
+
+Insert 15 at index 1
+
+After:
+[10][15][20][30][40]</code></pre>
+
+                <p>
+                    در بدترین حالت تعداد زیادی عنصر Shift می‌شوند؛ بنابراین Insert یا Remove در وسط List معمولاً
+                    <code dir="ltr">O(n)</code> است.
+                </p>
+            </section>
+
+            <section>
+                <h2>LinkedList&lt;T&gt; چیست؟</h2>
+                <p>
+                    <code dir="ltr">LinkedList&lt;T&gt;</code> ساختار متفاوتی دارد.
+                    هر عنصر داخل یک <strong>Node</strong> قرار می‌گیرد و Nodeها به یکدیگر متصل هستند.
+                    در .NET، <code dir="ltr">LinkedList&lt;T&gt;</code> یک Doubly Linked List است؛
+                    یعنی هر Node هم Node قبلی و هم Node بعدی را می‌شناسد.
+                </p>
+
+                <div class="code-head"><span>Concept</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>null
+  ← [10] ⇄ [20] ⇄ [30] ⇄ [40] →
+                               null</code></pre>
+            </section>
+
+            <section>
+                <h2>ساخت LinkedList در C#</h2>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var numbers = new LinkedList&lt;int&gt;();
+
+numbers.AddLast(10);
+numbers.AddLast(20);
+numbers.AddLast(30);
+
+numbers.AddFirst(5);</code></pre>
+
+                <p>
+                    می‌توانیم مستقیم به ابتدا یا انتهای LinkedList عنصر اضافه کنیم.
+                </p>
+            </section>
+
+            <section>
+                <h2>LinkedList چرا Index ندارد؟</h2>
+                <p>
+                    در Array و List می‌توانیم بنویسیم:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>numbers[500];</code></pre>
+
+                <p>
+                    اما LinkedList چنین دسترسی Index-based مستقیمی ندارد.
+                    برای رسیدن به یک Node میانی باید از Nodeها عبور کنیم.
+                </p>
+
+                <div class="code-head"><span>Concept</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>[10] → [20] → [30] → [40] → [50]
+ ↑
+ start
+
+برای رسیدن به 40:
+10 → 20 → 30 → 40</code></pre>
+
+                <p>
+                    بنابراین پیدا کردن یک عنصر بر اساس موقعیت یا Value معمولاً <code dir="ltr">O(n)</code> است.
+                </p>
+            </section>
+
+            <section>
+                <h2>پس مزیت LinkedList چیست؟</h2>
+                <p>
+                    مزیت مهم زمانی دیده می‌شود که <strong>Node موردنظر را از قبل داشته باشیم</strong>.
+                    در این حالت برای Insert یا Remove لازم نیست عناصر بعدی Shift شوند.
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var list = new LinkedList&lt;string&gt;();
+
+var first = list.AddLast("A");
+var second = list.AddLast("B");
+var third = list.AddLast("C");
+
+list.AddAfter(second, "X");</code></pre>
+
+                <p>
+                    ساختار تبدیل می‌شود به:
+                </p>
+
+                <div class="code-head"><span>Concept</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>A ⇄ B ⇄ X ⇄ C</code></pre>
+
+                <p>
+                    چون Reference مربوط به Node با مقدار B را داریم، لازم نیست برای پیدا کردن محل Insert کل Collection
+                    را پیمایش کنیم.
+                </p>
+            </section>
+
+            <section>
+                <h2>نکته مصاحبه‌ای بسیار مهم درباره O(1)</h2>
+                <p>
+                    گاهی گفته می‌شود:
+                    <strong>Insert و Remove در LinkedList برابر O(1) است.</strong>
+                    این جمله بدون توضیح کامل نیست.
+                </p>
+
+                <p>
+                    اگر Node موردنظر را <strong>از قبل داشته باشیم</strong>، تغییر Linkها می‌تواند O(1) باشد.
+                    اما اگر اول مجبور شویم Node را Search کنیم:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var node = list.Find("B"); // O(n)
+
+list.AddAfter(node!, "X"); // O(1) بعد از پیدا شدن Node</code></pre>
+
+                <p>
+                    در این سناریو کل عملیات هنوز به دلیل Search، <code dir="ltr">O(n)</code> است.
+                    این نکته جواب شما را در مصاحبه دقیق‌تر می‌کند.
+                </p>
+            </section>
+
+            <section>
+                <h2>مقایسه دسترسی با Index</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Collection</th>
+                            <th>دسترسی به عنصر با موقعیت</th>
+                            <th>دلیل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Array</td>
+                            <td><code dir="ltr">O(1)</code></td>
+                            <td>دسترسی مستقیم با Index</td>
+                        </tr>
+                        <tr>
+                            <td>List&lt;T&gt;</td>
+                            <td><code dir="ltr">O(1)</code></td>
+                            <td>استفاده از Array داخلی</td>
+                        </tr>
+                        <tr>
+                            <td>LinkedList&lt;T&gt;</td>
+                            <td><code dir="ltr">O(n)</code></td>
+                            <td>نیاز به پیمایش Nodeها</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>مقایسه کلی Performance</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>عملیات</th>
+                            <th>Array</th>
+                            <th>List&lt;T&gt;</th>
+                            <th>LinkedList&lt;T&gt;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>دسترسی با Index</td>
+                            <td>O(1)</td>
+                            <td>O(1)</td>
+                            <td>O(n)</td>
+                        </tr>
+                        <tr>
+                            <td>Add انتهای Collection</td>
+                            <td>اندازه ثابت</td>
+                            <td>Amortized O(1)</td>
+                            <td>O(1)</td>
+                        </tr>
+                        <tr>
+                            <td>Insert وسط</td>
+                            <td>نیاز به جابه‌جایی/ساخت ساختار مناسب</td>
+                            <td>O(n)</td>
+                            <td>O(1) اگر Node را داشته باشیم</td>
+                        </tr>
+                        <tr>
+                            <td>Remove وسط</td>
+                            <td>نیاز به جابه‌جایی</td>
+                            <td>O(n)</td>
+                            <td>O(1) اگر Node را داشته باشیم</td>
+                        </tr>
+                        <tr>
+                            <td>Search بر اساس Value</td>
+                            <td>O(n)</td>
+                            <td>O(n)</td>
+                            <td>O(n)</td>
+                        </tr>
+                        <tr>
+                            <td>اندازه</td>
+                            <td>ثابت</td>
+                            <td>Dynamic</td>
+                            <td>Dynamic</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p class="example-explanation">
+                    Big-O همه داستان Performance نیست. Cache locality، Allocation، اندازه داده و الگوی دسترسی واقعی نیز
+                    مهم هستند.
+                </p>
+            </section>
+
+            <section>
+                <h2>تفاوت مهم حافظه</h2>
+                <p>
+                    LinkedList برای هر عنصر فقط خود Value را نگه نمی‌دارد؛ هر Node اطلاعات ارتباط با Nodeهای دیگر را هم
+                    دارد.
+                    به علاوه Nodeها Objectهای جداگانه‌ای هستند.
+                </p>
+
+                <div class="code-head"><span>Concept</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>List:
+[Value][Value][Value][Value]
+
+LinkedList:
+[Prev | Value | Next]
+[Prev | Value | Next]
+[Prev | Value | Next]</code></pre>
+
+                <p>
+                    بنابراین LinkedList معمولاً نسبت به List برای همان تعداد عنصر Memory Overhead بیشتری دارد.
+                </p>
+            </section>
+
+            <section>
+                <h2>Cache Locality یعنی چه و چرا مهم است؟</h2>
+                <p>
+                    Array و List داده‌ها را در Storage متراکم‌تری نگه می‌دارند.
+                    وقتی CPU یک بخش از حافظه را می‌خواند، داده‌های نزدیک هم معمولاً وارد Cache می‌شوند.
+                    به همین دلیل پیمایش Array و List در بسیاری از Workloadهای واقعی بسیار سریع است.
+                </p>
+
+                <p>
+                    Nodeهای LinkedList الزاماً در حافظه کنار هم نیستند و برای حرکت بین آن‌ها باید Referenceها دنبال
+                    شوند.
+                    به همین دلیل اینکه یک عملیات روی کاغذ O(1) است، الزاماً به معنی سریع‌تر بودن کل برنامه نیست.
+                </p>
+            </section>
+
+            <section>
+                <h2>پس آیا LinkedList برای Insert زیاد همیشه بهتر است؟</h2>
+                <p>
+                    خیر. این یکی از مهم‌ترین سوءتفاهم‌هاست.
+                </p>
+
+                <p>
+                    اگر برای Insert ابتدا مجبور باشید محل موردنظر را با پیمایش پیدا کنید، Search خودش O(n) است.
+                    همچنین Allocation هر Node و Cache Locality ضعیف‌تر می‌تواند هزینه ایجاد کند.
+                </p>
+
+                <p>
+                    بنابراین جمله «Insert زیاد دارم، پس LinkedList انتخاب می‌کنم» کافی نیست.
+                    باید الگوی دسترسی واقعی را بررسی کنید.
+                </p>
+            </section>
+
+            <section>
+                <h2>مثال واقعی: داده‌ای با تعداد ثابت</h2>
+                <p>
+                    فرض کنید دقیقاً ۱۲ مقدار برای ماه‌های سال داریم:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>decimal[] monthlyRevenue = new decimal[12];</code></pre>
+
+                <p>
+                    تعداد عناصر از قبل مشخص و ثابت است.
+                    در چنین سناریویی Array انتخاب ساده و مناسبی است.
+                </p>
+            </section>
+
+            <section>
+                <h2>مثال واقعی: لیست تراکنش‌ها</h2>
+                <p>
+                    فرض کنید نتیجه Query را پردازش می‌کنیم و تعداد آیتم‌ها می‌تواند تغییر کند:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var transactions = new List&lt;Transaction&gt;();
+
+transactions.Add(transaction1);
+transactions.Add(transaction2);
+
+Transaction first = transactions[0];</code></pre>
+
+                <p>
+                    نیاز به Add داریم و همچنین دسترسی با Index مفید است.
+                    برای چنین سناریوهای عمومی، List معمولاً انتخاب طبیعی‌تری است.
+                </p>
+            </section>
+
+            <section>
+                <h2>مثال واقعی برای LinkedList</h2>
+                <p>
+                    فرض کنید ساختاری داریم که دائماً باید Node مشخصی را از زنجیره حذف یا Node جدیدی کنار آن اضافه کنیم
+                    و Reference همان Node را از قبل نگه داشته‌ایم:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>LinkedList&lt;Job&gt; jobs = new();
+
+LinkedListNode&lt;Job&gt; node =
+    jobs.AddLast(job);
+
+jobs.AddAfter(node, urgentJob);
+
+// later...
+jobs.Remove(node);</code></pre>
+
+                <p>
+                    اینجا ویژگی Node-based بودن LinkedList واقعاً می‌تواند مفید باشد.
+                </p>
+            </section>
+
+            <section>
+                <h2>اگر تعداد عناصر را از قبل بدانیم، List را بهتر کنیم</h2>
+                <p>
+                    اگر می‌دانیم تقریباً چند عنصر اضافه می‌شود، می‌توانیم Capacity اولیه بدهیم:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var transactions =
+    new List&lt;Transaction&gt;(10_000);</code></pre>
+
+                <p>
+                    این کار می‌تواند تعداد Resizeها و Copyهای داخلی را کاهش دهد.
+                    البته Capacity باید بر اساس اطلاعات واقعی انتخاب شود، نه حدس بی‌دلیل.
+                </p>
+            </section>
+
+            <section>
+                <h2>اشتباه رایج: List و LinkedList شبیه هم هستند</h2>
+                <p>
+                    اسم آن‌ها ممکن است گمراه‌کننده باشد:
+                </p>
+
+                <div class="code-head"><span>Important</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>List&lt;T&gt; != LinkedList&lt;T&gt;</code></pre>
+
+                <p>
+                    <code dir="ltr">List&lt;T&gt;</code> یک Dynamic Array است.
+                    <code dir="ltr">LinkedList&lt;T&gt;</code> یک زنجیره از Nodeها است.
+                    این دو از نظر ساختار داخلی و Performance Characteristics کاملاً متفاوت‌اند.
+                </p>
+            </section>
+
+            <section>
+                <h2>کدام را به عنوان انتخاب پیش‌فرض استفاده کنیم؟</h2>
+                <p>
+                    برای بیشتر Business Applicationها اگر فقط یک Collection ترتیبی و قابل تغییر می‌خواهیم،
+                    <code dir="ltr">List&lt;T&gt;</code> انتخاب پیش‌فرض بسیار خوبی است.
+                </p>
+
+                <p>
+                    Array را زمانی انتخاب می‌کنیم که اندازه ثابت یا API موردنظر Array باشد و ساختار ساده و متراکم
+                    بخواهیم.
+                    LinkedList را زمانی انتخاب می‌کنیم که واقعاً الگوی Node-based و Insert/Remove محلی آن برای مسئله
+                    مفید باشد.
+                </p>
+            </section>
+
+            <section>
+                <h2>جدول تصمیم‌گیری سریع</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نیاز</th>
+                            <th>انتخاب معمول</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>تعداد عناصر ثابت است</td>
+                            <td>Array</td>
+                        </tr>
+                        <tr>
+                            <td>دسترسی زیاد با Index</td>
+                            <td>Array یا List</td>
+                        </tr>
+                        <tr>
+                            <td>Collection عمومی با اندازه متغیر</td>
+                            <td>List&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td>Add زیاد به انتها</td>
+                            <td>List&lt;T&gt; معمولاً عالی است</td>
+                        </tr>
+                        <tr>
+                            <td>Insert/Remove کنار Nodeای که از قبل داریم</td>
+                            <td>LinkedList&lt;T&gt;</td>
+                        </tr>
+                        <tr>
+                            <td>نیاز به کمترین پیچیدگی در Business Code</td>
+                            <td>معمولاً List&lt;T&gt;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>اشتباهات رایج</h2>
+                <ul>
+                    <li><strong>اشتباه:</strong> List همان LinkedList است.<br><strong>درست:</strong> List معمولاً روی
+                        Array داخلی ساخته شده؛ LinkedList Node-based است.</li>
+                    <li><strong>اشتباه:</strong> Add در List همیشه O(1) است.<br><strong>درست:</strong> Add انتهایی
+                        معمولاً Amortized O(1) است و گاهی Resize رخ می‌دهد.</li>
+                    <li><strong>اشتباه:</strong> Insert در LinkedList همیشه O(1) است.<br><strong>درست:</strong> اگر اول
+                        مجبور به پیدا کردن Node باشیم، Search می‌تواند O(n) باشد.</li>
+                    <li><strong>اشتباه:</strong> LinkedList چون Insert آن O(1) است همیشه سریع‌تر
+                        است.<br><strong>درست:</strong> Allocation، Memory Overhead، Cache Locality و Search هم مهم‌اند.
+                    </li>
+                    <li><strong>اشتباه:</strong> Array قدیمی است و دیگر نباید استفاده شود.<br><strong>درست:</strong>
+                        Array همچنان یک ساختار پایه، سریع و بسیار پرکاربرد است.</li>
+                </ul>
+            </section>
+
+            <section class="further-details">
+                <h2>جزئیات عمیق‌تر برای سطح Senior</h2>
+                <p>
+                    در انتخاب Data Structure فقط Big-O را نبینید.
+                    <code dir="ltr">List&lt;T&gt;</code> به دلیل Storage پیوسته، Cache Locality خوبی دارد و در بسیاری از
+                    Workloadها
+                    حتی زمانی که Insert/Remove دارد می‌تواند از LinkedList سریع‌تر باشد.
+                </p>
+
+                <p>
+                    <code dir="ltr">LinkedList&lt;T&gt;</code> برای هر عنصر یک Node جداگانه دارد و این موضوع Memory
+                    Overhead و Pointer Chasing ایجاد می‌کند.
+                    مزیت اصلی آن زمانی ارزشمند است که الگوریتم واقعاً Node Referenceها را نگه دارد و مرتباً در همان نقاط
+                    Insert/Remove انجام دهد.
+                </p>
+
+                <p>
+                    در مسیرهای Performance-sensitive، انتخاب نهایی باید با Benchmark روی الگوی داده واقعی انجام شود، نه
+                    فقط با جدول Complexity.
+                </p>
+            </section>
+
+            <section>
+                <h2>اگر مصاحبه‌کننده بپرسد «برای ۹۰٪ پروژه‌ها کدام؟»</h2>
+                <p>
+                    می‌توانید بگویید:
+                </p>
+
+                <p>
+                    «اگر Requirement خاصی نداشته باشم، برای یک Collection ترتیبی با اندازه متغیر معمولاً
+                    List&lt;T&gt; را انتخاب می‌کنم، چون API ساده، دسترسی O(1) با Index و Cache Locality خوبی دارد.
+                    Array را برای اندازه ثابت یا APIهای Array-based استفاده می‌کنم.
+                    LinkedList را فقط وقتی انتخاب می‌کنم که الگوی دسترسی Node-based و Insert/Remove محلی واقعاً مزیت
+                    ایجاد کند.»
+                </p>
+            </section>
+
+            <section class="interview">
+                <h2>جواب پیشنهادی کامل برای مصاحبه</h2>
+                <p>
+                    «Array اندازه ثابت دارد و عناصرش به شکل متراکم نگهداری می‌شوند، بنابراین دسترسی با Index برابر O(1)
+                    است.
+                    List&lt;T&gt; در داخل معمولاً از Array استفاده می‌کند ولی Capacity را به صورت Dynamic مدیریت می‌کند؛
+                    دسترسی با Index آن O(1) و Add انتهایی معمولاً Amortized O(1) است، اما Insert و Remove وسط Collection
+                    به دلیل Shift شدن عناصر O(n) هستند.
+                    LinkedList&lt;T&gt; از Nodeهای Doubly Linked تشکیل شده و Random Access با Index ندارد؛ پیدا کردن یک
+                    Node معمولاً O(n) است،
+                    اما اگر Reference همان Node را از قبل داشته باشیم، Insert یا Remove در آن نقطه می‌تواند O(1) باشد.
+                    در عمل برای اکثر سناریوهای عمومی List انتخاب پیش‌فرض خوبی است و LinkedList را فقط برای الگوهای
+                    دسترسی خاص انتخاب می‌کنم.»
+                </p>
+            </section>
+
+            <section>
+                <h2>چیزی که باید از این سؤال یادت بماند</h2>
+                <p>
+                    این سه جمله را حفظ کنید:
+                    <strong>Array = اندازه ثابت + دسترسی سریع با Index</strong>،
+                    <strong>List = Dynamic Array و انتخاب عمومی برای اکثر سناریوها</strong>،
+                    و
+                    <strong>LinkedList = Node-based؛ Insert/Remove سریع وقتی Node را از قبل داریم، ولی Random Access
+                        ضعیف‌تر و Memory Overhead بیشتر.</strong>
+                </p>
+            </section>
+
+            <nav class="pager" aria-label="پرسش قبلی و بعدی"><a rel="prev"
+                    href="../operators/conditional-operator.html">→ سؤال قبلی</a><a rel="next"
+                    href="dictionary.html">سؤال بعدی ←</a></nav>
+        </main>
+    </div>
+    <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+
+</html>

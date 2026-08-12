@@ -15,10 +15,11 @@ test('all local course links resolve and landing opens first question', () => {
     assert.equal((html.match(/data-question-link/g)||[]).length,0,`${file}: question navigation must not be duplicated in content pages`);
     assert.match(html, /<aside[^>]+data-current-question="[^"]+"[^>]*><\/aside>/, `${file}: navigation mount point`);
   }
-  const {courseQuestions}=require(path.join(root,'courses','dotnet-senior','course-navigation.js'));
+  const {courseQuestions,formatQuestionTitle}=require(path.join(root,'courses','dotnet-senior','course-navigation.js'));
   assert.equal(courseQuestions.length,30,'shared navigation question count');
   for(const question of courseQuestions){
     const target=path.join(root,'courses','dotnet-senior','csharp',question.group,`${question.slug}.html`);
     assert.ok(fs.existsSync(target),`shared navigation target: ${question.slug}`);
   }
+  assert.equal(formatQuestionTitle('تفاوت Array، List<T> و LinkedList<T> چیست؟'),'تفاوت <bdi dir="ltr">Array</bdi>، <bdi dir="ltr">List&lt;T&gt;</bdi> و <bdi dir="ltr">LinkedList&lt;T&gt;</bdi> چیست؟');
 });
