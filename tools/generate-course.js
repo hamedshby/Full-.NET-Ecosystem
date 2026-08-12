@@ -47,6 +47,7 @@ function prose(value){return value.split(/(`[^`]+`)/g).map(part=>part.startsWith
 function richPage(q,i,file){
   const rich=content[q[1]];
   let html=page(q,i,file);
+  html=html.replace(/<small>(مقدماتی|متوسط|ارشد)<\/small>/g,'<small data-level="$1">$1</small>');
   html=html.replace(`<section class="short"><h2>پاسخ کوتاه مصاحبه‌ای</h2><p>${q[4]}</p></section>`,`<section class="short"><h2>پاسخ کوتاه مصاحبه‌ای</h2><p>${prose(rich.shortAnswer)}</p></section>`);
   html=html.replace(`<section><h2>توضیح کامل</h2><p>${q[5]}</p><p>${q[8]}</p></section>`,`<section class="mental-model"><h2>مدل ذهنی ساده</h2><p>${prose(rich.mentalModel)}</p></section><section><h2>توضیح کامل</h2><p>${prose(rich.deepDive)}</p></section>`);
   html=html.replace('</code></pre></section>','</code></pre><p class="example-explanation"><strong>رفتار مثال:</strong> '+prose(rich.exampleExplanation)+'</p></section>');

@@ -25,7 +25,8 @@ test('course has exactly 30 independent complete question pages', () => {
     for (const heading of ['پاسخ کوتاه مصاحبه‌ای','توضیح کامل','اشتباهات رایج','در پروژهٔ واقعی','جمع‌بندی برای مصاحبه']) assert.ok(html.includes(heading), `${heading}: ${file}`);
     assert.match(html, /<pre[^>]*><code[\s\S]*?<\/code><\/pre>/);
     assert.match(html, /aria-current="page"/);
-    const level = Object.keys(levels).find(x => html.includes(`data-level="${x}"`));
+    const pageBadge = html.match(/class="level-badge" data-level="([^"]+)"/);
+    const level = pageBadge?.[1];
     assert.ok(level, `level missing: ${file}`); levels[level]++;
   }
   assert.deepEqual(levels, { 'مقدماتی': 8, 'متوسط': 15, 'ارشد': 7 });
