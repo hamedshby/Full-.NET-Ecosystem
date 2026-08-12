@@ -18,6 +18,10 @@ Ran `node tests/interactions.test.js` after implementation. It exited with code 
 - `tests/interactions.test.js`: Node assertions for the required pure helper and Persian-message contracts.
 - `index.html`: a safe, inline early-theme selection script before the stylesheet and an initial `aria-pressed` state for the theme control.
 
+## Commit evidence
+
+`948728c feat: add theme language menu and newsletter interactions`
+
 ## Verification
 
 Ran successfully:
