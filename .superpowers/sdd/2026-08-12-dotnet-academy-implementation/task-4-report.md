@@ -118,3 +118,50 @@ git diff --check
 - `styles.css`
 - `tests/contrast.test.js`
 - `.superpowers/sdd/2026-08-12-dotnet-academy-implementation/task-4-report.md`
+
+## Review round 2: newsletter focus contrast
+
+### RED/GREEN evidence
+
+Extended `tests/contrast.test.js` to read the actual `#newsletter :focus-visible` outline and calculate it against every newsletter gradient stop: `#1458d4`, `#266fd3`, and the light aqua token `#05746f`. Each relationship must meet the 3:1 non-text focus-indicator threshold.
+
+RED command:
+
+```text
+node tests/contrast.test.js
+```
+
+The command exited `1` with `Missing #newsletter\s+:focus-visible focus treatment`, proving the shared aqua outline had no newsletter-context override.
+
+Added only this contextual rule:
+
+```css
+#newsletter :focus-visible { outline: 3px solid #ffffff; }
+```
+
+GREEN command:
+
+```text
+node tests/contrast.test.js
+```
+
+The command exited `0` and printed `Color contrast checks passed.` White focus contrast is 6.22:1 against `#1458d4`, 4.89:1 against `#266fd3`, and 5.62:1 against `#05746f`; each is above 3:1.
+
+### Round 2 verification
+
+All commands exited `0`:
+
+```text
+node --check script.js
+node --check tests/contrast.test.js
+node tests/interactions.test.js
+node tests/contrast.test.js
+powershell -ExecutionPolicy Bypass -File tests/smoke.ps1
+git diff --check
+```
+
+### Round 2 files
+
+- `styles.css`
+- `tests/contrast.test.js`
+- `.superpowers/sdd/2026-08-12-dotnet-academy-implementation/task-4-report.md`
