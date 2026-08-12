@@ -12,7 +12,7 @@ test('project permanently loads terminology and inline-execution rules',()=>{
 test('course source and generated pages never substitute Persian translations for official terms',()=>{
   const base=path.join(root,'courses/dotnet-senior/csharp');
   const pages=fs.readdirSync(base,{recursive:true}).filter(x=>x.endsWith('.html')).map(x=>path.join(base,x));
-  const files=[path.join(root,'tools/generate-course.js'),...pages];
+  const files=[path.join(root,'tools/generate-course.js'),path.join(root,'tools/course-content.js'),...pages];
   const violations=[];
   for(const file of files){const text=fs.readFileSync(file,'utf8');for(const term of forbidden)if(text.includes(term))violations.push(`${path.relative(root,file)}: ${term}`)}
   assert.deepEqual(violations,[]);
