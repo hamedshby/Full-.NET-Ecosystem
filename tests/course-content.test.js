@@ -24,7 +24,7 @@ test('course has exactly 30 independent complete question pages', () => {
     assert.ok(!titles.has(h1[0][1]), `duplicate h1: ${file}`); titles.add(h1[0][1]);
     for (const heading of ['پاسخ کوتاه مصاحبه‌ای','توضیح کامل','اشتباهات رایج','در پروژهٔ واقعی','جمع‌بندی برای مصاحبه']) assert.ok(html.includes(heading), `${heading}: ${file}`);
     assert.match(html, /<pre[^>]*><code[\s\S]*?<\/code><\/pre>/);
-    assert.match(html, /aria-current="page"/);
+    assert.match(html, /data-current-question="[^"]+"/);
     const pageBadge = html.match(/class="level-badge" data-level="([^"]+)"/);
     const level = pageBadge?.[1];
     assert.ok(level, `level missing: ${file}`); levels[level]++;

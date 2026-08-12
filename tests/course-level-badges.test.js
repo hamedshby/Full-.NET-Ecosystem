@@ -24,14 +24,11 @@ function tokenValues(name){
 }
 
 test('every sidebar question exposes its difficulty as a badge',()=>{
-  for(const file of pages){
-    const html=fs.readFileSync(path.join(courseRoot,file),'utf8');
-    const badges=[...html.matchAll(/<small data-level="([^"]+)">/g)].map(match=>match[1]);
-    const gptBadges=[...html.matchAll(/<small data-source="gpt">Gpt<\/small>/g)];
-    assert.equal(badges.length,30,`${file}: sidebar badge count`);
-    assert.equal(gptBadges.length,30,`${file}: Gpt badge count`);
-    assert.deepEqual([...new Set(badges)].sort(),[...levels].sort(),`${file}: difficulty variants`);
-  }
+  const navigation=fs.readFileSync(path.join(root,'courses/dotnet-senior/course-navigation.js'),'utf8');
+  const {courseQuestions}=require(path.join(root,'courses/dotnet-senior/course-navigation.js'));
+  assert.equal(courseQuestions.length,30,'shared sidebar question count');
+  assert.equal((navigation.match(/data-source=\\?"gpt\\?"/g)||[]).length,1,'shared Gpt badge template');
+  assert.deepEqual([...new Set(courseQuestions.map(question=>question.level))].sort(),[...levels].sort(),'difficulty variants');
 });
 
 test('difficulty badges use three distinct accessible palettes in both themes',()=>{
