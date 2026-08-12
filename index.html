@@ -9,6 +9,7 @@
   <title>آکادمی دات‌نت | آموزش حرفه‌ای توسعه نرم‌افزار</title>
   <script>
     (() => {
+      document.documentElement.classList.add('js');
       let storedTheme = null;
       try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
       const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -151,10 +152,10 @@
         <h2 id="newsletter-title">خبرنامهٔ آکادمی</h2>
         <p>از انتشار دوره‌ها و منابع تازه باخبر شوید. این فرم در نسخهٔ نخست نمایشی است و اطلاعاتی ذخیره نمی‌شود.</p>
       </div>
-      <form id="newsletter-form" action="#newsletter" method="post">
+      <form id="newsletter-form" novalidate>
         <label for="newsletter-email">نشانی ایمیل</label>
-        <input id="newsletter-email" name="email" type="email" autocomplete="email" inputmode="email" required>
-        <button type="submit">دریافت خبرهای آموزشی</button>
+        <input id="newsletter-email" type="email" autocomplete="email" inputmode="email" required>
+        <button id="newsletter-submit" type="button">دریافت خبرهای آموزشی</button>
       </form>
     </section>
   </main>

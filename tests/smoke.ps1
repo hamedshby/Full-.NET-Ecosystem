@@ -40,7 +40,7 @@ foreach ($contract in @(
   @{ Pattern = 'prefers-reduced-motion'; Message = 'The stylesheet must respect reduced-motion preferences.' },
   @{ Pattern = '\.course-grid'; Message = 'The stylesheet must define the course grid.' },
   @{ Pattern = '\.course-card:focus-within'; Message = 'The stylesheet must visibly support focused course cards.' },
-  @{ Pattern = '#menu-toggle\[aria-expanded="true"\]\s*\+\s*\.nav-links'; Message = 'The mobile menu must reveal navigation when expanded.' },
+  @{ Pattern = '\.js-ready\s+#menu-toggle\[aria-expanded="true"\]\s*\+\s*\.nav-links'; Message = 'The ready mobile menu must reveal navigation when expanded.' },
   @{ Pattern = '#toast:empty\s*\{\s*display:\s*none'; Message = 'The empty toast must be hidden until it has content.' }
 )) {
   Assert-StyleContains $contract.Pattern $contract.Message

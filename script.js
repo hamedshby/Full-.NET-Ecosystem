@@ -37,8 +37,11 @@ function initApp() {
   const toast = document.getElementById('toast');
   const newsletterForm = document.getElementById('newsletter-form');
   const emailInput = document.getElementById('newsletter-email');
+  const newsletterSubmit = document.getElementById('newsletter-submit');
   const themeStorageKey = 'dotnet-academy-theme';
   let toastTimer;
+
+  root.classList.add('js');
 
   const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   let storedTheme = null;
@@ -83,9 +86,18 @@ function initApp() {
     });
   }
 
-  function closeMenu() {
+  function closeMenu(restoreFocus = false) {
+    const focusWasInNavigation = restoreFocus
+      && primaryNavigation
+      && primaryNavigation.contains(document.activeElement);
+    const wasExpanded = menuToggle && menuToggle.getAttribute('aria-expanded') === 'true';
+
     if (menuToggle) {
       menuToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    if (wasExpanded && focusWasInNavigation) {
+      menuToggle.focus();
     }
   }
 
@@ -98,7 +110,7 @@ function initApp() {
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      closeMenu();
+      closeMenu(true);
     }
   });
 
@@ -108,6 +120,10 @@ function initApp() {
         closeMenu();
       }
     });
+  }
+
+  if (menuToggle && primaryNavigation) {
+    root.classList.add('js-ready');
   }
 
   if (languageToggle) {
@@ -123,7 +139,7 @@ function initApp() {
   });
 
   if (newsletterForm && emailInput) {
-    newsletterForm.addEventListener('submit', (event) => {
+    function handleNewsletter(event) {
       event.preventDefault();
 
       if (!isValidEmail(emailInput.value)) {
@@ -136,6 +152,16 @@ function initApp() {
       emailInput.removeAttribute('aria-invalid');
       newsletterForm.reset();
       showToast(messages.fa.newsletterDemo);
+    }
+
+    newsletterForm.addEventListener('submit', handleNewsletter);
+    if (newsletterSubmit) {
+      newsletterSubmit.addEventListener('click', handleNewsletter);
+    }
+    emailInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        handleNewsletter(event);
+      }
     });
   }
 }

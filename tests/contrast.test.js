@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const test = require('node:test');
 
 const styles = fs.readFileSync(path.join(__dirname, '..', 'styles.css'), 'utf8');
 
@@ -44,21 +45,86 @@ function focusOutlineFor(selector) {
   return outline[1];
 }
 
+function declarationsFor(selector) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const block = styles.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\}`));
+  assert.ok(block, `Missing CSS rule for ${selector}`);
+  return block[1];
+}
+
 const light = tokensFor(':root');
 const dark = tokensFor('\\[data-theme="dark"\\]');
 const newsletterFocus = focusOutlineFor('#newsletter\\s+:focus-visible');
 const darkNewsletterFocus = focusOutlineFor('\\[data-theme="dark"\\]\\s+#newsletter\\s+:focus-visible');
 
-assert.ok(contrast(light.aqua, light.surface) >= 4.5, 'Light-theme eyebrow text must reach 4.5:1 on its light surface.');
-assert.ok(contrast(light.aqua, light.canvas) >= 3, 'Light-theme focus outline must reach 3:1 against the canvas.');
-assert.ok(contrast(light.gold, mix(light.gold, light.surface, 0.16)) >= 4.5, 'Light-theme soon badge text must reach 4.5:1 against its tinted surface.');
-assert.ok(contrast(dark.aqua, dark.surface) >= 4.5, 'Dark-theme aqua text must remain readable on the surface.');
-assert.ok(contrast(dark.gold, mix(dark.gold, dark.surface, 0.16)) >= 4.5, 'Dark-theme soon badge text must remain readable against its tinted surface.');
-for (const gradientStop of [light.brand, '#266fd3', light.aqua]) {
-  assert.ok(contrast(newsletterFocus, gradientStop) >= 3, `Newsletter focus outline must reach 3:1 against gradient stop ${gradientStop}.`);
-}
-for (const gradientStop of [dark.brand, '#266fd3', dark.aqua]) {
-  assert.ok(contrast(darkNewsletterFocus, gradientStop) >= 3, `Dark-theme newsletter focus outline must reach 3:1 against gradient stop ${gradientStop}.`);
+function requiredToken(theme, name, description) {
+  assert.match(theme[name] || '', /^#[\da-f]{6}$/i, `${description} must use an explicit six-digit color token.`);
+  return theme[name];
 }
 
-console.log('Color contrast checks passed.');
+function assertTextContrast(foreground, background, description) {
+  const ratio = contrast(foreground, background);
+  assert.ok(ratio >= 4.5, `${description} must reach 4.5:1; received ${ratio.toFixed(2)}:1.`);
+}
+
+test('existing semantic text and focus colors retain their contrast', () => {
+  assert.ok(contrast(light.aqua, light.surface) >= 4.5, 'Light-theme eyebrow text must reach 4.5:1 on its light surface.');
+  assert.ok(contrast(light.aqua, light.canvas) >= 3, 'Light-theme focus outline must reach 3:1 against the canvas.');
+  assert.ok(contrast(light.gold, mix(light.gold, light.surface, 0.16)) >= 4.5, 'Light-theme soon badge text must reach 4.5:1 against its tinted surface.');
+  assert.ok(contrast(dark.aqua, dark.surface) >= 4.5, 'Dark-theme aqua text must remain readable on the surface.');
+  assert.ok(contrast(dark.gold, mix(dark.gold, dark.surface, 0.16)) >= 4.5, 'Dark-theme soon badge text must remain readable against its tinted surface.');
+});
+
+test('rendered controls and newsletter consume the tested contrast-role tokens', () => {
+  const primary = declarationsFor('.button-link, #newsletter-form button, .course-card button, #resources > button');
+  const primaryHover = declarationsFor('.button-link:hover, #newsletter-form button:hover, .course-card button:hover, #resources > button:hover');
+  const newsletter = declarationsFor('#newsletter');
+  const newsletterMutedCopy = declarationsFor('#newsletter .eyebrow, #newsletter .section-heading p:last-child');
+  const newsletterButton = declarationsFor('#newsletter-form button');
+  const newsletterButtonHover = declarationsFor('#newsletter-form button:hover');
+
+  assert.match(primary, /background:\s*var\(--button-background\)/);
+  assert.match(primary, /color:\s*var\(--button-text\)/);
+  assert.match(primaryHover, /background:\s*var\(--button-hover\)/);
+  assert.match(newsletter, /linear-gradient\([^;]*var\(--newsletter-start\)[^;]*var\(--newsletter-middle\)[^;]*var\(--newsletter-end\)/);
+  assert.match(newsletter, /color:\s*var\(--newsletter-text\)/);
+  assert.match(newsletterMutedCopy, /color:\s*var\(--newsletter-text\)/);
+  assert.match(newsletterButton, /background:\s*var\(--newsletter-button-background\)/);
+  assert.match(newsletterButton, /color:\s*var\(--newsletter-button-text\)/);
+  assert.match(newsletterButtonHover, /background:\s*var\(--newsletter-button-hover\)/);
+});
+
+for (const [themeName, theme] of [['Light', light], ['Dark', dark]]) {
+  test(`${themeName.toLowerCase()} primary buttons meet text contrast in normal and hover states`, () => {
+    const foreground = requiredToken(theme, 'button-text', `${themeName} primary-button text`);
+    for (const state of ['button-background', 'button-hover']) {
+      const background = requiredToken(theme, state, `${themeName} primary-button ${state}`);
+      assertTextContrast(foreground, background, `${themeName} primary-button ${state}`);
+    }
+  });
+
+  test(`${themeName.toLowerCase()} newsletter copy meets text contrast across the complete gradient`, () => {
+    const foreground = requiredToken(theme, 'newsletter-text', `${themeName} newsletter text`);
+    for (const stop of ['newsletter-start', 'newsletter-middle', 'newsletter-end']) {
+      const background = requiredToken(theme, stop, `${themeName} ${stop}`);
+      assertTextContrast(foreground, background, `${themeName} newsletter text on ${stop}`);
+    }
+  });
+
+  test(`${themeName.toLowerCase()} newsletter button meets text contrast in normal and hover states`, () => {
+    const foreground = requiredToken(theme, 'newsletter-button-text', `${themeName} newsletter-button text`);
+    for (const state of ['newsletter-button-background', 'newsletter-button-hover']) {
+      const background = requiredToken(theme, state, `${themeName} newsletter-button ${state}`);
+      assertTextContrast(foreground, background, `${themeName} newsletter-button ${state}`);
+    }
+  });
+
+  test(`${themeName.toLowerCase()} newsletter focus indicator contrasts with every gradient stop`, () => {
+    const outline = themeName === 'Light' ? newsletterFocus : darkNewsletterFocus;
+    for (const stop of ['newsletter-start', 'newsletter-middle', 'newsletter-end']) {
+      const background = requiredToken(theme, stop, `${themeName} ${stop}`);
+      const ratio = contrast(outline, background);
+      assert.ok(ratio >= 3, `${themeName} newsletter focus outline on ${stop} must reach 3:1; received ${ratio.toFixed(2)}:1.`);
+    }
+  });
+}
