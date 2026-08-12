@@ -56,3 +56,33 @@ Additional static review confirmed all nine button elements declare an explicit 
 ## Concerns
 
 None. CSS and JavaScript behavior are intentionally deferred to later tasks.
+
+## Round 1 Fix: Persian language-control copy
+
+Added a smoke assertion requiring the `language-toggle` button to display `انگلیسی`.
+
+RED command:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tests\smoke.ps1
+```
+
+RED output:
+
+```text
+The language control must use Persian visible copy.
+```
+
+Updated the visible button label from `English` to `انگلیسی` without changing its required identifier.
+
+GREEN command:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tests\smoke.ps1
+```
+
+GREEN output:
+
+```text
+Static smoke checks passed.
+```

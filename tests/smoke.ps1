@@ -17,6 +17,8 @@ foreach ($id in 'courses', 'resources', 'newsletter', 'theme-toggle', 'language-
   Assert-Contains "id=`"$id`"" "The $id identifier is missing."
 }
 
+Assert-Contains '<button[^>]+id="language-toggle"[^>]*>انگلیسی</button>' 'The language control must use Persian visible copy.'
+
 foreach ($title in 'مسیر حرفه‌ای Senior در', 'راهنمای طراحی سیستم', 'آزمون رایگان مصاحبه', 'دورهٔ ایمیلی Claude Code') {
   Assert-Contains ([regex]::Escape($title)) "The course title is missing: $title"
 }
