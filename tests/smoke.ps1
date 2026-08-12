@@ -2,6 +2,8 @@ $ErrorActionPreference = 'Stop'
 
 $htmlPath = Join-Path $PSScriptRoot '..\index.html'
 $html = Get-Content -Raw $htmlPath
+$stylesPath = Join-Path $PSScriptRoot '..\styles.css'
+$styles = if (Test-Path $stylesPath) { Get-Content -Raw $stylesPath } else { '' }
 $failures = [System.Collections.Generic.List[string]]::new()
 
 function Assert-Contains([string]$pattern, [string]$message) {
@@ -10,8 +12,29 @@ function Assert-Contains([string]$pattern, [string]$message) {
   }
 }
 
+function Assert-StyleContains([string]$pattern, [string]$message) {
+  if ($styles -notmatch $pattern) {
+    $failures.Add($message)
+  }
+}
+
 Assert-Contains '<html[^>]+lang="fa"[^>]+dir="rtl"' 'The document must be Persian and right-to-left.'
 Assert-Contains '<meta\s+name="description"' 'The meta description is missing.'
+
+if (-not (Test-Path $stylesPath)) {
+  $failures.Add('The stylesheet is missing.')
+}
+
+foreach ($contract in @(
+  @{ Pattern = ':root'; Message = 'The stylesheet must define root design tokens.' },
+  @{ Pattern = '\[data-theme="dark"\]'; Message = 'The stylesheet must define dark theme tokens.' },
+  @{ Pattern = '@media\s*\(max-width:\s*760px\)'; Message = 'The stylesheet must define the mobile breakpoint.' },
+  @{ Pattern = 'prefers-reduced-motion'; Message = 'The stylesheet must respect reduced-motion preferences.' },
+  @{ Pattern = '\.course-grid'; Message = 'The stylesheet must define the course grid.' },
+  @{ Pattern = '\.course-card:focus-within'; Message = 'The stylesheet must visibly support focused course cards.' }
+)) {
+  Assert-StyleContains $contract.Pattern $contract.Message
+}
 
 foreach ($id in 'courses', 'resources', 'newsletter', 'theme-toggle', 'language-toggle', 'menu-toggle', 'toast', 'newsletter-form') {
   Assert-Contains "id=`"$id`"" "The $id identifier is missing."
