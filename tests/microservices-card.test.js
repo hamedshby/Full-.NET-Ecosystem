@@ -17,7 +17,7 @@ test('the Microservices learning card opens the existing comprehensive guide', (
   assert.match(card[1], /<p>[^<]+<bdi>Microservices<\/bdi>[^<]+<\/p>/);
 
   const href = card[1].match(/<a class="button-link" href="([^"]+)">شروع مطالعه<\/a>/)?.[1];
-  assert.equal(href, '../MicroService/index.html');
+  assert.equal(href, 'courses/microservices/lessons/ch1-1.html');
   assert.ok(fs.existsSync(path.resolve(root, href)), 'Microservices guide link must resolve');
 });
 
