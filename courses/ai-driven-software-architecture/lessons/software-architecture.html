@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش ساده و کاربردی Software Architecture، تفاوت آن با Software Design و Implementation و اهمیت معماری در پروژه‌های واقعی.">
+  <title>Software Architecture چیست؟ | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+  <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+  <main id="lesson-content" class="lesson-page lesson-article">
+    <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+      <a href="../index.html">AI-Driven Software Architecture</a>
+      <span aria-hidden="true">/</span>
+      <span>فصل اول</span>
+      <span aria-hidden="true">/</span>
+      <span>درس ۱</span>
+    </nav>
+
+    <article>
+      <header class="lesson-intro">
+        <p class="eyebrow">فصل اول — مقدمه</p>
+        <h1><bdi>Software Architecture</bdi> چیست؟</h1>
+        <p class="lesson-lead">معماری نرم‌افزار یعنی تصمیم‌گیری دربارهٔ ساختار کلی یک سیستم: سیستم از چه بخش‌هایی تشکیل شود، این بخش‌ها چگونه با هم ارتباط داشته باشند و برای رسیدن به نیازهای مهم پروژه چه محدودیت‌هایی را رعایت کنند.</p>
+      </header>
+
+      <section class="lesson-section" aria-labelledby="simple-example-title">
+        <h2 id="simple-example-title">یک مثال ساده: ساخت فروشگاه اینترنتی</h2>
+        <p>فرض کنید قرار است یک فروشگاه اینترنتی بسازیم. کاربران باید محصول ببینند، سفارش ثبت کنند و هزینه را بپردازند. پیش از نوشتن اولین خط Code، چند سؤال مهم وجود دارد:</p>
+        <ul>
+          <li>اطلاعات محصول، مشتری و سفارش کجا نگهداری شوند؟</li>
+          <li>پرداخت چگونه به یک سرویس بانکی متصل شود؟</li>
+          <li>اگر سرویس پرداخت موقتاً از دسترس خارج شد، سفارش چه وضعیتی پیدا کند؟</li>
+          <li>اگر تعداد کاربران ده برابر شد، کدام بخش باید قابل گسترش باشد؟</li>
+          <li>چه کسی اجازه دارد قیمت یا موجودی محصول را تغییر دهد؟</li>
+        </ul>
+        <p>پاسخ این سؤال‌ها فقط جزئیات Code نیست. این پاسخ‌ها شکل کلی سیستم و رفتار آن در شرایط مهم را تعیین می‌کنند؛ بنابراین تصمیم‌های معماری هستند.</p>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="definition-title">
+        <h2 id="definition-title">تعریف <bdi>Software Architecture</bdi></h2>
+        <p><bdi>Software Architecture</bdi> نمای سطح‌بالای سیستم و مجموعه‌ای از تصمیم‌های مهم دربارهٔ ساختار، اجزا، ارتباط‌ها، داده‌ها و محدودیت‌های آن است.</p>
+        <p>عبارت «سطح‌بالا» یعنی در معماری معمولاً به‌جای جزئیات یک method یا نام یک متغیر، دربارهٔ مرزهای بزرگ‌تر صحبت می‌کنیم؛ برای مثال:</p>
+        <ul>
+          <li>سیستم یک <bdi>Modular Monolith</bdi> باشد یا از چند سرویس مستقل تشکیل شود.</li>
+          <li>ارتباط اجزا مستقیم و هم‌زمان باشد یا از Message Broker استفاده شود.</li>
+          <li>هر Module مالک دادهٔ خودش باشد یا چند بخش یک Database مشترک داشته باشند.</li>
+          <li>Authentication در خود برنامه انجام شود یا به یک <bdi>Identity Provider</bdi> سپرده شود.</li>
+        </ul>
+        <aside class="lesson-note">
+          <strong>مدل ذهنی:</strong>
+          معماری نقشهٔ شهر است؛ خیابان‌های اصلی، منطقه‌ها و مسیرهای ارتباطی را مشخص می‌کند. Code مانند ساختمان‌هایی است که داخل این نقشه ساخته می‌شوند.
+        </aside>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="levels-title">
+        <h2 id="levels-title">تفاوت <bdi>Architecture</bdi>، <bdi>Software Design</bdi> و <bdi>Implementation</bdi></h2>
+        <div class="comparison-table" role="region" aria-label="مقایسهٔ معماری، طراحی و پیاده‌سازی" tabindex="0">
+          <table>
+            <thead>
+              <tr><th>سطح</th><th>سؤال اصلی</th><th>نمونه</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><bdi>Architecture</bdi></td><td>بخش‌های اصلی سیستم چه هستند و چگونه همکاری می‌کنند؟</td><td>سفارش، پرداخت و موجودی Moduleهای جدا با مرز مشخص باشند.</td></tr>
+              <tr><td><bdi>Software Design</bdi></td><td>داخل هر بخش، مسئولیت‌ها چگونه بین typeها و objectها تقسیم شوند؟</td><td><code>OrderService</code> ثبت سفارش را هماهنگ کند و <code>PricingPolicy</code> قیمت را محاسبه کند.</td></tr>
+              <tr><td><bdi>Implementation</bdi></td><td>این طراحی دقیقاً با چه Code و APIهایی ساخته شود؟</td><td>پیاده‌سازی method، query، validation و مدیریت exception.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>مرز این سه سطح همیشه کاملاً سخت و دقیق نیست. یک تصمیم ممکن است در پروژه‌ای معماری و در پروژه‌ای دیگر فقط طراحی باشد. معیار مهم، میزان اثر تصمیم و هزینهٔ تغییر آن است.</p>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="important-title">
+        <h2 id="important-title">چه چیزی یک تصمیم را معماری می‌کند؟</h2>
+        <p>هر تصمیم فنی، تصمیم معماری نیست. انتخاب نام یک متغیر مهم است، اما معمولاً معماری محسوب نمی‌شود. تصمیمی معماری است که یک یا چند ویژگی زیر را داشته باشد:</p>
+        <ul>
+          <li><strong>اثر گسترده دارد:</strong> چند Module، چند تیم یا بخش بزرگی از سیستم را تحت تأثیر قرار می‌دهد.</li>
+          <li><strong>تغییر آن پرهزینه است:</strong> عوض‌کردنش پس از رشد پروژه به مهاجرت داده، بازنویسی یا هماهنگی زیاد نیاز دارد.</li>
+          <li><strong>یک Quality Attribute را تعیین می‌کند:</strong> روی Performance، Security، Availability یا Maintainability اثر جدی دارد.</li>
+          <li><strong>برای تیم محدودیت ایجاد می‌کند:</strong> مشخص می‌کند اجزا چگونه مجازند به هم وابسته شوند یا داده را به اشتراک بگذارند.</li>
+        </ul>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="tradeoff-title">
+        <h2 id="tradeoff-title">معماری همیشه با <bdi>Trade-off</bdi> همراه است</h2>
+        <p>در معماری معمولاً گزینه‌ای وجود ندارد که از هر نظر بهترین باشد. هر انتخاب چیزی به دست می‌دهد و هزینه‌ای ایجاد می‌کند.</p>
+        <div class="lesson-example">
+          <h3>نمونه: <bdi>Microservices</bdi></h3>
+          <p>تقسیم سیستم به سرویس‌های مستقل می‌تواند استقرار مستقل و گسترش جداگانهٔ بخش‌ها را ممکن کند. در مقابل، ارتباط شبکه، Observability، مدیریت خطا و سازگاری داده‌ها دشوارتر می‌شود.</p>
+        </div>
+        <p>پس سؤال درست این نیست که «آیا Microservices خوب است؟» سؤال درست این است که «آیا مزایای آن برای مسئله و محدودیت‌های این پروژه، هزینه‌هایش را توجیه می‌کند؟»</p>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="quality-title">
+        <h2 id="quality-title">ارتباط معماری با <bdi>Quality Attribute</bdi>ها</h2>
+        <p>Functional Requirement می‌گوید سیستم چه کاری انجام دهد؛ برای مثال «کاربر بتواند سفارش ثبت کند». <bdi>Quality Attribute</bdi> مشخص می‌کند سیستم آن کار را با چه کیفیتی انجام دهد:</p>
+        <ul>
+          <li><bdi>Performance</bdi>: ثبت سفارش چقدر سریع انجام شود؟</li>
+          <li><bdi>Availability</bdi>: سرویس چه مدت باید در دسترس باشد؟</li>
+          <li><bdi>Security</bdi>: چه کسی به اطلاعات سفارش دسترسی داشته باشد؟</li>
+          <li><bdi>Scalability</bdi>: سیستم باید چه تعداد سفارش هم‌زمان را مدیریت کند؟</li>
+          <li><bdi>Maintainability</bdi>: افزودن یک روش پرداخت جدید چقدر آسان باشد؟</li>
+        </ul>
+        <p>معماری خوب از نیازهای واقعی پروژه شروع می‌شود. اگر تعداد کاربران کم و تیم کوچک است، یک ساختار ساده و منظم احتمالاً بهتر از یک معماری توزیع‌شدهٔ پیچیده است.</p>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="diagram-title">
+        <h2 id="diagram-title">یک نمای ساده از معماری فروشگاه</h2>
+        <div class="architecture-flow" aria-label="جریان سادهٔ اجزای فروشگاه">
+          <div>Web / Mobile Client</div><span aria-hidden="true">←</span>
+          <div>Web API</div><span aria-hidden="true">←</span>
+          <div>Order Module</div><span aria-hidden="true">←</span>
+          <div>Database</div>
+        </div>
+        <p>این شکل ساده تمام معماری نیست، اما چند جزء و رابطهٔ اصلی را نشان می‌دهد. در طراحی واقعی باید مسئولیت هر جزء، قرارداد ارتباط، مالکیت داده، رفتار هنگام خطا و نیازهای امنیتی نیز مشخص شوند.</p>
+      </section>
+
+      <section class="lesson-section" aria-labelledby="mistakes-title">
+        <h2 id="mistakes-title">اشتباهات رایج</h2>
+        <ul>
+          <li><strong>شروع با Technology:</strong> انتخاب Kubernetes یا Kafka پیش از شناخت مسئله، معماری را ابزارمحور می‌کند.</li>
+          <li><strong>پیچیده‌سازی زودهنگام:</strong> استفاده از Microservices برای پروژه‌ای کوچک می‌تواند هزینه‌ای بیشتر از ارزش آن ایجاد کند.</li>
+          <li><strong>نادیده‌گرفتن محدودیت‌ها:</strong> معماری باید با بودجه، زمان، مهارت تیم و زیرساخت موجود سازگار باشد.</li>
+          <li><strong>ثبت‌نکردن دلیل تصمیم:</strong> اگر فقط نتیجه نوشته شود، اعضای آیندهٔ تیم نمی‌دانند تصمیم برای حل چه مسئله‌ای گرفته شده است.</li>
+          <li><strong>تصور ثابت‌بودن معماری:</strong> معماری باید همراه با تغییر نیازها تکامل پیدا کند، اما این تغییر باید آگاهانه و کنترل‌شده باشد.</li>
+        </ul>
+      </section>
+
+      <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+        <h2 id="summary-title">جمع‌بندی</h2>
+        <ul>
+          <li><bdi>Software Architecture</bdi> ساختار سطح‌بالا و تصمیم‌های مهم سیستم را مشخص می‌کند.</li>
+          <li>معماری روی Componentها، ارتباط‌ها، داده‌ها، محدودیت‌ها و Quality Attributeها تمرکز دارد.</li>
+          <li><bdi>Software Design</bdi> به طراحی داخلی اجزا نزدیک‌تر است و <bdi>Implementation</bdi> آن طراحی را به Code تبدیل می‌کند.</li>
+          <li>هر تصمیم معماری یک <bdi>Trade-off</bdi> دارد و باید متناسب با Context پروژه انتخاب شود.</li>
+          <li>معماری خوب لزوماً پیچیده نیست؛ معماری خوب برای مسئلهٔ واقعی مناسب و برای تیم قابل‌فهم است.</li>
+        </ul>
+      </section>
+
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a href="../index.html">بازگشت به فهرست</a>
+        <a href="software-architect-role.html">درس بعدی: نقش Software Architect</a>
+      </nav>
+    </article>
+  </main>
+  </div>
+</body>
+</html>

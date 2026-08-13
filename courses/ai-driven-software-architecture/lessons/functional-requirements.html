@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش شفاف Functional Requirements همراه مثال، Use Case، User Story، Acceptance Criteria، Business Rule و Edge Case.">
+  <title>Functional Requirements | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a><span aria-hidden="true">/</span><span>مهندسی نیازمندی‌ها با کمک AI</span><span aria-hidden="true">/</span><span>درس ۲</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل دوم — مهندسی نیازمندی‌ها</p>
+          <h1><bdi>Functional Requirements</bdi></h1>
+          <p class="lesson-lead"><bdi>Functional Requirement</bdi> مشخص می‌کند سیستم باید چه رفتار یا قابلیتی ارائه دهد. به زبان ساده، کارهایی که کاربر یا یک سیستم دیگر می‌تواند با نرم‌افزار انجام دهد، معمولاً در این گروه قرار می‌گیرند.</p>
+        </header>
+
+        <section class="lesson-section">
+          <h2>یک مثال ساده: سفارش غذا</h2>
+          <p>در برنامهٔ سفارش غذا، مشتری انتظار دارد چند کار مشخص انجام دهد:</p>
+          <ul>
+            <li>فهرست غذاها را ببیند.</li>
+            <li>غذا را به سبد خرید اضافه یا از آن حذف کند.</li>
+            <li>نشانی تحویل را انتخاب کند.</li>
+            <li>سفارش را ثبت و پرداخت کند.</li>
+            <li>وضعیت سفارش را ببیند.</li>
+          </ul>
+          <p>هر مورد یک رفتار قابل مشاهده از سیستم را توصیف می‌کند. این‌ها نمونه‌های سادهٔ <bdi>Functional Requirement</bdi> هستند.</p>
+          <aside class="lesson-note"><strong>مدل ذهنی:</strong> اگر Requirement پاسخ سؤال «سیستم چه کاری باید انجام دهد؟» باشد، احتمالاً Functional است. اگر پاسخ دهد «آن کار را با چه کیفیتی انجام دهد؟»، احتمالاً Non-Functional است.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>تعریف دقیق‌تر</h2>
+          <p><bdi>Functional Requirement</bdi> رفتار، قابلیت، محاسبه، واکنش یا تبادل داده‌ای را تعریف می‌کند که سیستم باید انجام دهد. معمولاً یک Trigger، یک رفتار و یک نتیجه وجود دارد.</p>
+          <div class="lesson-example">
+            <p><strong>Trigger:</strong> مشتری دکمهٔ ثبت سفارش را انتخاب می‌کند.</p>
+            <p><strong>رفتار:</strong> سیستم موجودی، نشانی و اطلاعات پرداخت را بررسی می‌کند.</p>
+            <p><strong>نتیجه:</strong> سفارش ایجاد می‌شود و شمارهٔ پیگیری به مشتری نمایش داده می‌شود.</p>
+          </div>
+          <p>Functional Requirement فقط مربوط به صفحه و دکمه نیست. پردازش خودکار، ارتباط با سیستم خارجی و واکنش به Event نیز رفتار سیستم محسوب می‌شوند؛ مانند ارسال پیام پس از پرداخت موفق.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>تفاوت Functional و Non-Functional</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسه Functional و Non-Functional Requirement" tabindex="0">
+            <table>
+              <thead><tr><th>نوع</th><th>پرسش</th><th>مثال</th></tr></thead>
+              <tbody>
+                <tr><td><bdi>Functional</bdi></td><td>سیستم چه کاری انجام دهد؟</td><td>مشتری بتواند وضعیت سفارش خود را مشاهده کند.</td></tr>
+                <tr><td><bdi>Non-Functional</bdi></td><td>آن کار با چه کیفیت یا محدودیتی انجام شود؟</td><td>وضعیت سفارش در کمتر از یک ثانیه نمایش داده شود.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>این دو مکمل یکدیگرند. قابلیت مشاهدهٔ سفارش بدون Performance، Security و Availability مناسب ممکن است برای کاربر قابل استفاده نباشد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>چه چیزهایی Functional Requirement هستند؟</h2>
+          <ul>
+            <li><strong>ورودی و خروجی:</strong> سیستم چه داده‌ای می‌گیرد و چه نتیجه‌ای برمی‌گرداند.</li>
+            <li><strong>محاسبه:</strong> مبلغ نهایی، مالیات یا تخفیف چگونه محاسبه شود.</li>
+            <li><strong>Workflow:</strong> سفارش از چه وضعیت‌هایی عبور کند.</li>
+            <li><strong>Validation:</strong> چه داده‌ای معتبر یا نامعتبر است.</li>
+            <li><strong>Authorization Rule:</strong> کدام نقش اجازهٔ انجام چه عملی را دارد.</li>
+            <li><strong>Integration:</strong> سیستم چه اطلاعاتی برای درگاه پرداخت بفرستد و چگونه پاسخ را پردازش کند.</li>
+            <li><strong>Notification:</strong> چه زمانی پیام، ایمیل یا اعلان ارسال شود.</li>
+            <li><strong>Error Behavior:</strong> در خطاهای قابل پیش‌بینی چه واکنشی نشان داده شود.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Use Case</bdi> چیست؟</h2>
+          <p><bdi>Use Case</bdi> تعامل گام‌به‌گام یک Actor با سیستم برای رسیدن به یک هدف را توضیح می‌دهد. Actor می‌تواند انسان یا یک سیستم دیگر باشد.</p>
+          <div class="lesson-example">
+            <h3>Use Case: ثبت سفارش</h3>
+            <p><strong>Actor:</strong> مشتری</p>
+            <p><strong>پیش‌شرط:</strong> سبد خرید خالی نیست و نشانی معتبر ثبت شده است.</p>
+            <ol>
+              <li>مشتری سبد خرید را تأیید می‌کند.</li>
+              <li>سیستم موجودی و قیمت را دوباره بررسی می‌کند.</li>
+              <li>مشتری روش پرداخت را انتخاب می‌کند.</li>
+              <li>سیستم پرداخت را انجام می‌دهد.</li>
+              <li>سیستم سفارش را ایجاد و شمارهٔ پیگیری را نمایش می‌دهد.</li>
+            </ol>
+            <p><strong>جریان جایگزین:</strong> اگر موجودی کافی نباشد، سفارش ایجاد نمی‌شود و اقلام ناموجود نمایش داده می‌شوند.</p>
+          </div>
+          <p>Use Case برای رفتارهای چندمرحله‌ای مفید است، چون مسیر موفق و مسیرهای خطا یا جایگزین را کنار هم نشان می‌دهد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>User Story</bdi> چیست؟</h2>
+          <p><bdi>User Story</bdi> یک نیاز را کوتاه و از دید کاربر بیان می‌کند. قالب رایج آن چنین است:</p>
+          <div class="lesson-example">
+            <p>به‌عنوان <strong>مشتری</strong>، می‌خواهم <strong>سفارش خود را پیگیری کنم</strong> تا <strong>بدانم چه زمانی تحویل داده می‌شود</strong>.</p>
+          </div>
+          <p>User Story نقطهٔ شروع گفتگو است، نه تمام Specification. جملهٔ بالا هنوز دربارهٔ وضعیت‌ها، Permission، خطا و معیار پذیرش اطلاعات کافی ندارد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Acceptance Criteria</bdi> چیست؟</h2>
+          <p><bdi>Acceptance Criteria</bdi> شرایط قابل بررسی برای پذیرفتن یک Requirement را مشخص می‌کند. این معیارها به Product، Development و Test کمک می‌کنند برداشت مشترکی از رفتار مورد انتظار داشته باشند.</p>
+          <div class="lesson-example">
+            <h3>برای پیگیری سفارش</h3>
+            <ul>
+              <li>مشتری فقط سفارش‌های متعلق به حساب خودش را می‌بیند.</li>
+              <li>وضعیت نمایش‌داده‌شده یکی از ثبت‌شده، درحال آماده‌سازی، ارسال‌شده، تحویل‌شده یا لغوشده است.</li>
+              <li>اگر شمارهٔ سفارش وجود نداشته باشد، پیام قابل‌فهم نمایش داده می‌شود.</li>
+              <li>تغییر وضعیت پس از Refresh نیز باقی می‌ماند.</li>
+            </ul>
+          </div>
+          <p>هر معیار باید قابل Test باشد. عبارت‌هایی مانند «صفحه خوب کار کند» معیار مناسبی نیستند، چون نتیجهٔ مشخصی برای بررسی ندارند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Business Rule</bdi> چیست؟</h2>
+          <p><bdi>Business Rule</bdi> قانونی از Domain است که رفتار سیستم باید از آن پیروی کند. این Ruleها حتی اگر Technology عوض شود، معمولاً همچنان معتبر می‌مانند.</p>
+          <ul>
+            <li>سفارش پس از شروع آماده‌سازی قابل لغو نیست.</li>
+            <li>تخفیف مشتری جدید فقط یک بار قابل استفاده است.</li>
+            <li>مبلغ سفارش برای ارسال رایگان باید حداقل ۵۰۰ هزار تومان باشد.</li>
+          </ul>
+          <p>Business Rule ممکن است روی چند Functional Requirement اثر بگذارد. مثلاً قانون لغو هم روی API لغو، هم UI، هم بازپرداخت و هم Testها اثر دارد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>چگونه Functional Requirement خوبی بنویسیم؟</h2>
+          <ol>
+            <li><strong>Actor را مشخص کنید:</strong> چه کسی یا چه سیستمی رفتار را شروع می‌کند؟</li>
+            <li><strong>Trigger را بنویسید:</strong> چه رویدادی باعث اجرای رفتار می‌شود؟</li>
+            <li><strong>رفتار مورد انتظار را روشن کنید:</strong> سیستم دقیقاً چه کاری انجام می‌دهد؟</li>
+            <li><strong>نتیجه را مشخص کنید:</strong> چه داده یا وضعیت قابل مشاهده‌ای ایجاد می‌شود؟</li>
+            <li><strong>شرایط خطا را اضافه کنید:</strong> اگر داده نامعتبر یا Dependency قطع بود چه می‌شود؟</li>
+            <li><strong>معیار پذیرش بنویسید:</strong> چگونه تشخیص می‌دهیم رفتار درست ساخته شده است؟</li>
+          </ol>
+          <div class="lesson-example">
+            <p><strong>ضعیف:</strong> «سیستم پرداخت داشته باشد.»</p>
+            <p><strong>روشن‌تر:</strong> «مشتری بتواند سفارش ثبت‌شده را از طریق درگاه بانکی پرداخت کند. پس از پاسخ موفق بانک، سیستم وضعیت پرداخت را موفق و سفارش را تأیید کند. پاسخ تکراری بانک نباید پرداخت دوم ایجاد کند.»</p>
+          </div>
+        </section>
+
+        <section class="lesson-section">
+          <h2>Edge Caseها را فراموش نکنید</h2>
+          <p><bdi>Edge Case</bdi> حالتی است که در مسیر عادی کمتر دیده می‌شود، اما سیستم باید رفتار مشخصی برای آن داشته باشد.</p>
+          <ul>
+            <li>موجودی بین مشاهدهٔ سبد و ثبت سفارش تمام شود.</li>
+            <li>کاربر دکمهٔ پرداخت را دو بار انتخاب کند.</li>
+            <li>بانک پرداخت را موفق اعلام کند، اما پاسخ به برنامه نرسد.</li>
+            <li>قیمت یک محصول هنگام بازبودن سبد تغییر کند.</li>
+            <li>سفارش هم‌زمان توسط مشتری و پشتیبانی لغو شود.</li>
+          </ul>
+          <p>بررسی Edge Caseها فقط کار Tester نیست. این حالت‌ها می‌توانند روی Transaction، Idempotency، State Model و Architecture اثر بگذارند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>نقش AI در تحلیل Functional Requirements</h2>
+          <p>AI می‌تواند پیش‌نویس و تحلیل را سریع‌تر کند:</p>
+          <ul>
+            <li>تبدیل توضیح خام به فهرست رفتارهای سیستم</li>
+            <li>پیشنهاد Actor و Use Case</li>
+            <li>تولید Acceptance Criteria اولیه</li>
+            <li>پیشنهاد مسیرهای جایگزین و Edge Case</li>
+            <li>پیدا کردن واژه‌های مبهم یا تناقض‌ها</li>
+          </ul>
+          <aside class="lesson-note"><strong>Human Review ضروری است:</strong> AI ممکن است Business Rule نادرست بسازد یا یک فرض را به‌جای Requirement واقعی بنویسد. Stakeholder و Domain Expert باید صحت خروجی را تأیید کنند.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li><strong>نوشتن UI به‌جای نیاز:</strong> «یک دکمهٔ سبز بسازید» راهکار UI است؛ نیاز اصلی شاید «امکان تأیید سفارش» باشد.</li>
+            <li><strong>ندیدن مسیر خطا:</strong> فقط Happy Path نوشته می‌شود و رفتار شکست نامشخص می‌ماند.</li>
+            <li><strong>ترکیب چند رفتار بزرگ:</strong> Requirement بسیار بزرگ فهم، تخمین و Test را دشوار می‌کند.</li>
+            <li><strong>استفاده از عبارت مبهم:</strong> واژه‌هایی مثل «مناسب»، «راحت» و «در صورت نیاز» بدون تعریف دقیق‌اند.</li>
+            <li><strong>نادیده‌گرفتن Business Rule:</strong> رفتار ساخته می‌شود، اما با قوانین واقعی Domain سازگار نیست.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary">
+          <h2>جمع‌بندی</h2>
+          <ul>
+            <li><bdi>Functional Requirement</bdi> می‌گوید سیستم چه رفتار یا قابلیتی ارائه دهد.</li>
+            <li>Use Case جریان کامل، User Story نیاز کوتاه کاربر و Acceptance Criteria شرایط پذیرش را بیان می‌کند.</li>
+            <li>Business Rule قوانین Domain را تعریف می‌کند و ممکن است روی چند Feature اثر بگذارد.</li>
+            <li>Requirement مناسب باید مسیر موفق، خطاها و Edge Caseهای مهم را روشن کند.</li>
+            <li>AI دستیار خوبی برای تولید سؤال و پیش‌نویس است، اما تصمیم نهایی به بررسی انسان نیاز دارد.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="requirements-engineering.html">درس قبلی: Requirements Engineering چیست؟</a>
+          <a href="../lesson.html?chapter=2&amp;lesson=1&amp;title=Non-Functional%20Requirements">درس بعدی: Non-Functional Requirements</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

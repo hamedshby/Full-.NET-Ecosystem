@@ -55,7 +55,11 @@ function initApp() {
   function applyTheme(theme) {
     root.dataset.theme = theme;
     if (themeToggle) {
-      themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
+      const dark = theme === 'dark';
+      const label = dark ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره';
+      themeToggle.setAttribute('aria-pressed', String(dark));
+      themeToggle.setAttribute('aria-label', label);
+      themeToggle.title = label;
     }
   }
 

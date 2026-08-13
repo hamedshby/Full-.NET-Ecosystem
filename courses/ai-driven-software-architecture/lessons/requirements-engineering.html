@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش شفاف و مرحله‌به‌مرحلهٔ Requirements Engineering، انواع Requirement، Stakeholderها و ارتباط نیازمندی‌ها با معماری نرم‌افزار.">
+  <title>Requirements Engineering چیست؟ | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a><span aria-hidden="true">/</span><span>مهندسی نیازمندی‌ها با کمک AI</span><span aria-hidden="true">/</span><span>درس ۱</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل دوم — مهندسی نیازمندی‌ها</p>
+          <h1><bdi>Requirements Engineering</bdi> چیست؟</h1>
+          <p class="lesson-lead"><bdi>Requirements Engineering</bdi> فرایندی برای کشف، تحلیل، مستندسازی، بررسی و مدیریت نیازهای یک سیستم است. هدف آن این است که پیش از ساخت راهکار، مطمئن شویم مسئلهٔ درست را فهمیده‌ایم.</p>
+        </header>
+
+        <section class="lesson-section">
+          <h2>یک مثال ساده: برنامهٔ سفارش غذا</h2>
+          <p>فرض کنید یک رستوران از تیم شما می‌خواهد «یک برنامهٔ سفارش غذا» بسازید. این جمله جهت کلی را نشان می‌دهد، اما برای شروع Development کافی نیست. هنوز سؤال‌های زیادی بدون پاسخ مانده‌اند:</p>
+          <ul>
+            <li>چه کسانی از برنامه استفاده می‌کنند: مشتری، رستوران، پیک یا مدیر سیستم؟</li>
+            <li>مشتری می‌تواند سفارش را لغو کند؟ تا چه زمانی؟</li>
+            <li>پرداخت آنلاین است یا پرداخت در محل هم وجود دارد؟</li>
+            <li>اگر غذا ناموجود شد، با سفارش ثبت‌شده چه کنیم؟</li>
+            <li>برنامه باید چند کاربر هم‌زمان را پاسخ دهد؟</li>
+          </ul>
+          <p><bdi>Requirements Engineering</bdi> کمک می‌کند این ابهام‌ها به نیازهای روشن و قابل بررسی تبدیل شوند. بدون این کار ممکن است تیم محصولی بسازد که از نظر فنی درست کار می‌کند، اما مسئلهٔ واقعی رستوران و مشتری را حل نمی‌کند.</p>
+          <aside class="lesson-note"><strong>مدل ذهنی:</strong> Requirement مانند مقصد سفر است و Architecture مسیر رسیدن به آن. اگر مقصد را اشتباه بفهمیم، سریع‌ترین مسیر هم ما را به جای درست نمی‌رساند.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Requirement</bdi> چیست؟</h2>
+          <p><bdi>Requirement</bdi> یک نیاز، قابلیت، رفتار یا محدودیتی است که سیستم باید آن را برآورده کند. Requirement خوب فقط یک خواستهٔ مبهم نیست؛ باید تا حد ممکن روشن، قابل فهم و قابل بررسی باشد.</p>
+          <div class="lesson-example">
+            <h3>خواستهٔ مبهم</h3>
+            <p>«برنامه باید سریع باشد.»</p>
+            <h3>Requirement روشن‌تر</h3>
+            <p>«در شرایط عادی، ۹۵ درصد درخواست‌های مشاهدهٔ منو باید در کمتر از ۵۰۰ میلی‌ثانیه پاسخ داده شوند.»</p>
+          </div>
+          <p>جملهٔ دوم معیار دارد؛ بنابراین تیم می‌تواند طراحی مناسب را انتخاب و بعداً نتیجه را اندازه‌گیری کند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>چرا Requirements برای معماری مهم‌اند؟</h2>
+          <p>Architecture نباید از علاقهٔ تیم به یک Technology شروع شود. تصمیم‌های معماری باید از نیازهای مهم سیستم به دست آیند.</p>
+          <ul>
+            <li>نیاز به Availability بالا ممکن است Redundancy و Failover بخواهد.</li>
+            <li>نگهداری اطلاعات بانکی، تصمیم‌های Security و Compliance ایجاد می‌کند.</li>
+            <li>حجم بالای سفارش ممکن است روی Scalability و Data Partitioning اثر بگذارد.</li>
+            <li>یک تیم کوچک و زمان تحویل کوتاه، معماری ساده‌تر و قابل نگهداری می‌خواهد.</li>
+          </ul>
+          <p>اگر Requirements ناقص باشند، معمار ناچار می‌شود بر اساس حدس تصمیم بگیرد. هر فرض پنهان می‌تواند بعداً به بازنویسی پرهزینه تبدیل شود.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>انواع اصلی Requirements</h2>
+          <div class="comparison-table" role="region" aria-label="انواع نیازمندی‌ها" tabindex="0">
+            <table>
+              <thead><tr><th>نوع</th><th>معنا</th><th>مثال</th></tr></thead>
+              <tbody>
+                <tr><td><bdi>Business Requirement</bdi></td><td>هدف و ارزش مورد انتظار کسب‌وکار</td><td>کاهش سفارش‌های تلفنی و افزایش فروش آنلاین</td></tr>
+                <tr><td><bdi>Stakeholder Requirement</bdi></td><td>نیاز یک گروه یا فرد مرتبط با سیستم</td><td>مدیر رستوران بتواند غذای ناموجود را غیرفعال کند</td></tr>
+                <tr><td><bdi>Functional Requirement</bdi></td><td>کاری که سیستم باید انجام دهد</td><td>مشتری بتواند غذا را به سبد خرید اضافه کند</td></tr>
+                <tr><td><bdi>Non-Functional Requirement</bdi></td><td>کیفیت یا شیوهٔ انجام کار سیستم</td><td>ثبت سفارش در ۹۹٫۹ درصد زمان ماه در دسترس باشد</td></tr>
+                <tr><td><bdi>Constraint</bdi></td><td>محدودیتی که فضای راهکار را کوچک می‌کند</td><td>داده‌های مشتری باید داخل کشور نگهداری شوند</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>این دسته‌ها به هم مرتبط‌اند. مثلاً هدف تجاری «افزایش فروش» می‌تواند چند Functional Requirement و چند Non-Functional Requirement ایجاد کند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Stakeholder</bdi> کیست؟</h2>
+          <p><bdi>Stakeholder</bdi> فرد یا گروهی است که بر سیستم اثر می‌گذارد، از آن اثر می‌پذیرد یا دربارهٔ آن تصمیم می‌گیرد. Stakeholder فقط مشتری نهایی نیست.</p>
+          <ul>
+            <li><strong>مشتری:</strong> سفارش ساده و قابل پیگیری می‌خواهد.</li>
+            <li><strong>رستوران:</strong> مدیریت منو و سفارش‌ها برایش مهم است.</li>
+            <li><strong>پیک:</strong> نشانی و وضعیت تحویل را نیاز دارد.</li>
+            <li><strong>تیم پشتیبانی:</strong> باید بتواند علت شکست سفارش را بررسی کند.</li>
+            <li><strong>تیم Security و حقوقی:</strong> حفاظت از داده و رعایت مقررات را بررسی می‌کند.</li>
+            <li><strong>تیم Development و Operations:</strong> سیستم قابل ساخت، استقرار، مشاهده و نگهداری می‌خواهد.</li>
+          </ul>
+          <p>نادیده‌گرفتن یک Stakeholder معمولاً به Missing Requirement منجر می‌شود. برای مثال، اگر نیاز تیم پشتیبانی دیده نشود، ممکن است سیستم Log و ابزار کافی برای بررسی خطا نداشته باشد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>مراحل <bdi>Requirements Engineering</bdi></h2>
+          <ol>
+            <li><strong><bdi>Elicitation</bdi> یا کشف:</strong> جمع‌آوری نیازها از طریق مصاحبه، مشاهدهٔ فرایند، Workshop، اسناد و نمونه‌های موجود.</li>
+            <li><strong><bdi>Analysis</bdi> یا تحلیل:</strong> پیدا کردن ابهام، تناقض، مورد ناقص، Risk، Dependency و Edge Case.</li>
+            <li><strong><bdi>Specification</bdi> یا مستندسازی:</strong> نوشتن نیازها در قالبی روشن مانند User Story، Use Case، Rule یا سند Requirements.</li>
+            <li><strong><bdi>Validation</bdi> یا اعتبارسنجی:</strong> بررسی با Stakeholderها که نیازهای ثبت‌شده واقعاً منظور آن‌ها را بیان می‌کنند.</li>
+            <li><strong><bdi>Management</bdi> یا مدیریت:</strong> ثبت تغییر، اولویت، وضعیت، منبع و ارتباط هر Requirement با طراحی و Test.</li>
+          </ol>
+          <p>این مراحل یک خط مستقیم و یک‌باره نیستند. با یادگیری بیشتر دربارهٔ Domain، سؤال‌های تازه ایجاد می‌شوند و Requirements اصلاح می‌شوند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>ویژگی‌های یک Requirement خوب</h2>
+          <ul>
+            <li><strong>شفاف:</strong> خوانندگان مختلف برداشت‌های متناقض نداشته باشند.</li>
+            <li><strong>ضروری:</strong> به یک نیاز واقعی Business یا Stakeholder متصل باشد.</li>
+            <li><strong>قابل بررسی:</strong> بتوان با Test، اندازه‌گیری یا Review تشخیص داد برآورده شده است.</li>
+            <li><strong>سازگار:</strong> با Requirementهای دیگر تناقض نداشته باشد.</li>
+            <li><strong>امکان‌پذیر:</strong> با زمان، بودجه، Technology و مهارت تیم قابل اجرا باشد.</li>
+            <li><strong>قابل ردیابی:</strong> معلوم باشد از کجا آمده و روی کدام تصمیم، Feature و Test اثر دارد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>یک نمونهٔ کوچک از تبدیل نیاز خام</h2>
+          <div class="lesson-example">
+            <p><strong>نیاز خام:</strong> «مشتری باید بتواند سفارشش را لغو کند.»</p>
+            <p><strong>سؤال‌ها:</strong> تا چه زمانی؟ پس از آماده‌سازی غذا چه می‌شود؟ مبلغ چگونه بازگردانده می‌شود؟ چه کسی وضعیت را تغییر می‌دهد؟</p>
+            <p><strong>Requirement روشن‌تر:</strong> «مشتری تا پیش از شروع آماده‌سازی می‌تواند سفارش پرداخت‌شده را لغو کند. سیستم باید وضعیت را به لغوشده تغییر دهد و درخواست بازپرداخت را ثبت کند.»</p>
+            <p><strong>Acceptance Criteria:</strong> اگر وضعیت سفارش <code>Preparing</code> باشد، درخواست لغو رد شود و دلیل قابل‌فهم به مشتری نمایش داده شود.</p>
+          </div>
+          <p>با چند سؤال ساده، یک جملهٔ مبهم به رفتار قابل طراحی و قابل Test تبدیل شد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>نقش AI در Requirements Engineering</h2>
+          <p>AI می‌تواند دستیار تحلیل باشد، اما منبع حقیقت یا تصمیم‌گیر نهایی نیست. کاربردهای مفید آن عبارت‌اند از:</p>
+          <ul>
+            <li>مرتب‌کردن توضیحات خام در دسته‌های مشخص</li>
+            <li>پیشنهاد سؤال برای رفع ابهام</li>
+            <li>پیدا کردن Requirementهای احتمالیِ جاافتاده</li>
+            <li>تولید Edge Case و Failure Scenario</li>
+            <li>بررسی تناقض میان چند Requirement</li>
+            <li>ساخت پیش‌نویس User Story و Acceptance Criteria</li>
+          </ul>
+          <aside class="lesson-note"><strong>نکتهٔ مهم:</strong> AI Domain واقعی، قراردادهای پنهان و اولویت‌های سازمان شما را خودبه‌خود نمی‌داند. تمام خروجی‌ها باید با Stakeholder و Domain Expert بررسی شوند.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li><strong>شروع مستقیم با راهکار:</strong> «باید Microservices بسازیم» Requirement نیست؛ یک پیشنهاد فنی است.</li>
+            <li><strong>فرض‌کردن به‌جای سؤال‌پرسیدن:</strong> فرض‌های ثبت‌نشده بعداً به اختلاف و بازنویسی منجر می‌شوند.</li>
+            <li><strong>تمرکز فقط بر Functional Requirement:</strong> Feature بدون Security، Performance و Reliability کافی ممکن است در Production قابل استفاده نباشد.</li>
+            <li><strong>استفاده از واژه‌های مبهم:</strong> «سریع»، «مقیاس‌پذیر» و «کاربرپسند» بدون معیار قابل بررسی نیستند.</li>
+            <li><strong>ثابت فرض‌کردن Requirements:</strong> نیازها تغییر می‌کنند؛ تغییر باید ثبت، تحلیل و به تیم منتقل شود.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary">
+          <h2>جمع‌بندی</h2>
+          <ul>
+            <li><bdi>Requirements Engineering</bdi> کمک می‌کند پیش از ساخت راهکار، مسئله و نیازها را درست بفهمیم.</li>
+            <li>Requirement می‌تواند تجاری، مربوط به Stakeholder، Functional، Non-Functional یا Constraint باشد.</li>
+            <li>کشف، تحلیل، مستندسازی، اعتبارسنجی و مدیریت، بخش‌های اصلی این فرایند هستند.</li>
+            <li>Requirements روشن، ورودی تصمیم‌های Architecture، Implementation و Test هستند.</li>
+            <li>AI در تولید سؤال و تحلیل اولیه مفید است، اما خروجی آن به Human Review و تأیید Stakeholder نیاز دارد.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="../index.html">بازگشت به فهرست دوره</a>
+          <a href="functional-requirements.html">درس بعدی: Functional Requirements</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

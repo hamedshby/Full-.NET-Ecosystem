@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش ساده و کاربردی Spec-Driven Development، تفاوت آن با Vibe Coding و روش استفاده از Specification برای تولید Code با AI.">
+  <title>Spec-Driven Development | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a><span aria-hidden="true">/</span><span>مهندسی نیازمندی‌ها با کمک AI</span><span aria-hidden="true">/</span><span>Spec-Driven Development</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل دوم — مهندسی نیازمندی‌ها</p>
+          <h1><bdi>Spec-Driven Development</bdi></h1>
+          <p class="lesson-lead"><bdi>Spec-Driven Development</bdi> یا SDD روشی است که در آن پیش از تولید Code، انتظارها و محدودیت‌های سیستم را در Specificationهای ساختاریافته ثبت می‌کنیم. سپس Developer یا AI بر اساس همان Specification طراحی و پیاده‌سازی را پیش می‌برد.</p>
+        </header>
+
+        <section class="lesson-section">
+          <h2>یک مثال ساده</h2>
+          <p>فرض کنید از AI می‌خواهید Feature ثبت‌نام را بسازد و فقط می‌نویسید: «یک API برای ثبت‌نام کاربر ایجاد کن.» AI می‌تواند Code تولید کند، اما پاسخ چند سؤال را نمی‌داند:</p>
+          <ul>
+            <li>ایمیل باید Unique باشد؟</li>
+            <li>Password چه قواعدی دارد؟</li>
+            <li>پس از ثبت‌نام، ایمیل تأیید ارسال شود؟</li>
+            <li>اطلاعات در کدام Module و Database ذخیره شوند؟</li>
+            <li>خطاهای API چه ساختاری داشته باشند؟</li>
+          </ul>
+          <p>اگر این Context را ندهیم، AI ناچار به حدس‌زدن می‌شود. در SDD ابتدا این تصمیم‌ها در یک Spec ثبت می‌شوند و بعد Code از روی آن ساخته می‌شود.</p>
+          <aside class="lesson-note"><strong>مدل ذهنی:</strong> Prompt مانند یک درخواست شفاهی است؛ Spec مانند نقشه و قرارداد مکتوبی است که تیم می‌تواند آن را بررسی و دوباره استفاده کند.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>مشکل پروژه‌های بزرگ AI-Generated</h2>
+          <p>در Feature کوچک، چند Prompt پیاپی معمولاً کافی است. اما در پروژه‌ای بزرگ مانند فروشگاه، سامانهٔ آگهی خودرو یا سیستم بانکی، تعداد Business Ruleها و Dependencyها زیاد می‌شود. در این حالت مشکلات زیر پدیدار می‌شوند:</p>
+          <ul>
+            <li>AI بین Sessionها بخشی از Context پروژه را از دست می‌دهد.</li>
+            <li>Requirement مبهم را اشتباه تفسیر می‌کند.</li>
+            <li>Feature جدید را با Pattern متفاوتی می‌سازد.</li>
+            <li>Code در لحظه کار می‌کند، اما به‌تدریج Technical Debt ایجاد می‌شود.</li>
+            <li>تصمیم تازه ممکن است با Architecture یا تصمیم قبلی تناقض داشته باشد.</li>
+          </ul>
+          <p>ریشهٔ مشترک این مشکلات کمبود Context پایدار است. AI تمام مدل ذهنی تیم را نمی‌داند؛ فقط Contextی را می‌بیند که در اختیارش قرار گرفته است.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Vibe Coding</bdi> چیست؟</h2>
+          <p>در <bdi>Vibe Coding</bdi> کار را با Prompt شروع می‌کنیم، خروجی AI را می‌بینیم و با Promptهای بعدی آن را اصلاح می‌کنیم:</p>
+          <div class="lesson-example">
+            <p>«یک Endpoint برای ثبت‌نام بساز.»</p>
+            <p>«Validation ایمیل را اضافه کن.»</p>
+            <p>«حالا Testها را بنویس.»</p>
+          </div>
+          <p>این روش بد نیست. برای Prototype، ابزار کوچک، آزمایش و یادگیری بسیار سریع و مفید است. مشکل زمانی شروع می‌شود که سیستم بزرگ است و تصمیم‌های فراوان باید در طول زمان هماهنگ بمانند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>تعریف <bdi>Spec-Driven Development</bdi></h2>
+          <p>در SDD، AI به‌جای تکیه بر Promptهای پراکنده، از مجموعه‌ای از اسناد ساختاریافته استفاده می‌کند. این اسناد توضیح می‌دهند چه چیزی، چرا و تحت چه محدودیت‌هایی باید ساخته شود.</p>
+          <p>یک مجموعه Spec می‌تواند شامل موارد زیر باشد:</p>
+          <ul>
+            <li>نمای کلی Application و هدف Business</li>
+            <li>Technology Stack و Dependencyهای مجاز</li>
+            <li>قواعد Architecture و جهت Dependencyها</li>
+            <li>Coding Standardها و قراردادهای Error Handling</li>
+            <li>Featureها، User Storyها و Business Ruleها</li>
+            <li>Acceptance Criteria و Edge Caseها</li>
+            <li>Taskهای Implementation و ترتیب Dependency آن‌ها</li>
+          </ul>
+          <p>این فایل‌ها معمولاً در Markdown و کنار Code نگهداری می‌شوند تا Version Control، Review و استفادهٔ دوباره برای انسان و AI آسان باشد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>فرایند SDD چگونه کار می‌کند؟</h2>
+          <ol>
+            <li><strong>تعریف Context پایه:</strong> نوع Application، Stack، Ruleهای Business و Constraintهای Architecture ثبت می‌شوند.</li>
+            <li><strong>تعریف Feature:</strong> مسئله، Actor، رفتار مورد انتظار، خارج از Scope و Acceptance Criteria نوشته می‌شوند.</li>
+            <li><strong>رفع ابهام:</strong> سؤال‌های بدون پاسخ و Assumptionهای پنهان پیش از Code مشخص می‌شوند.</li>
+            <li><strong>تولید Plan:</strong> Feature به Taskهای کوچک و مرتب‌شده بر اساس Dependency تبدیل می‌شود.</li>
+            <li><strong>Review انسانی:</strong> تیم Spec و Plan را بررسی و تأیید می‌کند.</li>
+            <li><strong>Implementation:</strong> AI یا Developer Taskها را با Context تأییدشده اجرا می‌کند.</li>
+            <li><strong>Verification:</strong> Code با Acceptance Criteria، Testها و Constraintهای Architecture مقایسه می‌شود.</li>
+          </ol>
+          <div class="architecture-flow" aria-label="جریان Spec-Driven Development">
+            <div>Context</div><span aria-hidden="true">→</span><div>Specification</div><span aria-hidden="true">→</span><div>Review</div><span aria-hidden="true">→</span><div>Plan</div><span aria-hidden="true">→</span><div>Code</div><span aria-hidden="true">→</span><div>Verification</div>
+          </div>
+        </section>
+
+        <section class="lesson-section">
+          <h2>یک Spec ساده برای ثبت‌نام</h2>
+          <div class="lesson-example">
+            <p><strong>هدف:</strong> کاربر جدید بتواند با ایمیل حساب ایجاد کند.</p>
+            <p><strong>Business Rule:</strong> هر ایمیل فقط به یک حساب فعال تعلق دارد.</p>
+            <p><strong>Input:</strong> ایمیل، Password و نام نمایشی.</p>
+            <p><strong>رفتار:</strong> داده Validation، Password Hash و حساب در حالت Pending ذخیره شود.</p>
+            <p><strong>Integration:</strong> پس از ثبت موفق، پیام تأیید ایمیل منتشر شود.</p>
+            <p><strong>Error:</strong> ایمیل تکراری با Status Code و Error Code مشخص پاسخ داده شود.</p>
+            <p><strong>Acceptance Criteria:</strong> ثبت‌نام معتبر موفق است؛ ایمیل تکراری رد می‌شود؛ Password خام ذخیره نمی‌شود.</p>
+            <p><strong>Constraint:</strong> دسترسی مستقیم API به Infrastructure مجاز نیست و باید از Application Layer عبور کند.</p>
+          </div>
+          <p>این Spec هنوز کوتاه است، اما نسبت به یک Prompt یک‌خطی، حدس‌های AI را بسیار کمتر می‌کند و مبنای روشنی برای Review و Test می‌دهد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>تفاوت SDD و Vibe Coding</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسه Spec-Driven Development و Vibe Coding" tabindex="0">
+            <table>
+              <thead><tr><th>موضوع</th><th>Vibe Coding</th><th>Spec-Driven Development</th></tr></thead>
+              <tbody>
+                <tr><td>Context</td><td>بیشتر داخل Prompt و مکالمه</td><td>در اسناد پایدار و ساختاریافته</td></tr>
+                <tr><td>سرعت شروع</td><td>بسیار سریع</td><td>نیازمند آماده‌سازی اولیه</td></tr>
+                <tr><td>پروژهٔ مناسب</td><td>Prototype، آزمایش و Task کوچک</td><td>سیستم بزرگ، Domain پیچیده و عمر طولانی</td></tr>
+                <tr><td>Review</td><td>اغلب پس از تولید Code</td><td>Spec و Plan پیش از Code بررسی می‌شوند</td></tr>
+                <tr><td>هماهنگی بلندمدت</td><td>Context آسان‌تر گم می‌شود</td><td>تصمیم‌ها قابل ردیابی و استفادهٔ دوباره‌اند</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>این دو روش دشمن هم نیستند. تیم می‌تواند برای کشف ایده و Prototype از Vibe Coding و برای Featureهای اصلی و پرریسک از SDD استفاده کند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>Spec خوب چه ویژگی‌هایی دارد؟</h2>
+          <ul>
+            <li><strong>مسئله را توضیح می‌دهد:</strong> فقط راهکار فنی را تحمیل نمی‌کند.</li>
+            <li><strong>Scope روشن دارد:</strong> مشخص است چه چیزی داخل و خارج Feature است.</li>
+            <li><strong>قابل بررسی است:</strong> Acceptance Criteria و نتیجهٔ قابل مشاهده دارد.</li>
+            <li><strong>ابهام را پنهان نمی‌کند:</strong> سؤال‌ها و Assumptionها صریح ثبت می‌شوند.</li>
+            <li><strong>با Architecture هماهنگ است:</strong> Constraintها و Dependency Ruleها را رعایت می‌کند.</li>
+            <li><strong>مختصر اما کافی است:</strong> جزئیاتی دارد که تصمیم و پیاده‌سازی را هدایت کند، نه متن طولانی بدون کاربرد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>مزایا و هزینه‌ها</h2>
+          <h3>مزایا</h3>
+          <ul>
+            <li>کاهش سوءبرداشت میان Product، Developer و AI</li>
+            <li>Context پایدار در Sessionها و تغییر اعضای تیم</li>
+            <li>امکان Review تصمیم‌ها پیش از تولید Code پرهزینه</li>
+            <li>ارتباط روشن میان Requirement، Task، Code و Test</li>
+            <li>کاهش Architecture Drift و Implementationهای ناسازگار</li>
+          </ul>
+          <h3>هزینه‌ها</h3>
+          <ul>
+            <li>نوشتن و Review کردن Spec زمان می‌خواهد.</li>
+            <li>Spec قدیمی می‌تواند AI و تیم را به مسیر اشتباه ببرد.</li>
+            <li>برای Task بسیار کوچک ممکن است فرایند بیش‌ازحد سنگین باشد.</li>
+            <li>Specification کامل نیز جای دانش Domain و قضاوت انسانی را نمی‌گیرد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>ابزارها و Frameworkهای رایج</h2>
+          <p>مقالهٔ منبع چند نمونه را معرفی می‌کند: <bdi>OpenSpec</bdi>، <bdi>GitHub Spec Kit</bdi>، <bdi>BMAD Method</bdi>، <bdi>Kiro</bdi> و <bdi>Tessl</bdi>. نام و جزئیات ابزارها ممکن است تغییر کنند، اما ایدهٔ مشترک آن‌ها ثابت است:</p>
+          <ol>
+            <li>Context و قواعد پروژه را ثبت کن.</li>
+            <li>Feature را به Specification قابل Review تبدیل کن.</li>
+            <li>Specification را به Plan و Task تبدیل کن.</li>
+            <li>Code را از روی Context تأییدشده تولید و بررسی کن.</li>
+          </ol>
+          <p>یادگیری اصل فرایند از وابستگی به یک ابزار خاص مهم‌تر است.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li><strong>Spec را تضمین صحت دانستن:</strong> AI می‌تواند Specification خوب را هم اشتباه پیاده کند؛ Verification همچنان لازم است.</li>
+            <li><strong>نوشتن راهکار بدون مسئله:</strong> Spec باید هدف و Context را روشن کند، نه فقط Class و Technology را فهرست کند.</li>
+            <li><strong>به‌روزرسانی‌نکردن اسناد:</strong> Spec ناسازگار با Code منبع Context نادرست می‌شود.</li>
+            <li><strong>حذف Human Review:</strong> Specification تولیدشده توسط AI ممکن است Requirement جعلی یا Assumption خطرناک داشته باشد.</li>
+            <li><strong>فرایند سنگین برای هر تغییر:</strong> میزان Specification باید متناسب با ریسک و پیچیدگی Task باشد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary">
+          <h2>جمع‌بندی</h2>
+          <ul>
+            <li>SDD به AI Context پایدار و ساختاریافته می‌دهد.</li>
+            <li>Specification پیش از Code بررسی می‌شود تا سوءبرداشت زودتر کشف شود.</li>
+            <li>Vibe Coding برای Prototype و Task کوچک همچنان ارزشمند است.</li>
+            <li>SDD برای Domain پیچیده، تیم بزرگ و پروژهٔ بلندمدت مفیدتر می‌شود.</li>
+            <li>Spec باید زنده، قابل Review و هماهنگ با Code باقی بماند.</li>
+            <li>AI دستیار اجرای Specification است؛ مسئولیت تصمیم و تأیید نهایی با انسان است.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="../index.html">بازگشت به فهرست دوره</a>
+          <a href="requirements-engineering.html">مرور Requirements Engineering</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

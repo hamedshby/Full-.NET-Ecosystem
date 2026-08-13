@@ -34,8 +34,21 @@
         <a href="#newsletter">خبرنامه</a>
       </div>
       <div class="nav-actions">
-        <button id="language-toggle" type="button" aria-label="نمایش وضعیت زبان انگلیسی">انگلیسی</button>
-        <button id="theme-toggle" type="button" aria-label="تغییر پوستهٔ رنگی" aria-pressed="false">تغییر پوسته</button>
+        <button id="language-toggle" class="icon-button" type="button" aria-label="نمایش وضعیت زبان انگلیسی" title="زبان انگلیسی">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path>
+          </svg>
+        </button>
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+          </svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.7"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+        </button>
         <a class="button-link" href="#courses">مشاهدهٔ دوره‌ها</a>
       </div>
     </nav>
@@ -112,6 +125,19 @@
             <li>تمرین‌های کوتاه و کاربردی برای توسعهٔ نرم‌افزار</li>
           </ul>
           <button type="button" data-course="claude-code">جزئیات دوره</button>
+        </article>
+
+        <article class="course-card">
+          <div class="course-art" aria-hidden="true">AI·SA</div>
+          <p class="status status-soon">به‌زودی</p>
+          <h3><bdi>AI-Driven Software Architecture</bdi></h3>
+          <p>طراحی و تکامل معماری نرم‌افزار با کمک هوش مصنوعی، بدون واگذاری قضاوت و مسئولیت‌های معماری.</p>
+          <ul>
+            <li>تحلیل نیازمندی‌ها، محدودیت‌ها و <bdi>Quality Attribute</bdi>ها با کمک <bdi>AI</bdi></li>
+            <li>طراحی، ارزیابی و مستندسازی تصمیم‌های معماری</li>
+            <li>سطح: ارشد، رهبر فنی و معمار نرم‌افزار</li>
+          </ul>
+          <a class="button-link" href="courses/ai-driven-software-architecture/">مشاهدهٔ سرفصل‌ها</a>
         </article>
       </div>
     </section>

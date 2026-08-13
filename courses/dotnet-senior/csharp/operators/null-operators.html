@@ -1,5 +1,535 @@
 <!doctype html>
-<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="پاسخ کامل و مصاحبه‌محور به پرسش تفاوت ??، ??=، ?. و ?[] چیست؟ همراه مثال C#، اشتباهات رایج و کاربرد پروژه‌ای."><title>تفاوت ??، ??=، ?. و ?[] چیست؟ | آکادمی دات‌نت</title><script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}catch{}})()</script><link rel="stylesheet" href="../../course.css"><script defer src="../../course-navigation.js"></script><script defer src="../../course.js"></script></head>
-<body><a class="skip" href="#answer">پرش به پاسخ</a><header><a href="../../../../index.html">آکادمی دات‌نت</a><span>مسیر حرفه‌ای Senior در .NET</span><button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل</button><button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره"><svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"/></svg><svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button></header><div class="course-shell"><aside id="course-sidebar" class="course-sidebar" aria-label="فهرست پرسش‌ها" data-current-question="null-operators"></aside><main id="answer" class="answer-content"><nav class="crumb" aria-label="مسیر راهنما"><a href="../../../../index.html">دوره‌ها</a> / <span>Operators, Statements and Expressions</span></nav><div class="meta"><span class="level-badge" data-level="متوسط">متوسط</span><span>زمان مطالعه: ۶ دقیقه</span></div><h1>تفاوت ??، ??=، ?. و ?[] چیست؟</h1><section class="short"><h2>پاسخ کوتاه مصاحبه‌ای</h2><p>?? در صورت null بودن operand چپ fallback می‌دهد؛ ??= فقط در همان حالت assignment می‌کند؛ ?. و ?[] دسترسی member یا index را متوقف کرده و نتیجهٔ null می‌دهند اگر receiver null باشد.</p></section><section class="mental-model"><h2>مدل ذهنی ساده</h2><p>این operatorها یک مسیر امن برای «نبودن value» می‌سازند. ?? میان value موجود و fallback انتخاب می‌کند. ?. پیش از دسترسی می‌پرسد آیا object وجود دارد؛ اگر نه، ادامهٔ زنجیره را اجرا نمی‌کند. این رفتار exceptionهای دیگر را پنهان نمی‌کند.</p></section><section><h2>توضیح کامل</h2><p>در <code dir="ltr">customer?.Address?.City ?? "نامشخص"</code> هر access فقط وقتی ادامه پیدا می‌کند که نتیجهٔ قبلی null نباشد. سمت راست ?? lazy است، بنابراین fallback گران فقط در صورت نیاز ساخته می‌شود. <code dir="ltr">cache ??= new Dictionary...</code> initialization را انجام می‌دهد اگر cache null باشد، اما به‌تنهایی primitive همگام‌سازی threadها نیست. ?[] همان conditional access برای indexer است.</p></section><section><div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div><pre dir="ltr"><code>var city = customer?.Address?.City ?? "نامشخص";
-cache ??= new Dictionary&lt;string, Item&gt;();
-var first = items?[0];</code></pre><p class="example-explanation"><strong>رفتار مثال:</strong> اگر customer یا Address null باشد، city برابر «نامشخص» می‌شود. اگر getter مربوط به City exception دیگری پرتاب کند، ?. آن را catch نمی‌کند. اگر cache از قبل ساخته شده باشد، constructor سمت راست ??= اجرا نمی‌شود.</p></section><section><h2>نکات کلیدی</h2><ul><li>?? و ??= سمت راست را فقط هنگام نیاز ارزیابی می‌کنند.</li><li>?. و ?[] فقط null receiver را مدیریت می‌کنند.</li><li>fallback نباید نبودن دادهٔ الزامی را بی‌صدا پنهان کند.</li></ul></section><section><h2>اشتباهات رایج</h2><ul><li>پنهان‌کردن دادهٔ الزامی با fallback</li><li> تصور اینکه `?.` تمام exceptionها را می‌گیرد.</li></ul></section><section class="further-details"><h2>جزئیات عمیق‌تر</h2><p>چند operator را می‌توان ترکیب کرد، ولی زنجیرهٔ طولانی ممکن است معلوم نکند کدام داده غایب بوده است. در domain invariant یا ورودی الزامی، validation و خطای صریح بهتر است. <code dir="ltr">throw</code> expression نیز می‌تواند سمت راست ?? قرار گیرد تا قرارداد non-null enforce شود.</p></section><section><h2>در پروژهٔ واقعی</h2><p>برای دادهٔ اختیاری و lazy initialization مناسب‌اند؛ در ورودی الزامی، خطای صریح بهتر است.</p></section><section class="interview"><h2>جمع‌بندی برای مصاحبه</h2><p>هر عملگر را با یک جمله و سپس lazy evaluation و null propagation را توضیح دهید.</p></section><nav class="pager" aria-label="پرسش قبلی و بعدی"><a rel="prev" href="conditional-operator.html">→ سؤال قبلی</a><a rel="next" href="foreach-lowering.html">سؤال بعدی ←</a></nav></main></div><div id="copy-status" role="status" aria-live="polite"></div></body></html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description"
+        content="پاسخ کامل و مصاحبه‌محور به پرسش Conditional Operator ?: چه زمانی از if مناسب‌تر است؟ همراه مثال‌های ساده، خوانایی، nested ternary، return و assignment.">
+    <title>تفاوت ??، ??=، ?. و ?[] چیست؟ | آکادمی دات‌نت</title>
+    <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+    <link rel="stylesheet" href="../../course.css">
+    <script defer src="../../course-navigation.js"></script>
+    <script defer src="../../course.js"></script>
+</head>
+
+<body><a class="skip" href="#answer">پرش به پاسخ</a>
+    <header><a href="../../../../index.html">آکادمی دات‌نت</a><span>مسیر حرفه‌ای Senior در .NET</span><button
+            id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست
+            فصل</button><button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره"
+            title="فعال‌کردن تم تیره"><svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z" />
+            </svg><svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3.7" />
+                <path
+                    d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg></button></header>
+    <div class="course-shell">
+        <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست پرسش‌ها"
+            data-current-question="null-operators"></aside>
+        <main id="answer" class="answer-content">
+            <nav class="crumb" aria-label="مسیر راهنما"><a href="../../../../index.html">دوره‌ها</a> / <span>Operators,
+                    Statements and Expressions</span></nav>
+            <div class="meta"><span class="level-badge" data-level="متوسط">متوسط</span><span>زمان مطالعه: ۱۲
+                    دقیقه</span></div>
+
+            <h1>تفاوت ??، ??=، ?. و ?[] چیست؟</h1>
+
+            <section class="short">
+                <h2>پاسخ کوتاه مصاحبه‌ای</h2>
+                <p>
+                    این چهار Operator همگی برای کار امن‌تر و خواناتر با <code dir="ltr">null</code> استفاده می‌شوند، اما
+                    وظیفه‌شان متفاوت است.
+                    <code dir="ltr">??</code> اگر مقدار سمت چپ null باشد یک مقدار جایگزین برمی‌گرداند.
+                    <code dir="ltr">??=</code> فقط وقتی متغیر null باشد مقدار جدید را داخل آن قرار می‌دهد.
+                    <code dir="ltr">?.</code> Member یک Object را فقط وقتی Object null نیست می‌خواند یا فراخوانی می‌کند.
+                    و <code dir="ltr">?[]</code> همان رفتار Null-Conditional را برای دسترسی با Index یا Indexer فراهم
+                    می‌کند.
+                </p>
+            </section>
+
+            <section class="mental-model">
+                <h2>مدل ذهنی خیلی ساده</h2>
+                <p>برای حفظ کردن این چهار Operator، هرکدام را با یک سؤال به خاطر بسپارید:</p>
+                <ul>
+                    <li><code dir="ltr">??</code> → «اگر null بود، به جایش چه چیزی استفاده کنم؟»</li>
+                    <li><code dir="ltr">??=</code> → «اگر null بود، چه چیزی داخلش قرار بدهم؟»</li>
+                    <li><code dir="ltr">?.</code> → «اگر Object وجود داشت، Member آن را بخوان یا اجرا کن.»</li>
+                    <li><code dir="ltr">?[]</code> → «اگر Collection/Object وجود داشت، به Index یا Indexer آن دسترسی
+                        بزن.»</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>اول مشکل null را ببینیم</h2>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>Customer? customer = null;
+
+Console.WriteLine(customer.Name); // NullReferenceException</code></pre>
+                <p>
+                    چون <code dir="ltr">customer</code> هیچ Objectی را Reference نمی‌کند، دسترسی مستقیم به <code
+                        dir="ltr">Name</code> خطرناک است.
+                    Operatorهای Null در C# کمک می‌کنند این سناریوها را کوتاه‌تر و واضح‌تر مدیریت کنیم.
+                </p>
+            </section>
+
+            <section>
+                <h2>عملگر ?? چیست؟</h2>
+                <p>
+                    <code dir="ltr">??</code> را <strong>Null-Coalescing Operator</strong> می‌نامیم.
+                    اگر مقدار سمت چپ null نباشد همان مقدار را برمی‌گرداند؛ اگر null باشد، مقدار سمت راست را استفاده
+                    می‌کند.
+                </p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string? name = null;
+
+string displayName = name ?? "Guest";
+
+Console.WriteLine(displayName); // Guest</code></pre>
+                <p>اگر name مقدار <code dir="ltr">"Hamed"</code> داشته باشد:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string? name = "Hamed";
+
+string displayName = name ?? "Guest";
+
+Console.WriteLine(displayName); // Hamed</code></pre>
+            </section>
+
+            <section>
+                <h2>?? را می‌توان مثل یک if ساده تصور کرد</h2>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string displayName;
+
+if (name != null)
+{
+    displayName = name;
+}
+else
+{
+    displayName = "Guest";
+}</code></pre>
+                <p>نسخه کوتاه‌تر:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string displayName = name ?? "Guest";</code></pre>
+                <p class="example-explanation">وقتی فقط هدف انتخاب مقدار جایگزین برای null است، <code
+                        dir="ltr">??</code> معمولاً Intent را خیلی واضح نشان می‌دهد.</p>
+            </section>
+
+            <section>
+                <h2>آیا سمت راست ?? همیشه اجرا می‌شود؟</h2>
+                <p>خیر. اگر سمت چپ null نباشد، Expression سمت راست ارزیابی نمی‌شود.</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string? name = "Hamed";
+
+string result = name ?? LoadDefaultName();</code></pre>
+                <p>چون name مقدار دارد، <code dir="ltr">LoadDefaultName()</code> اجرا نمی‌شود.</p>
+            </section>
+
+            <section>
+                <h2>عملگر ??= چیست؟</h2>
+                <p>
+                    <code dir="ltr">??=</code> را <strong>Null-Coalescing Assignment Operator</strong> می‌نامیم.
+                    یعنی: «فقط اگر متغیر null است، مقدار سمت راست را به آن Assign کن.»
+                </p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string? name = null;
+
+name ??= "Guest";
+
+Console.WriteLine(name); // Guest</code></pre>
+                <p>اما اگر از قبل مقدار داشته باشد:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string? name = "Hamed";
+
+name ??= "Guest";
+
+Console.WriteLine(name); // Hamed</code></pre>
+            </section>
+
+            <section>
+                <h2>تفاوت ?? و ??= دقیقاً چیست؟</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>کار اصلی</th>
+                            <th>آیا متغیر سمت چپ را تغییر می‌دهد؟</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code dir="ltr">??</code></td>
+                            <td>انتخاب یک مقدار جایگزین</td>
+                            <td>خیر</td>
+                        </tr>
+                        <tr>
+                            <td><code dir="ltr">??=</code></td>
+                            <td>Assign کردن مقدار در صورت null بودن</td>
+                            <td>بله</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string? name = null;
+
+string result = name ?? "Guest";
+// name هنوز null است
+
+name ??= "Guest";
+// حالا خود name برابر Guest است</code></pre>
+            </section>
+
+            <section>
+                <h2>یک کاربرد واقعی ??=</h2>
+                <p>فرض کنید یک Collection را فقط زمانی می‌خواهیم بسازیم که واقعاً لازم شده باشد:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>List&lt;string&gt;? errors = null;
+
+errors ??= new List&lt;string&gt;();
+errors.Add("Invalid amount");</code></pre>
+                <p>اگر errors قبلاً ساخته شده باشد، List جدیدی ساخته و جایگزین نمی‌شود.</p>
+            </section>
+
+            <section>
+                <h2>عملگر ?. چیست؟</h2>
+                <p>
+                    <code dir="ltr">?.</code> یک <strong>Null-Conditional Operator</strong> است.
+                    Member سمت راست فقط زمانی Access می‌شود که Object سمت چپ null نباشد.
+                </p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>Customer? customer = null;
+
+string? name = customer?.Name;</code></pre>
+                <p>
+                    اگر customer وجود داشته باشد، Name خوانده می‌شود. اگر customer null باشد، به جای Exception نتیجه
+                    Expression برابر null می‌شود.
+                </p>
+            </section>
+
+            <section>
+                <h2>?. فقط برای Property نیست</h2>
+                <p>می‌توانیم Method را نیز به شکل Null-Conditional فراخوانی کنیم:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>customer?.Activate();</code></pre>
+                <p>اگر customer null باشد، <code dir="ltr">Activate()</code> اصلاً اجرا نمی‌شود.</p>
+            </section>
+
+            <section>
+                <h2>چرا نتیجه ?. گاهی Nullable می‌شود؟</h2>
+                <p>فرض کنید Property ما از نوع int است:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public class Customer
+{
+    public int Age { get; set; }
+}</code></pre>
+                <p>حالا:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>Customer? customer = null;
+
+int? age = customer?.Age;</code></pre>
+                <p>
+                    خود Age از نوع <code dir="ltr">int</code> است، ولی نتیجه <code dir="ltr">customer?.Age</code> باید
+                    بتواند حالت «customer وجود نداشت» را هم نشان دهد؛ بنابراین نتیجه می‌تواند <code
+                        dir="ltr">int?</code> باشد.
+                </p>
+            </section>
+
+            <section>
+                <h2>ترکیب ?. و ?? بسیار رایج است</h2>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string displayName = customer?.Name ?? "Guest";</code></pre>
+                <p>این خط را از چپ به راست بخوانید:</p>
+                <ol>
+                    <li>اگر customer وجود دارد، Name را بخوان.</li>
+                    <li>اگر نتیجه null شد، مقدار <code dir="ltr">"Guest"</code> را استفاده کن.</li>
+                </ol>
+                <p class="example-explanation">این ترکیب در DTO Mapping، Response سازی و نمایش مقادیر Optional بسیار
+                    رایج است.</p>
+            </section>
+
+            <section>
+                <h2>زنجیره Null-Conditional</h2>
+                <p>می‌توانیم چند دسترسی را زنجیره کنیم:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string? city = order?.Customer?.Address?.City;</code></pre>
+                <p>
+                    اگر هرکدام از <code dir="ltr">order</code>، <code dir="ltr">Customer</code> یا <code
+                        dir="ltr">Address</code> در مسیر null باشند، ادامه زنجیره متوقف می‌شود و نتیجه null خواهد بود.
+                </p>
+            </section>
+
+            <section>
+                <h2>?[] چیست؟</h2>
+                <p>
+                    <code dir="ltr">?[]</code> نسخه Null-Conditional برای <strong>Element Access / Indexer</strong> است.
+                    مثلاً اگر یک Array یا Collection ممکن است null باشد:
+                </p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string[]? names = null;
+
+string? first = names?[0];</code></pre>
+                <p>
+                    اگر names null باشد، به Index صفر دسترسی زده نمی‌شود و نتیجه null است.
+                </p>
+            </section>
+
+            <section>
+                <h2>?[] جلوی IndexOutOfRangeException را می‌گیرد؟</h2>
+                <p><strong>خیر.</strong> این نکته مصاحبه‌ای بسیار مهم است.</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>string[] names = { "Ali" };
+
+string? value = names?[10]; // IndexOutOfRangeException</code></pre>
+                <p>
+                    <code dir="ltr">?[]</code> فقط null بودن خود Collection/Object را مدیریت می‌کند.
+                    اگر Collection وجود داشته باشد ولی Index نامعتبر باشد، Exception مربوط به Index همچنان رخ می‌دهد.
+                </p>
+            </section>
+
+            <section>
+                <h2>?[] فقط برای Array نیست</h2>
+                <p>هر Typeای که Indexer مناسب داشته باشد می‌تواند در چنین Expressionهایی استفاده شود.</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>Dictionary&lt;string, string&gt;? settings = null;
+
+string? value = settings?["ConnectionString"];</code></pre>
+                <p>
+                    اگر settings null باشد، Indexer اجرا نمی‌شود. اما اگر Dictionary وجود داشته باشد و Key موجود نباشد،
+                    رفتار خود Indexer پابرجاست و در این مثال می‌تواند <code dir="ltr">KeyNotFoundException</code> بدهد.
+                </p>
+            </section>
+
+            <section>
+                <h2>پس ?[] چه چیزی را Safe می‌کند؟</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>وضعیت</th>
+                            <th><code dir="ltr">collection?[index]</code></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Collection برابر null است</td>
+                            <td>دسترسی انجام نمی‌شود و نتیجه null است</td>
+                        </tr>
+                        <tr>
+                            <td>Collection وجود دارد و Index معتبر است</td>
+                            <td>عنصر برگردانده می‌شود</td>
+                        </tr>
+                        <tr>
+                            <td>Collection وجود دارد ولی Index نامعتبر است</td>
+                            <td>Exception مربوط به Index همچنان ممکن است رخ دهد</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>هر چهار Operator در یک مثال</h2>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>Customer? customer = GetCustomer();
+
+// ?.  دسترسی امن به Member
+string? name = customer?.Name;
+
+// ??  مقدار جایگزین
+string displayName = name ?? "Guest";
+
+// ??=  مقداردهی فقط در صورت null بودن
+customer ??= new Customer();
+
+// ?[]  دسترسی شرطی به Index
+string[]? tags = customer.Tags;
+string? firstTag = tags?[0];</code></pre>
+            </section>
+
+            <section>
+                <h2>جدول مقایسه سریع</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>نام</th>
+                            <th>وظیفه</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code dir="ltr">??</code></td>
+                            <td>Null-Coalescing</td>
+                            <td>مقدار جایگزین در صورت null</td>
+                            <td><code dir="ltr">name ?? "Guest"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code dir="ltr">??=</code></td>
+                            <td>Null-Coalescing Assignment</td>
+                            <td>Assign فقط در صورت null</td>
+                            <td><code dir="ltr">name ??= "Guest"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code dir="ltr">?.</code></td>
+                            <td>Null-Conditional Member Access</td>
+                            <td>دسترسی به Member فقط اگر Object null نیست</td>
+                            <td><code dir="ltr">user?.Name</code></td>
+                        </tr>
+                        <tr>
+                            <td><code dir="ltr">?[]</code></td>
+                            <td>Null-Conditional Element Access</td>
+                            <td>دسترسی به Index/Indexer فقط اگر Object null نیست</td>
+                            <td><code dir="ltr">items?[0]</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>مثال واقعی در یک API</h2>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public CustomerResponse Map(Customer? customer)
+{
+    return new CustomerResponse
+    {
+        Name = customer?.Name ?? "Unknown",
+        City = customer?.Address?.City ?? "Unknown",
+        FirstPhone = customer?.Phones?[0]
+    };
+}</code></pre>
+                <p>
+                    در این مثال با چند Operator کوچک، مسیرهای Optional را واضح کرده‌ایم. البته اگر Index صفر الزاماً
+                    وجود ندارد، باید Count یا روش مناسب دیگری را نیز بررسی کنیم؛ <code dir="ltr">?[]</code> فقط null
+                    بودن Phones را پوشش می‌دهد.
+                </p>
+            </section>
+
+            <section>
+                <h2>تفاوت ?. با ! چیست؟</h2>
+                <p>این دو را با هم اشتباه نکنید:</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>customer?.Name
+customer!.Name</code></pre>
+                <ul>
+                    <li><code dir="ltr">?.</code> واقعاً رفتار Runtime را تغییر می‌دهد و اگر customer null باشد Member
+                        را Access نمی‌کند.</li>
+                    <li><code dir="ltr">!</code> همان Null-Forgiving Operator است و فقط به Compiler می‌گوید هشدار
+                        Nullability را نده؛ جلوی NullReferenceException را نمی‌گیرد.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>اشتباه رایج: استفاده بیش از حد از ?.</h2>
+                <p>
+                    Null-Conditional Operator بسیار مفید است، اما نباید خطای Domain را مخفی کند.
+                    اگر طبق Business Rule وجود Customer الزامی است، این کد شاید مشکل را پنهان کند:
+                </p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>var customerId = order?.Customer?.Id;</code></pre>
+                <p>
+                    اگر نبودن Customer یک وضعیت غیرمجاز است، شاید بهتر باشد Validation یا Exception مناسب داشته باشیم تا
+                    مشکل سریع‌تر مشخص شود.
+                    Null Safety به معنی «همه‌جا null را نادیده بگیر» نیست.
+                </p>
+            </section>
+
+            <section>
+                <h2>?? با مقدار پیش‌فرض Business چه فرقی دارد؟</h2>
+                <p>مقدار سمت راست <code dir="ltr">??</code> باید از نظر Domain معنی داشته باشد.</p>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>decimal amount = request.Amount ?? 0;</code></pre>
+                <p>
+                    این کد از نظر Syntax درست است، اما آیا «ارسال نشدن Amount» واقعاً باید معنی صفر بدهد؟ اگر Amount
+                    الزامی است، Validation انتخاب درست‌تری است.
+                </p>
+            </section>
+
+            <section>
+                <h2>اشتباهات رایج</h2>
+                <ul>
+                    <li><strong>اشتباه:</strong> <code dir="ltr">??</code> مقدار متغیر سمت چپ را تغییر
+                        می‌دهد.<br><strong>درست:</strong> فقط یک مقدار نتیجه انتخاب می‌کند؛ برای Assignment از <code
+                            dir="ltr">??=</code> استفاده می‌شود.</li>
+                    <li><strong>اشتباه:</strong> <code dir="ltr">?.</code> تضمین می‌کند نتیجه null
+                        نیست.<br><strong>درست:</strong> برعکس، اگر Object null باشد نتیجه معمولاً null می‌شود.</li>
+                    <li><strong>اشتباه:</strong> <code dir="ltr">?[]</code> همه خطاهای Index را مدیریت
+                        می‌کند.<br><strong>درست:</strong> فقط null بودن Receiver را مدیریت می‌کند.</li>
+                    <li><strong>اشتباه:</strong> <code dir="ltr">?.</code> و <code dir="ltr">!</code> یک کاربرد
+                        دارند.<br><strong>درست:</strong> <code dir="ltr">?.</code> رفتار Runtime دارد؛ <code
+                            dir="ltr">!</code> عمدتاً هشدار Compiler را Suppress می‌کند.</li>
+                    <li><strong>اشتباه:</strong> هر null را باید با مقدار Default مخفی کرد.<br><strong>درست:</strong>
+                        گاهی null نشان‌دهنده ورودی نامعتبر یا نقض Business Rule است و باید Validation شود.</li>
+                </ul>
+            </section>
+
+            <section class="further-details">
+                <h2>جزئیات عمیق‌تر برای سطح Senior</h2>
+                <p>
+                    Null-Conditional accessها Short-Circuit هستند؛ وقتی Receiver در یک زنجیره null شود، ادامه دسترسی
+                    شرطی انجام نمی‌شود.
+                    همچنین نوع نتیجه باید بتواند حالت null را نمایش دهد؛ به همین دلیل دسترسی شرطی به یک Value Type غیر
+                    Nullable مثل <code dir="ltr">int</code> معمولاً نتیجه‌ای Nullable مانند <code dir="ltr">int?</code>
+                    ایجاد می‌کند.
+                </p>
+                <p>
+                    در طراحی Production Code، این Operatorها ابزار بیان Contract هستند، نه جایگزین Validation. در
+                    Boundaryهایی مثل API، Database و Message Consumer باید مشخص کنیم null واقعاً یک حالت معتبر Domain
+                    است یا داده ناقص و نامعتبر.
+                </p>
+            </section>
+
+            <section>
+                <h2>در پروژه واقعی کدام را چه زمانی استفاده کنیم؟</h2>
+                <ul>
+                    <li>یک مقدار Optional دارم و Default منطقی می‌خواهم → <code dir="ltr">??</code></li>
+                    <li>می‌خواهم یک متغیر فقط در صورت null بودن Initialize شود → <code dir="ltr">??=</code></li>
+                    <li>یک Object Optional است و می‌خواهم Member آن را امن بخوانم/فراخوانی کنم → <code
+                            dir="ltr">?.</code></li>
+                    <li>یک Array/Collection/Indexer Optional است و می‌خواهم Element Access فقط در صورت non-null بودن
+                        انجام شود → <code dir="ltr">?[]</code></li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>اگر مصاحبه‌کننده فقط در ۲۰ ثانیه جواب بخواهد</h2>
+                <p>
+                    «<code dir="ltr">??</code> در صورت null بودن مقدار سمت چپ یک مقدار جایگزین برمی‌گرداند؛
+                    <code dir="ltr">??=</code> همان منطق را برای Assignment دارد و فقط وقتی متغیر null است مقداردهی
+                    می‌کند؛
+                    <code dir="ltr">?.</code> Member را فقط اگر Object null نباشد Access می‌کند؛
+                    و <code dir="ltr">?[]</code> همین Null-Conditional behavior را برای Indexer یا Element Access دارد.
+                    نکته مهم این است که <code dir="ltr">?[]</code> جلوی IndexOutOfRangeException را نمی‌گیرد.»
+                </p>
+            </section>
+
+            <section class="interview">
+                <h2>جواب پیشنهادی کامل برای مصاحبه</h2>
+                <p>
+                    «این چهار Operator برای مدیریت Null هستند ولی کاربرد متفاوتی دارند. ?? یا Null-Coalescing Operator
+                    مقدار سمت چپ را در صورت non-null بودن برمی‌گرداند و در غیر این صورت مقدار سمت راست را انتخاب می‌کند.
+                    ??= فقط زمانی مقدار سمت راست را به متغیر Assign می‌کند که مقدار فعلی null باشد. ?. یک
+                    Null-Conditional Member Access است و Property یا Method را فقط وقتی Receiver null نیست Access
+                    می‌کند؛ در غیر این صورت نتیجه null می‌شود. ?[] همین رفتار را برای Element Access یا Indexer دارد.
+                    این Operatorها کد Null Handling را کوتاه‌تر و خواناتر می‌کنند، ولی جای Validation Business را
+                    نمی‌گیرند و ?[] نیز فقط null بودن Collection را کنترل می‌کند، نه معتبر بودن Index یا Key.»
+                </p>
+            </section>
+
+            <section>
+                <h2>چیزی که باید از این سؤال یادت بماند</h2>
+                <p>
+                    چهار جمله را حفظ کنید:
+                    <strong><code dir="ltr">??</code> = اگر null بود، مقدار جایگزین بده</strong>،
+                    <strong><code dir="ltr">??=</code> = اگر null بود، مقداردهی کن</strong>،
+                    <strong><code dir="ltr">?.</code> = اگر Object وجود داشت، Member را Access کن</strong>،
+                    و <strong><code dir="ltr">?[]</code> = اگر Object وجود داشت، Index/Indexer را Access کن</strong>.
+                </p>
+            </section>
+
+            <nav class="pager" aria-label="پرسش قبلی و بعدی"><a rel="prev" href="conditional-operator.html">→ سؤال
+                    قبلی</a><a rel="next" href="../collections/array-list-linkedlist.html">سؤال بعدی ←</a></nav>
+        </main>
+    </div>
+    <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+
+</html>

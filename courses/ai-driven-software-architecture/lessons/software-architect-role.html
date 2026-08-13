@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="توضیح ساده و کاربردی نقش Software Architect، مسئولیت‌ها، مهارت‌ها و ارتباط او با اعضای تیم.">
+  <title>نقش Software Architect | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a><span aria-hidden="true">/</span><span>فصل اول</span><span aria-hidden="true">/</span><span>درس ۲</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل اول — مقدمه</p>
+          <h1>نقش <bdi>Software Architect</bdi></h1>
+          <p class="lesson-lead"><bdi>Software Architect</bdi> کمک می‌کند تیم دربارهٔ ساختار کلی سیستم تصمیم‌های درست و هماهنگ بگیرد. او فقط Diagram نمی‌کشد؛ مسئله را می‌فهمد، گزینه‌ها را مقایسه می‌کند، دلیل تصمیم‌ها را ثبت می‌کند و همراه تیم مطمئن می‌شود معماری در Code رعایت شده است.</p>
+        </header>
+
+        <section class="lesson-section">
+          <h2>یک مثال ساده</h2>
+          <p>فرض کنید تیم شما یک فروشگاه اینترنتی می‌سازد. یک Developer روی سفارش، یک نفر روی پرداخت و فرد دیگری روی موجودی کار می‌کند. اگر هرکس بدون هماهنگی ساختار دلخواه خودش را بسازد، ممکن است داده‌ها چند بار ذخیره شوند، خطاهای پرداخت سفارش را خراب کنند یا تغییر یک بخش چند بخش دیگر را بشکند.</p>
+          <p>معمار به تیم کمک می‌کند سؤال‌های مشترک را پاسخ دهد: مرز هر بخش کجاست؟ مالک داده کیست؟ اجزا چگونه ارتباط دارند؟ هنگام خرابی چه اتفاقی می‌افتد؟ چه تصمیمی اکنون ساده و برای رشد آینده مناسب است؟</p>
+          <aside class="lesson-note"><strong>مدل ذهنی:</strong> معمار مانند کسی است که نقشه و قواعد اصلی ساخت یک مجتمع را هماهنگ می‌کند؛ اما اعضای تیم همچنان ساختمان را می‌سازند و در جزئیات فنی مشارکت دارند.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>مسئولیت‌های اصلی معمار نرم‌افزار</h2>
+          <h3>۱. فهم مسئله و نیازهای پروژه</h3>
+          <p>پیش از پیشنهاد Technology، معمار باید بداند سیستم چه مشکلی را حل می‌کند، کاربران چه کسانی هستند و چه محدودیت‌هایی وجود دارد. برای مثال، بودجه، زمان تحویل، مهارت تیم و قوانین نگهداری داده روی معماری اثر می‌گذارند.</p>
+          <h3>۲. شناسایی تصمیم‌های مهم</h3>
+          <p>همهٔ تصمیم‌ها معماری نیستند. معمار روی تصمیم‌هایی تمرکز می‌کند که اثر گسترده دارند یا تغییرشان بعداً پرهزینه است؛ مانند مرز Moduleها، مالکیت داده، روش ارتباط اجزا و راهبرد Authentication.</p>
+          <h3>۳. مقایسهٔ گزینه‌ها</h3>
+          <p>معمار نباید اولین ایده را فوراً انتخاب کند. او گزینه‌ها، مزایا، هزینه‌ها و Riskهای آن‌ها را مقایسه می‌کند. مثلاً بررسی می‌کند یک <bdi>Modular Monolith</bdi> برای تیم مناسب‌تر است یا پیچیدگی <bdi>Microservices</bdi> واقعاً توجیه دارد.</p>
+          <h3>۴. ثبت دلیل تصمیم‌ها</h3>
+          <p>تیم باید بداند چه تصمیمی، برای حل چه مسئله‌ای و با پذیرش چه پیامدی گرفته شده است. این اطلاعات معمولاً در <bdi>Architecture Decision Record</bdi> یا ADR ثبت می‌شوند.</p>
+          <h3>۵. همراهی با پیاده‌سازی</h3>
+          <p>کار معمار با تحویل Diagram تمام نمی‌شود. او Code و Dependencyها را بررسی می‌کند، به پرسش‌های تیم پاسخ می‌دهد و اگر واقعیت پروژه با فرض‌های اولیه فرق داشت، معماری را اصلاح می‌کند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Architectural Thinking</bdi> یعنی چه؟</h2>
+          <p><bdi>Architectural Thinking</bdi> یعنی هنگام تصمیم‌گیری فقط به «آیا کار می‌کند؟» فکر نکنیم. باید اثر تصمیم بر آینده و کل سیستم را نیز بسنجیم:</p>
+          <ul>
+            <li>این راهکار با نیاز واقعی پروژه هماهنگ است؟</li>
+            <li>اگر تعداد کاربران بیشتر شود چه اتفاقی می‌افتد؟</li>
+            <li>اگر Dependency خارجی قطع شود سیستم چگونه رفتار می‌کند؟</li>
+            <li>آیا تیم فعلی می‌تواند این راهکار را نگهداری کند؟</li>
+            <li>چه پیچیدگی و هزینه‌ای به دست می‌آوریم؟</li>
+          </ul>
+          <p>این نوع تفکر مخصوص عنوان شغلی Architect نیست. یک Junior Developer هم می‌تواند با پرسیدن این سؤال‌ها به‌تدریج نگاه معماری پیدا کند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>تفاوت نقش‌ها در تیم</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسه نقش‌های تیم" tabindex="0">
+            <table>
+              <thead><tr><th>نقش</th><th>تمرکز اصلی</th><th>نمونه فعالیت</th></tr></thead>
+              <tbody>
+                <tr><td><bdi>Developer</bdi></td><td>ساخت و نگهداری Featureها</td><td>پیاده‌سازی API، Test و رفع Bug</td></tr>
+                <tr><td><bdi>Tech Lead</bdi></td><td>هدایت فنی روزانهٔ تیم</td><td>تقسیم کار فنی، Code Review و رفع مانع‌ها</td></tr>
+                <tr><td><bdi>Software Architect</bdi></td><td>هماهنگی تصمیم‌های سطح سیستم</td><td>تعریف Boundaryها، بررسی Trade-off و ثبت تصمیم</td></tr>
+                <tr><td><bdi>Product Team</bdi></td><td>ارزش تجاری و نیاز کاربر</td><td>تعیین اولویت، Scope و Acceptance Criteria</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>این مرزها در شرکت‌ها متفاوت‌اند. در تیم کوچک ممکن است Tech Lead بخشی از نقش معمار را انجام دهد. نکتهٔ مهم همکاری است، نه عنوان شغلی.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>معمار چگونه با تیم ارتباط برقرار می‌کند؟</h2>
+          <ul>
+            <li><strong>با Developerها:</strong> محدودیت‌ها و دلیل تصمیم‌ها را توضیح می‌دهد و از تجربهٔ پیاده‌سازی آن‌ها بازخورد می‌گیرد.</li>
+            <li><strong>با Tech Lead:</strong> معماری را به کارهای قابل اجرا تبدیل و انحراف‌های فنی را بررسی می‌کند.</li>
+            <li><strong>با Product Team:</strong> اثر تصمیم‌های تجاری بر Cost، زمان، Security و Scalability را روشن می‌کند.</li>
+            <li><strong>با Stakeholderها:</strong> Riskها و Trade-offها را با زبان قابل‌فهم بیان می‌کند، نه فقط با اصطلاحات فنی.</li>
+          </ul>
+          <p>معمار خوب فقط خوب فکر نمی‌کند؛ باید بتواند فکر خود را شفاف منتقل کند و به نظر متخصصان دیگر گوش دهد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>یک روز کاری نمونه</h2>
+          <ol>
+            <li>بررسی Requirement جدید برای افزودن پرداخت قسطی.</li>
+            <li>پرسیدن سؤال دربارهٔ قوانین تجاری، Security و رفتار هنگام خطا.</li>
+            <li>گفت‌وگو با تیم پرداخت و سفارش دربارهٔ Boundaryها.</li>
+            <li>مقایسهٔ دو راهکار و نوشتن Trade-offهای هرکدام.</li>
+            <li>ثبت تصمیم در ADR و توضیح آن برای تیم.</li>
+            <li>بازبینی پیاده‌سازی اولیه برای اطمینان از رعایت Contractها.</li>
+          </ol>
+          <p>همان‌طور که می‌بینید، بخش زیادی از کار معمار تحلیل، سؤال‌پرسیدن، ارتباط و تصمیم‌سازی است؛ نه فقط نوشتن Code.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>معمار چه کاری نباید انجام دهد؟</h2>
+          <ul>
+            <li>بدون شناخت مسئله، Technology محبوب خودش را تحمیل نکند.</li>
+            <li>تمام تصمیم‌ها را به‌تنهایی نگیرد و دانش را نزد خودش نگه ندارد.</li>
+            <li>Diagramی نسازد که با Code واقعی ارتباطی ندارد.</li>
+            <li>پیچیدگی را نشانهٔ حرفه‌ای‌بودن نداند.</li>
+            <li>پس از تصمیم‌گیری، تیم را هنگام Implementation تنها نگذارد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary">
+          <h2>جمع‌بندی</h2>
+          <ul>
+            <li><bdi>Software Architect</bdi> تصمیم‌های مهم سطح سیستم را هماهنگ می‌کند.</li>
+            <li>او مسئله، Constraintها، Quality Attributeها و Trade-offها را بررسی می‌کند.</li>
+            <li>معمار با Developer، Tech Lead و Product Team همکاری می‌کند؛ جای آن‌ها را نمی‌گیرد.</li>
+            <li>مسئولیت او فقط طراحی اولیه نیست و تا Implementation و Review ادامه دارد.</li>
+            <li>Junior Developer نیز می‌تواند با پرسیدن سؤال‌های سطح سیستم، Architectural Thinking را تمرین کند.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="software-architecture.html">درس قبلی: Software Architecture چیست؟</a>
+          <a href="architecture-as-decisions.html">درس بعدی: معماری به‌عنوان مجموعه‌ای از تصمیم‌ها</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

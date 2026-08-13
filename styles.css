@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Estedad";
+  src: url("assets/fonts/Estedad.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   --ink: #14213d;
@@ -28,7 +36,7 @@
   --radius-md: 1.25rem;
   --radius-lg: 2rem;
   --content: min(1120px, calc(100% - 2.5rem));
-  --font: Vazirmatn, Tahoma, "Segoe UI", Arial, sans-serif;
+  --font: "Estedad", Tahoma, "Segoe UI", Arial, sans-serif;
 }
 
 [data-theme="dark"] {
@@ -144,6 +152,28 @@ button { cursor: pointer; }
   font-size: 0.82rem;
   font-weight: 800;
 }
+.nav-actions .icon-button {
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  min-height: 2.75rem;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+}
+.nav-icon {
+  inline-size: 1.3rem;
+  block-size: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.theme-icon-moon { fill: currentColor; stroke: none; }
+.theme-icon-sun { display: none; }
+[data-theme="dark"] .theme-icon-moon { display: none; }
+[data-theme="dark"] .theme-icon-sun { display: block; color: #ffd66b; }
 .menu-toggle { display: none; }
 
 .button-link, #newsletter-form button, .course-card button, #resources > button {
@@ -259,6 +289,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
 .course-card:nth-child(2) .course-art { background: linear-gradient(145deg, #7d4ac7, var(--brand)); }
 .course-card:nth-child(3) .course-art { background: linear-gradient(145deg, var(--gold), #ef715a); }
 .course-card:nth-child(4) .course-art { background: linear-gradient(145deg, var(--aqua), #246dc5); }
+.course-card:nth-child(5) .course-art { background: linear-gradient(145deg, #32c7a7, #6658d9); }
 .status { align-self: flex-start; margin: 0; padding: 0.15rem 0.6rem; border-radius: 99rem; background: color-mix(in srgb, var(--brand) 12%, transparent); color: var(--brand); font-size: 0.76rem; font-weight: 900; }
 .status-soon { background: color-mix(in srgb, var(--gold) 16%, transparent); color: var(--gold); }
 .status-free { background: color-mix(in srgb, var(--free) 14%, transparent); color: var(--free); }

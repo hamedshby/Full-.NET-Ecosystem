@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش شفاف معماری به‌عنوان مجموعه‌ای از تصمیم‌ها؛ Context، Constraint، Assumption، Risk، Trade-off و ثبت Architectural Decision.">
+  <title>معماری به‌عنوان مجموعه‌ای از تصمیم‌ها | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a><span aria-hidden="true">/</span><span>مقدمه</span><span aria-hidden="true">/</span><span>درس ۳</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل اول — مقدمه</p>
+          <h1>معماری به‌عنوان مجموعه‌ای از تصمیم‌ها</h1>
+          <p class="lesson-lead">معماری نرم‌افزار فقط مجموعه‌ای از Diagramها یا نام چند Technology نیست. معماری از تصمیم‌های مهمی تشکیل می‌شود که ساختار سیستم، ارتباط اجزا، مالکیت داده و رفتار سیستم در شرایط مختلف را شکل می‌دهند.</p>
+        </header>
+
+        <section class="lesson-section">
+          <h2>یک مثال ساده: دادهٔ سفارش کجا ذخیره شود؟</h2>
+          <p>تیم فروشگاه اینترنتی باید تصمیم بگیرد اطلاعات سفارش را چگونه نگهداری کند. دو گزینهٔ ساده داریم:</p>
+          <ul>
+            <li>Module سفارش و پرداخت از یک Database مشترک استفاده کنند.</li>
+            <li>هر Module مالک دادهٔ خودش باشد و از طریق Contract با دیگری ارتباط بگیرد.</li>
+          </ul>
+          <p>گزینهٔ اول ممکن است شروع ساده‌تری داشته باشد، اما Coupling بیشتری ایجاد کند. گزینهٔ دوم استقلال بیشتری می‌دهد، اما هماهنگی داده و Transaction را دشوارتر می‌کند.</p>
+          <p>هیچ گزینه‌ای بدون Context بهترین نیست. انتخاب تیم، همراه با دلیل و پیامدهایش، یک <bdi>Architectural Decision</bdi> است.</p>
+          <aside class="lesson-note"><strong>مدل ذهنی:</strong> معماری یک جواب آماده نیست؛ زنجیره‌ای از انتخاب‌های آگاهانه است که هرکدام برای حل مسئله‌ای در Context مشخص گرفته می‌شوند.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Architectural Decision</bdi> چیست؟</h2>
+          <p><bdi>Architectural Decision</bdi> تصمیمی است که روی ساختار یا ویژگی‌های مهم سیستم اثر گسترده دارد و تغییر آن معمولاً هزینه‌بر است.</p>
+          <p>نمونه‌ها:</p>
+          <ul>
+            <li>سیستم <bdi>Modular Monolith</bdi> باشد یا Microservices.</li>
+            <li>اجزا هم‌زمان با HTTP یا غیرهم‌زمان با Message Broker ارتباط بگیرند.</li>
+            <li>مالکیت داده میان Moduleها چگونه تقسیم شود.</li>
+            <li>Authentication به Identity Provider خارجی سپرده شود یا داخل سیستم انجام شود.</li>
+            <li>برای Availability چه راهبردی استفاده شود.</li>
+          </ul>
+          <p>در مقابل، نام یک local variable معمولاً تصمیم معماری نیست؛ چون اثر آن محدود و تغییرش کم‌هزینه است.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اجزای یک تصمیم معماری</h2>
+          <div class="comparison-table" role="region" aria-label="اجزای تصمیم معماری" tabindex="0">
+            <table>
+              <thead><tr><th>جزء</th><th>معنا</th><th>سؤال ساده</th></tr></thead>
+              <tbody>
+                <tr><td><bdi>Context</bdi></td><td>وضعیت و مسئله‌ای که تصمیم در آن گرفته می‌شود</td><td>چرا اکنون به این تصمیم نیاز داریم؟</td></tr>
+                <tr><td><bdi>Options</bdi></td><td>گزینه‌های واقعی قابل انتخاب</td><td>چه راه‌هایی داریم؟</td></tr>
+                <tr><td><bdi>Decision</bdi></td><td>گزینهٔ انتخاب‌شده</td><td>کدام راه را انتخاب کردیم؟</td></tr>
+                <tr><td><bdi>Rationale</bdi></td><td>دلیل انتخاب با توجه به نیازها</td><td>چرا این گزینه مناسب‌تر بود؟</td></tr>
+                <tr><td><bdi>Consequences</bdi></td><td>مزایا، هزینه‌ها و اثرهای تصمیم</td><td>چه چیزی به دست می‌آوریم و چه می‌پردازیم؟</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>اگر فقط Decision را ثبت کنیم و دلیل آن را ننویسیم، اعضای آیندهٔ تیم ممکن است آن را اشتباه یا قدیمی تصور کنند و بدون شناخت Context تغییر دهند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Constraint</bdi> چیست؟</h2>
+          <p><bdi>Constraint</bdi> محدودیتی است که انتخاب‌های ما را کم می‌کند. Constraint معمولاً چیزی نیست که آزادانه نادیده بگیریم.</p>
+          <ul>
+            <li><strong>فنی:</strong> سیستم باید با SQL Server موجود سازمان کار کند.</li>
+            <li><strong>تجاری:</strong> نسخهٔ اول باید سه ماه دیگر تحویل شود.</li>
+            <li><strong>قانونی:</strong> دادهٔ مشتری باید داخل کشور نگهداری شود.</li>
+            <li><strong>سازمانی:</strong> تیم فقط تجربهٔ عملی .NET و Azure دارد.</li>
+            <li><strong>مالی:</strong> بودجهٔ Infrastructure محدود است.</li>
+          </ul>
+          <p>یک راهکار از نظر فنی جذاب ممکن است به‌دلیل Constraint زمانی یا مهارت تیم، انتخاب مناسبی نباشد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Assumption</bdi> چیست؟</h2>
+          <p><bdi>Assumption</bdi> چیزی است که هنگام تصمیم‌گیری درست فرض می‌کنیم، اما هنوز قطعی یا کامل بررسی نشده است.</p>
+          <div class="lesson-example">
+            <p>«فرض می‌کنیم در سال اول بیش از ۵۰۰ سفارش هم‌زمان نداریم.»</p>
+          </div>
+          <p>Assumption باید صریح ثبت و در صورت امکان Validation شود. اگر فرض بالا اشتباه باشد، تصمیم‌های Capacity و Scalability نیز ممکن است نامناسب شوند.</p>
+          <p>تفاوت مهم: Constraint می‌گوید «باید رعایت شود»؛ Assumption می‌گوید «فعلاً آن را درست در نظر گرفته‌ایم».</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Risk</bdi> چیست؟</h2>
+          <p><bdi>Risk</bdi> رویداد یا شرایط نامطمئنی است که اگر رخ دهد، به پروژه آسیب می‌زند. Risk با مشکل قطعی فرق دارد؛ ممکن است رخ دهد یا ندهد.</p>
+          <ul>
+            <li>ممکن است سرویس پرداخت در ساعت شلوغی کند شود.</li>
+            <li>ممکن است Library انتخابی در نسخهٔ آینده پشتیبانی نشود.</li>
+            <li>ممکن است تیم تجربهٔ کافی برای نگهداری Kubernetes نداشته باشد.</li>
+          </ul>
+          <p>برای Risk باید احتمال، اثر و پاسخ را در نظر بگیریم. پاسخ می‌تواند کاهش Risk، انتقال، پذیرش یا جلوگیری از آن باشد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Trade-off</bdi> یعنی چه؟</h2>
+          <p><bdi>Trade-off</bdi> یعنی با انتخاب یک مزیت، هزینه یا محدودیتی را نیز می‌پذیریم. در Architecture معمولاً نمی‌توان همهٔ Quality Attributeها را هم‌زمان به بیشترین مقدار رساند.</p>
+          <div class="lesson-example">
+            <h3>انتخاب Cache</h3>
+            <p><strong>مزیت:</strong> پاسخ سریع‌تر و فشار کمتر روی Database.</p>
+            <p><strong>هزینه:</strong> احتمال نمایش دادهٔ قدیمی و پیچیدگی Invalidation.</p>
+          </div>
+          <p>معمار باید Trade-off را پنهان نکند. تصمیم خوب تصمیمی نیست که عیب ندارد؛ تصمیمی است که عیب‌هایش برای Context پروژه پذیرفتنی‌اند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>چرا یک معماری برای همهٔ پروژه‌ها مناسب نیست؟</h2>
+          <p>دو پروژه ممکن است Feature مشابه داشته باشند، اما Context متفاوتی داشته باشند:</p>
+          <div class="comparison-table" role="region" aria-label="مقایسه Context دو پروژه" tabindex="0">
+            <table>
+              <thead><tr><th>موضوع</th><th>فروشگاه کوچک</th><th>بازارگاه بزرگ</th></tr></thead>
+              <tbody>
+                <tr><td>تیم</td><td>۴ Developer</td><td>چند تیم مستقل</td></tr>
+                <tr><td>ترافیک</td><td>هزار درخواست در روز</td><td>میلیون‌ها درخواست</td></tr>
+                <tr><td>زمان تحویل</td><td>دو ماه</td><td>توسعهٔ پیوسته و چندساله</td></tr>
+                <tr><td>پیچیدگی عملیاتی</td><td>باید کم باشد</td><td>تیم Platform اختصاصی وجود دارد</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><bdi>Modular Monolith</bdi> ممکن است برای فروشگاه کوچک انتخاب عالی باشد، درحالی‌که بازارگاه بزرگ برای برخی Domainها به Service مستقل نیاز داشته باشد. Pattern به‌تنهایی خوب یا بد نیست؛ تناسب آن با Context مهم است.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>روش مرحله‌به‌مرحلهٔ تصمیم‌گیری</h2>
+          <ol>
+            <li><strong>مسئله را بنویسید:</strong> چه چیزی نیازمند تصمیم است و چرا؟</li>
+            <li><strong>Driverها را مشخص کنید:</strong> Requirement، Quality Attribute و Constraintهای مؤثر کدام‌اند؟</li>
+            <li><strong>Assumptionها را آشکار کنید:</strong> چه چیزهایی را بدون قطعیت درست فرض کرده‌ایم؟</li>
+            <li><strong>چند Option واقعی بسازید:</strong> فقط گزینهٔ موردعلاقه را بررسی نکنید.</li>
+            <li><strong>Trade-offها و Riskها را مقایسه کنید:</strong> هر گزینه چه مزیت و هزینه‌ای دارد؟</li>
+            <li><strong>تصمیم و دلیل را ثبت کنید:</strong> انتخاب باید برای دیگران قابل فهم باشد.</li>
+            <li><strong>نتیجه را بازبینی کنید:</strong> پس از Implementation بررسی کنید آیا Assumptionها و نتیجه هنوز معتبرند.</li>
+          </ol>
+        </section>
+
+        <section class="lesson-section">
+          <h2>نمونهٔ کوتاه <bdi>Architecture Decision Record</bdi></h2>
+          <div class="lesson-example">
+            <p><strong>عنوان:</strong> استفاده از Modular Monolith در نسخهٔ اول</p>
+            <p><strong>Context:</strong> تیم ۵ نفره است، زمان تحویل سه ماه و Domain هنوز درحال تغییر است.</p>
+            <p><strong>Options:</strong> Modular Monolith، Microservices یا Monolith بدون Module Boundary.</p>
+            <p><strong>Decision:</strong> Modular Monolith با Moduleهای سفارش، پرداخت و موجودی.</p>
+            <p><strong>Rationale:</strong> Deployment ساده می‌ماند و درعین‌حال Boundaryهای Domain حفظ می‌شوند.</p>
+            <p><strong>Consequences:</strong> استقلال Deployment نداریم؛ تیم باید Dependency میان Moduleها را کنترل کند.</p>
+          </div>
+          <p>ADR لازم نیست طولانی باشد. باید Context، انتخاب و پیامد را آن‌قدر روشن کند که فرد دیگری دلیل تصمیم را بفهمد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>نقش AI در تصمیم‌های معماری</h2>
+          <p>AI می‌تواند در فرایند تصمیم‌سازی کمک کند:</p>
+          <ul>
+            <li>پیشنهاد Optionهایی که تیم ندیده است</li>
+            <li>مقایسهٔ اولیهٔ Trade-offها</li>
+            <li>پرسیدن سؤال دربارهٔ Constraint و Assumptionهای پنهان</li>
+            <li>تولید Failure Scenario و Risk احتمالی</li>
+            <li>ساخت پیش‌نویس ADR</li>
+          </ul>
+          <aside class="lesson-note"><strong>Human-in-the-Loop:</strong> AI Context واقعی سازمان، تجربهٔ تیم و همهٔ پیامدهای تصمیم را نمی‌داند. خروجی آن پیشنهاد برای Review است، نه تصمیم نهایی.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li><strong>انتخاب Technology پیش از مسئله:</strong> «Kafka می‌خواهیم» بدون Driver روشن، تصمیم قابل دفاعی نیست.</li>
+            <li><strong>داشتن فقط یک Option:</strong> اگر گزینهٔ دیگری بررسی نشده، Trade-off واقعی دیده نمی‌شود.</li>
+            <li><strong>ثبت‌نکردن Assumption:</strong> با تغییر شرایط، کسی متوجه بی‌اعتبارشدن تصمیم نمی‌شود.</li>
+            <li><strong>نوشتن فقط مزایا:</strong> هر تصمیم هزینه و Consequence منفی نیز دارد.</li>
+            <li><strong>مقدس‌کردن تصمیم قدیمی:</strong> ADR دلیل گذشته را ثبت می‌کند، اما تصمیم با شواهد جدید قابل جایگزینی است.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary">
+          <h2>جمع‌بندی</h2>
+          <ul>
+            <li>Architecture از مجموعه‌ای از تصمیم‌های مهم و مرتبط تشکیل می‌شود.</li>
+            <li>هر تصمیم باید Context، Option، Rationale و Consequence روشن داشته باشد.</li>
+            <li>Constraint فضای انتخاب را محدود می‌کند و Assumption یک فرض نیازمند Validation است.</li>
+            <li>Risk عدم‌قطعیت آسیب‌زا و Trade-off مبادلهٔ مزیت با هزینه است.</li>
+            <li>هیچ Architecture برای همهٔ پروژه‌ها بهترین نیست؛ Context و Driverها انتخاب را تعیین می‌کنند.</li>
+            <li>AI به تحلیل کمک می‌کند، اما مسئولیت تصمیم نهایی و پیامدهای آن با انسان است.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="software-architect-role.html">درس قبلی: نقش Software Architect</a>
+          <a href="../lesson.html?chapter=1&amp;lesson=1&amp;title=AI-Driven%20Software%20Architecture%20%DA%86%DB%8C%D8%B3%D8%AA%D8%9F">درس بعدی: AI-Driven Software Architecture چیست؟</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>
