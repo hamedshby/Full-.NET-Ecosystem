@@ -274,8 +274,9 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
 .course-card:hover, .course-card:focus-within { border-color: color-mix(in srgb, var(--brand) 52%, var(--line)); box-shadow: var(--shadow-lg); transform: translateY(-5px); }
 .course-art {
   display: grid;
-  width: 3.65rem;
-  aspect-ratio: 1;
+  width: 100%;
+  min-height: 4.6rem;
+  aspect-ratio: auto;
   place-items: center;
   margin-bottom: 1.2rem;
   border-radius: 1rem 1rem 1rem 0.25rem;

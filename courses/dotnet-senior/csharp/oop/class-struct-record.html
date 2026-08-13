@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description"
         content="پاسخ کامل و مصاحبه‌محور به پرسش Conditional Operator ?: چه زمانی از if مناسب‌تر است؟ همراه مثال‌های ساده، خوانایی، nested ternary، return و assignment.">
-    <title>checked و unchecked چگونه Overflow عددی را کنترل می‌کنند؟ | آکادمی دات‌نت</title>
+    <title>تفاوت class، struct و record در انتخاب مدل دامنه چیست؟ | آکادمی دات‌نت</title>
     <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light' } catch { } })()</script>
     <link rel="stylesheet" href="../../course.css">
     <script defer src="../../course-navigation.js"></script>
@@ -26,559 +26,857 @@
             </svg></button></header>
     <div class="course-shell">
         <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست پرسش‌ها"
-            data-current-question="checked-unchecked"></aside>
+            data-current-question="class-struct-record"></aside>
         <main id="answer" class="answer-content">
-            <nav class="crumb" aria-label="مسیر راهنما"><a href="../../../../index.html">دوره‌ها</a> / <span>Operators,
-                    Statements and Expressions</span></nav>
-            <div class="meta"><span class="level-badge" data-level="متوسط">متوسط</span><span>زمان مطالعه: ۱۲
+            <nav class="crumb" aria-label="مسیر راهنما"><a href="../../../../index.html">دوره‌ها</a> / <span>OOP,
+                    Classes, Inheritance and Polymorphism</span></nav>
+            <div class="meta"><span class="level-badge" data-level="متوسط">متوسط</span><span>زمان مطالعه: ۱۴
                     دقیقه</span></div>
 
-            <h1>checked و unchecked چگونه Overflow عددی را کنترل می‌کنند؟</h1>
+            <h1>تفاوت class، struct و record در انتخاب مدل دامنه چیست؟</h1>
 
             <section class="short">
                 <h2>پاسخ کوتاه مصاحبه‌ای</h2>
                 <p>
-                    در C#، <code dir="ltr">checked</code> باعث می‌شود Overflow در عملیات عددی Integral در Runtime بررسی
-                    شود و در صورت خارج شدن نتیجه از محدوده Type، معمولاً <code dir="ltr">OverflowException</code> رخ
-                    دهد.
-                    <code dir="ltr">unchecked</code> این بررسی را غیرفعال می‌کند و Overflow می‌تواند با Wrap شدن بیت‌ها
-                    ادامه پیدا کند.
-                    این موضوع بیشتر برای Typeهای صحیح مثل <code dir="ltr">int</code>، <code dir="ltr">long</code> و
-                    تبدیل‌های عددی مهم است؛ رفتار Floating Point مثل <code dir="ltr">double</code> متفاوت است.
+                    برای انتخاب بین <code dir="ltr">class</code>، <code dir="ltr">struct</code> و <code
+                        dir="ltr">record</code> فقط به Syntax نگاه نمی‌کنیم؛
+                    باید ببینیم مدل ما <strong>هویت</strong> دارد یا صرفاً <strong>مقدار</strong> را نشان می‌دهد، آیا
+                    نیاز به Mutation داریم، Semantics کپی چگونه باید باشد و Equality بر چه اساسی معنا پیدا می‌کند.
+                    به طور معمول، Entityهای دارای Identity مثل <code dir="ltr">Customer</code> یا <code
+                        dir="ltr">Order</code> با class مدل می‌شوند.
+                    Valueهای کوچک مثل مختصات یا یک نوع عددی کوچک می‌توانند struct باشند.
+                    و record برای مدل‌هایی مناسب است که Equality مبتنی بر داده و مدل‌سازی Value-oriented برایشان مهم
+                    است؛ مخصوصاً DTOها و Value Objectهای Immutable.
                 </p>
             </section>
 
             <section class="mental-model">
                 <h2>مدل ذهنی خیلی ساده</h2>
-                <p>
-                    فرض کنید یک ظرف فقط می‌تواند اعداد بین یک حداقل و حداکثر مشخص را نگه دارد.
-                    اگر عدد از ظرفیت ظرف بزرگ‌تر شود، دو رفتار ممکن داریم:
-                </p>
+                <p>سه سؤال از خودتان بپرسید:</p>
                 <ul>
-                    <li><code dir="ltr">checked</code> → می‌گوید: «عدد از محدوده خارج شد؛ خطا بده.»</li>
-                    <li><code dir="ltr">unchecked</code> → می‌گوید: «خطا نده و طبق نمایش بیتی Type ادامه بده.»</li>
+                    <li><strong>این Object «چه کسی است» مهم است؟</strong> → معمولاً <code dir="ltr">class</code>.</li>
+                    <li><strong>این Object فقط «چه مقداری دارد» مهم است و کوچک است؟</strong> → ممکن است <code
+                            dir="ltr">struct</code> مناسب باشد.</li>
+                    <li><strong>می‌خواهم دو نمونه با داده یکسان برابر باشند و مدل Value-oriented باشد؟</strong> → <code
+                            dir="ltr">record</code> گزینه بسیار خوبی است.</li>
                 </ul>
             </section>
 
             <section>
-                <h2>Overflow اصلاً چیست؟</h2>
+                <h2>اول Identity و Value را بفهمیم</h2>
                 <p>
-                    هر Type عددی Integral محدوده مشخصی دارد.
-                    مثلاً <code dir="ltr">int</code> نمی‌تواند هر عدد دلخواهی را نگه دارد.
+                    در Domain Modeling، تفاوت مهمی بین <strong>Entity</strong> و <strong>Value Object</strong> وجود
+                    دارد.
+                </p>
+
+                <p>
+                    یک Entity معمولاً با Identity شناخته می‌شود:
                 </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>Console.WriteLine(int.MaxValue);
-// 2147483647</code></pre>
-
-                <p>
-                    حالا اگر یک واحد به این مقدار اضافه کنیم، نتیجه واقعی ریاضی برابر 2147483648 است؛
-                    اما این عدد دیگر داخل <code dir="ltr">int</code> جا نمی‌شود.
-                    به این وضعیت <strong>Overflow</strong> می‌گوییم.
-                </p>
-            </section>
-
-            <section>
-                <h2>مثال ساده با int.MaxValue</h2>
-
-                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int number = int.MaxValue;
-
-number = number + 1;
-
-Console.WriteLine(number);</code></pre>
-
-                <p>
-                    در یک Context unchecked، نتیجه به جای عدد مورد انتظار می‌تواند Wrap شود و به مقدار دیگری در محدوده
-                    int برسد.
-                    برای int دو مکمل، بعد از عبور از بیشینه معمولاً به سمت مقدار کمینه Wrap می‌شود.
-                </p>
-            </section>
-
-            <section>
-                <h2>checked چه کاری می‌کند؟</h2>
-                <p>
-                    اگر همان عملیات را داخل <code dir="ltr">checked</code> قرار دهیم، Runtime Overflow را بررسی می‌کند:
-                </p>
-
-                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int number = int.MaxValue;
-
-checked
+                <pre dir="ltr"><code>public class Customer
 {
-    number = number + 1;
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
 }</code></pre>
 
                 <p>
-                    اینجا نتیجه خارج از محدوده int است، بنابراین <code dir="ltr">OverflowException</code> رخ می‌دهد.
+                    دو Customer ممکن است Name یکسان داشته باشند، ولی اگر Id متفاوت باشد دو Entity جدا هستند.
+                </p>
+
+                <p>
+                    اما برای یک Value Object مثل Money معمولاً خود Value مهم است:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public record Money(
+    decimal Amount,
+    string Currency);</code></pre>
+
+                <p>
+                    دو Money با Amount و Currency یکسان معمولاً از نظر Domain همان Value را نشان می‌دهند.
                 </p>
             </section>
 
             <section>
-                <h2>checked به صورت Expression</h2>
+                <h2>class چیست؟</h2>
                 <p>
-                    لازم نیست همیشه یک Block کامل داشته باشیم:
+                    <code dir="ltr">class</code> یک Reference Type است.
+                    متغیرهای class معمولاً Reference به Object را نگه می‌دارند و Assignment خود Object را Copy نمی‌کند؛
+                    Reference کپی می‌شود.
                 </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int number = int.MaxValue;
-
-int result = checked(number + 1);</code></pre>
-
-                <p>
-                    این فرم زمانی خوب است که فقط یک Expression خاص باید Overflow-checked باشد.
-                </p>
-            </section>
-
-            <section>
-                <h2>unchecked چه کاری می‌کند؟</h2>
-                <p>
-                    <code dir="ltr">unchecked</code> مشخص می‌کند Overflow برای عملیات Integral بررسی نشود:
-                </p>
-
-                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int number = int.MaxValue;
-
-unchecked
+                <pre dir="ltr"><code>var first = new Customer
 {
-    number = number + 1;
+    Id = Guid.NewGuid(),
+    Name = "Sara"
+};
+
+var second = first;
+
+second.Name = "Mina";
+
+Console.WriteLine(first.Name); // Mina</code></pre>
+
+                <p>
+                    چون first و second به همان Object اشاره می‌کنند، تغییر از یک Reference از Reference دیگر هم دیده
+                    می‌شود.
+                </p>
+            </section>
+
+            <section>
+                <h2>class چه زمانی برای Domain مناسب است؟</h2>
+                <p>
+                    class معمولاً برای Objectهایی مناسب است که:
+                </p>
+                <ul>
+                    <li>Identity مستقل دارند.</li>
+                    <li>Lifecycle دارند.</li>
+                    <li>State آن‌ها در طول زمان تغییر می‌کند.</li>
+                    <li>قرار است چند بخش سیستم به همان Instance منطقی اشاره کنند.</li>
+                    <li>Entity یا Aggregate Root هستند.</li>
+                </ul>
+
+                <p>مثال‌های رایج:</p>
+
+                <div class="code-head"><span>Domain</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>Customer
+Order
+Payment
+Transaction
+Merchant
+BankAccount</code></pre>
+            </section>
+
+            <section>
+                <h2>مثال Entity با class</h2>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public class Payment
+{
+    public Guid Id { get; private set; }
+
+    public decimal Amount { get; private set; }
+
+    public PaymentStatus Status { get; private set; }
+
+    public void MarkAsCompleted()
+    {
+        Status = PaymentStatus.Completed;
+    }
+}</code></pre>
+
+                <p>
+                    Payment Identity دارد و State آن در طول Lifecycle تغییر می‌کند.
+                    این Characteristics معمولاً با class طبیعی‌تر مدل می‌شوند.
+                </p>
+            </section>
+
+            <section>
+                <h2>struct چیست؟</h2>
+                <p>
+                    <code dir="ltr">struct</code> یک Value Type است.
+                    یعنی Assignment به طور معمول Value را Copy می‌کند.
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public struct Point
+{
+    public int X { get; set; }
+    public int Y { get; set; }
 }
 
-Console.WriteLine(number);</code></pre>
+var first = new Point { X = 10, Y = 20 };
+var second = first;
+
+second.X = 100;
+
+Console.WriteLine(first.X); // 10</code></pre>
 
                 <p>
-                    در این حالت Exception مربوط به Overflow رخ نمی‌دهد و نتیجه طبق رفتار unchecked محاسبه می‌شود.
+                    در اینجا second یک Copy مستقل از Value است.
                 </p>
             </section>
 
             <section>
-                <h2>Wrap شدن یعنی چه؟</h2>
+                <h2>struct برای چه نوع مدل‌هایی مناسب است؟</h2>
                 <p>
-                    برای درک ساده، محدوده int را مثل یک دایره تصور کنید:
-                </p>
-
-                <div class="code-head"><span>Concept</span><button type="button" data-copy-code>کپی</button></div>
-                <pre dir="ltr"><code>... 2147483645
-    2147483646
-    2147483647
-        ↓ overflow
-   -2147483648
-   -2147483647
-   ...</code></pre>
-
-                <p>
-                    این تصویر برای درک رفتار معمول unchecked روی int مناسب است: بیت‌های نتیجه در همان اندازه Type باقی
-                    می‌مانند.
-                </p>
-            </section>
-
-            <section>
-                <h2>مثال مهم با cast</h2>
-                <p>
-                    checked فقط برای جمع و ضرب نیست؛ در تبدیل‌های عددی هم مهم است.
-                </p>
-
-                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>long value = 3_000_000_000;
-
-int result = checked((int)value);</code></pre>
-
-                <p>
-                    چون مقدار long داخل int جا نمی‌شود، این Cast در Context checked باعث <code
-                        dir="ltr">OverflowException</code> می‌شود.
-                </p>
-            </section>
-
-            <section>
-                <h2>همین cast با unchecked</h2>
-
-                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>long value = 3_000_000_000;
-
-int result = unchecked((int)value);</code></pre>
-
-                <p>
-                    اینجا Exception مربوط به Overflow رخ نمی‌دهد و فقط بیت‌های قابل نگهداری در int باقی می‌مانند؛
-                    بنابراین مقدار نهایی ممکن است کاملاً با عدد اولیه متفاوت باشد.
-                </p>
-            </section>
-
-            <section>
-                <h2>کدام عملیات‌ها معمولاً تحت تأثیر checked هستند؟</h2>
-                <p>
-                    در سناریوهای Integral، عملیات‌هایی مثل این‌ها می‌توانند Overflow داشته باشند:
+                    struct معمولاً وقتی جذاب است که Type:
                 </p>
                 <ul>
-                    <li>جمع</li>
-                    <li>تفریق</li>
-                    <li>ضرب</li>
-                    <li>Increment و Decrement</li>
-                    <li>تبدیل Explicit بین Typeهای عددی</li>
+                    <li>کوچک باشد.</li>
+                    <li>یک Value ساده را نمایش دهد.</li>
+                    <li>Identity مستقل نداشته باشد.</li>
+                    <li>Semantics کپی شدن برایش طبیعی باشد.</li>
+                    <li>ترجیحاً Immutable باشد.</li>
                 </ul>
 
+                <p>مثلاً:</p>
+
+                <div class="code-head"><span>Examples</span><button type="button" data-copy-code>کپی</button></div>
+                <pre dir="ltr"><code>Point
+Coordinate
+Range
+RgbColor
+Small numeric-like value</code></pre>
+            </section>
+
+            <section>
+                <h2>چرا Mutable Struct خطرناک است؟</h2>
+                <p>
+                    چون Struct با Value Semantics کار می‌کند، Copy شدن آن می‌تواند رفتارهایی ایجاد کند که برای Juniorها
+                    غافلگیرکننده باشد.
+                </p>
+
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>checked
+                <pre dir="ltr"><code>var point1 = new Point { X = 1, Y = 2 };
+
+var point2 = point1;
+
+point2.X = 50;
+
+// point1 تغییر نکرده است</code></pre>
+
+                <p>
+                    به همین دلیل برای Structها معمولاً طراحی Immutable یا <code dir="ltr">readonly struct</code> انتخاب
+                    امن‌تری است.
+                </p>
+            </section>
+
+            <section>
+                <h2>readonly struct چیست؟</h2>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public readonly struct Coordinate
 {
-    int a = int.MaxValue;
-    a++;
+    public double Latitude { get; }
+    public double Longitude { get; }
 
-    int b = 100_000;
-    int c = b * b;
+    public Coordinate(
+        double latitude,
+        double longitude)
+    {
+        Latitude = latitude;
+        Longitude = longitude;
+    }
 }</code></pre>
+
+                <p>
+                    این Type بعد از ساخته شدن State قابل تغییری ندارد و Value Semantics آن واضح‌تر است.
+                </p>
             </section>
 
             <section>
-                <h2>آیا division هم Overflow دارد؟</h2>
+                <h2>record چیست؟</h2>
                 <p>
-                    یک مورد خاص و معروف وجود دارد:
+                    record برای مدل‌سازی Data-oriented Typeها طراحی شده و به صورت پیش‌فرض امکاناتی مثل
+                    <strong>Value-based Equality</strong> و Syntax مناسب برای Immutable-style modeling می‌دهد.
                 </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int value = int.MinValue;
-
-int result = value / -1;</code></pre>
+                <pre dir="ltr"><code>public record Address(
+    string City,
+    string Street,
+    string PostalCode);</code></pre>
 
                 <p>
-                    نتیجه ریاضی برابر 2147483648 است و داخل int جا نمی‌شود.
-                    این مورد خاص می‌تواند <code dir="ltr">OverflowException</code> ایجاد کند.
-                </p>
-            </section>
-
-            <section>
-                <h2>checked با double و float چطور رفتار می‌کند؟</h2>
-                <p>
-                    این نکته مهم است: checked برای Overflow مربوط به Floating Point مثل <code dir="ltr">double</code>
-                    همان رفتار Integralها را ایجاد نمی‌کند.
-                    Floating Point طبق استاندارد خودش می‌تواند مقادیری مثل <code dir="ltr">Infinity</code> داشته باشد.
+                    حالا:
                 </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>double value = double.MaxValue;
+                <pre dir="ltr"><code>var first = new Address(
+    "Tehran",
+    "Valiasr",
+    "123");
 
-double result = value * 2;
+var second = new Address(
+    "Tehran",
+    "Valiasr",
+    "123");
 
-Console.WriteLine(result); // Infinity</code></pre>
+Console.WriteLine(first == second); // True</code></pre>
 
                 <p>
-                    پس checked را نباید به صورت «کنترل همه نوع Overflow عددی در C#» تعریف کنیم.
-                    تمرکز اصلی آن روی Integral Arithmetic و Conversionهای مربوط است.
+                    دو Instance جدا ساخته شده‌اند، ولی چون Data آن‌ها یکسان است، Value Equality برقرار است.
                 </p>
             </section>
 
             <section>
-                <h2>decimal چطور؟</h2>
-                <p>
-                    <code dir="ltr">decimal</code> رفتار متفاوتی دارد و در بسیاری از عملیات خارج از محدوده خودش به صورت
-                    ذاتی Exception می‌دهد.
-                    برای سناریوهای مالی، decimal به دلیل ماهیت ده‌دهی و رفتار دقیق‌تر برای مقادیر پولی معمولاً مناسب‌تر
-                    از float/double است.
-                </p>
-            </section>
+                <h2>این با class معمولی چه فرقی دارد؟</h2>
 
-            <section>
-                <h2>Compile Time و Runtime چه فرقی دارند؟</h2>
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public class Address
+{
+    public string City { get; set; } = "";
+}</code></pre>
+
                 <p>
-                    اگر Compiler بتواند Overflow یک Constant Expression را همان موقع تشخیص دهد، ممکن است اصلاً اجازه
-                    Compile ندهد.
+                    اگر دو Object جدا بسازیم:
                 </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int x = 2147483647 + 1;</code></pre>
+                <pre dir="ltr"><code>var first = new Address { City = "Tehran" };
+var second = new Address { City = "Tehran" };
+
+Console.WriteLine(first == second); // False</code></pre>
 
                 <p>
-                    چون هر دو مقدار Constant هستند، Compiler می‌تواند محاسبه را همان Compile Time انجام دهد و Overflow
-                    را تشخیص دهد.
+                    در class معمولی، Equality پیش‌فرض Reference-based است؛ یعنی این دو Reference به دو Object جدا اشاره
+                    می‌کنند.
+                    البته می‌توان Equality سفارشی برای class پیاده‌سازی کرد، اما record این رفتار Value-oriented را به
+                    شکل built-in فراهم می‌کند.
                 </p>
             </section>
 
             <section>
-                <h2>ولی اگر مقدار در Runtime مشخص شود...</h2>
+                <h2>record class است یا Value Type؟</h2>
+                <p>
+                    خود کلمه record به تنهایی لزوماً به معنی Value Type نیست.
+                </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int x = GetNumber();
-int y = x + 1;</code></pre>
+                <pre dir="ltr"><code>public record Person(string Name);</code></pre>
 
                 <p>
-                    Compiler مقدار واقعی x را نمی‌داند؛ بنابراین رفتار checked یا unchecked Runtime اهمیت پیدا می‌کند.
+                    این در حالت معمول یک <strong>record class</strong> و در نتیجه Reference Type است.
+                </p>
+
+                <p>
+                    اما C# همچنین دارد:
+                </p>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public record struct Point(int X, int Y);
+
+public readonly record struct Money(
+    decimal Amount,
+    string Currency);</code></pre>
+
+                <p>
+                    پس record بیشتر درباره Semantics و امکانات Record است؛ می‌تواند Reference Type یا Value Type باشد.
                 </p>
             </section>
 
             <section>
-                <h2>checked block یا checked expression؟</h2>
+                <h2>record class و record struct چه فرقی دارند؟</h2>
 
                 <table>
                     <thead>
                         <tr>
-                            <th>حالت</th>
-                            <th>نمونه</th>
-                            <th>کاربرد</th>
+                            <th>نوع</th>
+                            <th>Category</th>
+                            <th>Assignment</th>
+                            <th>Equality</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Checked Block</td>
-                            <td><code dir="ltr">checked { ... }</code></td>
-                            <td>چند Operation پشت سر هم</td>
+                            <td><code dir="ltr">record class</code></td>
+                            <td>Reference Type</td>
+                            <td>Reference کپی می‌شود</td>
+                            <td>Value-based</td>
                         </tr>
                         <tr>
-                            <td>Checked Expression</td>
-                            <td><code dir="ltr">checked(a + b)</code></td>
-                            <td>فقط یک Expression خاص</td>
-                        </tr>
-                        <tr>
-                            <td>Unchecked Block</td>
-                            <td><code dir="ltr">unchecked { ... }</code></td>
-                            <td>غیرفعال کردن بررسی در یک بخش</td>
-                        </tr>
-                        <tr>
-                            <td>Unchecked Expression</td>
-                            <td><code dir="ltr">unchecked((int)value)</code></td>
-                            <td>یک Conversion یا Expression خاص</td>
+                            <td><code dir="ltr">record struct</code></td>
+                            <td>Value Type</td>
+                            <td>Value کپی می‌شود</td>
+                            <td>Value-based</td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
             <section>
-                <h2>مثال واقعی در سیستم مالی</h2>
+                <h2>with expression در record</h2>
                 <p>
-                    فرض کنید Amountها را جمع می‌کنیم:
+                    یکی از قابلیت‌های بسیار کاربردی record، ساخت Copy با چند تغییر است:
                 </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>long total = 0;
+                <pre dir="ltr"><code>public record CustomerDto(
+    string Name,
+    string City);
 
-foreach (var transaction in transactions)
+var first =
+    new CustomerDto("Sara", "Tehran");
+
+var second = first with
 {
-    total = checked(total + transaction.Amount);
+    City = "Shiraz"
+};</code></pre>
+
+                <p>
+                    first تغییر نمی‌کند و second نسخه جدیدی با City متفاوت است.
+                    این Style برای مدل‌های Immutable بسیار خواناست.
+                </p>
+            </section>
+
+            <section>
+                <h2>record برای DTO مناسب است؟</h2>
+                <p>
+                    در بسیاری از سناریوها بله، مخصوصاً وقتی DTO:
+                </p>
+                <ul>
+                    <li>فقط Data حمل می‌کند.</li>
+                    <li>Behavior پیچیده ندارد.</li>
+                    <li>ترجیحاً Immutable است.</li>
+                    <li>Value Equality برای Test یا مقایسه مفید است.</li>
+                </ul>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public record PaymentResponse(
+    Guid TransactionId,
+    decimal Amount,
+    string Status);</code></pre>
+            </section>
+
+            <section>
+                <h2>آیا Entity را record کنیم؟</h2>
+                <p>
+                    از نظر زبان ممکن است، اما از نظر Domain Design باید دقت کنیم.
+                    Entity معمولاً با Identity برابر است، نه با همه Propertyها.
+                </p>
+
+                <p>
+                    مثلاً دو Customer با Id یکسان ممکن است همان Entity باشند حتی اگر Name آن‌ها در دو Snapshot متفاوت
+                    باشد.
+                    اما Value Equality خودکار record همه Componentهای Equality را وارد مقایسه می‌کند.
+                </p>
+
+                <p>
+                    پس برای Entityهای DDD معمولاً class انتخاب طبیعی‌تری است، مگر اینکه Equality و Lifecycle را آگاهانه
+                    طراحی کرده باشید.
+                </p>
+            </section>
+
+            <section>
+                <h2>مثال: Entity با Identity</h2>
+
+                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
+                <pre dir="ltr"><code>public class BankAccount
+{
+    public Guid Id { get; private set; }
+
+    public decimal Balance { get; private set; }
+
+    public void Deposit(decimal amount)
+    {
+        Balance += amount;
+    }
 }</code></pre>
 
                 <p>
-                    اگر Amountها به شکلی برسند که از محدوده long عبور کنند، بهتر است سیستم خطا را آشکار کند تا اینکه یک
-                    مقدار Wrap شده و اشتباه مالی تولید شود.
-                </p>
-                <p class="example-explanation">
-                    در Domainهای حساس مثل مالی، Silent Overflow می‌تواند بسیار خطرناک‌تر از Exception باشد.
+                    اگر Balance تغییر کند، Entity جدیدی ایجاد نشده؛ همان BankAccount با همان Identity است.
+                    این دقیقاً Entity Semantics است.
                 </p>
             </section>
 
             <section>
-                <h2>مثال واقعی برای unchecked</h2>
-                <p>
-                    گاهی Wrap شدن عمدی است، مثلاً در بعضی الگوریتم‌های Low-level، Hashing یا کار مستقیم با بیت‌ها.
-                </p>
+                <h2>مثال: Value Object با record</h2>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int hash = unchecked(seed * 31 + value);</code></pre>
-
-                <p>
-                    در چنین الگوریتمی Overflow ممکن است بخشی از رفتار مورد انتظار باشد، نه Bug.
-                </p>
-            </section>
-
-            <section>
-                <h2>آیا checked را باید همه‌جا روشن کنیم؟</h2>
-                <p>
-                    نه لزوماً. این تصمیم به Domain و نوع محاسبات بستگی دارد.
-                    اگر Overflow نشانه خطای مهم Business است، checked می‌تواند ارزشمند باشد.
-                    اگر الگوریتم عمداً روی Wraparound تکیه دارد، unchecked مناسب‌تر است.
-                </p>
-                <p>
-                    هدف این است که رفتار Overflow <strong>آگاهانه و صریح</strong> باشد.
-                </p>
-            </section>
-
-            <section>
-                <h2>اشتباه رایج: فکر کنیم checked مقدار را بزرگ‌تر می‌کند</h2>
-                <p>
-                    <code dir="ltr">checked</code> ظرفیت Type را بیشتر نمی‌کند.
-                </p>
-
-                <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>checked
+                <pre dir="ltr"><code>public sealed record Money
 {
-    int x = int.MaxValue;
-    x++;
+    public decimal Amount { get; }
+    public string Currency { get; }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        if (amount &lt; 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        Amount = amount;
+        Currency = currency;
+    }
 }</code></pre>
 
                 <p>
-                    int همچنان همان محدوده قبلی را دارد؛ checked فقط تشخیص Overflow و Exception را فعال می‌کند.
+                    Money Identity مستقلی ندارد.
+                    <code dir="ltr">100 USD</code> صرفاً یک Value است.
+                    Record کمک می‌کند Equality چنین مدلی طبیعی‌تر باشد، در حالی که Constructor همچنان Invariantهای
+                    Domain را enforce می‌کند.
                 </p>
             </section>
 
             <section>
-                <h2>اشتباه رایج: unchecked یعنی داده درست باقی می‌ماند</h2>
+                <h2>آیا هر Value Object باید record باشد؟</h2>
                 <p>
-                    نه. unchecked فقط می‌گوید Overflow را Exception نکن.
-                    عدد نهایی ممکن است از نظر Business کاملاً غلط باشد.
+                    نه. record ابزار بسیار خوبی است، اما قانون اجباری نیست.
+                    می‌توان Value Object را با class یا struct هم طراحی کرد و Equality مناسب را خودمان تعریف کنیم.
+                </p>
+
+                <p>
+                    انتخاب باید بر اساس Semantics و نیاز پروژه باشد، نه صرفاً جدیدتر بودن Feature.
+                </p>
+            </section>
+
+            <section>
+                <h2>چه زمانی struct برای Value Object بهتر از record class است؟</h2>
+                <p>
+                    اگر Value Object:
+                </p>
+                <ul>
+                    <li>واقعاً کوچک است.</li>
+                    <li>بسیار زیاد ساخته و استفاده می‌شود.</li>
+                    <li>Semantics کپی طبیعی دارد.</li>
+                    <li>عدم وجود null برای آن مطلوب است.</li>
+                    <li>Value Type بودن مزیت مشخصی ایجاد می‌کند.</li>
+                </ul>
+
+                <p>
+                    می‌توان <code dir="ltr">readonly record struct</code> را هم بررسی کرد:
                 </p>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int balance = int.MaxValue;
+                <pre dir="ltr"><code>public readonly record struct Percentage(
+    decimal Value);</code></pre>
+            </section>
 
-balance = unchecked(balance + 100);</code></pre>
+            <section>
+                <h2>ولی چرا Struct بزرگ خطرناک است؟</h2>
+                <p>
+                    چون Struct در Assignment و عبور By Value می‌تواند Copy شود.
+                    اگر Struct بزرگ باشد، این Copyها می‌توانند هزینه‌دار شوند و Semantics کد هم پیچیده‌تر شود.
+                </p>
 
                 <p>
-                    اینکه برنامه Crash نکرده به این معنی نیست که balance هنوز مقدار منطقی و معتبری دارد.
+                    پس جمله «Struct روی Stack است و سریع‌تر است» معیار درستی برای Domain Modeling نیست.
+                    Value Type بودن درباره Semantics مهم است، نه فقط محل حافظه.
                 </p>
             </section>
 
             <section>
-                <h2>فرق Overflow با DivideByZeroException</h2>
+                <h2>Stack و Heap معیار انتخاب نیستند</h2>
                 <p>
-                    این دو را با هم اشتباه نکنید.
+                    یکی از اشتباهات رایج مصاحبه:
                 </p>
+
+                <div class="code-head"><span>Wrong mental model</span><button type="button" data-copy-code>کپی</button>
+                </div>
+                <pre dir="ltr"><code>class  → Heap
+struct → Stack</code></pre>
+
+                <p>
+                    این تعریف بیش از حد ساده و گمراه‌کننده است.
+                    یک Struct می‌تواند داخل یک Object روی Managed Heap قرار بگیرد و Runtime/JIT درباره Storage واقعی
+                    تصمیمات مختلفی بگیرند.
+                </p>
+
+                <p>
+                    برای انتخاب مدل Domain، اول Semantics را ببینید:
+                    <strong>Identity، Equality، Mutability، Copy semantics و Lifecycle.</strong>
+                </p>
+            </section>
+
+            <section>
+                <h2>Mutability چه نقشی در انتخاب دارد؟</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>مدل</th>
+                            <th>الگوی رایج</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Entity</td>
+                            <td>Controlled Mutable State</td>
+                        </tr>
+                        <tr>
+                            <td>Value Object</td>
+                            <td>معمولاً Immutable</td>
+                        </tr>
+                        <tr>
+                            <td>DTO</td>
+                            <td>Mutable یا Immutable بسته به Serializer/API</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    مثلاً Order می‌تواند State را از Pending به Paid تغییر دهد.
+                    اما Money بهتر است تغییر نکند؛ به جای تغییر Amount، Value جدید بسازیم.
+                </p>
+            </section>
+
+            <section>
+                <h2>یک مثال مهم: تغییر Value Object</h2>
 
                 <div class="code-head"><span>C#</span><button type="button" data-copy-code>کپی کد</button></div>
-                <pre dir="ltr"><code>int x = 10;
-int y = 0;
+                <pre dir="ltr"><code>public record Money(
+    decimal Amount,
+    string Currency);
 
-int result = x / y; // DivideByZeroException</code></pre>
+var price = new Money(100, "USD");
+
+var discounted = price with
+{
+    Amount = 90
+};</code></pre>
 
                 <p>
-                    <code dir="ltr">checked</code> برای جلوگیری از تقسیم بر صفر نیست.
-                    Divide by zero یک خطای مستقل است.
+                    Value قبلی تغییر نکرده؛ Value جدید ساخته شده است.
+                    این مدل ذهنی برای Value Objectها بسیار طبیعی است.
                 </p>
             </section>
 
             <section>
-                <h2>جدول مقایسه سریع</h2>
+                <h2>Equality را چطور تصمیم بگیریم؟</h2>
+                <p>این سؤال بسیار مهم‌تر از «class یا record؟» است.</p>
+
+                <ul>
+                    <li>اگر <strong>Identity</strong> مهم است → Equality باید بر اساس Identity طراحی شود.</li>
+                    <li>اگر <strong>تمام Valueها</strong> معنی Object را تشکیل می‌دهند → Value Equality منطقی است.</li>
+                </ul>
+
+                <p>
+                    Record به صورت پیش‌فرض Value Equality را راحت می‌کند، اما شما باید مطمئن شوید این Equality واقعاً با
+                    Domain هماهنگ است.
+                </p>
+            </section>
+
+            <section>
+                <h2>جدول مقایسه کلی</h2>
+
                 <table>
                     <thead>
                         <tr>
                             <th>ویژگی</th>
-                            <th><code dir="ltr">checked</code></th>
-                            <th><code dir="ltr">unchecked</code></th>
+                            <th>class</th>
+                            <th>struct</th>
+                            <th>record class</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>بررسی Overflow Integral</td>
+                            <td>نوع</td>
+                            <td>Reference Type</td>
+                            <td>Value Type</td>
+                            <td>Reference Type</td>
+                        </tr>
+                        <tr>
+                            <td>Assignment</td>
+                            <td>کپی Reference</td>
+                            <td>کپی Value</td>
+                            <td>کپی Reference</td>
+                        </tr>
+                        <tr>
+                            <td>Equality پیش‌فرض اصلی</td>
+                            <td>Reference-oriented</td>
+                            <td>Value-oriented semantics</td>
+                            <td>Value-based</td>
+                        </tr>
+                        <tr>
+                            <td>Identity-oriented</td>
+                            <td>بسیار مناسب</td>
+                            <td>معمولاً نه</td>
+                            <td>با احتیاط</td>
+                        </tr>
+                        <tr>
+                            <td>Value Object</td>
+                            <td>ممکن است</td>
+                            <td>برای Valueهای کوچک مناسب</td>
+                            <td>بسیار مناسب</td>
+                        </tr>
+                        <tr>
+                            <td>with expression</td>
+                            <td>به صورت عمومی نه</td>
+                            <td>نه به شکل record</td>
                             <td>بله</td>
-                            <td>خیر</td>
-                        </tr>
-                        <tr>
-                            <td>OverflowException</td>
-                            <td>ممکن است رخ دهد</td>
-                            <td>معمولاً برای Overflow معمول Integral رخ نمی‌دهد</td>
-                        </tr>
-                        <tr>
-                            <td>Wraparound</td>
-                            <td>اجازه نمی‌دهد Overflow بی‌صدا ادامه پیدا کند</td>
-                            <td>می‌تواند رخ دهد</td>
-                        </tr>
-                        <tr>
-                            <td>کاربرد مناسب</td>
-                            <td>محاسبات حساس و نیازمند تشخیص Overflow</td>
-                            <td>الگوریتم‌های عمدی با Wraparound</td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
             <section>
-                <h2>Overflow با Underflow فرق دارد؟</h2>
-                <p>
-                    برای Integerها وقتی از پایین‌ترین یا بالاترین محدوده عبور می‌کنیم، معمولاً در بحث checked/unchecked
-                    هر دو را در قالب Overflow عددی بررسی می‌کنیم.
-                    برای Floating Point، اصطلاح Underflow معمولاً به کوچک شدن بیش از حد مقدار و از دست رفتن Precision یا
-                    رسیدن به صفر/مقادیر Subnormal مربوط می‌شود و داستان متفاوتی دارد.
-                </p>
+                <h2>record struct را هم در تصمیم‌گیری فراموش نکنیم</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع</th>
+                            <th>Reference/Value</th>
+                            <th>Equality</th>
+                            <th>سناریوی معمول</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>class</td>
+                            <td>Reference</td>
+                            <td>Reference-based پیش‌فرض</td>
+                            <td>Entity / Stateful Object</td>
+                        </tr>
+                        <tr>
+                            <td>struct</td>
+                            <td>Value</td>
+                            <td>Value semantics</td>
+                            <td>Value کوچک</td>
+                        </tr>
+                        <tr>
+                            <td>record class</td>
+                            <td>Reference</td>
+                            <td>Value-based</td>
+                            <td>DTO / Value Object</td>
+                        </tr>
+                        <tr>
+                            <td>record struct</td>
+                            <td>Value</td>
+                            <td>Value-based</td>
+                            <td>Value کوچک با Record semantics</td>
+                        </tr>
+                    </tbody>
+                </table>
             </section>
 
             <section>
-                <h2>تنظیم پروژه هم می‌تواند مهم باشد</h2>
+                <h2>مثال تصمیم‌گیری در یک سیستم پرداخت</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>مدل</th>
+                            <th>انتخاب پیشنهادی</th>
+                            <th>دلیل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Transaction</td>
+                            <td>class</td>
+                            <td>Identity و Lifecycle دارد</td>
+                        </tr>
+                        <tr>
+                            <td>Merchant</td>
+                            <td>class</td>
+                            <td>Entity با Identity</td>
+                        </tr>
+                        <tr>
+                            <td>Money</td>
+                            <td>record class یا readonly record struct</td>
+                            <td>Value-based و معمولاً Immutable</td>
+                        </tr>
+                        <tr>
+                            <td>CurrencyCode کوچک</td>
+                            <td>readonly record struct یا Value Type مناسب</td>
+                            <td>Value کوچک و بدون Identity</td>
+                        </tr>
+                        <tr>
+                            <td>API Response</td>
+                            <td>record</td>
+                            <td>Data-oriented و Equality مفید</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section>
+                <h2>آیا EF Core با record و struct مسئله دارد؟</h2>
                 <p>
-                    در C# علاوه بر استفاده موضعی از <code dir="ltr">checked</code> و <code dir="ltr">unchecked</code>،
-                    تنظیمات Compiler نیز می‌توانند روی Context پیش‌فرض Overflow Checking برای Integer Arithmetic اثر
-                    بگذارند.
-                    اما حتی در چنین پروژه‌ای می‌توان با checked/unchecked در یک بخش مشخص، Intent را صریح کرد.
+                    برای Entityهای EF Core معمولاً class مسیر رایج و ساده‌تری است، چون Change Tracking، Navigationها،
+                    Proxyها و Lifecycle Entity با Reference Typeها طبیعی‌تر هماهنگ هستند.
+                </p>
+
+                <p>
+                    Value Objectها بسته به طراحی می‌توانند به صورت Owned/Complex Type یا روش مناسب دیگر Map شوند.
+                    اما انتخاب نهایی باید با قابلیت‌های نسخه EF Core و Mapping واقعی پروژه هماهنگ شود.
                 </p>
             </section>
 
             <section>
                 <h2>اشتباهات رایج</h2>
                 <ul>
-                    <li><strong>اشتباه:</strong> checked محدوده int را بزرگ‌تر می‌کند.<br><strong>درست:</strong> فقط
-                        Overflow را تشخیص می‌دهد.</li>
-                    <li><strong>اشتباه:</strong> unchecked یعنی نتیجه هنوز از نظر Business صحیح
-                        است.<br><strong>درست:</strong> فقط Exception مربوط به Overflow را حذف می‌کند و Wraparound ممکن
-                        است داده را خراب کند.</li>
-                    <li><strong>اشتباه:</strong> checked روی double هم مثل int OverflowException
-                        می‌دهد.<br><strong>درست:</strong> Floating Point رفتار متفاوتی دارد و می‌تواند Infinity تولید
-                        کند.</li>
-                    <li><strong>اشتباه:</strong> checked فقط برای جمع است.<br><strong>درست:</strong> روی چندین عملیات
-                        Integral و Conversionهای عددی اثر دارد.</li>
-                    <li><strong>اشتباه:</strong> checked جلوی DivideByZeroException را
-                        می‌گیرد.<br><strong>درست:</strong> تقسیم بر صفر مسئله جداگانه‌ای است.</li>
+                    <li><strong>اشتباه:</strong> Struct همیشه سریع‌تر است چون روی Stack است.<br><strong>درست:</strong>
+                        Storage به Context بستگی دارد و Value Semantics مهم‌تر است.</li>
+                    <li><strong>اشتباه:</strong> Record یعنی Value Type.<br><strong>درست:</strong> record معمولی یک
+                        record class است؛ record struct هم داریم.</li>
+                    <li><strong>اشتباه:</strong> هر Entity را می‌توان record کرد چون Equality راحت‌تر
+                        است.<br><strong>درست:</strong> Entity Equality معمولاً Identity-based است، نه تمام Propertyها.
+                    </li>
+                    <li><strong>اشتباه:</strong> هر Value Object حتماً باید struct باشد.<br><strong>درست:</strong>
+                        record class یا class با Equality مناسب هم می‌تواند Value Object خوبی باشد.</li>
+                    <li><strong>اشتباه:</strong> کوتاه‌ترین Syntax همیشه بهترین Domain Model
+                        است.<br><strong>درست:</strong> Semantics مدل مهم‌تر از Syntax است.</li>
                 </ul>
             </section>
 
             <section class="further-details">
                 <h2>جزئیات عمیق‌تر برای سطح Senior</h2>
                 <p>
-                    Compiler برای عملیات Integral در Context checked می‌تواند IL متفاوتی تولید کند؛ برای مثال برخی
-                    دستورهای Overflow-checking در IL وجود دارند که اگر نتیجه از محدوده خارج شود Exception ایجاد می‌کنند.
-                    در Context unchecked، عملیات بدون آن بررسی Overflow انجام می‌شود.
+                    در Domain Modeling، انتخاب Type باید از مفهوم Domain شروع شود، نه از Memory Layout.
+                    Entity دارای Continuity و Identity است؛ بنابراین Reference Semantics و Controlled Mutation معمولاً
+                    منطقی‌اند.
+                    Value Object بر اساس Attributes تعریف می‌شود و Immutable بودن آن باعث ساده‌تر شدن Reasoning، Thread
+                    Safety و جلوگیری از Shared Mutable State می‌شود.
                 </p>
+
                 <p>
-                    همچنین Constant Expressionها می‌توانند در Compile Time بررسی شوند، بنابراین تفاوت بین Overflow زمان
-                    Compile و Runtime مهم است.
-                    برای Domainهای حساس بهتر است Type مناسب را هم انتخاب کنید؛ checked جای انتخاب Type درست را نمی‌گیرد.
-                    اگر محدوده <code dir="ltr">int</code> ذاتاً برای داده کوچک است، شاید <code dir="ltr">long</code> یا
-                    Type مناسب‌تری لازم باشد.
+                    برای Structها باید هزینه Copy، Boxing در Interface-based usage، اندازه Type و Mutable Struct
+                    pitfalls را در نظر گرفت.
+                    Record نیز Equality، Deconstruction، Printing و Non-destructive mutation با <code
+                        dir="ltr">with</code> را آسان می‌کند، اما این Convenience نباید باعث شود Entity Equality اشتباه
+                    طراحی شود.
                 </p>
             </section>
 
             <section>
-                <h2>در پروژه واقعی چه قاعده‌ای داشته باشیم؟</h2>
+                <h2>Rule of Thumb برای پروژه واقعی</h2>
                 <ul>
-                    <li>اگر Overflow نشانه Bug یا فساد داده است → <code dir="ltr">checked</code>.</li>
-                    <li>اگر Wraparound عمداً بخشی از الگوریتم است → <code dir="ltr">unchecked</code>.</li>
-                    <li>اگر Type انتخاب‌شده ظرفیت کافی ندارد → Type بزرگ‌تر یا مناسب‌تر انتخاب کنید.</li>
-                    <li>در محاسبات مالی، Silent Overflow را بسیار جدی بگیرید.</li>
-                    <li>برای کد Performance-sensitive، اول صحت و سپس Benchmark واقعی را در نظر بگیرید.</li>
+                    <li><strong>Entity / Aggregate Root</strong> → معمولاً <code dir="ltr">class</code>.</li>
+                    <li><strong>Value Object عمومی و Immutable</strong> → معمولاً <code dir="ltr">record class</code>.
+                    </li>
+                    <li><strong>Value بسیار کوچک با Semantics کپی</strong> → <code dir="ltr">readonly struct</code> یا
+                        <code dir="ltr">readonly record struct</code>.</li>
+                    <li><strong>DTO / Message / Response</strong> → record اغلب انتخاب تمیزی است.</li>
+                    <li>اگر Equality بر اساس Identity است، Value Equality خودکار record را بدون فکر نپذیرید.</li>
                 </ul>
             </section>
 
             <section>
                 <h2>اگر مصاحبه‌کننده فقط در ۲۰ ثانیه جواب بخواهد</h2>
                 <p>
-                    «checked باعث می‌شود Overflow در عملیات Integral و Conversionهای مربوط بررسی شود و اگر نتیجه از
-                    محدوده Type خارج شد OverflowException بگیریم. unchecked این بررسی را غیرفعال می‌کند و Overflow
-                    می‌تواند به صورت Wraparound ادامه پیدا کند. این رفتار عمدتاً برای Integerها مهم است؛ Floating
-                    Pointهایی مثل double رفتار متفاوتی دارند.»
+                    «من بر اساس Domain Semantics انتخاب می‌کنم. Entityهایی که Identity و Lifecycle دارند معمولاً class
+                    هستند. Struct را برای Valueهای کوچک و بدون Identity که Copy semantics طبیعی دارند انتخاب می‌کنم و
+                    ترجیح می‌دهم Immutable باشد. Record برای مدل‌های Value-oriented مثل DTO و Value Object مناسب است چون
+                    Value-based equality و with expression را به صورت built-in می‌دهد. نکته مهم این است که record معمولی
+                    Reference Type است و نباید Entity را فقط به خاطر Syntax ساده‌تر record کنیم.»
                 </p>
             </section>
 
             <section class="interview">
                 <h2>جواب پیشنهادی کامل برای مصاحبه</h2>
                 <p>
-                    «در C# checked و unchecked Context نحوه برخورد با Overflow در محاسبات Integral را کنترل می‌کنند. در
-                    checked، اگر نتیجه یک Operation یا Conversion از محدوده Type خارج شود، Runtime معمولاً
-                    OverflowException ایجاد می‌کند. در unchecked، همان Overflow بدون Exception ادامه پیدا می‌کند و
-                    بیت‌های نتیجه در محدوده Type Wrap می‌شوند. این موضوع در محاسبات حساس مثل مالی مهم است، چون Silent
-                    Overflow می‌تواند داده اشتباه تولید کند. checked ظرفیت Type را تغییر نمی‌دهد و روی Floating Point
-                    مثل double هم رفتار مشابه int ندارد. من از checked زمانی استفاده می‌کنم که Overflow باید به عنوان
-                    خطا دیده شود و از unchecked فقط وقتی Wraparound بخشی عمدی از الگوریتم باشد.»
+                    «در انتخاب بین class، struct و record اول به Identity، Equality، Mutability و Copy semantics مدل
+                    نگاه می‌کنم. class یک Reference Type است و برای Entityهایی مثل Order یا Transaction که Identity و
+                    Lifecycle دارند انتخاب طبیعی‌تری است. struct یک Value Type است و Assignment آن Value را Copy می‌کند،
+                    بنابراین برای Valueهای کوچک، بدون Identity و ترجیحاً Immutable مناسب است. record برای Data-oriented
+                    modelها Value-based equality، with expression و Syntax مناسبی برای Immutable modeling می‌دهد؛ record
+                    معمولی Reference Type است و record struct نیز وجود دارد. برای Value Objectها record اغلب گزینه خوبی
+                    است، ولی برای Entity باید مراقب باشیم Equality بر اساس Identity طراحی شود، نه صرفاً همه Propertyها.»
                 </p>
             </section>
 
             <section>
                 <h2>چیزی که باید از این سؤال یادت بماند</h2>
                 <p>
-                    سه جمله را حفظ کنید:
-                    <strong><code dir="ltr">checked</code> = Overflow را بررسی کن و در صورت خروج از محدوده خطا
-                        بده</strong>،
-                    <strong><code dir="ltr">unchecked</code> = Overflow را بدون Exception ادامه بده</strong>،
+                    این سه خط را حفظ کنید:
+                    <strong>class = Identity و Reference Semantics</strong>،
+                    <strong>struct = Value کوچک با Copy Semantics</strong>،
                     و
-                    <strong>این موضوع عمدتاً برای Integral Arithmetic و Conversionهاست، نه Floating Point
-                        معمول.</strong>
+                    <strong>record = Value-oriented modeling با Value Equality</strong>.
+                    بعد اضافه کنید:
+                    <strong>انتخاب واقعی باید از Domain Semantics بیاید، نه از Stack/Heap یا کوتاه‌تر بودن
+                        Syntax.</strong>
                 </p>
             </section>
 
-            <nav class="pager" aria-label="پرسش قبلی و بعدی"><a rel="prev" href="foreach-internals.html">→ سؤال
-                    قبلی</a><a rel="next" href="../oop/class-struct-record.html">سؤال بعدی ←</a></nav>
+            <nav class="pager" aria-label="پرسش قبلی و بعدی"><a rel="prev" href="../operators/checked-unchecked.html">→
+                    سؤال قبلی</a><a rel="next" href="overload-override-hide.html">سؤال بعدی ←</a></nav>
         </main>
     </div>
     <div id="copy-status" role="status" aria-live="polite"></div>
