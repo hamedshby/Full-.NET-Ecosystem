@@ -53,13 +53,13 @@ foreach ($id in 'courses', 'resources', 'newsletter', 'theme-toggle', 'language-
 
 Assert-Contains '<button[^>]+id="language-toggle"[^>]*>انگلیسی</button>' 'The language control must use Persian visible copy.'
 
-foreach ($title in 'مسیر حرفه‌ای Senior در', 'راهنمای طراحی سیستم', 'آزمون رایگان مصاحبه', 'دورهٔ ایمیلی Claude Code') {
+foreach ($title in 'سوالات <bdi>.NET</bdi>', 'مسیر حرفه‌ای <bdi>.NET</bdi>', 'راهنمای طراحی سیستم', 'آزمون رایگان مصاحبه', 'دورهٔ ایمیلی Claude Code') {
   Assert-Contains ([regex]::Escape($title)) "The course title is missing: $title"
 }
 
 $courseCardCount = ([regex]::Matches($html, '<article[^>]+class="[^"]*course-card')).Count
-if ($courseCardCount -ne 4) {
-  $failures.Add("Expected 4 course cards; found $courseCardCount.")
+if ($courseCardCount -ne 5) {
+  $failures.Add("Expected 5 course cards; found $courseCardCount.")
 }
 
 $headerMatch = [regex]::Match($html, '<header\b[\s\S]*?</header>', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)

@@ -299,7 +299,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
 .course-card > p:not(.status) { margin: 0.6rem 0; color: var(--muted); font-size: 0.92rem; }
 .course-card ul { margin: 0.45rem 0 1.35rem; padding: 0 1.1rem 0 0; color: var(--muted); font-size: 0.84rem; }
 .course-card li + li { margin-top: 0.35rem; }
-.course-card button { align-self: stretch; margin-top: auto; }
+.course-card > .button-link, .course-card button { align-self: stretch; margin-top: auto; }
 
 .value-propositions { border-block: 1px solid var(--line); }
 .value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }

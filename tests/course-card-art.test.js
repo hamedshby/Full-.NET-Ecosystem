@@ -11,3 +11,14 @@ test('every course artwork spans its card content width', () => {
     /(?:^|\n)\.course-art\s*\{[^}]*width:\s*100%[^}]*aspect-ratio:\s*auto/
   );
 });
+
+test('course card action links stay aligned at the bottom of equal-height cards', () => {
+  assert.match(
+    css,
+    /\.course-card\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/
+  );
+  assert.match(
+    css,
+    /\.course-card\s*>\s*\.button-link[^}]*\{[^}]*align-self:\s*stretch[^}]*margin-top:\s*auto/
+  );
+});

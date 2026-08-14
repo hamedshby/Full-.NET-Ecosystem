@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش ساده و کاربردی Architecture Decision Record، ساختار ADR، وضعیت‌ها، نمونهٔ کامل و کاربرد AI در نوشتن آن.">
+  <title>ADR چیست؟ | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light' ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a><span aria-hidden="true">/</span><span>مقدمه</span><span aria-hidden="true">/</span><span>درس ۴</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل اول — مقدمه</p>
+          <h1><bdi>ADR</bdi> چیست؟</h1>
+          <p class="lesson-lead"><bdi>Architecture Decision Record</bdi> یا <bdi>ADR</bdi> یک سند کوتاه است که توضیح می‌دهد تیم چه تصمیم معماری گرفته، چرا آن را گرفته و چه پیامدهایی را پذیرفته است.</p>
+        </header>
+
+        <section class="lesson-section">
+          <h2>یک مثال ساده: چرا این راه را انتخاب کردیم؟</h2>
+          <p>فرض کنید به یک پروژهٔ فروشگاه اینترنتی ملحق شده‌اید. Code نشان می‌دهد سیستم به‌صورت <bdi>Modular Monolith</bdi> ساخته شده است، اما هیچ‌کس نمی‌داند چرا تیم به‌جای <bdi>Microservices</bdi> این ساختار را انتخاب کرده است.</p>
+          <p>شاید تصمیم به‌دلیل تیم کوچک و زمان تحویل کوتاه کاملاً منطقی بوده باشد. اگر دلیل ثبت نشده باشد، تیم جدید ممکن است تصمیم درستی را اشتباه تصور کند یا همان بحث قدیمی را از ابتدا تکرار کند.</p>
+          <aside class="lesson-note"><strong>مدل ذهنی:</strong> Code نتیجهٔ تصمیم را نشان می‌دهد؛ ADR داستان و دلیل پشت آن تصمیم را نگه می‌دارد.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>نام <bdi>ADR</bdi> چه معنایی دارد؟</h2>
+          <div class="comparison-table" role="region" aria-label="اجزای عبارت Architecture Decision Record" tabindex="0">
+            <table>
+              <thead><tr><th>واژه</th><th>معنا در این اصطلاح</th></tr></thead>
+              <tbody>
+                <tr><td><bdi>Architecture</bdi></td><td>تصمیم روی ساختار یا ویژگی‌های مهم سیستم اثر می‌گذارد.</td></tr>
+                <tr><td><bdi>Decision</bdi></td><td>تیم از میان چند گزینه، یک راه را انتخاب کرده است.</td></tr>
+                <tr><td><bdi>Record</bdi></td><td>تصمیم و دلیل آن برای استفادهٔ آینده ثبت می‌شود.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>خودِ انتخاب، <bdi>Architectural Decision</bdi> است. سندی که این انتخاب را ثبت می‌کند، <bdi>ADR</bdi> نام دارد. بنابراین ADR جای تصمیم‌گیری را نمی‌گیرد؛ نتیجهٔ یک فرایند تصمیم‌گیری را قابل فهم و قابل ردیابی می‌کند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>هر <bdi>ADR</bdi> چه بخش‌هایی دارد؟</h2>
+          <div class="comparison-table" role="region" aria-label="بخش‌های اصلی ADR" tabindex="0">
+            <table>
+              <thead><tr><th>بخش</th><th>به چه سؤالی پاسخ می‌دهد؟</th></tr></thead>
+              <tbody>
+                <tr><td><bdi>Title</bdi></td><td>موضوع تصمیم چیست؟</td></tr>
+                <tr><td><bdi>Status</bdi></td><td>تصمیم پیشنهادی، پذیرفته‌شده یا جایگزین‌شده است؟</td></tr>
+                <tr><td><bdi>Context</bdi></td><td>چه مسئله، Requirement یا Constraint باعث این تصمیم شد؟</td></tr>
+                <tr><td><bdi>Decision</bdi></td><td>در نهایت چه گزینه‌ای انتخاب شد؟</td></tr>
+                <tr><td><bdi>Consequences</bdi></td><td>چه مزایا، هزینه‌ها و محدودیت‌هایی را پذیرفتیم؟</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>می‌توان بخش‌هایی مانند <bdi>Options</bdi>، <bdi>Rationale</bdi>، تاریخ و افراد درگیر را نیز افزود. مهم این است که سند کوتاه بماند و دلیل تصمیم را روشن کند، نه اینکه به یک گزارش طولانی تبدیل شود.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>نمونهٔ کامل و ساده</h2>
+          <div class="lesson-example">
+            <h3>ADR-001: استفاده از Modular Monolith برای نسخهٔ اول</h3>
+            <p><strong>Status:</strong> Accepted</p>
+            <p><strong>Context:</strong> تیم پنج Developer دارد، نسخهٔ اول باید در سه ماه تحویل شود و Boundaryهای Domain هنوز در حال تغییرند. نگهداری چند Deployment مستقل برای تیم پرهزینه است.</p>
+            <p><strong>Decision:</strong> سیستم به‌صورت Modular Monolith ساخته می‌شود. Moduleهای سفارش، پرداخت و موجودی Boundary و قرارداد مشخص خواهند داشت، اما با یک واحد Deploy می‌شوند.</p>
+            <p><strong>Consequences مثبت:</strong> توسعه و Deployment ساده‌تر است و تیم سریع‌تر بازخورد می‌گیرد.</p>
+            <p><strong>Consequences منفی:</strong> Moduleها Deployment مستقل ندارند و تیم باید وابستگی میان آن‌ها را کنترل کند.</p>
+          </div>
+          <p>این ADR نمی‌گوید <bdi>Modular Monolith</bdi> همیشه بهتر است. فقط توضیح می‌دهد چرا برای این Context انتخاب مناسبی بوده است.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Status</bdi>های رایج</h2>
+          <ul>
+            <li><strong><bdi>Proposed</bdi>:</strong> تصمیم پیشنهاد شده، اما هنوز Review و تأیید نشده است.</li>
+            <li><strong><bdi>Accepted</bdi>:</strong> تصمیم تأیید شده و تیم باید بر اساس آن عمل کند.</li>
+            <li><strong><bdi>Deprecated</bdi>:</strong> تصمیم دیگر برای استفادهٔ جدید توصیه نمی‌شود.</li>
+            <li><strong><bdi>Superseded</bdi>:</strong> یک ADR جدید جای این تصمیم را گرفته است.</li>
+          </ul>
+          <p>معمولاً ADR قدیمی را پاک یا بازنویسی نمی‌کنیم. اگر شرایط تغییر کند، ADR جدیدی می‌نویسیم و با <bdi>Superseded</bdi> رابطهٔ میان تصمیم قدیمی و جدید را نشان می‌دهیم. به این ترتیب تاریخچهٔ معماری از بین نمی‌رود.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>چه زمانی باید <bdi>ADR</bdi> بنویسیم؟</h2>
+          <p>برای تصمیمی ADR بنویسید که اثر گسترده دارد، تغییر آن پرهزینه است یا احتمال دارد بعداً دربارهٔ دلیل آن سؤال شود. برای مثال:</p>
+          <ul>
+            <li>انتخاب <bdi>Architecture Pattern</bdi> اصلی سیستم</li>
+            <li>تعیین Boundary و مالکیت دادهٔ Moduleها</li>
+            <li>انتخاب روش ارتباط هم‌زمان یا غیرهم‌زمان</li>
+            <li>انتخاب Database یا راهبرد ذخیره‌سازی مهم</li>
+            <li>تصمیم‌های مهم Security، Reliability و Deployment</li>
+          </ul>
+          <p>برای نام یک variable یا تغییر کوچک UI معمولاً ADR لازم نیست. معیار، اهمیت و ماندگاری تصمیم است؛ نه صرفاً فنی‌بودن آن.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>فرایند نوشتن <bdi>ADR</bdi></h2>
+          <ol>
+            <li><strong>مسئله را روشن کنید:</strong> Requirement، Constraint و Context را بنویسید.</li>
+            <li><strong>گزینه‌ها را بررسی کنید:</strong> مزایا، هزینه‌ها و Risk هر گزینه را مقایسه کنید.</li>
+            <li><strong>پیش‌نویس بسازید:</strong> تصمیم پیشنهادی و Consequenceهای مثبت و منفی را ثبت کنید.</li>
+            <li><strong>با تیم Review کنید:</strong> افراد متأثر باید بتوانند ابهام‌ها و Riskهای جاافتاده را مطرح کنند.</li>
+            <li><strong>Status را مشخص کنید:</strong> پس از تأیید، وضعیت را به Accepted تغییر دهید.</li>
+            <li><strong>در آینده جایگزین کنید، نه حذف:</strong> تصمیم جدید را با ADR تازه ثبت و به قبلی پیوند دهید.</li>
+          </ol>
+        </section>
+
+        <section class="lesson-section">
+          <h2>نقش AI در نوشتن <bdi>ADR</bdi></h2>
+          <p>AI می‌تواند از روی Context و گزینه‌های ارائه‌شده، پیش‌نویس ADR تولید کند، متن مبهم را پیدا کند، Consequenceهای احتمالی را پیشنهاد دهد و تصمیم را با ADRهای قبلی مقایسه کند.</p>
+          <div class="lesson-example">
+            <h3>نمونهٔ Prompt</h3>
+            <p>«با استفاده از Context، Options و Decision زیر یک ADR کوتاه بساز. بخش‌های Title، Status، Context، Decision و Consequences را بنویس. Assumptionهای بدون مدرک را جداگانه مشخص کن و اطلاعاتی از خودت نساز.»</p>
+          </div>
+          <aside class="lesson-note"><strong>Human-in-the-Loop:</strong> AI تصمیم‌گیر نهایی نیست. تیم باید صحت Context، واقعی‌بودن Options و قابل‌پذیرش‌بودن Consequenceها را Review کند.</aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li><strong>نوشتن فقط نتیجه:</strong> «از PostgreSQL استفاده می‌کنیم» بدون Context و Consequences برای آینده کافی نیست.</li>
+            <li><strong>پنهان‌کردن هزینه‌ها:</strong> تصمیم معماری همیشه Trade-off دارد؛ پیامد منفی را نیز بنویسید.</li>
+            <li><strong>ثبت تصمیم‌های بسیار کوچک:</strong> تعداد زیاد ADR کم‌ارزش، پیدا کردن تصمیم‌های مهم را دشوار می‌کند.</li>
+            <li><strong>تغییر متن تصمیم قدیمی:</strong> این کار تاریخچه را از بین می‌برد؛ ADR جدیدی بسازید.</li>
+            <li><strong>سپردن تصمیم به AI:</strong> خروجی AI پیش‌نویس است و ممکن است بر Assumption نادرست تکیه کند.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary">
+          <h2>جمع‌بندی</h2>
+          <ul>
+            <li><bdi>ADR</bdi> سند کوتاه یک تصمیم معماری و دلیل آن است.</li>
+            <li>بخش‌های پایهٔ آن Title، Status، Context، Decision و Consequences هستند.</li>
+            <li>ADR خوب هم مزایا و هم هزینه‌های تصمیم را نشان می‌دهد.</li>
+            <li>تصمیم قدیمی حذف نمی‌شود؛ ADR جدید می‌تواند آن را Supersede کند.</li>
+            <li>AI در تولید پیش‌نویس و یافتن ابهام کمک می‌کند، اما تأیید نهایی با انسان است.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="architecture-as-decisions.html">درس قبلی: معماری به‌عنوان مجموعه‌ای از تصمیم‌ها</a>
+          <a href="../lesson.html?chapter=1&amp;lesson=1&amp;title=AI-Driven%20Software%20Architecture%20%DA%86%DB%8C%D8%B3%D8%AA%D8%9F">درس بعدی: <bdi>AI-Driven Software Architecture</bdi> چیست؟</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

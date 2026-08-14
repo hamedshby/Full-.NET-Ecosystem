@@ -21,10 +21,11 @@ test('the Microservices learning card opens the existing comprehensive guide', (
   assert.ok(fs.existsSync(path.resolve(root, href)), 'Microservices guide link must resolve');
 });
 
-test('the Microservices card appears immediately after the C# card', () => {
+test('the Microservices card appears after the two .NET cards', () => {
   const landing = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const cards = [...landing.matchAll(/<article class="course-card[^"]*">([\s\S]*?)<\/article>/g)];
 
   assert.match(cards[0][1], />C#<\/div>/);
-  assert.match(cards[1][1], /<bdi>Microservices<\/bdi>/);
+  assert.match(cards[1][1], />\.NET<\/div>/);
+  assert.match(cards[2][1], /<bdi>Microservices<\/bdi>/);
 });

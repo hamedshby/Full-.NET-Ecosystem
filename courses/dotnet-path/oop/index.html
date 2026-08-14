@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آغاز مسیر حرفه‌ای دات‌نت با یادگیری مبانی Object-Oriented Programming.">
+  <title>مبانی OOP | مسیر حرفه‌ای .NET</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="oop-introduction">
+      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented Programming</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+        <div class="article-header">
+          <div class="article-tag">🧩 طراحی شی‌گرا</div>
+          <h1><bdi>1.1 OOP</bdi> چیست؟</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۵ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="content">
+          <p>فرض کنید قرار است یک سامانهٔ بانکی بسازیم. هر حساب، یک شماره، یک موجودی و رفتارهایی مانند واریز و برداشت دارد. در <bdi>Object-Oriented Programming</bdi> این داده‌ها و رفتارهای مرتبط را در یک واحد معنادار به نام object کنار هم قرار می‌دهیم.</p>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content"><bdi>OOP</bdi> فقط نوشتن <code>class</code> نیست؛ روشی برای تقسیم مسئولیت‌ها و مدل‌کردن مفاهیم مسئله در نرم‌افزار است.</div>
+          </div>
+
+          <h2>تعریف <bdi>Object-Oriented Programming</bdi></h2>
+          <p><bdi>Object-Oriented Programming (OOP)</bdi> یک programming paradigm است که برنامه را به مجموعه‌ای از objectهای همکار تقسیم می‌کند. هر object معمولاً State خود را نگه می‌دارد و Behavior مرتبط با آن State را ارائه می‌دهد.</p>
+          <p>برای نمونه، یک حساب بانکی موجودی دارد و عملیات واریز را انجام می‌دهد. به‌جای آنکه موجودی در یک بخش و منطق واریز در بخشی نامرتبط قرار بگیرد، هر دو در یک <code>class</code> کنار هم قرار می‌گیرند:</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+    public decimal Balance { get; private set; }
+
+    public BankAccount(string accountNumber)
+    {
+        AccountNumber = accountNumber;
+    }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        Balance += amount;
+    }
+}
+
+var account = new BankAccount("IR-1001");
+account.Deposit(500_000);
+
+Console.WriteLine($"موجودی حساب: {account.Balance} تومان");</code></pre>
+          </div>
+
+          <p class="example-explanation">نتیجهٔ اجرای کد، عبارت «موجودی حساب: 500000 تومان» است. خود حساب از موجودی‌اش محافظت می‌کند و اجازه نمی‌دهد کد بیرونی مقدار آن را مستقیماً به یک عدد نامعتبر تغییر دهد.</p>
+
+          <h2>چرا <bdi>OOP</bdi> به وجود آمد؟</h2>
+          <p>با بزرگ‌ترشدن نرم‌افزارها، نگهداری تعداد زیادی function و متغیر مشترک دشوار شد. تغییر یک بخش می‌توانست رفتار بخش‌های دیگر را ناخواسته خراب کند و پیدا کردن مسئول هر عملیات آسان نبود.</p>
+          <p><bdi>OOP</bdi> کمک کرد داده و عملیات مرتبط کنار هم قرار بگیرند، جزئیات داخلی پنهان شوند و سیستم به بخش‌های کوچک‌تر با مسئولیت روشن تقسیم شود. در نتیجه، توسعه‌دهنده می‌تواند روی یک بخش تمرکز کند بدون آنکه تمام برنامه را هم‌زمان در ذهن نگه دارد.</p>
+
+          <h2>تفاوت <bdi>Procedural Programming</bdi> و <bdi>OOP</bdi></h2>
+          <table>
+            <thead>
+              <tr><th>موضوع</th><th><bdi>Procedural Programming</bdi></th><th><bdi>OOP</bdi></th></tr>
+            </thead>
+            <tbody>
+              <tr><td>واحد اصلی طراحی</td><td>function و procedure</td><td>object و مسئولیت آن</td></tr>
+              <tr><td>داده و رفتار</td><td>اغلب جدا از یکدیگرند</td><td>در یک مرز معنادار کنار هم قرار می‌گیرند</td></tr>
+              <tr><td>کنترل State</td><td>ممکن است چند function دادهٔ مشترک را تغییر دهند</td><td>object تغییر State خود را کنترل می‌کند</td></tr>
+              <tr><td>گسترش سیستم</td><td>معمولاً با افزودن شرط و function جدید</td><td>با افزودن typeها و همکاری objectها</td></tr>
+            </tbody>
+          </table>
+          <p>هیچ‌کدام همیشه بر دیگری برتری مطلق ندارد. برای یک محاسبهٔ کوتاه و بدون State، یک function ساده روشن‌تر است. <bdi>OOP</bdi> زمانی ارزش بیشتری دارد که مسئله شامل موجودیت‌ها، State، قوانین و همکاری چند بخش باشد.</p>
+
+          <h2>مزایا و معایب <bdi>OOP</bdi></h2>
+          <h3>مزایا</h3>
+          <ul>
+            <li><strong>مدل‌سازی بهتر:</strong> مفاهیمی مثل Customer، Order و Payment مستقیماً در کد نمایان می‌شوند.</li>
+            <li><strong>Encapsulation:</strong> object از State معتبر خود محافظت می‌کند.</li>
+            <li><strong>نگهداری‌پذیری:</strong> مسئولیت‌ها و محل تغییرات روشن‌تر می‌شوند.</li>
+            <li><strong>استفادهٔ مجدد:</strong> رفتار مشترک می‌تواند از طریق Composition، Interface یا در موارد مناسب Inheritance استفاده شود.</li>
+            <li><strong>تست‌پذیری:</strong> objectهای کوچک با dependencyهای روشن راحت‌تر Unit Test می‌شوند.</li>
+          </ul>
+          <h3>معایب</h3>
+          <ul>
+            <li>برای مسئله‌های ساده می‌تواند class و abstraction اضافی ایجاد کند.</li>
+            <li>استفادهٔ نادرست از Inheritance باعث Tight Coupling و ساختارهای شکننده می‌شود.</li>
+            <li>ساختن Interface و Design Pattern بدون نیاز واقعی، پیچیدگی و هزینهٔ نگهداری را افزایش می‌دهد.</li>
+            <li>objectهای mutable و ارتباط‌های زیاد میان آن‌ها می‌توانند دنبال‌کردن تغییر State را دشوار کنند.</li>
+          </ul>
+
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">هدف طراحی شی‌گرا تولید بیشترین تعداد class نیست. هر abstraction باید مسئله‌ای واقعی را ساده‌تر کند؛ وگرنه به Overengineering تبدیل می‌شود.</div>
+          </div>
+
+          <h2><bdi>OOP</bdi> در <bdi>C#</bdi> و <bdi>.NET</bdi></h2>
+          <p><bdi>C#</bdi> یک زبان چندپارادایمی با پشتیبانی کامل از طراحی شی‌گرا است. ابزارهایی مانند <code>class</code>، <code>interface</code>، <code>abstract</code>، <code>virtual</code>، <code>override</code>، access modifierها و Genericها برای بیان مرزها و همکاری objectها استفاده می‌شوند.</p>
+          <p><bdi>.NET</bdi> نیز type system و runtime لازم را فراهم می‌کند. typeهای اصلی کتابخانهٔ استاندارد، exceptionها، collectionها، middlewareهای <bdi>ASP.NET Core</bdi> و serviceهای ثبت‌شده در Dependency Injection Container همگی از objectها و قراردادهای میان آن‌ها استفاده می‌کنند.</p>
+          <p>بااین‌حال، برنامهٔ C# مجبور نیست همه‌چیز را شی‌گرا بنویسد. می‌توان در کنار <bdi>OOP</bdi> از functional style، pattern matching، functionهای کوچک و داده‌های immutable نیز استفاده کرد.</p>
+
+          <h2>کاربرد <bdi>OOP</bdi> در پروژه‌های واقعی</h2>
+          <p>در یک فروشگاه اینترنتی می‌توان مفاهیم اصلی دامنه را با objectهای مشخص نمایش داد:</p>
+          <ul>
+            <li><code>Order</code> افزودن محصول و محاسبهٔ مبلغ نهایی را کنترل می‌کند.</li>
+            <li><code>Customer</code> اطلاعات و قوانین مرتبط با مشتری را نگه می‌دارد.</li>
+            <li><code>IPaymentGateway</code> قرارداد پرداخت را تعریف می‌کند و پیاده‌سازی‌های مختلف بانکی پشت آن قرار می‌گیرند.</li>
+            <li><code>InventoryService</code> موجودی کالا را بررسی و رزرو می‌کند.</li>
+          </ul>
+          <p>در چنین سیستمی، <bdi>Encapsulation</bdi> از قانون‌های هر object محافظت می‌کند، <bdi>Abstraction</bdi> جزئیات بانک یا پایگاه داده را پنهان می‌کند و <bdi>Polymorphism</bdi> اجازه می‌دهد روش‌های پرداخت تازه بدون ساختن یک <code>switch</code> بزرگ اضافه شوند.</p>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">معیار موفقیت OOP این است که کد، زبان مسئله را واضح‌تر بیان کند و تغییر یک رفتار، کمترین اثر ناخواسته را روی بخش‌های دیگر داشته باشد.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
