@@ -23,6 +23,12 @@
 
   if (sidebar && window.dotnetCourse) {
     sidebar.innerHTML = window.dotnetCourse.renderDotnetNavigation(sidebar.dataset.currentLesson);
+    const currentLink = sidebar.querySelector('a[aria-current="page"]');
+    const currentChapter = currentLink?.closest('details.course-chapter');
+    if (currentChapter) currentChapter.open = true;
+    if (currentLink && matchMedia('(min-width: 861px)').matches) {
+      requestAnimationFrame(() => currentLink.scrollIntoView({ block: 'center' }));
+    }
   }
 
   applyTheme(root.dataset.theme || preferredTheme());

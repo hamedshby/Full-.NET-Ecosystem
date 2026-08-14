@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش تعریف Class در C# شامل ساختار Class، Field، Property، Method و ساخت Object با new."
+    name="description" />
+  <title>تعریف Class در C# | مسیر حرفه‌ای .NET</title>
+  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-2-lesson-1"
+      id="course-sidebar">
+      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+        <div class="article-header">
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>تعریف <bdi>Class</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="content">
+          <p>
+            در برنامه‌نویسی شی‌گرا، <code>class</code> قالبی است که مشخص می‌کند objectهای یک نوع چه داده‌هایی نگه
+            می‌دارند
+            و چه رفتارهایی می‌توانند انجام دهند. در <bdi>C#</bdi> تقریباً هر مدل دامنه‌ای مانند Customer، Order، Product
+            یا
+            BankAccount را می‌توان با یک class نمایش داد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              <code>class</code> خودِ شیء واقعی نیست؛ تعریف یا نقشه‌ای است که از روی آن می‌توان یک یا چند object ساخت.
+            </div>
+          </div>
+          <h2>ساختار <bdi>Class</bdi></h2>
+          <p>
+            برای تعریف یک class در C# از کلمهٔ کلیدی <code>class</code> استفاده می‌کنیم. داخل بدنهٔ class می‌توان اعضایی
+            مانند
+            Field، Property، Constructor و Method قرار داد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+
+    public string AccountNumber { get; set; }
+
+    public void Deposit(decimal amount)
+    {
+        _balance += amount;
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            در این مثال <code>BankAccount</code> نام class است. متغیر <code>_balance</code> یک Field،
+            عضو <code>AccountNumber</code> یک Property و <code>Deposit</code> یک Method است.
+          </p>
+          <h3>اجزای اصلی تعریف Class</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>بخش</th>
+                <th>مثال</th>
+                <th>کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Access Modifier</td>
+                <td><code>public</code></td>
+                <td>مشخص می‌کند class از کجا قابل دسترسی باشد.</td>
+              </tr>
+              <tr>
+                <td>Keyword</td>
+                <td><code>class</code></td>
+                <td>مشخص می‌کند در حال تعریف یک Class هستیم.</td>
+              </tr>
+              <tr>
+                <td>Class Name</td>
+                <td><code>BankAccount</code></td>
+                <td>نام Type را مشخص می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Body</td>
+                <td><code>{ ... }</code></td>
+                <td>اعضای Class داخل آن قرار می‌گیرند.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>تعریف <bdi>Field</bdi></h2>
+          <p>
+            Field متغیری است که داخل class تعریف می‌شود و بخشی از داده یا State یک object را نگه می‌دارد.
+            هر object معمولاً نسخهٔ جداگانه‌ای از Fieldهای instance خود دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+}</code></pre>
+          </div>
+          <p>
+            در این مثال <code>_balance</code> یک Field است که موجودی حساب را نگه می‌دارد. آن را
+            <code>private</code> تعریف کرده‌ایم تا کد بیرون از class نتواند موجودی را مستقیماً تغییر دهد.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              در طراحی شی‌گرا معمولاً بهتر است Fieldهای داخلی را <code>private</code> نگه داریم و دسترسی به State را
+              از طریق Property یا Methodهای کنترل‌شده فراهم کنیم.
+            </div>
+          </div>
+          <h2>تعریف <bdi>Property</bdi></h2>
+          <p>
+            Property راه کنترل‌شده‌تری برای ارائه یا تغییر اطلاعات یک object است. Property از نظر نحوهٔ استفاده شبیه
+            متغیر است،
+            اما می‌تواند برای خواندن و نوشتن مقدار قوانین مشخصی داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; set; }
+    public decimal Balance { get; private set; }
+}</code></pre>
+          </div>
+          <p>
+            در <code>AccountNumber</code> هم <code>get</code> و هم <code>set</code> عمومی هستند؛ بنابراین کد بیرونی
+            می‌تواند مقدار را
+            بخواند و تغییر دهد. اما در <code>Balance</code>، بخش <code>set</code> خصوصی است؛ در نتیجه مقدار موجودی از
+            بیرون فقط
+            قابل خواندن است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+account.AccountNumber = "IR-1001";
+
+// مجاز است
+Console.WriteLine(account.Balance);
+
+// مجاز نیست
+// account.Balance = 1_000_000;</code></pre>
+          </div>
+          <h2>تعریف <bdi>Method</bdi></h2>
+          <p>
+            Method رفتار یا عملیاتی را تعریف می‌کند که object قادر به انجام آن است. اگر Propertyها و Fieldها State را
+            نمایش دهند،
+            Methodها معمولاً Behavior را نمایش می‌دهند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <p>
+            متد <code>Deposit</code> یک مقدار دریافت می‌کند، آن را بررسی می‌کند و فقط در صورت معتبر بودن، State حساب را
+            تغییر می‌دهد.
+            این طراحی بهتر از آن است که اجازه دهیم هر قسمت برنامه مستقیماً مقدار <code>Balance</code> را تغییر دهد.
+          </p>
+          <h3>ساختار یک Method</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Deposit(decimal amount)
+{
+    Balance += amount;
+}</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>بخش</th>
+                <th>مثال</th>
+                <th>معنی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Access Modifier</td>
+                <td><code>public</code></td>
+                <td>متد از بیرون Class قابل فراخوانی است.</td>
+              </tr>
+              <tr>
+                <td>Return Type</td>
+                <td><code>void</code></td>
+                <td>متد مقداری برنمی‌گرداند.</td>
+              </tr>
+              <tr>
+                <td>Method Name</td>
+                <td><code>Deposit</code></td>
+                <td>نام رفتار را مشخص می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Parameter</td>
+                <td><code>decimal amount</code></td>
+                <td>اطلاعات موردنیاز متد را دریافت می‌کند.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>ساخت <bdi>Object</bdi> با <code>new</code></h2>
+          <p>
+            پس از تعریف class هنوز objectای ایجاد نشده است. برای ساخت یک instance از class معمولاً از عملگر
+            <code>new</code> استفاده می‌کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>BankAccount account = new BankAccount();</code></pre>
+          </div>
+          <p>
+            در این دستور، <code>BankAccount</code> نوع متغیر است، <code>account</code> متغیری است که reference مربوط به
+            object را
+            نگه می‌دارد و <code>new BankAccount()</code> یک instance جدید از <code>BankAccount</code> ایجاد می‌کند.
+          </p>
+          <p>در C# جدید می‌توان همان کد را کوتاه‌تر نیز نوشت:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>BankAccount account = new();</code></pre>
+          </div>
+          <h3>استفاده از Object ساخته‌شده</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+account.AccountNumber = "IR-1001";
+account.Deposit(500_000);
+
+Console.WriteLine(account.AccountNumber);
+Console.WriteLine(account.Balance);</code></pre>
+          </div>
+          <p class="example-explanation">
+            متغیر <code>account</code> اکنون به یک object واقعی از نوع <code>BankAccount</code> اشاره می‌کند؛ بنابراین
+            می‌توانیم
+            از طریق آن به اعضای public مانند Propertyها و Methodها دسترسی داشته باشیم.
+          </p>
+          <h2>مثال کامل</h2>
+          <p>
+            حالا Field، Property، Method و ساخت object را در یک مثال کنار هم قرار می‌دهیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+
+    public string AccountNumber { get; set; }
+
+    public decimal Balance
+    {
+        get { return _balance; }
+    }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        _balance += amount;
+    }
+}
+
+var account = new BankAccount();
+
+account.AccountNumber = "IR-1001";
+account.Deposit(500_000);
+
+Console.WriteLine($"شماره حساب: {account.AccountNumber}");
+Console.WriteLine($"موجودی: {account.Balance}");</code></pre>
+          </div>
+          <h2>Class و Object را با هم اشتباه نگیریم</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Object</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>تعریف یک Type است.</td>
+                <td>یک Instance از آن Type است.</td>
+              </tr>
+              <tr>
+                <td>ساختار داده و رفتار را مشخص می‌کند.</td>
+                <td>State واقعی خود را نگه می‌دارد.</td>
+              </tr>
+              <tr>
+                <td><code>BankAccount</code></td>
+                <td><code>account1</code> و <code>account2</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 = new BankAccount();
+var account2 = new BankAccount();
+
+account1.Deposit(100_000);
+account2.Deposit(800_000);
+
+Console.WriteLine(account1.Balance); // 100000
+Console.WriteLine(account2.Balance); // 800000</code></pre>
+          </div>
+          <p>
+            هر دو object از یک class ساخته شده‌اند، اما State مستقل دارند. تغییر موجودی <code>account1</code> باعث تغییر
+            موجودی
+            <code>account2</code> نمی‌شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              به‌صورت خلاصه: <code>class</code> مشخص می‌کند یک نوع چه <strong>داده‌هایی</strong> دارد و چه
+              <strong>رفتارهایی</strong> انجام می‌دهد؛ سپس با <code>new</code> می‌توان instanceهای واقعی از آن ایجاد
+              کرد.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>

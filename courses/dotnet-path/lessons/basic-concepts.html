@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش مفاهیم پایه OOP در C# شامل Object، Class، State، Behavior، Instance و Reference Type.">
+  <title>مفاهیم پایه OOP | مسیر حرفه‌ای .NET</title>
+  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست
+      فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره"
+      title="فعال‌کردن تم تیره">تم</button>
+  </header>
+
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت"
+      data-current-lesson="basic-concepts">
+      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+        <div class="article-header">
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>مفاهیم پایه <bdi>Object-Oriented Programming</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="content">
+          <p>قبل از اینکه سراغ <bdi>Encapsulation</bdi>، <bdi>Inheritance</bdi> یا <bdi>Polymorphism</bdi> برویم، باید
+            چند مفهوم پایه را کاملاً درک کنیم. تقریباً تمام مباحث شی‌گرایی روی همین مفاهیم ساخته می‌شوند:
+            <code>class</code>، <code>object</code>، State، Behavior، Instance و Reference Type.</p>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">اگر تفاوت <code>class</code> و <code>object</code> را خوب بفهمید، بخش بزرگی از
+              OOP برایتان ساده‌تر می‌شود. Class نقشه است؛ Object نمونهٔ واقعی ساخته‌شده از آن نقشه است.</div>
+          </div>
+
+          <h2>Object چیست؟</h2>
+          <p><bdi>Object</bdi> یک موجودیت در زمان اجرای برنامه است که معمولاً هم <strong>داده</strong> دارد و هم
+            <strong>رفتار</strong>. به زبان ساده، object چیزی است که می‌تواند یک وضعیت مشخص داشته باشد و عملیاتی روی آن
+            انجام شود.</p>
+          <p>فرض کنید در یک سیستم بانکی یک حساب داریم. این حساب می‌تواند شماره حساب و موجودی داشته باشد و عملیات‌هایی
+            مثل واریز و برداشت انجام دهد. چنین حسابی در برنامه می‌تواند یک object باشد.</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount("IR-1001", 1_000_000);
+
+account.Deposit(500_000);
+
+Console.WriteLine(account.Balance);</code></pre>
+          </div>
+
+          <p class="example-explanation">در این مثال، متغیر <code>account</code> به یک object از نوع
+            <code>BankAccount</code> اشاره می‌کند. این object موجودی مخصوص خودش را دارد و متد <code>Deposit</code> رفتار
+            آن را مشخص می‌کند.</p>
+
+          <h2>Class چیست؟</h2>
+          <p><bdi>Class</bdi> یک تعریف یا Blueprint برای ساخت objectها است. Class مشخص می‌کند objectهایی که از آن ساخته
+            می‌شوند چه داده‌هایی دارند و چه رفتارهایی می‌توانند انجام دهند.</p>
+          <p>برای مثال، اگر قرار باشد صدها حساب بانکی در برنامه داشته باشیم، برای تک‌تک آن‌ها ساختار جدا تعریف نمی‌کنیم.
+            یک class به نام <code>BankAccount</code> می‌سازیم و سپس هر تعداد object که نیاز داریم از روی آن ایجاد
+            می‌کنیم.</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+    public decimal Balance { get; private set; }
+
+    public BankAccount(string accountNumber, decimal initialBalance)
+    {
+        AccountNumber = accountNumber;
+        Balance = initialBalance;
+    }
+
+    public void Deposit(decimal amount)
+    {
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+
+          <p>در این class، دو داده به نام‌های <code>AccountNumber</code> و <code>Balance</code> داریم و یک رفتار به نام
+            <code>Deposit</code>. هر object ساخته‌شده از این class همین ساختار را دارد، اما مقدار داده‌های آن می‌تواند
+            متفاوت باشد.</p>
+
+          <h2>State و Behavior چیست؟</h2>
+          <p>یکی از مهم‌ترین ایده‌های OOP این است که object معمولاً دو بخش اصلی دارد:</p>
+          <ul>
+            <li><strong>State:</strong> وضعیت فعلی object؛ یعنی داده‌ها و مقادیری که در یک لحظه در object نگهداری
+              می‌شوند.</li>
+            <li><strong>Behavior:</strong> کارهایی که object می‌تواند انجام دهد؛ معمولاً از طریق methodها بیان می‌شوند.
+            </li>
+          </ul>
+
+          <h3>State</h3>
+          <p>در مثال حساب بانکی، شماره حساب و موجودی بخشی از State هستند:</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public string AccountNumber { get; }
+public decimal Balance { get; private set; }</code></pre>
+          </div>
+
+          <h3>Behavior</h3>
+          <p>عملیات‌هایی مانند واریز یا برداشت Behavior حساب هستند:</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Deposit(decimal amount)
+{
+    Balance += amount;
+}
+
+public void Withdraw(decimal amount)
+{
+    Balance -= amount;
+}</code></pre>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">در طراحی شی‌گرای خوب، State و Behavior مرتبط کنار هم قرار می‌گیرند. یعنی object
+              فقط یک کیسهٔ داده نیست؛ خودش مسئول رفتار مرتبط با داده‌هایش نیز هست.</div>
+          </div>
+
+          <h2>Instance چیست؟</h2>
+          <p><bdi>Instance</bdi> یعنی یک نمونهٔ واقعی از یک class. وقتی با استفاده از <code>new</code> از یک class
+            object می‌سازیم، در واقع یک instance از آن class ایجاد کرده‌ایم.</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 = new BankAccount("IR-1001", 1_000_000);
+var account2 = new BankAccount("IR-2002", 5_000_000);</code></pre>
+          </div>
+
+          <p>اینجا <code>account1</code> و <code>account2</code> دو instance متفاوت از class <code>BankAccount</code>
+            هستند. هر دو از یک class ساخته شده‌اند، اما State مستقل دارند.</p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Instance</th>
+                <th>AccountNumber</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>account1</code></td>
+                <td>IR-1001</td>
+                <td>1,000,000</td>
+              </tr>
+              <tr>
+                <td><code>account2</code></td>
+                <td>IR-2002</td>
+                <td>5,000,000</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>بنابراین عبارت‌های <bdi>object</bdi> و <bdi>instance</bdi> در بسیاری از گفتگوهای روزمره تقریباً به‌جای هم
+            استفاده می‌شوند. بااین‌حال وقتی می‌گوییم «instance of BankAccount»، روی این موضوع تأکید داریم که آن object
+            از یک class مشخص ساخته شده است.</p>
+
+          <h2>Reference Type چیست؟</h2>
+          <p>در C#، یک <code>class</code> از نوع <bdi>Reference Type</bdi> است. یعنی متغیری که برای یک object تعریف
+            می‌کنیم معمولاً خود object را نگه نمی‌دارد؛ بلکه یک reference به آن object را نگه می‌دارد.</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 = new BankAccount("IR-1001", 1_000_000);
+var account2 = account1;
+
+account2.Deposit(500_000);
+
+Console.WriteLine(account1.Balance); // 1500000</code></pre>
+          </div>
+
+          <p>در این مثال، object جدیدی برای <code>account2</code> ساخته نشده است. هر دو متغیر به همان object اشاره
+            می‌کنند. بنابراین وقتی از طریق <code>account2</code> موجودی را تغییر می‌دهیم، این تغییر از طریق
+            <code>account1</code> نیز دیده می‌شود.</p>
+
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">عبارت <code>var account2 = account1;</code> برای یک class به معنی کپی‌کردن کامل
+              object نیست؛ فقط reference کپی می‌شود.</div>
+          </div>
+
+          <h3>مقایسه کوتاه Reference Type و Value Type</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>موضوع</th>
+                <th>Reference Type</th>
+                <th>Value Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نمونه‌ها</td>
+                <td><code>class</code>، <code>string</code>، array</td>
+                <td><code>int</code>، <code>bool</code>، <code>decimal</code>، <code>struct</code></td>
+              </tr>
+              <tr>
+                <td>Assignment</td>
+                <td>reference کپی می‌شود</td>
+                <td>خود مقدار کپی می‌شود</td>
+              </tr>
+              <tr>
+                <td>تغییر از طریق متغیر دوم</td>
+                <td>ممکن است همان object را تغییر دهد</td>
+                <td>روی مقدار قبلی اثری ندارد</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>ارتباط Class و Object</h2>
+          <p>ساده‌ترین تشبیه این است که <bdi>Class</bdi> را نقشهٔ ساخت و <bdi>Object</bdi> را چیزی بدانیم که بر اساس آن
+            نقشه ساخته شده است.</p>
+
+          <p>مثلاً نقشهٔ یک ساختمان مشخص می‌کند ساختمان چند اتاق دارد، درها کجا هستند و ساختار آن چگونه است؛ اما خود
+            نقشه ساختمان واقعی نیست. از روی یک نقشه می‌توان چند ساختمان ساخت. در OOP نیز class تعریف می‌کند object چه
+            ساختاری دارد و از روی آن می‌توان چند object مستقل ایجاد کرد.</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>// Class
+public class Customer
+{
+    public string Name { get; set; }
+}
+
+// Objects / Instances
+var customer1 = new Customer { Name = "Ali" };
+var customer2 = new Customer { Name = "Sara" };
+var customer3 = new Customer { Name = "Reza" };</code></pre>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>مفهوم</th>
+                <th>توضیح ساده</th>
+                <th>مثال</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Class</td>
+                <td>تعریف و نقشهٔ ساخت object</td>
+                <td><code>BankAccount</code></td>
+              </tr>
+              <tr>
+                <td>Object</td>
+                <td>یک موجودیت واقعی در Runtime</td>
+                <td>حساب IR-1001</td>
+              </tr>
+              <tr>
+                <td>State</td>
+                <td>وضعیت فعلی object</td>
+                <td>Balance = 1,000,000</td>
+              </tr>
+              <tr>
+                <td>Behavior</td>
+                <td>کاری که object انجام می‌دهد</td>
+                <td><code>Deposit()</code></td>
+              </tr>
+              <tr>
+                <td>Instance</td>
+                <td>نمونه‌ای ساخته‌شده از یک class</td>
+                <td><code>new BankAccount(...)</code></td>
+              </tr>
+              <tr>
+                <td>Reference Type</td>
+                <td>متغیر به object اشاره می‌کند</td>
+                <td><code>class</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>یک مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+    public decimal Balance { get; private set; }
+
+    public BankAccount(string accountNumber, decimal initialBalance)
+    {
+        AccountNumber = accountNumber;
+        Balance = initialBalance;
+    }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        Balance += amount;
+    }
+}
+
+var account = new BankAccount("IR-1001", 1_000_000);
+account.Deposit(250_000);
+
+Console.WriteLine(account.AccountNumber);
+Console.WriteLine(account.Balance);</code></pre>
+          </div>
+
+          <p class="example-explanation">در این مثال، <code>BankAccount</code> یک class است؛ <code>account</code> یک
+            instance یا object است؛ <code>AccountNumber</code> و <code>Balance</code> State هستند؛ و
+            <code>Deposit()</code> Behavior است. چون <code>BankAccount</code> یک class است، object ساخته‌شده از آن نیز
+            Reference Type محسوب می‌شود.</p>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content"><strong>جمع‌بندی:</strong> Class تعریف می‌کند چه چیزی می‌توان ساخت؛ Object
+              نمونهٔ واقعی ساخته‌شده است؛ Instance همان نمونه از یک Class مشخص است؛ State وضعیت object را نگه می‌دارد؛
+              Behavior عملیات آن را بیان می‌کند؛ و objectهای ساخته‌شده از class در C# از نوع Reference Type هستند.</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>

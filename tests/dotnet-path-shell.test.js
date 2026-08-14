@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.join(__dirname, '..');
-const page = fs.readFileSync(path.join(root, 'courses/dotnet-path/oop/index.html'), 'utf8');
+const page = fs.readFileSync(path.join(root, 'courses/dotnet-path/oop/whatisoop.html'), 'utf8');
 
 test('the OOP start page uses the course shell with sidebar and lesson content', () => {
   assert.match(page, /class="course-header"/);

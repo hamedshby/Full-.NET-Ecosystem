@@ -19,6 +19,6 @@ test('the interview questions and professional .NET path are separate adjacent c
   const href = cards[1][1].match(
     /<a class="button-link" href="([^"]+)">شروع مطالعه<\/a>/
   )?.[1];
-  assert.equal(href, 'courses/dotnet-path/oop/index.html');
+  assert.equal(href, 'courses/dotnet-path/oop/whatisoop.html');
   assert.ok(fs.existsSync(path.resolve(root, href)), 'the OOP starting page must exist');
 });

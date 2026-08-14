@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش Field در C# شامل Instance Field، Static Field، const، readonly و تفاوت const و readonly."
+    name="description" />
+  <title>Fields در C# | مسیر حرفه‌ای .NET</title>
+  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
+      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+        <div class="article-header">
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>آشنایی با <bdi>Fields</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="content">
+          <p>
+            در یک <code>class</code> معمولاً لازم است اطلاعاتی را نگه داریم که وضعیت یا State یک object را تشکیل
+            می‌دهند.
+            یکی از ابزارهای اصلی C# برای نگهداری این اطلاعات <bdi>Field</bdi> است. Field متغیری است که مستقیماً در بدنهٔ
+            class تعریف می‌شود و می‌تواند به هر instance تعلق داشته باشد یا میان همهٔ instanceها مشترک باشد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Field را می‌توان حافظهٔ داخلی یک object در نظر گرفت. برای مثال موجودی داخلی یک حساب بانکی می‌تواند در یک
+              Field نگهداری شود.
+            </div>
+          </div>
+          <h2><bdi>Instance Field</bdi></h2>
+          <p>
+            Instance Field فیلدی است که به یک object مشخص تعلق دارد. وقتی چند object از یک class ساخته می‌شوند،
+            هر object مقدار مستقل خودش را برای Instance Fieldها نگه می‌دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+
+    public void Deposit(decimal amount)
+    {
+        _balance += amount;
+    }
+
+    public decimal GetBalance()
+    {
+        return _balance;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این مثال <code>_balance</code> یک Instance Field است. بنابراین هر حساب بانکی موجودی مستقل خودش را دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 = new BankAccount();
+var account2 = new BankAccount();
+
+account1.Deposit(100_000);
+account2.Deposit(700_000);
+
+Console.WriteLine(account1.GetBalance()); // 100000
+Console.WriteLine(account2.GetBalance()); // 700000</code></pre>
+          </div>
+          <p class="example-explanation">
+            با اینکه <code>account1</code> و <code>account2</code> هر دو از یک class ساخته شده‌اند، هرکدام نسخهٔ
+            جداگانه‌ای
+            از <code>_balance</code> دارند.
+          </p>
+          <h3>چرا Fieldها معمولاً private هستند؟</h3>
+          <p>
+            اگر Field داخلی را <code>public</code> کنیم، هر قسمت برنامه می‌تواند بدون کنترل مقدار آن را تغییر دهد.
+            این کار Encapsulation را ضعیف می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>// طراحی نامناسب
+public class BankAccount
+{
+    public decimal Balance;
+}
+
+var account = new BankAccount();
+
+account.Balance = -5_000_000;</code></pre>
+          </div>
+          <p>
+            در این طراحی هیچ قانونی از منفی‌شدن موجودی جلوگیری نمی‌کند. معمولاً بهتر است Field داخلی باشد و تغییر آن از
+            طریق
+            Method یا Property کنترل‌شده انجام شود.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Public Field معمولاً انتخاب مناسبی برای مدل‌های دامنه نیست. در بیشتر مواقع State داخلی را با
+              <code>private</code> نگه می‌داریم و API مناسبی برای دسترسی به آن طراحی می‌کنیم.
+            </div>
+          </div>
+          <h2><bdi>Static Field</bdi></h2>
+          <p>
+            Instance Field به هر object تعلق دارد؛ اما Static Field به خود class تعلق دارد و میان تمام instanceهای آن
+            class
+            مشترک است. برای تعریف آن از کلمهٔ کلیدی <code>static</code> استفاده می‌کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private static int _accountCount;
+
+    public BankAccount()
+    {
+        _accountCount++;
+    }
+
+    public static int GetAccountCount()
+    {
+        return _accountCount;
+    }
+}</code></pre>
+          </div>
+          <p>
+            هر بار که یک <code>BankAccount</code> ساخته می‌شود، مقدار مشترک <code>_accountCount</code> افزایش پیدا
+            می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 = new BankAccount();
+var account2 = new BankAccount();
+var account3 = new BankAccount();
+
+Console.WriteLine(BankAccount.GetAccountCount()); // 3</code></pre>
+          </div>
+          <p>
+            برای دسترسی به عضو static معمولاً از نام class استفاده می‌کنیم، نه از یک object:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>BankAccount.GetAccountCount();</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Instance Field</th>
+                <th>Static Field</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>به هر object تعلق دارد.</td>
+                <td>به خود class تعلق دارد.</td>
+              </tr>
+              <tr>
+                <td>هر object مقدار مستقل دارد.</td>
+                <td>مقدار میان همهٔ objectها مشترک است.</td>
+              </tr>
+              <tr>
+                <td>با instance استفاده می‌شود.</td>
+                <td>معمولاً با نام class استفاده می‌شود.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2><code>const</code> چیست؟</h2>
+          <p>
+            گاهی مقداری داریم که باید همیشه ثابت باشد و در طول اجرای برنامه تغییر نکند. برای چنین مقادیری می‌توان از
+            <code>const</code> استفاده کرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public const int MaxDailyTransactions = 100;
+}</code></pre>
+          </div>
+          <p>
+            بعد از تعریف مقدار ثابت، امکان تغییر آن وجود ندارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(BankAccount.MaxDailyTransactions);
+
+// Compile Error
+// BankAccount.MaxDailyTransactions = 200;</code></pre>
+          </div>
+          <p>
+            مقدار یک <code>const</code> باید در زمان Compile مشخص باشد و همان موقع مقداردهی شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public const int MaxRetryCount = 3;
+public const string Currency = "IRR";
+public const decimal MinimumAmount = 10_000m;</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              اعضای <code>const</code> به‌صورت ضمنی <code>static</code> هستند؛ بنابراین برای استفاده از آن‌ها نیازی به
+              ساخت
+              object نداریم.
+            </div>
+          </div>
+          <h2><code>readonly</code> چیست؟</h2>
+          <p>
+            <code>readonly</code> نیز برای جلوگیری از تغییر یک Field استفاده می‌شود، اما برخلاف <code>const</code> لازم
+            نیست
+            مقدار آن حتماً در زمان Compile مشخص باشد. یک readonly Field می‌تواند هنگام تعریف یا داخل Constructor
+            مقداردهی شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private readonly Guid _accountId;
+
+    public BankAccount()
+    {
+        _accountId = Guid.NewGuid();
+    }
+}</code></pre>
+          </div>
+          <p>
+            مقدار <code>Guid.NewGuid()</code> هنگام اجرای برنامه تولید می‌شود؛ بنابراین نمی‌توانیم آن را
+            <code>const</code>
+            تعریف کنیم، اما <code>readonly</code> برای این سناریو مناسب است.
+          </p>
+          <h3>مقداردهی readonly در Constructor</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private readonly string _accountNumber;
+
+    public BankAccount(string accountNumber)
+    {
+        _accountNumber = accountNumber;
+    }
+}</code></pre>
+          </div>
+          <p>
+            هر object می‌تواند مقدار متفاوتی برای <code>_accountNumber</code> داشته باشد؛ اما بعد از اجرای Constructor،
+            آن Field دیگر قابل انتساب مجدد نیست.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private readonly string _accountNumber;
+
+    public BankAccount(string accountNumber)
+    {
+        _accountNumber = accountNumber;
+    }
+
+    public void ChangeAccountNumber()
+    {
+        // Compile Error
+        // _accountNumber = "IR-2000";
+    }
+}</code></pre>
+          </div>
+          <h2>تفاوت <code>const</code> و <code>readonly</code></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th><code>const</code></th>
+                <th><code>readonly</code></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>زمان مشخص‌شدن مقدار</td>
+                <td>Compile Time</td>
+                <td>Runtime نیز ممکن است</td>
+              </tr>
+              <tr>
+                <td>مقداردهی در Constructor</td>
+                <td>خیر</td>
+                <td>بله</td>
+              </tr>
+              <tr>
+                <td>تغییر پس از مقداردهی</td>
+                <td>خیر</td>
+                <td>پس از مقداردهی اولیه/Constructor خیر</td>
+              </tr>
+              <tr>
+                <td>Static بودن</td>
+                <td>به‌صورت ضمنی static است</td>
+                <td>به‌صورت پیش‌فرض instance است</td>
+              </tr>
+              <tr>
+                <td>مناسب برای</td>
+                <td>مقادیر ثابت واقعی</td>
+                <td>مقادیر ثابت‌شونده در Runtime</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>چه زمانی const استفاده کنیم؟</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public const int MaxRetryCount = 3;
+public const string DefaultCurrency = "IRR";</code></pre>
+          </div>
+          <p>
+            این مقادیر از قبل مشخص‌اند و برای ساختن آن‌ها به Runtime یا Constructor نیازی نداریم.
+          </p>
+          <h3>چه زمانی readonly استفاده کنیم؟</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private readonly Guid _id;
+    private readonly DateTime _createdAt;
+
+    public BankAccount()
+    {
+        _id = Guid.NewGuid();
+        _createdAt = DateTime.UtcNow;
+    }
+}</code></pre>
+          </div>
+          <p>
+            مقادیر <code>_id</code> و <code>_createdAt</code> تا زمان اجرای برنامه مشخص نیستند، اما پس از ساخته‌شدن
+            object
+            نمی‌خواهیم reference/value این Fieldها دوباره انتساب داده شود.
+          </p>
+          <h2><code>static readonly</code></h2>
+          <p>
+            گاهی یک مقدار باید میان همهٔ objectها مشترک باشد، در Runtime ساخته شود و پس از مقداردهی تغییر نکند.
+            در این حالت ترکیب <code>static readonly</code> کاربرد دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public static readonly DateTime ApplicationStartedAt =
+        DateTime.UtcNow;
+}</code></pre>
+          </div>
+          <p>
+            این مقدار یک‌بار برای type ایجاد می‌شود و همهٔ instanceها همان مقدار مشترک را مشاهده می‌کنند.
+          </p>
+          <h2>مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    // Instance Field
+    private decimal _balance;
+
+    // Static Field
+    private static int _accountCount;
+
+    // Constant
+    public const int MaxDailyTransactions = 100;
+
+    // Readonly Field
+    private readonly Guid _accountId;
+
+    public BankAccount()
+    {
+        _accountId = Guid.NewGuid();
+        _accountCount++;
+    }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        _balance += amount;
+    }
+
+    public decimal GetBalance()
+    {
+        return _balance;
+    }
+
+    public static int GetAccountCount()
+    {
+        return _accountCount;
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            در این class چهار نوع استفادهٔ مهم از Field را می‌بینیم: <code>_balance</code> متعلق به هر حساب است،
+            <code>_accountCount</code> میان همهٔ حساب‌ها مشترک است، <code>MaxDailyTransactions</code> یک مقدار ثابت
+            Compile-Time
+            است و <code>_accountId</code> هنگام ساخت object مشخص می‌شود و بعد از آن دوباره مقداردهی نمی‌شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              قاعدهٔ ساده: اگر مقدار برای هر object متفاوت است از Instance Field استفاده کنید؛ اگر میان همهٔ objectها
+              مشترک
+              است Static Field مطرح می‌شود؛ اگر مقدار یک ثابت واقعی Compile-Time است <code>const</code> مناسب است؛ و اگر
+              مقدار
+              در Runtime تعیین می‌شود اما پس از مقداردهی نباید دوباره assign شود، <code>readonly</code> انتخاب مناسبی
+              است.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+
+</html>

@@ -40,7 +40,7 @@ const data = chapters.map((chapter, chapterIndex) => ({
         ? 'basic-concepts'
         : `chapter-${chapterIndex + 1}-lesson-${lessonIndex + 1}`,
     title,
-    available: chapterIndex === 0 && lessonIndex === 0
+    available: true
   }))
 }));
 
@@ -64,10 +64,10 @@ const output = `(function (globalScope) {
           <summary>\${escapeHtml(chapter.title)}</summary>
           <ol>\${chapter.lessons.map(lesson => {
             const title = \`<bdi>\${escapeHtml(displayLessonTitle(lesson.title))}</bdi>\`;
-            if (lesson.available) {
-              return \`<li><a href="../oop/index.html"\${lesson.id === currentLessonId ? ' aria-current="page"' : ''}>\${title}</a></li>\`;
-            }
-            return \`<li><span class="lesson-soon" data-lesson-id="\${lesson.id}">\${title}</span></li>\`;
+            const href = lesson.id === 'oop-introduction'
+              ? '../oop/whatisoop.html'
+              : \`../lessons/\${lesson.id}.html\`;
+            return \`<li><a href="\${href}"\${lesson.id === currentLessonId ? ' aria-current="page"' : ''}>\${title}</a></li>\`;
           }).join('')}</ol>
         </details>\`;
       }).join('')}\`;
