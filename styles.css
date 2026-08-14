@@ -203,18 +203,22 @@ main > section { width: var(--content); margin: 0 auto; padding: clamp(4rem, 8vw
 
 .hero {
   position: relative;
-  min-height: 18rem;
+  height: clamp(24rem, 44svh, 28rem);
+  min-height: 0;
   display: grid;
-  align-content: center;
+  grid-template-columns: minmax(24rem, 0.82fr) minmax(0, 1.18fr);
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 4rem);
   max-width: none;
   width: 100%;
-  padding-block: clamp(1.75rem, 3.5vw, 3rem);
-  padding-inline: max(1.25rem, calc((100% - 1120px) / 2));
+  padding-block: clamp(0.75rem, 1.5vw, 1.5rem);
+  padding-inline: clamp(1.25rem, 4vw, 5rem);
   isolation: isolate;
   overflow: hidden;
   background:
-    radial-gradient(circle at 17% 25%, color-mix(in srgb, var(--aqua) 15%, transparent) 0 12%, transparent 31%),
-    linear-gradient(125deg, var(--surface-soft), var(--canvas) 65%);
+    radial-gradient(circle at 72% 40%, rgb(11 93 116 / 36%), transparent 34%),
+    radial-gradient(circle at 15% 75%, rgb(24 88 166 / 22%), transparent 38%),
+    linear-gradient(115deg, #010e25, #031426 52%, #041d2d);
 }
 .hero::before, .hero::after {
   position: absolute;
@@ -222,21 +226,44 @@ main > section { width: var(--content); margin: 0 auto; padding: clamp(4rem, 8vw
   content: "";
   width: min(42vw, 32rem);
   aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--brand) 28%, transparent);
-  border-radius: 42% 58% 65% 35% / 39% 37% 63% 61%;
-  transform: rotate(28deg);
+  pointer-events: none;
 }
 .hero::before {
-  inset: 2rem 10% auto auto;
-  background: repeating-linear-gradient(135deg, transparent 0 18px, color-mix(in srgb, var(--brand) 7%, transparent) 19px 20px);
-  box-shadow: inset 0 0 0 2.8rem color-mix(in srgb, var(--surface) 45%, transparent);
+  inset: 0;
+  width: 100%;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  background-image: radial-gradient(circle, rgb(255 255 255 / 55%) 0 1px, transparent 1.6px);
+  background-size: 67px 67px;
+  opacity: 0.22;
 }
 .hero::after {
-  inset: auto 17% -15rem auto;
-  width: min(33vw, 24rem);
-  background: color-mix(in srgb, var(--gold) 12%, transparent);
+  display: none;
 }
-.hero > * { width: min(42rem, 100%); }
+.hero-copy { z-index: 1; min-width: 0; width: min(42rem, 100%); }
+.hero-copy .eyebrow { color: #50d7de; }
+.hero-copy #hero-title {
+  max-width: 13ch;
+  color: #fff;
+  font-size: clamp(2rem, 3vw, 3rem);
+  white-space: normal;
+  text-wrap: balance;
+  text-shadow: 0 2px 22px rgb(0 0 0 / 30%);
+}
+.hero-copy > p:not(.eyebrow) { color: #cfdae8; }
+.hero-copy .hero-stats dt { color: #b8c7d8; }
+.hero-copy .hero-stats dd { color: #59dbe2; }
+.hero-copy .button-secondary { border-color: rgb(255 255 255 / 35%); background: rgb(255 255 255 / 8%); color: #fff; }
+.hero-copy .button-secondary:hover { background: rgb(255 255 255 / 15%); color: #fff; }
+.hero-visual { z-index: 1; align-self: stretch; min-width: 0; width: 100%; height: 100%; margin: 0; overflow: hidden; }
+.hero-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1.5rem 3rem rgb(0 0 0 / 28%));
+}
 .eyebrow { margin: 0 0 0.65rem; color: var(--aqua); font-size: 0.84rem; font-weight: 900; letter-spacing: 0.06em; }
 h1, h2, h3, p { overflow-wrap: break-word; }
 h1, h2, h3 { line-height: 1.32; }
@@ -333,7 +360,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
   .site-nav { gap: 0.85rem; }
   .nav-links { gap: 0.8rem; }
   .course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hero::before { inset-inline-end: -5rem; }
+  .hero { grid-template-columns: minmax(20rem, 0.9fr) minmax(0, 1.1fr); gap: 2rem; }
 }
 
 @media (max-width: 760px) {
@@ -347,9 +374,11 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
   .nav-actions { gap: 0.35rem; }
   .nav-actions .button-link { display: none; }
   .nav-actions button { min-height: 2.8rem; padding-inline: 0.45rem; }
-  .hero { min-height: 17rem; padding-inline: 1rem; }
-  .hero::before { inset: 4rem -8rem auto auto; width: 20rem; }
-  .hero::after { inset-inline-end: -3rem; }
+  .hero { height: auto; min-height: auto; grid-template-columns: 1fr; padding: 3rem 1rem; }
+  .hero-copy { width: 100%; }
+  .hero-visual { width: min(34rem, 100%); height: auto; margin-inline: auto; overflow: visible; }
+  .hero-visual img { height: auto; }
+  .hero::before { inset: 0; width: 100%; }
   .hero-stats { gap: 1rem; }
   .hero-stats div { min-width: 6.25rem; }
   .course-grid, .value-grid { grid-template-columns: 1fr; }
@@ -365,7 +394,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
   .brand { font-size: 1rem; }
   .brand::before { display: none; }
   .nav-actions button { font-size: 0.72rem; }
-  .hero { min-height: 16.5rem; }
+  .hero { min-height: auto; }
   h1 { font-size: clamp(2.15rem, 12vw, 3rem); }
   .hero-actions { display: grid; grid-template-columns: 1fr; }
   .hero-actions .button-link { width: 100%; }

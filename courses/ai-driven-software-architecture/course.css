@@ -8,16 +8,19 @@
 }
 
 .course-nav {
-  width: var(--content);
+  box-sizing: border-box;
+  width: 100%;
   min-height: 4.5rem;
   margin: auto;
+  padding-inline: clamp(1.25rem, 3vw, 4rem);
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
 .course-brand { color: var(--brand); font-weight: 900; text-decoration: none; }
-.back-link { margin-inline-start: auto; color: var(--muted); font-weight: 700; text-decoration: none; }
+.course-name { color: var(--muted); font-weight: 700; line-height: 1.4; }
+.back-link { margin-inline-end: auto; color: var(--muted); font-weight: 700; text-decoration: none; }
 .back-link:hover { color: var(--brand); }
 
 .course-nav .icon-button {
@@ -231,6 +234,7 @@
   #course-content { display: block; padding-top: 1.5rem; direction: rtl; }
   .course-nav { gap: 0.65rem; }
   .course-brand { font-size: 0.9rem; }
+  .course-name { max-width: 10rem; font-size: 0.75rem; }
   .back-link { font-size: 0.75rem; }
   .course-hero { width: var(--content); margin-top: 0; border-radius: var(--radius-md); }
   .course-badge { inline-size: 4rem; block-size: 4rem; }
