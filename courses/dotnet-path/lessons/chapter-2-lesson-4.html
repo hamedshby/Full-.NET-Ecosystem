@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Methods از مسیر حرفه‌ای .NET.">
-  <title>Methods | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Method در C# شامل Instance و Static Method، Parameters، Return Value، Overloading، Optional و Named Parameters و ref، out و in."
+    name="description" />
+  <title>Methods در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,550 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-2-lesson-4">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 2 — Class و Object در C#</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Methods</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>آشنایی با <bdi>Methods</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در طراحی شی‌گرا، object فقط داده نگه نمی‌دارد؛ باید بتواند رفتارهایی نیز انجام دهد. در C# این رفتارها
+            معمولاً با
+            <bdi>Method</bdi> تعریف می‌شوند. برای مثال یک حساب بانکی می‌تواند عملیات واریز، برداشت و محاسبهٔ موجودی را
+            انجام دهد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              اگر Field و Property معمولاً State یک object را نمایش دهند، Method معمولاً Behavior آن object را بیان
+              می‌کند.
+              نام Method بهتر است نشان دهد object چه کاری انجام می‌دهد؛ مانند <code>Deposit</code>،
+              <code>Withdraw</code> یا <code>CalculateFee</code>.
+            </div>
+          </div>
+          <h2>ساختار یک <bdi>Method</bdi></h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public decimal CalculateFee(decimal amount)
+{
+    return amount * 0.01m;
+}</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>بخش</th>
+                <th>مثال</th>
+                <th>کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Access Modifier</td>
+                <td><code>public</code></td>
+                <td>سطح دسترسی Method</td>
+              </tr>
+              <tr>
+                <td>Return Type</td>
+                <td><code>decimal</code></td>
+                <td>نوع مقداری که Method برمی‌گرداند</td>
+              </tr>
+              <tr>
+                <td>Method Name</td>
+                <td><code>CalculateFee</code></td>
+                <td>نام رفتار</td>
+              </tr>
+              <tr>
+                <td>Parameter</td>
+                <td><code>decimal amount</code></td>
+                <td>ورودی موردنیاز Method</td>
+              </tr>
+              <tr>
+                <td>Body</td>
+                <td><code>{ ... }</code></td>
+                <td>منطق Method</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2><bdi>Instance Method</bdi></h2>
+          <p>
+            Instance Method به یک instance مشخص از class تعلق دارد و می‌تواند مستقیماً به State همان object دسترسی داشته
+            باشد.
+            برای فراخوانی آن ابتدا باید یک object داشته باشیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    public void Deposit(decimal amount)
+    {
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 = new BankAccount();
+var account2 = new BankAccount();
+
+account1.Deposit(100_000);
+account2.Deposit(500_000);
+
+Console.WriteLine(account1.Balance); // 100000
+Console.WriteLine(account2.Balance); // 500000</code></pre>
+          </div>
+          <p class="example-explanation">
+            متد <code>Deposit</code> روی object مشخص اجرا می‌شود؛ بنابراین فراخوانی آن روی <code>account1</code>، State
+            مربوط به
+            <code>account2</code> را تغییر نمی‌دهد.
+          </p>
+          <h2><bdi>Static Method</bdi></h2>
+          <p>
+            Static Method به خود class تعلق دارد، نه به یک instance مشخص. بنابراین معمولاً آن را با نام class فراخوانی
+            می‌کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public static bool IsValidAmount(decimal amount)
+    {
+        return amount &gt; 0;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>bool result = BankAccount.IsValidAmount(100_000);
+
+Console.WriteLine(result); // True</code></pre>
+          </div>
+          <p>
+            Static Method نمی‌تواند بدون داشتن یک instance به اعضای instance دسترسی مستقیم داشته باشد.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Instance Method</th>
+                <th>Static Method</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>به یک object تعلق دارد.</td>
+                <td>به خود class تعلق دارد.</td>
+              </tr>
+              <tr>
+                <td>به Instance State دسترسی مستقیم دارد.</td>
+                <td>به Instance State دسترسی مستقیم ندارد.</td>
+              </tr>
+              <tr>
+                <td><code>account.Deposit(...)</code></td>
+                <td><code>BankAccount.IsValidAmount(...)</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <h2><bdi>Method Parameters</bdi></h2>
+          <p>
+            Parameter اطلاعاتی است که Method برای انجام کار خود دریافت می‌کند. یک Method می‌تواند بدون Parameter، با یک
+            Parameter
+            یا با چند Parameter تعریف شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Transfer(
+    BankAccount destination,
+    decimal amount,
+    string description)
+{
+    // Transfer logic
+}</code></pre>
+          </div>
+          <p>هنگام فراخوانی Method، مقادیر واقعی ارسال‌شده Argument نامیده می‌شوند:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>sourceAccount.Transfer(
+    destinationAccount,
+    500_000,
+    "Invoice payment");</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              در تعریف Method به <code>amount</code> می‌گوییم Parameter؛ در فراخوانی، مقدار <code>500_000</code> یک
+              Argument است.
+            </div>
+          </div>
+          <h2><bdi>Return Value</bdi></h2>
+          <p>
+            اگر Method قرار است نتیجه‌ای به فراخواننده برگرداند، نوع نتیجه قبل از نام Method مشخص می‌شود و معمولاً از
+            <code>return</code> برای بازگرداندن آن استفاده می‌کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public decimal CalculateFee(decimal amount)
+{
+    decimal fee = amount * 0.01m;
+
+    return fee;
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>decimal fee = account.CalculateFee(1_000_000);
+
+Console.WriteLine(fee); // 10000</code></pre>
+          </div>
+          <p>
+            اگر Method چیزی برنمی‌گرداند، Return Type آن <code>void</code> است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Deposit(decimal amount)
+{
+    Balance += amount;
+}</code></pre>
+          </div>
+          <h2><bdi>Method Overloading</bdi></h2>
+          <p>
+            در C# می‌توان چند Method با نام یکسان اما Parameter List متفاوت تعریف کرد. به این قابلیت Method Overloading
+            گفته می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public void Deposit(decimal amount)
+    {
+        // Deposit
+    }
+
+    public void Deposit(decimal amount, string description)
+    {
+        // Deposit with description
+    }
+
+    public void Deposit(decimal amount, string description, DateTime date)
+    {
+        // Deposit with description and date
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>account.Deposit(100_000);
+
+account.Deposit(
+    100_000,
+    "Salary");
+
+account.Deposit(
+    100_000,
+    "Salary",
+    DateTime.UtcNow);</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              تفاوت فقط در Return Type برای Overloading کافی نیست. Compiler باید بتواند نسخهٔ مناسب Method را از روی
+              Parameterها تشخیص دهد.
+            </div>
+          </div>
+          <h2><bdi>Optional Parameters</bdi></h2>
+          <p>
+            می‌توان برای Parameter مقدار پیش‌فرض تعریف کرد. در این صورت هنگام فراخوانی Method، ارسال آن Argument اختیاری
+            است.
+            Optional Parameterها باید بعد از Parameterهای اجباری قرار بگیرند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Deposit(
+    decimal amount,
+    string description = "Deposit")
+{
+    // Deposit logic
+}</code></pre>
+          </div>
+          <p>هر دو فراخوانی معتبر هستند:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>account.Deposit(500_000);
+
+account.Deposit(
+    500_000,
+    "Salary");</code></pre>
+          </div>
+          <p>
+            در فراخوانی اول مقدار پیش‌فرض <code>"Deposit"</code> برای <code>description</code> استفاده می‌شود.
+          </p>
+          <h2><bdi>Named Parameters</bdi></h2>
+          <p>
+            به‌طور معمول Argumentها بر اساس ترتیب Parameterها ارسال می‌شوند. با Named Argument می‌توان نام Parameter را
+            هنگام
+            فراخوانی مشخص کرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Transfer(
+    decimal amount,
+    string description,
+    bool sendNotification)
+{
+    // Transfer logic
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>account.Transfer(
+    amount: 500_000,
+    description: "Invoice payment",
+    sendNotification: true);</code></pre>
+          </div>
+          <p>
+            Named Arguments مخصوصاً برای Parameterهای Boolean یا Methodهایی با چند ورودی می‌توانند خوانایی فراخوانی را
+            بیشتر کنند.
+          </p>
+          <h2><code>ref</code></h2>
+          <p>
+            به‌طور معمول Parameterهای Value Type مانند <code>int</code> و <code>decimal</code> به‌صورت value ارسال
+            می‌شوند.
+            با <code>ref</code> می‌توان اجازه داد Method مستقیماً متغیر فراخواننده را تغییر دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static void AddBonus(
+    ref decimal amount)
+{
+    amount += 10_000;
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>decimal amount = 100_000;
+
+AddBonus(ref amount);
+
+Console.WriteLine(amount); // 110000</code></pre>
+          </div>
+          <p>
+            متغیری که با <code>ref</code> ارسال می‌شود باید قبل از فراخوانی Method مقداردهی شده باشد و کلمهٔ
+            <code>ref</code>
+            هم در تعریف و هم در فراخوانی نوشته شود.
+          </p>
+          <h2><code>out</code></h2>
+          <p>
+            <code>out</code> نیز اجازه می‌دهد Method مقداری را از طریق Parameter به بیرون منتقل کند؛ اما برخلاف
+            <code>ref</code>
+            لازم نیست متغیر قبل از فراخوانی مقدار داشته باشد. Method موظف است قبل از پایان، برای out Parameter مقدار
+            تعیین کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static bool TryGetFee(
+    decimal amount,
+    out decimal fee)
+{
+    if (amount &lt;= 0)
+    {
+        fee = 0;
+        return false;
+    }
+
+    fee = amount * 0.01m;
+
+    return true;
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>if (TryGetFee(1_000_000, out decimal fee))
+{
+    Console.WriteLine(fee);
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            الگوی <code>Try...</code> یکی از کاربردهای شناخته‌شدهٔ <code>out</code> در .NET است؛ نمونهٔ معروف آن
+            <code>int.TryParse</code> است.
+          </p>
+          <h2><code>in</code></h2>
+          <p>
+            Parameter با <code>in</code> به‌صورت reference ارسال می‌شود، اما Method اجازه ندارد آن Parameter را به مقدار
+            دیگری assign کند.
+            بنابراین <code>in</code> یک reference ورودیِ فقط‌خواندنی برای Parameter ایجاد می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public readonly struct TransferRequest
+{
+    public decimal Amount { get; init; }
+    public int DestinationId { get; init; }
+}
+
+public static void Validate(
+    in TransferRequest request)
+{
+    Console.WriteLine(request.Amount);
+
+    // Compile Error
+    // request = new TransferRequest();
+}</code></pre>
+          </div>
+          <p>
+            <code>in</code> به‌خصوص برای structهای بزرگ می‌تواند مفید باشد؛ چون امکان ارسال با reference را فراهم می‌کند
+            بدون اینکه
+            Method اجازهٔ assign کردن مقدار جدید به Parameter داشته باشد.
+          </p>
+          <h2>تفاوت <code>ref</code>، <code>out</code> و <code>in</code></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th><code>ref</code></th>
+                <th><code>out</code></th>
+                <th><code>in</code></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نیاز به مقداردهی قبل از فراخوانی</td>
+                <td>بله</td>
+                <td>خیر</td>
+                <td>بله</td>
+              </tr>
+              <tr>
+                <td>Method می‌تواند مقدار جدید assign کند</td>
+                <td>بله</td>
+                <td>بله، و باید مقداردهی کند</td>
+                <td>خیر</td>
+              </tr>
+              <tr>
+                <td>هدف اصلی</td>
+                <td>خواندن و تغییر مقدار موجود</td>
+                <td>برگرداندن مقدار از Method</td>
+                <td>ارسال Reference فقط‌خواندنی</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              از <code>ref</code> و <code>out</code> فقط زمانی استفاده کنید که واقعاً طراحی Method به آن نیاز دارد.
+              تغییر متغیر فراخواننده از داخل Method می‌تواند دنبال‌کردن جریان داده را سخت‌تر کند. در بسیاری از سناریوها
+              Return Value
+              یا یک Result Object خواناتر است.
+            </div>
+          </div>
+          <h2>مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    // Instance Method
+    public void Deposit(
+        decimal amount,
+        string description = "Deposit")
+    {
+        if (!IsValidAmount(amount))
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        Balance += amount;
+
+        Console.WriteLine(description);
+    }
+
+    // Return Value
+    public decimal CalculateFee(decimal amount)
+    {
+        return amount * 0.01m;
+    }
+
+    // Method Overloading
+    public void Withdraw(decimal amount)
+    {
+        Withdraw(amount, "Withdrawal");
+    }
+
+    public void Withdraw(
+        decimal amount,
+        string description)
+    {
+        if (amount &gt; Balance)
+            throw new InvalidOperationException(
+                "Insufficient balance.");
+
+        Balance -= amount;
+
+        Console.WriteLine(description);
+    }
+
+    // Static Method
+    public static bool IsValidAmount(
+        decimal amount)
+    {
+        return amount &gt; 0;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+account.Deposit(1_000_000);
+
+account.Deposit(
+    amount: 500_000,
+    description: "Salary");
+
+decimal fee =
+    account.CalculateFee(500_000);
+
+account.Withdraw(200_000);
+
+account.Withdraw(
+    100_000,
+    "Online purchase");
+
+Console.WriteLine(account.Balance);
+Console.WriteLine(fee);</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              یک Method خوب فقط مجموعه‌ای از دستورات نیست؛ باید یک رفتار مشخص و قابل‌فهم را بیان کند. Parameterها ورودی
+              رفتار را
+              مشخص می‌کنند، Return Value نتیجه را برمی‌گرداند و قابلیت‌هایی مانند Overloading، Optional و Named
+              Parameters کمک می‌کنند
+              API کلاس خواناتر و مناسب‌تر طراحی شود.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

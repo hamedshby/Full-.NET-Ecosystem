@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Properties از مسیر حرفه‌ای .NET.">
-  <title>Properties | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Properties در C# شامل Getter و Setter، Auto Property، Read-only Property، Init-only Property، Validation و Expression-bodied Property."
+    name="description" />
+  <title>Properties در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,451 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-2-lesson-3">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 2 — Class و Object در C#</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Properties</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>آشنایی با <bdi>Properties</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در کلاس‌های C# معمولاً نمی‌خواهیم Fieldهای داخلی را مستقیماً در اختیار کد بیرونی قرار دهیم.
+            <bdi>Property</bdi> راهی کنترل‌شده برای خواندن یا تغییر State یک object فراهم می‌کند و یکی از مهم‌ترین
+            ابزارهای
+            Encapsulation در C# است.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Property از بیرون شبیه یک متغیر استفاده می‌شود، اما پشت آن می‌توان منطق خواندن، نوشتن، اعتبارسنجی یا
+              محدودیت دسترسی قرار داد.
+            </div>
+          </div>
+          <h2><bdi>Property</bdi> چیست؟</h2>
+          <p>
+            فرض کنید کلاس <code>BankAccount</code> یک Field خصوصی برای موجودی دارد. اگر بخواهیم کد بیرون کلاس بتواند
+            موجودی را بخواند،
+            لازم نیست Field را public کنیم؛ می‌توانیم یک Property ارائه کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+
+    public decimal Balance
+    {
+        get
+        {
+            return _balance;
+        }
+    }
+}</code></pre>
+          </div>
+          <p>
+            اکنون کد بیرون می‌تواند <code>Balance</code> را بخواند، اما نمی‌تواند مستقیماً مقدار <code>_balance</code>
+            را تغییر دهد.
+            این همان چیزی است که Property را برای Encapsulation مفید می‌کند.
+          </p>
+          <h2><bdi>Getter</bdi> و <bdi>Setter</bdi></h2>
+          <p>
+            یک Property می‌تواند دو accessor اصلی داشته باشد: <code>get</code> برای خواندن مقدار و <code>set</code> برای
+            تغییر مقدار.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    private string _name;
+
+    public string Name
+    {
+        get
+        {
+            return _name;
+        }
+
+        set
+        {
+            _name = value;
+        }
+    }
+}</code></pre>
+          </div>
+          <p>
+            در Setter، کلمهٔ کلیدی <code>value</code> همان مقداری است که هنگام assignment به Property ارسال شده است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer = new Customer();
+
+customer.Name = "Hamed";
+
+Console.WriteLine(customer.Name);</code></pre>
+          </div>
+          <p class="example-explanation">
+            در <code>customer.Name = "Hamed"</code>، مقدار <code>"Hamed"</code> داخل Setter از طریق <code>value</code>
+            در دسترس است.
+          </p>
+          <h3>محدود کردن Setter</h3>
+          <p>
+            Getter و Setter می‌توانند سطح دسترسی متفاوتی داشته باشند. این قابلیت برای محافظت از State بسیار کاربردی است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    public void Deposit(decimal amount)
+    {
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <p>
+            کد بیرونی می‌تواند موجودی را بخواند، اما فقط خود کلاس اجازه دارد آن را تغییر دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+account.Deposit(500_000);
+
+Console.WriteLine(account.Balance);
+
+// Compile Error
+// account.Balance = 10_000_000;</code></pre>
+          </div>
+          <h2><bdi>Auto Property</bdi></h2>
+          <p>
+            اگر Getter و Setter منطق خاصی نداشته باشند، می‌توان از Auto-Implemented Property استفاده کرد.
+            در این حالت C# Field پنهان موردنیاز را خودش ایجاد می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+}</code></pre>
+          </div>
+          <p>برای Auto Property می‌توان مقدار اولیه هم تعریف کرد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string Currency { get; set; } = "IRR";
+    public decimal Balance { get; private set; } = 0;
+}</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              وقتی هیچ منطق خاصی برای Getter یا Setter ندارید، Auto Property معمولاً خواناتر و ساده‌تر از تعریف دستی
+              backing field است.
+            </div>
+          </div>
+          <h2><bdi>Read-only Property</bdi></h2>
+          <p>
+            گاهی Property باید از بیرون فقط قابل خواندن باشد. یکی از روش‌ها تعریف Property با Getter و بدون Setter عمومی
+            است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    public void Deposit(decimal amount)
+    {
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <p>
+            از دید مصرف‌کنندهٔ کلاس، <code>Balance</code> فقط قابل خواندن است؛ اما خود <code>BankAccount</code> می‌تواند
+            آن را تغییر دهد.
+          </p>
+          <p>یک Getter-only Property نیز می‌تواند به شکل زیر تعریف شود:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public BankAccount(string accountNumber)
+    {
+        AccountNumber = accountNumber;
+    }
+}</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>نوع Property</th>
+                <th>خواندن از بیرون</th>
+                <th>تغییر از بیرون</th>
+                <th>کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>{ get; set; }</code></td>
+                <td>بله</td>
+                <td>بله</td>
+                <td>Read/Write Property</td>
+              </tr>
+              <tr>
+                <td><code>{ get; private set; }</code></td>
+                <td>بله</td>
+                <td>خیر</td>
+                <td>تغییر کنترل‌شده داخل Class</td>
+              </tr>
+              <tr>
+                <td><code>{ get; }</code></td>
+                <td>بله</td>
+                <td>خیر</td>
+                <td>Getter-only Property</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2><bdi>Init-only Property</bdi></h2>
+          <p>
+            با <code>init</code> می‌توان Property را هنگام ایجاد object مقداردهی کرد، اما بعد از پایان initialization
+            دیگر اجازهٔ تغییر آن را نداد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    public string NationalCode { get; init; }
+    public string Name { get; init; }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer = new Customer
+{
+    NationalCode = "1234567890",
+    Name = "Hamed"
+};
+
+// Compile Error
+// customer.NationalCode = "9999999999";</code></pre>
+          </div>
+          <p>
+            این قابلیت برای objectهایی که پس از ایجاد نباید به‌راحتی تغییر کنند بسیار مناسب است.
+          </p>
+          <h2><bdi>Property Validation</bdi></h2>
+          <p>
+            Setter می‌تواند قبل از پذیرفتن مقدار جدید، آن را بررسی کند. این ویژگی اجازه می‌دهد object از State نامعتبر
+            جلوگیری کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    private string _name;
+
+    public string Name
+    {
+        get =&gt; _name;
+
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException(
+                    "Name cannot be empty.",
+                    nameof(value));
+
+            _name = value;
+        }
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer = new Customer();
+
+customer.Name = "Hamed";
+
+// Exception
+// customer.Name = "";</code></pre>
+          </div>
+          <p class="example-explanation">
+            Setter اجازه نمی‌دهد یک نام خالی وارد State شیء شود. بنابراین خود object بخشی از قوانین معتبر بودن State را
+            کنترل می‌کند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              همهٔ قوانین Domain را داخل Setter قرار ندهید. اگر تغییر یک مقدار یک رفتار مهم کسب‌وکار است، Methodی مثل
+              <code>ChangeAccountNumber()</code> ممکن است مفهوم و Intent روشن‌تری داشته باشد.
+            </div>
+          </div>
+          <h2><bdi>Expression-bodied Property</bdi></h2>
+          <p>
+            اگر Getter فقط یک عبارت ساده را برمی‌گرداند، می‌توان آن را با syntax کوتاه <code>=&gt;</code> نوشت.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+
+    public decimal Balance =&gt; _balance;
+}</code></pre>
+          </div>
+          <p>این شکل کوتاه‌ترِ همان Getter معمولی است:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public decimal Balance
+{
+    get
+    {
+        return _balance;
+    }
+}</code></pre>
+          </div>
+          <h3>Computed Property</h3>
+          <p>
+            Expression-bodied Property برای مقادیری که از Stateهای دیگر محاسبه می‌شوند بسیار مناسب است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+
+    public string FullName =&gt; $"{FirstName} {LastName}";
+}</code></pre>
+          </div>
+          <h2>مقایسه انواع Property</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>نوع</th>
+                <th>Syntax</th>
+                <th>کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Auto Property</td>
+                <td><code>{ get; set; }</code></td>
+                <td>خواندن و نوشتن ساده</td>
+              </tr>
+              <tr>
+                <td>Private Setter</td>
+                <td><code>{ get; private set; }</code></td>
+                <td>تغییر State فقط توسط خود Class</td>
+              </tr>
+              <tr>
+                <td>Read-only</td>
+                <td><code>{ get; }</code></td>
+                <td>فقط خواندن</td>
+              </tr>
+              <tr>
+                <td>Init-only</td>
+                <td><code>{ get; init; }</code></td>
+                <td>مقداردهی هنگام initialization</td>
+              </tr>
+              <tr>
+                <td>Expression-bodied</td>
+                <td><code>=&gt; expression</code></td>
+                <td>Getter یا مقدار محاسباتی ساده</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private string _ownerName;
+
+    public Guid Id { get; init; }
+
+    public string AccountNumber { get; init; }
+
+    public decimal Balance { get; private set; }
+
+    public string OwnerName
+    {
+        get =&gt; _ownerName;
+
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException(
+                    "Owner name is required.");
+
+            _ownerName = value;
+        }
+    }
+
+    public bool HasBalance =&gt; Balance &gt; 0;
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount
+{
+    Id = Guid.NewGuid(),
+    AccountNumber = "IR-1001",
+    OwnerName = "Hamed"
+};
+
+account.Deposit(500_000);
+
+Console.WriteLine(account.Balance);
+Console.WriteLine(account.HasBalance);</code></pre>
+          </div>
+          <p class="example-explanation">
+            در این مثال <code>Id</code> و <code>AccountNumber</code> فقط هنگام initialization مقدار می‌گیرند،
+            <code>Balance</code> فقط توسط رفتارهای داخل class تغییر می‌کند، <code>OwnerName</code> Validation دارد و
+            <code>HasBalance</code> یک Expression-bodied Property محاسباتی است.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              Property فقط syntax زیباتری برای Field نیست؛ ابزاری برای طراحی مرز دسترسی به State است. مشخص می‌کند چه
+              چیزی
+              قابل خواندن است، چه چیزی قابل تغییر است، چه زمانی قابل تغییر است و هنگام تغییر چه قوانینی باید رعایت شوند.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

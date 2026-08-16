@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Constructor چیست؟ از مسیر حرفه‌ای .NET.">
-  <title>Constructor چیست؟ | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Constructor در C# شامل Default Constructor، Parameterized Constructor و Constructor Overloading با مثال‌های عملی."
+    name="description" />
+  <title>Constructor در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,468 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-3-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 3 — Constructor و چرخه ایجاد Object</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Constructor چیست؟</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>آشنایی با <bdi>Constructor</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            وقتی با <code>new</code> یک object از یک class می‌سازیم، معمولاً لازم است object در همان لحظهٔ ایجاد
+            مقداردهی یا برای استفاده آماده شود. در C# این مسئولیت را <bdi>Constructor</bdi> بر عهده دارد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Constructor متدی ویژه برای آماده‌سازی object هنگام ایجاد آن است. نام Constructor با نام Class یکسان است و
+              Return Type ندارد؛ حتی <code>void</code>.
+            </div>
+          </div>
+          <h2><bdi>Constructor</bdi> چیست؟</h2>
+          <p>
+            Constructor عضوی ویژه از class است که هنگام ساخته‌شدن یک instance اجرا می‌شود. برای مثال، یک حساب بانکی
+            بدون شماره حساب معنای کاملی ندارد؛ بنابراین می‌توانیم دریافت شماره حساب را به Constructor منتقل کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public BankAccount(string accountNumber)
+    {
+        AccountNumber = accountNumber;
+    }
+}</code></pre>
+          </div>
+          <p>وقتی object ساخته می‌شود، Constructor به‌صورت خودکار اجرا می‌شود:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount("IR-1001");
+
+Console.WriteLine(
+    account.AccountNumber);</code></pre>
+          </div>
+          <p class="example-explanation">
+            عبارت <code>new BankAccount("IR-1001")</code> یک instance جدید ایجاد می‌کند و مقدار
+            <code>"IR-1001"</code> را به Constructor می‌فرستد.
+          </p>
+          <h3>ساختار Constructor</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public BankAccount(string accountNumber)
+{
+    AccountNumber = accountNumber;
+}</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>بخش</th>
+                <th>مثال</th>
+                <th>توضیح</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Access Modifier</td>
+                <td><code>public</code></td>
+                <td>مشخص می‌کند Constructor از کجا قابل استفاده است.</td>
+              </tr>
+              <tr>
+                <td>نام</td>
+                <td><code>BankAccount</code></td>
+                <td>باید با نام Class یکسان باشد.</td>
+              </tr>
+              <tr>
+                <td>Parameters</td>
+                <td><code>string accountNumber</code></td>
+                <td>اطلاعات لازم برای ایجاد object را دریافت می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Body</td>
+                <td><code>{ ... }</code></td>
+                <td>منطق مقداردهی و آماده‌سازی object است.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Constructor هیچ Return Type ندارد. نوشتن <code>void BankAccount()</code> Constructor ایجاد نمی‌کند؛
+              بلکه از نظر syntax یک Method با نام نامعتبر/نامناسب نسبت به هدف موردنظر خواهد بود.
+            </div>
+          </div>
+          <h2><bdi>Default Constructor</bdi></h2>
+          <p>
+            Constructor بدون Parameter را معمولاً Parameterless Constructor می‌نامیم. در آموزش‌های مقدماتی اغلب از
+            اصطلاح
+            Default Constructor نیز برای آن استفاده می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    public BankAccount()
+    {
+        Balance = 0;
+    }
+}</code></pre>
+          </div>
+          <p>برای ساخت object نیازی به ارسال Argument نداریم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+Console.WriteLine(account.Balance);
+// 0</code></pre>
+          </div>
+          <h3>Constructor خودکار Compiler</h3>
+          <p>
+            اگر برای یک class هیچ Instance Constructor تعریف نکنیم، C# برای یک class معمولی یک public parameterless
+            constructor
+            به‌صورت ضمنی فراهم می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; set; }
+}
+
+var account = new BankAccount();</code></pre>
+          </div>
+          <p>
+            در این مثال خودمان Constructor ننوشته‌ایم، اما <code>new BankAccount()</code> قابل استفاده است.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              اگر خودتان یک Instance Constructor پارامتردار تعریف کنید، Compiler دیگر به‌طور خودکار همان public
+              parameterless constructor را برایتان ایجاد نمی‌کند.
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        AccountNumber = accountNumber;
+    }
+}
+
+// Compile Error
+// var account = new BankAccount();
+
+var account =
+    new BankAccount("IR-1001");</code></pre>
+          </div>
+          <h2><bdi>Parameterized Constructor</bdi></h2>
+          <p>
+            Constructor می‌تواند Parameter دریافت کند. این کار زمانی مفید است که object برای قرارگرفتن در یک State
+            معتبر،
+            از همان ابتدا به اطلاعات مشخصی نیاز داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+    public string OwnerName { get; }
+    public decimal Balance { get; private set; }
+
+    public BankAccount(
+        string accountNumber,
+        string ownerName)
+    {
+        AccountNumber = accountNumber;
+        OwnerName = ownerName;
+        Balance = 0;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount(
+    "IR-1001",
+    "Hamed");
+
+Console.WriteLine(
+    account.AccountNumber);
+
+Console.WriteLine(
+    account.OwnerName);</code></pre>
+          </div>
+          <p>
+            در این طراحی نمی‌توان یک <code>BankAccount</code> بدون <code>AccountNumber</code> و <code>OwnerName</code>
+            ساخت.
+            این موضوع به حفظ invariantهای سادهٔ object کمک می‌کند.
+          </p>
+          <h3>Validation داخل Constructor</h3>
+          <p>
+            Constructor می‌تواند قبل از ساخت کامل object، ورودی‌های ضروری را بررسی کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        AccountNumber = accountNumber;
+    }
+}</code></pre>
+          </div>
+          <p>
+            اکنون ساخت حساب با شمارهٔ خالی مجاز نیست:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>// Exception
+// var account =
+//     new BankAccount("");
+
+var account =
+    new BankAccount("IR-1001");</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              اگر یک مقدار برای معتبر بودن object ضروری است، دریافت آن از Constructor معمولاً بهتر از ساخت object ناقص و
+              مقداردهی آن در چند مرحله است.
+            </div>
+          </div>
+          <h2><bdi>Constructor Overloading</bdi></h2>
+          <p>
+            همان‌طور که Methodها می‌توانند Overload داشته باشند، یک class نیز می‌تواند چند Constructor با Parameter
+            Listهای
+            متفاوت داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+    public string OwnerName { get; }
+    public decimal Balance { get; private set; }
+
+    public BankAccount()
+    {
+        AccountNumber = "Unknown";
+        OwnerName = "Unknown";
+        Balance = 0;
+    }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        AccountNumber = accountNumber;
+        OwnerName = "Unknown";
+        Balance = 0;
+    }
+
+    public BankAccount(
+        string accountNumber,
+        string ownerName)
+    {
+        AccountNumber = accountNumber;
+        OwnerName = ownerName;
+        Balance = 0;
+    }
+}</code></pre>
+          </div>
+          <p>اکنون object را می‌توان به چند شکل ساخت:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount();
+
+var account2 =
+    new BankAccount("IR-1001");
+
+var account3 =
+    new BankAccount(
+        "IR-1002",
+        "Hamed");</code></pre>
+          </div>
+          <p>
+            Compiler با توجه به تعداد و نوع Argumentها تشخیص می‌دهد کدام Constructor باید اجرا شود.
+          </p>
+          <h3>Overload بر اساس نوع Parameter</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Transaction
+{
+    public Transaction(long id)
+    {
+        // ...
+    }
+
+    public Transaction(Guid id)
+    {
+        // ...
+    }
+}</code></pre>
+          </div>
+          <p>
+            هر دو Constructor یک Parameter دارند، اما نوع Parameter متفاوت است؛ بنابراین دو overload مجزا محسوب می‌شوند.
+          </p>
+          <h2>مقایسه Constructorها</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>نوع</th>
+                <th>نمونه</th>
+                <th>کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Parameterless</td>
+                <td><code>BankAccount()</code></td>
+                <td>ساخت object بدون Argument</td>
+              </tr>
+              <tr>
+                <td>Parameterized</td>
+                <td><code>BankAccount(string number)</code></td>
+                <td>دریافت اطلاعات هنگام ایجاد object</td>
+              </tr>
+              <tr>
+                <td>Overloaded</td>
+                <td>چند Constructor</td>
+                <td>ارائهٔ چند روش معتبر برای ساخت object</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+    public string OwnerName { get; }
+    public decimal Balance { get; private set; }
+
+    public BankAccount()
+    {
+        AccountNumber = "Unknown";
+        OwnerName = "Unknown";
+        Balance = 0;
+    }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        AccountNumber = accountNumber;
+        OwnerName = "Unknown";
+        Balance = 0;
+    }
+
+    public BankAccount(
+        string accountNumber,
+        string ownerName,
+        decimal initialBalance)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        if (initialBalance &lt; 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(initialBalance));
+        }
+
+        AccountNumber = accountNumber;
+        OwnerName = ownerName;
+        Balance = initialBalance;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount();
+
+var account2 =
+    new BankAccount("IR-1001");
+
+var account3 =
+    new BankAccount(
+        "IR-1002",
+        "Hamed",
+        1_000_000);
+
+Console.WriteLine(
+    account3.Balance);
+// 1000000</code></pre>
+          </div>
+          <p class="example-explanation">
+            سه Constructor سه روش مختلف برای ایجاد <code>BankAccount</code> ارائه می‌کنند. نسخهٔ پارامتردار همچنین
+            ورودی‌ها را
+            بررسی می‌کند تا object با State نامعتبر ساخته نشود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              Constructor نقطهٔ ورود object به سیستم است. طراحی مناسب Constructor کمک می‌کند object از همان لحظهٔ ایجاد
+              در یک State معتبر قرار داشته باشد. Parameterized Constructor برای دریافت داده‌های ضروری و Constructor
+              Overloading
+              برای ارائهٔ چند روش معتبر ایجاد object استفاده می‌شود.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
