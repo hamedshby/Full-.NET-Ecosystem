@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Polymorphism چیست؟ از مسیر حرفه‌ای .NET.">
-  <title>Polymorphism چیست؟ | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Polymorphism در C# شامل Compile-Time و Runtime Polymorphism، Method Overloading، virtual و override، Base Reference، Dynamic Dispatch، Method Hiding و مثال Payment Processing."
+    name="description" />
+  <title>Polymorphism در C# و OOP | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,717 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-6-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 6 — Polymorphism</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Polymorphism چیست؟</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>فصل 6 — <bdi>Polymorphism</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <bdi>Polymorphism</bdi> یا چندریختی یکی از مهم‌ترین مفاهیم Object-Oriented Programming است.
+            ایدهٔ اصلی آن این است که یک قرارداد یا نوع عمومی داشته باشیم، اما objectهای مختلف بتوانند رفتار متفاوتی در
+            پاسخ به همان
+            درخواست نشان دهند. این قابلیت کمک می‌کند کد به‌جای وابستگی به typeهای مشخص، با abstractionها کار کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Polymorphism یعنی «یک interface یا base type، چند رفتار متفاوت». مثلاً همهٔ روش‌های پرداخت می‌توانند
+              عملیات <code>Pay()</code> داشته باشند، اما پرداخت با کارت، کیف پول یا درگاه خارجی هرکدام پیاده‌سازی
+              متفاوتی دارند.
+            </div>
+          </div>
+          <h2>6.1 <bdi>Polymorphism</bdi> چیست؟</h2>
+          <p>
+            فرض کنید سیستم ما چند نوع حساب بانکی دارد. همهٔ حساب‌ها عملیاتی به نام محاسبهٔ کارمزد دارند،
+            اما نحوهٔ محاسبه می‌تواند برای هر نوع حساب متفاوت باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public virtual decimal CalculateFee(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+}
+
+public class VipBankAccount
+    : BankAccount
+{
+    public override decimal CalculateFee(
+        decimal amount)
+    {
+        return amount * 0.005m;
+    }
+}</code></pre>
+          </div>
+          <p>هر دو object متدی با نام یکسان دارند، اما رفتارشان متفاوت است:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>BankAccount normal =
+    new BankAccount();
+
+BankAccount vip =
+    new VipBankAccount();
+
+Console.WriteLine(
+    normal.CalculateFee(1_000_000));
+// 10000
+
+Console.WriteLine(
+    vip.CalculateFee(1_000_000));
+// 5000</code></pre>
+          </div>
+          <p class="example-explanation">
+            هر دو متغیر از نوع <code>BankAccount</code> هستند، اما Runtime با توجه به object واقعی تصمیم می‌گیرد کدام
+            implementation اجرا شود.
+          </p>
+          <h2>6.2 <bdi>Compile-Time Polymorphism</bdi></h2>
+          <p>
+            در Compile-Time Polymorphism، Compiler هنگام Compile مشخص می‌کند کدام Method باید فراخوانی شود.
+            یکی از رایج‌ترین نمونه‌های آن در C#، <bdi>Method Overloading</bdi> است.
+          </p>
+          <h3><bdi>Method Overloading</bdi></h3>
+          <p>
+            Method Overloading یعنی چند Method با نام یکسان ولی Parameter List متفاوت داشته باشیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine(
+            $"Pay: {amount}");
+    }
+
+    public void Pay(
+        decimal amount,
+        string description)
+    {
+        Console.WriteLine(
+            $"{description}: {amount}");
+    }
+
+    public void Pay(
+        decimal amount,
+        string description,
+        bool sendNotification)
+    {
+        Console.WriteLine(
+            $"{description}: {amount}");
+
+        if (sendNotification)
+        {
+            Console.WriteLine(
+                "Notification sent.");
+        }
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var service =
+    new PaymentService();
+
+service.Pay(100_000);
+
+service.Pay(
+    100_000,
+    "Invoice");
+
+service.Pay(
+    100_000,
+    "Invoice",
+    true);</code></pre>
+          </div>
+          <p>
+            Compiler با توجه به تعداد و نوع Argumentها انتخاب می‌کند کدام overload باید اجرا شود.
+            به همین دلیل تصمیم‌گیری قبل از Runtime انجام شده است.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              تفاوت فقط در Return Type برای Overloading کافی نیست. Parameter List باید طوری متفاوت باشد که Compiler
+              بتواند
+              overload مناسب را تشخیص دهد.
+            </div>
+          </div>
+          <h2>6.3 <bdi>Runtime Polymorphism</bdi></h2>
+          <p>
+            در Runtime Polymorphism، Method نهایی بر اساس type واقعی object در زمان اجرا انتخاب می‌شود.
+            در C# این رفتار معمولاً با <code>virtual</code>، <code>override</code> و Base Reference دیده می‌شود.
+          </p>
+          <h3><code>virtual</code></h3>
+          <p>
+            Base Class با <code>virtual</code> اعلام می‌کند که Derived Class اجازه دارد implementation این Method را
+            تغییر دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    public virtual void Process()
+    {
+        Console.WriteLine(
+            "Processing payment...");
+    }
+}</code></pre>
+          </div>
+          <h3><code>override</code></h3>
+          <p>
+            Derived Class با <code>override</code> نسخهٔ تخصصی رفتار را ارائه می‌کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : Payment
+{
+    public override void Process()
+    {
+        Console.WriteLine(
+            "Processing card payment...");
+    }
+}
+
+public class WalletPayment
+    : Payment
+{
+    public override void Process()
+    {
+        Console.WriteLine(
+            "Processing wallet payment...");
+    }
+}</code></pre>
+          </div>
+          <h3><bdi>Base Reference</bdi></h3>
+          <p>
+            یک reference از نوع Base Class می‌تواند به object از Derived Class اشاره کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Payment payment =
+    new CardPayment();
+
+payment.Process();</code></pre>
+          </div>
+          <p>
+            نوع متغیر <code>Payment</code> است، اما object واقعی از نوع <code>CardPayment</code> است.
+          </p>
+          <h3><bdi>Dynamic Dispatch</bdi></h3>
+          <p>
+            وقتی یک Method مجازی را از طریق Base Reference فراخوانی می‌کنیم، Runtime implementation مناسب را با توجه به
+            نوع واقعی object انتخاب می‌کند. به این فرآیند <bdi>Dynamic Dispatch</bdi> گفته می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Payment[] payments =
+[
+    new CardPayment(),
+    new WalletPayment()
+];
+
+foreach (Payment payment in payments)
+{
+    payment.Process();
+}</code></pre>
+          </div>
+          <p>خروجی:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Processing card payment...
+Processing wallet payment...</code></pre>
+          </div>
+          <p class="example-explanation">
+            حلقه فقط type عمومی <code>Payment</code> را می‌شناسد، اما هر object رفتار واقعی خودش را اجرا می‌کند.
+            این همان قدرت اصلی Runtime Polymorphism است.
+          </p>
+          <h2>چرا Base Reference مهم است؟</h2>
+          <p>
+            بدون Base Reference یا abstraction مشترک، کد معمولاً مجبور می‌شود typeهای واقعی را یکی‌یکی بشناسد.
+            Polymorphism اجازه می‌دهد Client Code فقط قرارداد عمومی را بداند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void ExecutePayment(
+    Payment payment)
+{
+    payment.Process();
+}</code></pre>
+          </div>
+          <p>اکنون تمام Derived Typeها قابل ارسال هستند:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>ExecutePayment(
+    new CardPayment());
+
+ExecutePayment(
+    new WalletPayment());</code></pre>
+          </div>
+          <h2>6.4 <bdi>Method Hiding</bdi></h2>
+          <p>
+            Method Hiding با Method Overriding متفاوت است. در Method Hiding، Derived Class عضوی با همان نام Base Class
+            تعریف می‌کند
+            و معمولاً با کلمهٔ کلیدی <code>new</code> اعلام می‌کند که قصد پنهان‌کردن عضو Base Class را دارد.
+          </p>
+          <h3><code>new</code></h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    public void PrintStatus()
+    {
+        Console.WriteLine(
+            "Payment status");
+    }
+}
+
+public class CardPayment
+    : Payment
+{
+    public new void PrintStatus()
+    {
+        Console.WriteLine(
+            "Card payment status");
+    }
+}</code></pre>
+          </div>
+          <p>
+            برخلاف override، انتخاب Method در این حالت به نوع reference وابسته است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>CardPayment card =
+    new CardPayment();
+
+card.PrintStatus();
+// Card payment status
+
+Payment payment = card;
+
+payment.PrintStatus();
+// Payment status</code></pre>
+          </div>
+          <p>
+            object در هر دو حالت همان <code>CardPayment</code> است، اما چون Method مجازی نیست و فقط hide شده،
+            نوع reference روی انتخاب Method اثر می‌گذارد.
+          </p>
+          <h3>تفاوت <code>new</code> و <code>override</code></h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th><code>override</code></th>
+                <th><code>new</code></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>هدف</td>
+                <td>تخصصی‌کردن رفتار مجازی Base Class</td>
+                <td>پنهان‌کردن عضو Base Class</td>
+              </tr>
+              <tr>
+                <td>نیاز به <code>virtual</code> در Base</td>
+                <td>بله، یا عضو abstract/override مناسب</td>
+                <td>خیر</td>
+              </tr>
+              <tr>
+                <td>انتخاب Method</td>
+                <td>بر اساس نوع واقعی object در Runtime</td>
+                <td>بیشتر بر اساس نوع reference در Compile Time</td>
+              </tr>
+              <tr>
+                <td>Runtime Polymorphism</td>
+                <td>بله</td>
+                <td>خیر، به معنای overriding</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>مثال مقایسه‌ای</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    public virtual void Process()
+    {
+        Console.WriteLine(
+            "Base Process");
+    }
+
+    public void Print()
+    {
+        Console.WriteLine(
+            "Base Print");
+    }
+}
+
+public class CardPayment
+    : Payment
+{
+    public override void Process()
+    {
+        Console.WriteLine(
+            "Card Process");
+    }
+
+    public new void Print()
+    {
+        Console.WriteLine(
+            "Card Print");
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Payment payment =
+    new CardPayment();
+
+payment.Process();
+// Card Process
+
+payment.Print();
+// Base Print</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              اگر هدف شما Runtime Polymorphism است، معمولاً <code>virtual/override</code> همان چیزی است که می‌خواهید.
+              <code>new</code> رفتار متفاوتی دارد و باید آگاهانه استفاده شود.
+            </div>
+          </div>
+          <h2>6.5 مثال واقعی Polymorphism — <bdi>Payment Processing</bdi></h2>
+          <p>
+            فرض کنید سیستم پرداخت سه روش پرداخت دارد:
+          </p>
+          <ul>
+            <li>Card Payment</li>
+            <li>Wallet Payment</li>
+            <li>Bank Transfer</li>
+          </ul>
+          <p>یک طراحی ابتدایی ممکن است از <code>if</code> یا <code>switch</code> بزرگ استفاده کند:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void ProcessPayment(
+    string paymentType,
+    decimal amount)
+{
+    if (paymentType == "card")
+    {
+        Console.WriteLine(
+            "Process card payment");
+    }
+    else if (paymentType == "wallet")
+    {
+        Console.WriteLine(
+            "Process wallet payment");
+    }
+    else if (paymentType == "bank")
+    {
+        Console.WriteLine(
+            "Process bank transfer");
+    }
+}</code></pre>
+          </div>
+          <p>
+            با اضافه‌شدن هر روش پرداخت جدید، این Method باید تغییر کند. اگر همین شرط‌ها در چند نقطه وجود داشته باشند،
+            نگهداری سیستم سخت‌تر می‌شود.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              وجود هر <code>if</code> یا <code>switch</code> بد نیست. مشکل زمانی است که تصمیم‌گیری بر اساس type در نقاط
+              متعدد
+              تکرار شود و هر رفتار جدید مجبورمان کند کدهای موجود زیادی را تغییر دهیم.
+            </div>
+          </div>
+          <h2>طراحی با Polymorphism</h2>
+          <p>ابتدا یک قرارداد عمومی تعریف می‌کنیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentMethod
+{
+    void Pay(decimal amount);
+}</code></pre>
+          </div>
+          <h3>پرداخت با کارت</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : IPaymentMethod
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine(
+            $"Card payment: {amount}");
+    }
+}</code></pre>
+          </div>
+          <h3>پرداخت با کیف پول</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class WalletPayment
+    : IPaymentMethod
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine(
+            $"Wallet payment: {amount}");
+    }
+}</code></pre>
+          </div>
+          <h3>انتقال بانکی</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankTransferPayment
+    : IPaymentMethod
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine(
+            $"Bank transfer: {amount}");
+    }
+}</code></pre>
+          </div>
+          <h2>Payment Processor بدون دانستن نوع واقعی</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentProcessor
+{
+    public void Process(
+        IPaymentMethod paymentMethod,
+        decimal amount)
+    {
+        paymentMethod.Pay(amount);
+    }
+}</code></pre>
+          </div>
+          <p>
+            <code>PaymentProcessor</code> نمی‌داند پرداخت Card است یا Wallet یا Bank Transfer. فقط قرارداد
+            <code>IPaymentMethod</code> را می‌شناسد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var processor =
+    new PaymentProcessor();
+
+processor.Process(
+    new CardPayment(),
+    500_000);
+
+processor.Process(
+    new WalletPayment(),
+    250_000);
+
+processor.Process(
+    new BankTransferPayment(),
+    1_000_000);</code></pre>
+          </div>
+          <h2>اضافه‌کردن روش پرداخت جدید</h2>
+          <p>
+            حالا فرض کنید Crypto Payment اضافه می‌شود:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CryptoPayment
+    : IPaymentMethod
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine(
+            $"Crypto payment: {amount}");
+    }
+}</code></pre>
+          </div>
+          <p>
+            برای اضافه‌کردن این رفتار نیازی نیست <code>PaymentProcessor</code> تغییر کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>processor.Process(
+    new CryptoPayment(),
+    700_000);</code></pre>
+          </div>
+          <p>
+            این طراحی به اصل Open/Closed نیز نزدیک است: سیستم برای extension باز است، اما برای بسیاری از تغییرات نیازی
+            به دست‌کاری
+            Client Code موجود نداریم.
+          </p>
+          <h2>پردازش مجموعه‌ای از روش‌های پرداخت</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>List&lt;IPaymentMethod&gt; methods =
+[
+    new CardPayment(),
+    new WalletPayment(),
+    new BankTransferPayment(),
+    new CryptoPayment()
+];
+
+foreach (IPaymentMethod method in methods)
+{
+    method.Pay(100_000);
+}</code></pre>
+          </div>
+          <p>
+            حلقه هیچ اطلاعی از implementationهای واقعی ندارد؛ فقط می‌داند همهٔ objectها قرارداد
+            <code>IPaymentMethod</code> را پیاده‌سازی کرده‌اند.
+          </p>
+          <h2>قبل و بعد از Polymorphism</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>طراحی مبتنی بر شرط</th>
+                <th>طراحی Polymorphic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Client باید نوع پرداخت را بشناسد.</td>
+                <td>Client فقط abstraction را می‌شناسد.</td>
+              </tr>
+              <tr>
+                <td>افزودن type جدید ممکن است switch را تغییر دهد.</td>
+                <td>معمولاً implementation جدید اضافه می‌شود.</td>
+              </tr>
+              <tr>
+                <td>Business Logic ممکن است در شرط‌ها پخش شود.</td>
+                <td>رفتار هر type در class خودش قرار دارد.</td>
+              </tr>
+              <tr>
+                <td>Coupling به concrete typeها بیشتر است.</td>
+                <td>وابستگی به قرارداد مشترک است.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>مثال کامل Payment Processing</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentMethod
+{
+    PaymentResult Pay(decimal amount);
+}
+
+public record PaymentResult(
+    bool IsSuccess,
+    string TransactionId);
+
+public class CardPayment
+    : IPaymentMethod
+{
+    public PaymentResult Pay(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Card: {amount}");
+
+        return new PaymentResult(
+            true,
+            Guid.NewGuid().ToString());
+    }
+}
+
+public class WalletPayment
+    : IPaymentMethod
+{
+    public PaymentResult Pay(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Wallet: {amount}");
+
+        return new PaymentResult(
+            true,
+            Guid.NewGuid().ToString());
+    }
+}
+
+public class BankTransferPayment
+    : IPaymentMethod
+{
+    public PaymentResult Pay(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Bank Transfer: {amount}");
+
+        return new PaymentResult(
+            true,
+            Guid.NewGuid().ToString());
+    }
+}
+
+public class PaymentProcessor
+{
+    public PaymentResult Process(
+        IPaymentMethod paymentMethod,
+        decimal amount)
+    {
+        if (amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        return paymentMethod.Pay(amount);
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>IPaymentMethod paymentMethod =
+    new CardPayment();
+
+var processor =
+    new PaymentProcessor();
+
+PaymentResult result =
+    processor.Process(
+        paymentMethod,
+        500_000);
+
+Console.WriteLine(
+    result.TransactionId);</code></pre>
+          </div>
+          <p class="example-explanation">
+            <code>PaymentProcessor</code> فقط با <code>IPaymentMethod</code> کار می‌کند.
+            اگر بعداً روش پرداخت جدیدی اضافه شود، کافی است قرارداد را پیاده‌سازی کند؛ Processor برای اجرای رفتار جدید
+            نیازی به شناخت concrete type ندارد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: Polymorphism اجازه می‌دهد با یک قرارداد مشترک، objectهای مختلف رفتارهای متفاوت اجرا کنند.
+              Method Overloading نمونه‌ای از Compile-Time Polymorphism است، در حالی که <code>virtual/override</code> و
+              پیاده‌سازی Interfaceها امکان Runtime Polymorphism را فراهم می‌کنند. در طراحی واقعی، این مفهوم می‌تواند
+              شرط‌های وابسته به type را کاهش دهد و توسعهٔ سیستم را ساده‌تر کند.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

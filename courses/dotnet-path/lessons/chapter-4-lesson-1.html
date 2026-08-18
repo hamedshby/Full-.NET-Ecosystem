@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Encapsulation چیست؟ از مسیر حرفه‌ای .NET.">
-  <title>Encapsulation چیست؟ | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Encapsulation در OOP و C# شامل محافظت از State، Access Modifier، Property و Method، جلوگیری از Invalid State و مثال BankAccount."
+    name="description" />
+  <title>Encapsulation در C# و OOP | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,512 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-4-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 4 — Encapsulation</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Encapsulation چیست؟</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>مفهوم <bdi>Encapsulation</bdi> در <bdi>OOP</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            یکی از مهم‌ترین اصول Object-Oriented Programming مفهوم <bdi>Encapsulation</bdi> است.
+            Encapsulation یعنی یک object مسئول نگهداری و محافظت از State خودش باشد و اجازه ندهد هر بخش از برنامه
+            بدون کنترل، اطلاعات داخلی آن را تغییر دهد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Encapsulation فقط <code>private</code> کردن Fieldها نیست؛ هدف اصلی این است که object مشخص کند
+              State آن <strong>چگونه و تحت چه قوانینی</strong> می‌تواند تغییر کند.
+            </div>
+          </div>
+          <h2>مشکل بدون <bdi>Encapsulation</bdi></h2>
+          <p>
+            فرض کنید یک حساب بانکی داریم و موجودی آن را به‌صورت public تعریف کرده‌ایم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance;
+}</code></pre>
+          </div>
+          <p>اکنون هر قسمت برنامه می‌تواند مقدار موجودی را مستقیماً تغییر دهد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+account.Balance = 1_000_000;
+
+// هر کدی می‌تواند این کار را انجام دهد
+account.Balance = -50_000_000;</code></pre>
+          </div>
+          <p>
+            مشکل اینجاست که <code>BankAccount</code> هیچ کنترلی روی State خودش ندارد. حتی اگر قانون سیستم بگوید موجودی
+            نباید منفی شود، کد بیرونی می‌تواند این قانون را دور بزند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              وقتی State داخلی یک object بدون محدودیت قابل تغییر باشد، حفظ Business Ruleها سخت می‌شود و object می‌تواند
+              به‌راحتی وارد یک State نامعتبر شود.
+            </div>
+          </div>
+          <h2>حل مشکل با <bdi>Encapsulation</bdi></h2>
+          <p>
+            به‌جای اینکه اجازه دهیم موجودی مستقیماً تغییر کند، تغییر Balance را در اختیار خود <code>BankAccount</code>
+            قرار می‌دهیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <p>حالا کد بیرونی نمی‌تواند موجودی را مستقیماً تغییر دهد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+account.Deposit(500_000);
+
+Console.WriteLine(account.Balance);
+
+// Compile Error
+// account.Balance = -10_000_000;</code></pre>
+          </div>
+          <p class="example-explanation">
+            کد بیرونی فقط درخواست «واریز» می‌دهد. این خود <code>BankAccount</code> است که بررسی می‌کند مبلغ معتبر است یا
+            نه
+            و سپس State خودش را تغییر می‌دهد.
+          </p>
+          <h2>State و Behavior کنار یکدیگر</h2>
+          <p>
+            یکی از ایده‌های مهم Encapsulation این است که داده و رفتار مرتبط با آن در یک مرز معنادار کنار هم قرار بگیرند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    // State
+    public decimal Balance { get; private set; }
+
+    // Behavior
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        Balance += amount;
+    }
+
+    // Behavior
+    public void Withdraw(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        if (amount &gt; Balance)
+            throw new InvalidOperationException(
+                "Insufficient balance.");
+
+        Balance -= amount;
+    }
+}</code></pre>
+          </div>
+          <p>
+            موجودی حساب State است و <code>Deposit</code> و <code>Withdraw</code> رفتارهایی هستند که اجازه دارند آن State
+            را
+            طبق قوانین سیستم تغییر دهند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              object فقط یک ظرف برای نگهداری داده نیست. در یک طراحی شی‌گرای مناسب، object از داده‌های خودش محافظت می‌کند
+              و رفتارهای مجاز برای تغییر آن‌ها را ارائه می‌دهد.
+            </div>
+          </div>
+          <h2>Encapsulation با <bdi>Access Modifier</bdi>ها</h2>
+          <p>
+            C# ابزارهایی مانند Access Modifierها را برای کنترل سطح دسترسی اعضای class در اختیار ما قرار می‌دهد.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Access Modifier</th>
+                <th>مفهوم کلی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>public</code></td>
+                <td>عضو از بیرون قابل دسترسی است.</td>
+              </tr>
+              <tr>
+                <td><code>private</code></td>
+                <td>عضو فقط داخل همان type قابل دسترسی است.</td>
+              </tr>
+              <tr>
+                <td><code>protected</code></td>
+                <td>برای type و typeهای مشتق‌شده قابل دسترسی است.</td>
+              </tr>
+              <tr>
+                <td><code>internal</code></td>
+                <td>دسترسی در همان assembly را فراهم می‌کند.</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            برای مثال می‌توان Balance را پشت یک Field خصوصی نگه داشت:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+
+    public decimal GetBalance()
+    {
+        return _balance;
+    }
+}</code></pre>
+          </div>
+          <p>
+            کد بیرونی به <code>_balance</code> دسترسی مستقیم ندارد و فقط از APIای که class ارائه کرده استفاده می‌کند.
+          </p>
+          <h2>Encapsulation با <bdi>Property</bdi></h2>
+          <p>
+            در C# یکی از رایج‌ترین روش‌های کنترل دسترسی به State استفاده از Property است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+}</code></pre>
+          </div>
+          <p>
+            در این حالت همه می‌توانند مقدار <code>Balance</code> را بخوانند، اما فقط خود class می‌تواند آن را تغییر دهد.
+          </p>
+          <h3>Validation در Property</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    private string _name;
+
+    public string Name
+    {
+        get =&gt; _name;
+
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException(
+                    "Name is required.");
+            }
+
+            _name = value;
+        }
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این مثال class اجازه نمی‌دهد <code>Name</code> با مقدار خالی تنظیم شود.
+          </p>
+          <h2>Encapsulation با <bdi>Method</bdi></h2>
+          <p>
+            برای تغییرات مهم Domain معمولاً Method می‌تواند Intent را بهتر از یک Setter عمومی نمایش دهد.
+          </p>
+          <p>این طراحی را ببینید:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Order
+{
+    public OrderStatus Status { get; set; }
+}</code></pre>
+          </div>
+          <p>
+            هر بخش برنامه می‌تواند Status را به هر مقداری تغییر دهد. در مقابل می‌توان رفتار مشخصی تعریف کرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Order
+{
+    public OrderStatus Status { get; private set; }
+
+    public void Cancel()
+    {
+        if (Status == OrderStatus.Delivered)
+        {
+            throw new InvalidOperationException(
+                "Delivered order cannot be canceled.");
+        }
+
+        Status = OrderStatus.Canceled;
+    }
+}</code></pre>
+          </div>
+          <p>
+            حالا کد بیرونی نمی‌گوید «Status را برابر Canceled کن»، بلکه به object می‌گوید «خودت را Cancel کن».
+            خود Order تصمیم می‌گیرد این عملیات مجاز است یا نه.
+          </p>
+          <h2>جلوگیری از <bdi>Invalid State</bdi></h2>
+          <p>
+            یکی از اهداف مهم Encapsulation این است که object تا جای ممکن همیشه در یک State معتبر باقی بماند.
+            برای مثال یک حساب بانکی باید شماره حساب معتبر داشته باشد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        AccountNumber = accountNumber;
+    }
+}</code></pre>
+          </div>
+          <p>
+            به‌جای ساختن object ناقص و امیدوار بودن به اینکه بعداً کسی شماره حساب را تنظیم کند، Constructor اجازه
+            نمی‌دهد
+            object نامعتبر از ابتدا ساخته شود.
+          </p>
+          <h2>Encapsulation یعنی Data Hiding؟</h2>
+          <p>
+            Data Hiding بخشی از Encapsulation است، اما این دو دقیقاً یک مفهوم نیستند. مخفی‌کردن یک Field با
+            <code>private</code>
+            فقط دسترسی مستقیم را محدود می‌کند. Encapsulation مفهوم گسترده‌تری دارد: object باید یک API مناسب ارائه دهد و
+            قوانین
+            تغییر State را نیز کنترل کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+
+    public decimal Balance
+    {
+        get =&gt; _balance;
+        set =&gt; _balance = value;
+    }
+}</code></pre>
+          </div>
+          <p>
+            با اینکه <code>_balance</code> private است، Setter عمومی همچنان اجازه می‌دهد هر مقداری مستقیماً وارد State
+            شود.
+            پس صرف private بودن Field لزوماً Encapsulation قوی ایجاد نمی‌کند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              تبدیل همهٔ Public Fieldها به <code>{ get; set; }</code> به‌تنهایی طراحی را Encapsulated نمی‌کند.
+              سؤال اصلی این است: «چه کسی اجازه دارد State را تغییر دهد و قوانین این تغییر کجا enforce می‌شوند؟»
+            </div>
+          </div>
+          <h2>Tell, Don't Ask</h2>
+          <p>
+            Encapsulation با اصل <bdi>Tell, Don't Ask</bdi> ارتباط نزدیکی دارد. به‌جای گرفتن State یک object، تصمیم‌گیری
+            بیرون از آن
+            و سپس تغییر دادن State، بهتر است در صورت مناسب بودن مسئولیت، از خود object بخواهیم رفتار را انجام دهد.
+          </p>
+          <h3>طراحی ضعیف‌تر</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>if (account.Balance &gt;= amount)
+{
+    account.Balance -= amount;
+}</code></pre>
+          </div>
+          <h3>طراحی Encapsulated</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>account.Withdraw(amount);</code></pre>
+          </div>
+          <p>
+            در نسخهٔ دوم، قانون برداشت در خود <code>BankAccount</code> قرار دارد و مصرف‌کننده لازم نیست جزئیات
+            پیاده‌سازی آن را بداند.
+          </p>
+          <h2>مزایای Encapsulation</h2>
+          <ul>
+            <li><strong>محافظت از State:</strong> تغییرات فقط از مسیرهای مجاز انجام می‌شوند.</li>
+            <li><strong>حفظ Business Rule:</strong> قوانین در محل مرتبط با داده enforce می‌شوند.</li>
+            <li><strong>کاهش Coupling:</strong> کد بیرونی کمتر به جزئیات داخلی object وابسته می‌شود.</li>
+            <li><strong>Refactoring آسان‌تر:</strong> پیاده‌سازی داخلی می‌تواند بدون شکستن مصرف‌کننده‌ها تغییر کند.</li>
+            <li><strong>خوانایی بهتر:</strong> Methodهایی مانند <code>Withdraw()</code> Intent سیستم را واضح بیان
+              می‌کنند.</li>
+            <li><strong>کاهش State نامعتبر:</strong> object کنترل بیشتری روی چرخهٔ زندگی خودش دارد.</li>
+          </ul>
+          <h2>مثال کامل: BankAccount بدون Encapsulation</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; set; }
+    public decimal Balance { get; set; }
+    public bool IsBlocked { get; set; }
+}</code></pre>
+          </div>
+          <p>
+            این class تقریباً هیچ کنترلی روی خودش ندارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount();
+
+account.AccountNumber = "";
+account.Balance = -5_000_000;
+account.IsBlocked = false;</code></pre>
+          </div>
+          <h2>نسخه Encapsulated</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public decimal Balance { get; private set; }
+
+    public bool IsBlocked { get; private set; }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        AccountNumber = accountNumber;
+    }
+
+    public void Deposit(decimal amount)
+    {
+        EnsureAccountIsActive();
+
+        if (amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        Balance += amount;
+    }
+
+    public void Withdraw(decimal amount)
+    {
+        EnsureAccountIsActive();
+
+        if (amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        if (amount &gt; Balance)
+        {
+            throw new InvalidOperationException(
+                "Insufficient balance.");
+        }
+
+        Balance -= amount;
+    }
+
+    public void Block()
+    {
+        IsBlocked = true;
+    }
+
+    private void EnsureAccountIsActive()
+    {
+        if (IsBlocked)
+        {
+            throw new InvalidOperationException(
+                "Account is blocked.");
+        }
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount("IR-1001");
+
+account.Deposit(1_000_000);
+
+account.Withdraw(200_000);
+
+account.Block();
+
+Console.WriteLine(account.Balance);
+// 800000</code></pre>
+          </div>
+          <p class="example-explanation">
+            در نسخهٔ نهایی، شماره حساب فقط هنگام ایجاد تعیین می‌شود، Balance مستقیماً قابل تغییر نیست، برداشت و واریز
+            قوانین خود را دارند
+            و وضعیت Block شدن حساب نیز توسط رفتار خود object کنترل می‌شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: Encapsulation یعنی object مالک State و قوانین مرتبط با آن باشد. جزئیات غیرضروری را پنهان می‌کنیم و
+              به‌جای
+              ارائهٔ دسترسی آزاد به داده‌ها، رفتارهای مشخص و کنترل‌شده‌ای مانند <code>Deposit()</code>،
+              <code>Withdraw()</code>
+              و <code>Block()</code> ارائه می‌دهیم.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

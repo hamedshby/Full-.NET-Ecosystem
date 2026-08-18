@@ -1,15 +1,17 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Static Constructor از مسیر حرفه‌ای .NET.">
-  <title>Static Constructor | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش Static Constructor در C#، زمان اجرا، قوانین، تفاوت با Instance Constructor و مثال‌های عملی."
+    name="description" />
+  <title>Static Constructor در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +19,428 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-3-lesson-3">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 3 — Constructor و چرخه ایجاد Object</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Static Constructor</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>آشنایی با <bdi>Static Constructor</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در درس قبل با Constructorهای معمولی آشنا شدیم؛ Constructorهایی که هنگام ساخت یک object با <code>new</code>
+            اجرا می‌شوند.
+            اما گاهی لازم است قبل از اولین استفاده از یک type، اطلاعات مشترک و static آن فقط یک‌بار آماده شود.
+            در C# برای این کار از <bdi>Static Constructor</bdi> استفاده می‌کنیم.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Static Constructor برای مقداردهی و آماده‌سازی اعضای <code>static</code> یک type استفاده می‌شود و توسط
+              Runtime
+              به‌صورت خودکار اجرا می‌شود؛ آن را مستقیماً فراخوانی نمی‌کنیم.
+            </div>
+          </div>
+          <h2><bdi>Static Constructor</bdi> چیست؟</h2>
+          <p>
+            Static Constructor یک Constructor ویژه است که به خود type مربوط می‌شود، نه به یک object مشخص.
+            این Constructor معمولاً زمانی کاربرد دارد که مقدار اولیهٔ یک Static Field را نتوانیم با یک مقدار ثابت ساده
+            تعیین کنیم
+            یا برای آماده‌سازی آن به چند دستور نیاز داشته باشیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public static string BankName { get; }
+
+    static BankAccount()
+    {
+        BankName = "DotNet Bank";
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این مثال <code>BankName</code> متعلق به خود <code>BankAccount</code> است و Static Constructor مقدار
+            اولیهٔ آن را تعیین می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(
+    BankAccount.BankName);</code></pre>
+          </div>
+          <p class="example-explanation">
+            قبل از اولین استفاده‌ای که نیازمند initialize شدن type باشد، Runtime اطمینان حاصل می‌کند Static Constructor
+            اجرا شده است.
+          </p>
+          <h2>ساختار <bdi>Static Constructor</bdi></h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static BankAccount()
+{
+    // Static initialization
+}</code></pre>
+          </div>
+          <p>Static Constructor چند قانون مهم دارد:</p>
+          <ul>
+            <li>نام آن دقیقاً با نام Class یکسان است.</li>
+            <li>قبل از نام Constructor از <code>static</code> استفاده می‌شود.</li>
+            <li>Access Modifier مانند <code>public</code> یا <code>private</code> ندارد.</li>
+            <li>هیچ Parameterی دریافت نمی‌کند.</li>
+            <li>Return Type ندارد.</li>
+            <li>برای هر type فقط یک Static Constructor می‌توان تعریف کرد.</li>
+            <li>به‌صورت مستقیم توسط برنامه‌نویس فراخوانی نمی‌شود.</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              این تعریف معتبر نیست:
+              <code>public static BankAccount()</code>.
+              Static Constructor نباید Access Modifier داشته باشد.
+            </div>
+          </div>
+          <h2>Static Constructor چه زمانی اجرا می‌شود؟</h2>
+          <p>
+            اجرای Static Constructor را CLR مدیریت می‌کند. این Constructor حداکثر یک‌بار برای هر type اجرا می‌شود و قبل
+            از
+            اولین استفاده‌ای که به initialization آن type نیاز دارد، اجرا خواهد شد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public static string BankName { get; }
+
+    static BankAccount()
+    {
+        Console.WriteLine(
+            "Static Constructor executed");
+
+        BankName = "DotNet Bank";
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(
+    BankAccount.BankName);
+
+Console.WriteLine(
+    BankAccount.BankName);</code></pre>
+          </div>
+          <p>
+            با وجود دو بار استفاده از <code>BankName</code>، Static Constructor فقط یک‌بار اجرا می‌شود.
+          </p>
+          <h2>مثال با <bdi>Static Field</bdi></h2>
+          <p>
+            فرض کنید سیستم بانکی هنگام شروع استفاده از <code>BankAccount</code> باید یک شناسهٔ مشترک ایجاد کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private static readonly Guid _systemId;
+
+    static BankAccount()
+    {
+        _systemId = Guid.NewGuid();
+
+        Console.WriteLine(
+            "BankAccount initialized.");
+    }
+
+    public static Guid GetSystemId()
+    {
+        return _systemId;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Guid id1 =
+    BankAccount.GetSystemId();
+
+Guid id2 =
+    BankAccount.GetSystemId();
+
+Console.WriteLine(id1 == id2);
+// True</code></pre>
+          </div>
+          <p>
+            مقدار <code>_systemId</code> یک‌بار ساخته می‌شود و برای تمام استفاده‌های بعدی همان مقدار باقی می‌ماند.
+          </p>
+          <h2>Static Constructor و <code>static readonly</code></h2>
+          <p>
+            یکی از کاربردهای رایج Static Constructor مقداردهی Static Readonly Fieldهایی است که مقدارشان در Runtime مشخص
+            می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentSettings
+{
+    public static readonly DateTime StartedAt;
+
+    static PaymentSettings()
+    {
+        StartedAt = DateTime.UtcNow;
+    }
+}</code></pre>
+          </div>
+          <p>
+            چون <code>DateTime.UtcNow</code> در Compile Time مشخص نیست، نمی‌توان آن را <code>const</code> کرد؛
+            اما <code>static readonly</code> برای این سناریو مناسب است.
+          </p>
+          <h2>Static Constructor و Instance Constructor</h2>
+          <p>
+            یک class می‌تواند هم Static Constructor و هم Instance Constructor داشته باشد. این دو مسئولیت متفاوتی دارند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public static string BankName { get; }
+
+    public string AccountNumber { get; }
+
+    static BankAccount()
+    {
+        BankName = "DotNet Bank";
+
+        Console.WriteLine(
+            "Static Constructor");
+    }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        AccountNumber = accountNumber;
+
+        Console.WriteLine(
+            "Instance Constructor");
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount("IR-1001");
+
+var account2 =
+    new BankAccount("IR-1002");</code></pre>
+          </div>
+          <p>
+            Static Constructor فقط یک‌بار برای type اجرا می‌شود، اما Instance Constructor برای هر object جدید اجرا
+            می‌شود.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>Static Constructor</th>
+                <th>Instance Constructor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>مربوط به</td>
+                <td>Type / Class</td>
+                <td>Object / Instance</td>
+              </tr>
+              <tr>
+                <td>تعداد اجرا</td>
+                <td>حداکثر یک‌بار برای Type</td>
+                <td>برای هر Object</td>
+              </tr>
+              <tr>
+                <td>Parameter</td>
+                <td>ندارد</td>
+                <td>می‌تواند داشته باشد</td>
+              </tr>
+              <tr>
+                <td>Access Modifier</td>
+                <td>ندارد</td>
+                <td>می‌تواند داشته باشد</td>
+              </tr>
+              <tr>
+                <td>فراخوانی</td>
+                <td>توسط Runtime</td>
+                <td>معمولاً هنگام <code>new</code></td>
+              </tr>
+              <tr>
+                <td>هدف اصلی</td>
+                <td>آماده‌سازی Static State</td>
+                <td>آماده‌سازی Instance State</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>آیا Static Constructor را می‌توان Overload کرد؟</h2>
+          <p>
+            خیر. Static Constructor هیچ Parameterی نمی‌گیرد؛ بنابراین امکان تعریف چند نسخه با Parameter Listهای متفاوت
+            وجود ندارد.
+            هر type حداکثر یک Static Constructor دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    static BankAccount()
+    {
+    }
+
+    // Invalid
+    // static BankAccount(string name)
+    // {
+    // }
+}</code></pre>
+          </div>
+          <h2>Exception در Static Constructor</h2>
+          <p>
+            باید در Static Constructor با عملیات خطاپذیر با احتیاط برخورد کرد. اگر Static Constructor با Exception شکست
+            بخورد،
+            type ممکن است برای ادامهٔ اجرای برنامه قابل استفاده نباشد و دسترسی‌های بعدی با خطای initialization مواجه
+            شوند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    public static string ApiKey { get; }
+
+    static PaymentService()
+    {
+        ApiKey = LoadApiKey();
+
+        if (string.IsNullOrWhiteSpace(ApiKey))
+        {
+            throw new InvalidOperationException(
+                "API key is not configured.");
+        }
+    }
+
+    private static string LoadApiKey()
+    {
+        // Load configuration...
+        return "secret-key";
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Static Constructor جای مناسبی برای کارهای سنگین، طولانی یا وابسته به منابع ناپایدار مانند Network Call
+              نیست.
+              شکست initialization یک type می‌تواند اثر گسترده‌ای روی برنامه داشته باشد.
+            </div>
+          </div>
+          <h2>چه زمانی از Static Constructor استفاده کنیم؟</h2>
+          <ul>
+            <li>مقداردهی پیچیدهٔ Static Fieldها</li>
+            <li>مقداردهی <code>static readonly</code> با مقادیر Runtime</li>
+            <li>آماده‌سازی داده‌ای که فقط یک‌بار برای کل type لازم است</li>
+            <li>اجرای initialization قبل از استفاده از اعضای static مربوط به type</li>
+          </ul>
+          <p>
+            اگر مقداردهی ساده باشد، معمولاً نیازی به Static Constructor نیست:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public static readonly string BankName =
+        "DotNet Bank";
+}</code></pre>
+          </div>
+          <p>
+            در این مثال مقداردهی مستقیم ساده‌تر و خواناتر است.
+          </p>
+          <h2>مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private static int _accountCount;
+
+    public static string BankName { get; }
+
+    public static readonly Guid SystemId;
+
+    public string AccountNumber { get; }
+
+    static BankAccount()
+    {
+        BankName = "DotNet Bank";
+        SystemId = Guid.NewGuid();
+
+        Console.WriteLine(
+            "BankAccount type initialized.");
+    }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        AccountNumber = accountNumber;
+        _accountCount++;
+    }
+
+    public static int GetAccountCount()
+    {
+        return _accountCount;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(
+    BankAccount.BankName);
+
+var account1 =
+    new BankAccount("IR-1001");
+
+var account2 =
+    new BankAccount("IR-1002");
+
+Console.WriteLine(
+    BankAccount.SystemId);
+
+Console.WriteLine(
+    BankAccount.GetAccountCount());
+// 2</code></pre>
+          </div>
+          <p class="example-explanation">
+            Static Constructor اطلاعات مشترک type مانند <code>BankName</code> و <code>SystemId</code> را یک‌بار آماده
+            می‌کند.
+            در مقابل، Instance Constructor برای هر حساب اجرا می‌شود و اطلاعات مربوط به همان object را مدیریت می‌کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: <bdi>Static Constructor</bdi> برای initialize کردن State مشترک یک type است، Parameter و Access
+              Modifier ندارد،
+              مستقیماً فراخوانی نمی‌شود و Runtime اجرای آن را مدیریت می‌کند. برای State هر object همچنان از Instance
+              Constructor استفاده می‌کنیم.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

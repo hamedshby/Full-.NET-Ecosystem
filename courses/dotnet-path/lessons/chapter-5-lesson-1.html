@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Inheritance چیست؟ از مسیر حرفه‌ای .NET.">
-  <title>Inheritance چیست؟ | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Inheritance در OOP و C# شامل Base Class، Derived Class، protected، base، virtual و override، مزایا، مشکلات و مثال‌های عملی."
+    name="description" />
+  <title>Inheritance در C# و OOP | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,607 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-5-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 5 — Inheritance</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Inheritance چیست؟</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>مفهوم <bdi>Inheritance</bdi> در <bdi>OOP</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <bdi>Inheritance</bdi> یا وراثت یکی از مفاهیم اصلی Object-Oriented Programming است.
+            Inheritance اجازه می‌دهد یک class جدید بر اساس یک class موجود ساخته شود و اعضا و رفتارهای قابل‌ارث آن را
+            دریافت کند.
+            به این ترتیب می‌توان رفتار مشترک را در یک Base Class قرار داد و typeهای تخصصی‌تر را از روی آن ساخت.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              ایدهٔ اصلی Inheritance رابطهٔ <strong>Is-A</strong> است. برای مثال اگر
+              <code>SavingsAccount</code> واقعاً نوعی <code>BankAccount</code> باشد، Inheritance می‌تواند گزینه‌ای قابل
+              بررسی باشد.
+            </div>
+          </div>
+          <h2>یک مثال ساده</h2>
+          <p>فرض کنید چند نوع حساب بانکی داریم که همه شماره حساب و موجودی دارند:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public decimal Balance { get; protected set; }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        AccountNumber = accountNumber;
+    }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <p>حالا یک نوع تخصصی‌تر از حساب ایجاد می‌کنیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class SavingsAccount
+    : BankAccount
+{
+    public decimal InterestRate { get; }
+
+    public SavingsAccount(
+        string accountNumber,
+        decimal interestRate)
+        : base(accountNumber)
+    {
+        InterestRate = interestRate;
+    }
+}</code></pre>
+          </div>
+          <p>
+            علامت <code>:</code> مشخص می‌کند <code>SavingsAccount</code> از <code>BankAccount</code> ارث‌بری می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new SavingsAccount(
+    "IR-1001",
+    0.05m);
+
+account.Deposit(1_000_000);
+
+Console.WriteLine(account.AccountNumber);
+Console.WriteLine(account.Balance);
+Console.WriteLine(account.InterestRate);</code></pre>
+          </div>
+          <p class="example-explanation">
+            با اینکه <code>Deposit</code> در <code>SavingsAccount</code> نوشته نشده، این class آن را از
+            <code>BankAccount</code> به ارث برده است.
+          </p>
+          <h2><bdi>Base Class</bdi> و <bdi>Derived Class</bdi></h2>
+          <p>
+            در یک رابطهٔ Inheritance دو اصطلاح مهم داریم:
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>اصطلاح</th>
+                <th>مثال</th>
+                <th>معنی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Base Class</td>
+                <td><code>BankAccount</code></td>
+                <td>Class عمومی‌تر که رفتار و دادهٔ مشترک را تعریف می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Derived Class</td>
+                <td><code>SavingsAccount</code></td>
+                <td>Class تخصصی‌تر که از Base Class ارث می‌برد.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+}
+
+// SavingsAccount is a BankAccount
+public class SavingsAccount
+    : BankAccount
+{
+}</code></pre>
+          </div>
+          <h2>رابطهٔ <bdi>Is-A</bdi></h2>
+          <p>
+            قبل از استفاده از Inheritance باید بتوانیم رابطه را به شکل «X یک Y است» بیان کنیم.
+          </p>
+          <ul>
+            <li><code>SavingsAccount</code> یک <code>BankAccount</code> است.</li>
+            <li><code>CheckingAccount</code> یک <code>BankAccount</code> است.</li>
+          </ul>
+          <p>اما این رابطه را ببینید:</p>
+          <ul>
+            <li>BankAccount یک Logger است؟ خیر.</li>
+            <li>Order یک Database است؟ خیر.</li>
+          </ul>
+          <p>
+            در چنین مواردی Inheritance فقط برای استفادهٔ مجدد از کد انتخاب مناسبی نیست.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              صرف اینکه دو class چند Method یا Property مشترک دارند دلیل کافی برای Inheritance نیست.
+              رابطهٔ مفهومی و قابلیت جایگزینی Derived Type با Base Type اهمیت بیشتری دارد.
+            </div>
+          </div>
+          <h2>اعضای به‌ارث‌رسیده</h2>
+          <p>
+            Derived Class می‌تواند از اعضای قابل‌دسترسی Base Class استفاده کند. برای مثال اعضای public از طریق object
+            مشتق‌شده
+            قابل استفاده‌اند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; set; }
+
+    public void PrintAccount()
+    {
+        Console.WriteLine(AccountNumber);
+    }
+}
+
+public class SavingsAccount
+    : BankAccount
+{
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new SavingsAccount();
+
+account.AccountNumber = "IR-1001";
+account.PrintAccount();</code></pre>
+          </div>
+          <h2><code>private</code> و Inheritance</h2>
+          <p>
+            اعضای <code>private</code> بخشی از پیاده‌سازی Base Class هستند، اما Derived Class نمی‌تواند مستقیماً با نام
+            آن‌ها
+            دسترسی داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private decimal _balance;
+}
+
+public class SavingsAccount
+    : BankAccount
+{
+    public void Test()
+    {
+        // Compile Error
+        // _balance = 100;
+    }
+}</code></pre>
+          </div>
+          <p>
+            اگر Base Class لازم بداند Derived Class به عضوی دسترسی داشته باشد، می‌توان از API مناسب یا در موارد لازم
+            <code>protected</code> استفاده کرد.
+          </p>
+          <h2><code>protected</code> در Inheritance</h2>
+          <p>
+            عضو <code>protected</code> از بیرون class عمومی نیست، اما Derived Class می‌تواند به آن دسترسی داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    protected decimal Balance { get; set; }
+}
+
+public class SavingsAccount
+    : BankAccount
+{
+    public void AddInterest()
+    {
+        Balance += Balance * 0.05m;
+    }
+}</code></pre>
+          </div>
+          <p>
+            کد بیرونی همچنان نمی‌تواند مستقیماً Balance را تغییر دهد، اما <code>SavingsAccount</code> به آن دسترسی دارد.
+          </p>
+          <h2>استفاده از <code>base</code></h2>
+          <p>
+            کلمهٔ کلیدی <code>base</code> برای دسترسی به اعضا یا Constructor مربوط به Base Class استفاده می‌شود.
+            یکی از رایج‌ترین کاربردها، فراخوانی Constructor والد است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        AccountNumber = accountNumber;
+    }
+}
+
+public class SavingsAccount
+    : BankAccount
+{
+    public decimal InterestRate { get; }
+
+    public SavingsAccount(
+        string accountNumber,
+        decimal interestRate)
+        : base(accountNumber)
+    {
+        InterestRate = interestRate;
+    }
+}</code></pre>
+          </div>
+          <p>
+            عبارت <code>base(accountNumber)</code> Constructor مربوط به <code>BankAccount</code> را فراخوانی می‌کند.
+          </p>
+          <h2>ترتیب اجرای Constructorها</h2>
+          <p>
+            هنگام ساخت Derived Object، ابتدا Constructor مربوط به Base Class اجرا می‌شود و سپس Constructor مربوط به
+            Derived Class.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public BankAccount()
+    {
+        Console.WriteLine(
+            "BankAccount Constructor");
+    }
+}
+
+public class SavingsAccount
+    : BankAccount
+{
+    public SavingsAccount()
+    {
+        Console.WriteLine(
+            "SavingsAccount Constructor");
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new SavingsAccount();
+
+// BankAccount Constructor
+// SavingsAccount Constructor</code></pre>
+          </div>
+          <h2>تخصصی‌کردن Derived Class</h2>
+          <p>
+            Derived Class فقط اعضای Base Class را دریافت نمی‌کند؛ می‌تواند قابلیت‌های مخصوص خودش را نیز داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class SavingsAccount
+    : BankAccount
+{
+    public decimal InterestRate { get; }
+
+    public SavingsAccount(
+        string accountNumber,
+        decimal interestRate)
+        : base(accountNumber)
+    {
+        InterestRate = interestRate;
+    }
+
+    public decimal CalculateInterest()
+    {
+        return Balance * InterestRate;
+    }
+}</code></pre>
+          </div>
+          <p>
+            <code>CalculateInterest</code> رفتاری مخصوص Savings Account است و لازم نیست در همهٔ انواع حساب وجود داشته
+            باشد.
+          </p>
+          <h2><code>virtual</code> و <code>override</code></h2>
+          <p>
+            گاهی Base Class یک رفتار عمومی دارد، اما Derived Class باید نسخهٔ تخصصی خودش را ارائه کند.
+            برای این کار می‌توان Method را در Base Class با <code>virtual</code> تعریف و در Derived Class با
+            <code>override</code>
+            بازنویسی کرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public virtual decimal CalculateFee(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+}
+
+public class VipBankAccount
+    : BankAccount
+{
+    public override decimal CalculateFee(
+        decimal amount)
+    {
+        return amount * 0.005m;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var normal =
+    new BankAccount();
+
+var vip =
+    new VipBankAccount();
+
+Console.WriteLine(
+    normal.CalculateFee(1_000_000));
+// 10000
+
+Console.WriteLine(
+    vip.CalculateFee(1_000_000));
+// 5000</code></pre>
+          </div>
+          <p>
+            این قابلیت یکی از پایه‌های Runtime Polymorphism است که در فصل Polymorphism با جزئیات بیشتری بررسی می‌شود.
+          </p>
+          <h2>Derived Object به‌عنوان Base Type</h2>
+          <p>
+            چون <code>SavingsAccount</code> یک <code>BankAccount</code> است، می‌توان object آن را در reference از نوع
+            Base Class نگه داشت:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>BankAccount account =
+    new SavingsAccount(
+        "IR-1001",
+        0.05m);
+
+account.Deposit(500_000);</code></pre>
+          </div>
+          <p>
+            این ویژگی بسیار مهم است، چون اجازه می‌دهد کد با abstraction عمومی‌تر کار کند و typeهای تخصصی مختلف را
+            بپذیرد.
+          </p>
+          <h2>Single Inheritance در C#</h2>
+          <p>
+            یک class در C# نمی‌تواند مستقیماً از چند class ارث ببرد. هر class فقط یک Base Class مستقیم دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+}
+
+public class SavingsAccount
+    : BankAccount
+{
+}</code></pre>
+          </div>
+          <p>چنین چیزی برای classها مجاز نیست:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>// Invalid
+// public class SpecialAccount
+//     : BankAccount, Customer
+// {
+// }</code></pre>
+          </div>
+          <p>
+            البته یک class می‌تواند در کنار Base Class چند Interface را implement کند؛ Interface با Multiple Class
+            Inheritance
+            یک مفهوم نیست.
+          </p>
+          <h2>مزایای Inheritance</h2>
+          <ul>
+            <li><strong>مدل‌کردن رابطه Is-A:</strong> ارتباط typeهای عمومی و تخصصی را بیان می‌کند.</li>
+            <li><strong>استفاده از رفتار مشترک:</strong> رفتار مناسب می‌تواند در Base Class قرار بگیرد.</li>
+            <li><strong>Polymorphism:</strong> Derived Typeها می‌توانند از طریق Base Type استفاده شوند.</li>
+            <li><strong>تخصصی‌سازی:</strong> Derived Class می‌تواند قابلیت‌های مخصوص خود را اضافه یا رفتارهای قابل
+              override را تخصصی کند.</li>
+          </ul>
+          <h2>مشکلات استفادهٔ نادرست از Inheritance</h2>
+          <p>
+            Inheritance رابطهٔ نسبتاً قوی‌ای میان Base و Derived Class ایجاد می‌کند. اگر طراحی اشتباه باشد، تغییر Base
+            Class
+            می‌تواند تعداد زیادی Derived Class را تحت تأثیر قرار دهد.
+          </p>
+          <ul>
+            <li>ایجاد Tight Coupling میان Base و Derived Class</li>
+            <li>ساختن hierarchyهای عمیق و سخت‌فهم</li>
+            <li>وابستگی Derived Class به جزئیات Base Class</li>
+            <li>استفاده از Inheritance فقط برای Code Reuse</li>
+            <li>سخت‌ترشدن تغییر رفتار در آینده</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Inheritance ابزار قدرتمندی است، اما نباید انتخاب پیش‌فرض برای Code Reuse باشد.
+              در بسیاری از طراحی‌ها Composition انعطاف بیشتری ایجاد می‌کند.
+            </div>
+          </div>
+          <h2><bdi>Inheritance</bdi> یا <bdi>Composition</bdi>؟</h2>
+          <p>
+            Inheritance معمولاً رابطهٔ <strong>Is-A</strong> را مدل می‌کند، در حالی که Composition بیشتر رابطهٔ
+            <strong>Has-A</strong> را نمایش می‌دهد.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Inheritance</th>
+                <th>Composition</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SavingsAccount is a BankAccount</code></td>
+                <td><code>Order has a PaymentService</code></td>
+              </tr>
+              <tr>
+                <td>رابطهٔ قوی‌تر میان Typeها</td>
+                <td>معمولاً Coupling کمتر و انعطاف بیشتر</td>
+              </tr>
+              <tr>
+                <td>مناسب برای hierarchy واقعی</td>
+                <td>مناسب برای ترکیب رفتارها و dependencyها</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+
+    public decimal Balance { get; protected set; }
+
+    public BankAccount(
+        string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        AccountNumber = accountNumber;
+    }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        Balance += amount;
+    }
+
+    public virtual decimal CalculateFee(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+}
+
+public class SavingsAccount
+    : BankAccount
+{
+    public decimal InterestRate { get; }
+
+    public SavingsAccount(
+        string accountNumber,
+        decimal interestRate)
+        : base(accountNumber)
+    {
+        InterestRate = interestRate;
+    }
+
+    public decimal CalculateInterest()
+    {
+        return Balance * InterestRate;
+    }
+}
+
+public class VipBankAccount
+    : BankAccount
+{
+    public VipBankAccount(
+        string accountNumber)
+        : base(accountNumber)
+    {
+    }
+
+    public override decimal CalculateFee(
+        decimal amount)
+    {
+        return amount * 0.005m;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var savings =
+    new SavingsAccount(
+        "IR-1001",
+        0.05m);
+
+savings.Deposit(1_000_000);
+
+Console.WriteLine(
+    savings.CalculateInterest());
+
+BankAccount vip =
+    new VipBankAccount(
+        "IR-2001");
+
+Console.WriteLine(
+    vip.CalculateFee(1_000_000));</code></pre>
+          </div>
+          <p class="example-explanation">
+            <code>SavingsAccount</code> و <code>VipBankAccount</code> هر دو نوعی <code>BankAccount</code> هستند.
+            رفتار مشترک مانند <code>Deposit</code> در Base Class قرار دارد، در حالی که هر Derived Class می‌تواند قابلیت
+            یا رفتار تخصصی خودش را داشته باشد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: Inheritance زمانی مناسب است که بین typeها یک رابطهٔ واقعی <strong>Is-A</strong> وجود داشته باشد.
+              Base Class رفتار و قرارداد عمومی را ارائه می‌کند و Derived Class آن را تخصصی می‌کند. از Inheritance فقط
+              برای حذف چند خط
+              کد تکراری استفاده نکنید؛ ابتدا مطمئن شوید رابطهٔ مفهومی میان typeها واقعاً درست است.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

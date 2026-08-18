@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Primary Constructors در C# از مسیر حرفه‌ای .NET.">
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Primary Constructors در C# شامل syntax، تفاوت با Constructor معمولی، استفاده در class و struct، validation و نکات طراحی."
+    name="description" />
   <title>Primary Constructors در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,518 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-3-lesson-5">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="oop-basic-concepts"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 3 — Constructor و چرخه ایجاد Object</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Primary Constructors در C#</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>آشنایی با <bdi>Primary Constructors</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در Constructorهای معمولی، ابتدا class را تعریف می‌کنیم و سپس Constructor را داخل بدنهٔ آن می‌نویسیم.
+            در نسخه‌های جدید C# قابلیت <bdi>Primary Constructor</bdi> اجازه می‌دهد Parameterهای اصلی ساخت object را
+            مستقیماً کنار نام class یا struct تعریف کنیم و در نتیجه بعضی classهای ساده را کوتاه‌تر و خواناتر بنویسیم.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Primary Constructor از C# 12 برای <code>class</code> و <code>struct</code> در دسترس است.
+              هدف آن حذف Constructorهای تکراری و ساده‌ترکردن initialization است؛ نه اینکه در همهٔ classها جای
+              Constructor معمولی را بگیرد.
+            </div>
+          </div>
+          <h2><bdi>Primary Constructor</bdi> چیست؟</h2>
+          <p>
+            در Primary Constructor، Parameterهای Constructor بعد از نام type نوشته می‌شوند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber,
+    string ownerName)
+{
+}</code></pre>
+          </div>
+          <p>
+            در این مثال <code>accountNumber</code> و <code>ownerName</code> پارامترهای Primary Constructor هستند.
+            برای ساخت object باید مقادیر موردنیاز را ارسال کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount(
+    "IR-1001",
+    "Hamed");</code></pre>
+          </div>
+          <p class="example-explanation">
+            ظاهر تعریف کوتاه‌تر شده است، اما همچنان هنگام ساخت <code>BankAccount</code> دو Argument موردنیاز هستند.
+          </p>
+          <h2>مقایسه با Constructor معمولی</h2>
+          <p>ابتدا همان class را با Constructor معمولی ببینیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber { get; }
+    public string OwnerName { get; }
+
+    public BankAccount(
+        string accountNumber,
+        string ownerName)
+    {
+        AccountNumber = accountNumber;
+        OwnerName = ownerName;
+    }
+}</code></pre>
+          </div>
+          <p>با Primary Constructor می‌توان بخشی از این کد را کوتاه‌تر کرد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber,
+    string ownerName)
+{
+    public string AccountNumber { get; } =
+        accountNumber;
+
+    public string OwnerName { get; } =
+        ownerName;
+}</code></pre>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Constructor معمولی</th>
+                <th>Primary Constructor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>داخل بدنهٔ class تعریف می‌شود.</td>
+                <td>Parameterها کنار نام class قرار می‌گیرند.</td>
+              </tr>
+              <tr>
+                <td>دارای بدنهٔ Constructor مشخص است.</td>
+                <td>بدنهٔ Constructor جداگانه‌ای ندارد.</td>
+              </tr>
+              <tr>
+                <td>برای منطق initialization پیچیده واضح‌تر است.</td>
+                <td>برای initialization ساده کد را کوتاه‌تر می‌کند.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>استفاده از Parameterها در Property</h2>
+          <p>
+            Parameterهای Primary Constructor را می‌توان در initializer اعضای instance استفاده کرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber,
+    string ownerName)
+{
+    public string AccountNumber { get; } =
+        accountNumber;
+
+    public string OwnerName { get; } =
+        ownerName;
+
+    public decimal Balance { get; private set; }
+}</code></pre>
+          </div>
+          <p>
+            اکنون هنگام ساخت object، اطلاعات اصلی حساب دریافت و Propertyها مقداردهی می‌شوند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account = new BankAccount(
+    "IR-1001",
+    "Hamed");
+
+Console.WriteLine(
+    account.AccountNumber);
+
+Console.WriteLine(
+    account.OwnerName);</code></pre>
+          </div>
+          <h2>Parameter با Property فرق دارد</h2>
+          <p>
+            یکی از نکات مهم این است که Parameterهای Primary Constructor در یک class معمولی، به‌صورت خودکار به Property
+            عمومی تبدیل نمی‌شوند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber)
+{
+}</code></pre>
+          </div>
+          <p>کد زیر معتبر نیست، چون Propertyای به نام <code>accountNumber</code> ایجاد نشده است:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount("IR-1001");
+
+// Compile Error
+// Console.WriteLine(
+//     account.accountNumber);</code></pre>
+          </div>
+          <p>اگر مقدار باید بخشی از API عمومی object باشد، باید Property را صریحاً تعریف کنیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber)
+{
+    public string AccountNumber { get; } =
+        accountNumber;
+}</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Primary Constructor در class معمولی با positional <code>record</code> یکسان نیست.
+              در recordهای positional، Parameterها می‌توانند Propertyهای متناظر ایجاد کنند؛ اما Parameterهای Primary
+              Constructor یک class معمولی
+              خودشان Property عمومی نیستند.
+            </div>
+          </div>
+          <h2>استفاده از Parameterها داخل Method</h2>
+          <p>
+            Parameterهای Primary Constructor در اعضای instance نیز قابل استفاده‌اند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber)
+{
+    public void PrintAccountNumber()
+    {
+        Console.WriteLine(accountNumber);
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount("IR-1001");
+
+account.PrintAccountNumber();
+// IR-1001</code></pre>
+          </div>
+          <p>
+            اگر Parameter در اعضای instance مورد استفاده قرار گیرد، Compiler در صورت نیاز دادهٔ لازم برای نگهداری آن را
+            مدیریت می‌کند.
+            اما این موضوع به معنی ایجاد یک Field یا Property قابل دسترسی با همان نام برای کد بیرونی نیست.
+          </p>
+          <h2>Validation در Primary Constructor</h2>
+          <p>
+            چون Primary Constructor بدنهٔ مستقل مانند Constructor معمولی ندارد، برای validation باید طراحی مناسبی انتخاب
+            کنیم.
+            یکی از روش‌های ساده، استفاده از helper method هنگام مقداردهی Property است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber)
+{
+    public string AccountNumber { get; } =
+        ValidateAccountNumber(
+            accountNumber);
+
+    private static string ValidateAccountNumber(
+        string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        return accountNumber;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount("IR-1001");
+
+// Exception
+// var invalidAccount =
+//     new BankAccount("");</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              اگر initialization و validation بسیار پیچیده شد، Constructor معمولی یا Factory Method ممکن است خواناتر از
+              تلاش برای
+              فشرده‌کردن همهٔ منطق در Primary Constructor باشد.
+            </div>
+          </div>
+          <h2>Primary Constructor و Dependency Injection</h2>
+          <p>
+            یکی از کاربردهای جذاب Primary Constructor در classهایی است که فقط چند dependency از Dependency Injection
+            دریافت می‌کنند.
+            برای مثال یک Application Service:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService(
+    IPaymentGateway paymentGateway,
+    ILogger&lt;PaymentService&gt; logger)
+{
+    public async Task PayAsync(
+        decimal amount)
+    {
+        logger.LogInformation(
+            "Payment started.");
+
+        await paymentGateway.PayAsync(
+            amount);
+    }
+}</code></pre>
+          </div>
+          <p>
+            نسخهٔ سنتی همین class معمولاً به Field و Constructor جداگانه نیاز دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentGateway
+        _paymentGateway;
+
+    private readonly ILogger&lt;PaymentService&gt;
+        _logger;
+
+    public PaymentService(
+        IPaymentGateway paymentGateway,
+        ILogger&lt;PaymentService&gt; logger)
+    {
+        _paymentGateway = paymentGateway;
+        _logger = logger;
+    }
+
+    public async Task PayAsync(
+        decimal amount)
+    {
+        _logger.LogInformation(
+            "Payment started.");
+
+        await _paymentGateway.PayAsync(
+            amount);
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            در classهای کوچک و Serviceهایی که Constructor عمدتاً dependencyها را دریافت و ذخیره می‌کند، Primary
+            Constructor می‌تواند
+            Boilerplate را کاهش دهد.
+          </p>
+          <h2>Primary Constructor همراه Constructorهای دیگر</h2>
+          <p>
+            یک class دارای Primary Constructor می‌تواند Constructorهای دیگری نیز داشته باشد. Constructorهای instance
+            اضافی باید
+            در نهایت Primary Constructor را از طریق <code>this(...)</code> فراخوانی کنند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber,
+    decimal initialBalance)
+{
+    public string AccountNumber { get; } =
+        accountNumber;
+
+    public decimal Balance { get; private set; } =
+        initialBalance;
+
+    public BankAccount(
+        string accountNumber)
+        : this(accountNumber, 0)
+    {
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount(
+        "IR-1001",
+        500_000);
+
+var account2 =
+    new BankAccount(
+        "IR-1002");</code></pre>
+          </div>
+          <p>
+            Constructor دوم مقدار موجودی اولیه را صفر در نظر می‌گیرد و با <code>this(accountNumber, 0)</code> به Primary
+            Constructor متصل می‌شود.
+          </p>
+          <h2>Primary Constructor در <bdi>struct</bdi></h2>
+          <p>
+            Primary Constructor فقط مخصوص class نیست و برای struct نیز قابل استفاده است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public readonly struct Money(
+    decimal amount,
+    string currency)
+{
+    public decimal Amount { get; } =
+        amount;
+
+    public string Currency { get; } =
+        currency;
+
+    public override string ToString()
+    {
+        return $"{Amount} {Currency}";
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money =
+    new Money(
+        500_000,
+        "IRR");
+
+Console.WriteLine(money);
+// 500000 IRR</code></pre>
+          </div>
+          <h2>چه زمانی Primary Constructor مناسب است؟</h2>
+          <ul>
+            <li>وقتی Constructor فقط چند مقدار یا dependency ساده دریافت می‌کند.</li>
+            <li>وقتی می‌خواهیم Boilerplate مربوط به Constructor را کاهش دهیم.</li>
+            <li>برای Serviceهای کوچک که dependencyهای مشخصی دارند.</li>
+            <li>برای class یا structهای ساده با initialization روشن.</li>
+          </ul>
+          <h2>چه زمانی Constructor معمولی خواناتر است؟</h2>
+          <ul>
+            <li>وقتی initialization چند مرحله دارد.</li>
+            <li>وقتی Validation پیچیده است.</li>
+            <li>وقتی Constructor دارای منطق قابل‌توجهی است.</li>
+            <li>وقتی Primary Constructor باعث مبهم‌شدن محل ذخیره یا استفادهٔ داده‌ها می‌شود.</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              کوتاه‌ترشدن کد همیشه به معنی طراحی بهتر نیست. Primary Constructor زمانی ارزشمند است که Intent کلاس را
+              واضح‌تر کند؛
+              نه زمانی که صرفاً تعداد خطوط را کاهش دهد.
+            </div>
+          </div>
+          <h2>مثال کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount(
+    string accountNumber,
+    string ownerName,
+    decimal initialBalance)
+{
+    public string AccountNumber { get; } =
+        ValidateAccountNumber(
+            accountNumber);
+
+    public string OwnerName { get; } =
+        ownerName;
+
+    public decimal Balance { get; private set; } =
+        initialBalance &gt;= 0
+            ? initialBalance
+            : throw new ArgumentOutOfRangeException(
+                nameof(initialBalance));
+
+    public BankAccount(
+        string accountNumber,
+        string ownerName)
+        : this(
+            accountNumber,
+            ownerName,
+            0)
+    {
+    }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        Balance += amount;
+    }
+
+    private static string ValidateAccountNumber(
+        string accountNumber)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        return accountNumber;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount(
+        "IR-1001",
+        "Hamed");
+
+account.Deposit(500_000);
+
+Console.WriteLine(
+    account.AccountNumber);
+
+Console.WriteLine(
+    account.Balance);</code></pre>
+          </div>
+          <p class="example-explanation">
+            در این مثال Primary Constructor داده‌های اصلی object را دریافت می‌کند، Propertyها از Parameterها مقدار
+            می‌گیرند،
+            Validation انجام می‌شود و یک Constructor اضافی نیز از طریق <code>this(...)</code> به Primary Constructor
+            متصل شده است.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: Primary Constructor راهی مختصر برای دریافت داده‌ها و dependencyهای اصلی یک type است.
+              Parameterها کنار نام class یا struct تعریف می‌شوند، اما در class معمولی خودبه‌خود Property عمومی ایجاد
+              نمی‌کنند.
+              از آن زمانی استفاده کنید که باعث ساده‌تر و واضح‌ترشدن طراحی شود.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
