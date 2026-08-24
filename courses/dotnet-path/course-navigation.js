@@ -162,26 +162,6 @@
           "id": "chapter-6-lesson-1",
           "title": "6.1 Polymorphism چیست؟",
           "available": true
-        },
-        {
-          "id": "chapter-6-lesson-2",
-          "title": "6.2 Compile-Time Polymorphism",
-          "available": true
-        },
-        {
-          "id": "chapter-6-lesson-3",
-          "title": "6.3 Runtime Polymorphism",
-          "available": true
-        },
-        {
-          "id": "chapter-6-lesson-4",
-          "title": "6.4 Method Hiding",
-          "available": true
-        },
-        {
-          "id": "chapter-6-lesson-5",
-          "title": "6.5 مثال واقعی Polymorphism",
-          "available": true
         }
       ]
     },

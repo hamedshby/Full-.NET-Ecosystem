@@ -24,8 +24,11 @@ test('the professional .NET path exposes the approved training headings in order
     '1.1 OOP چیست؟',
     '1.2 مفاهیم پایه'
   ]);
+  assert.deepEqual(dotnetChapters[5].lessons.map(lesson => lesson.title), [
+    '6.1 Polymorphism چیست؟'
+  ]);
   assert.equal(dotnetChapters[19].lessons.length, 17);
-  assert.equal(availableLessons.length, 206);
+  assert.equal(availableLessons.length, 185);
 });
 
 test('navigation opens OOP and marks its first lesson current', () => {
@@ -55,8 +58,8 @@ test('every professional .NET heading links to an existing standalone page', () 
   const navigation = renderDotnetNavigation('basic-concepts');
   const lessons = dotnetChapters.flatMap(chapter => chapter.lessons);
 
-  assert.equal(lessons.length, 206);
-  assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 206);
+  assert.equal(lessons.length, 185);
+  assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 185);
 
   for (const lesson of lessons) {
     const relativePage = lesson.id === 'oop-introduction'
