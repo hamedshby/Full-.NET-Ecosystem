@@ -315,47 +315,7 @@
       "lessons": [
         {
           "id": "chapter-10-lesson-1",
-          "title": "10.1 Reference Equality",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-2",
-          "title": "10.2 Value Equality",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-3",
-          "title": "10.3 `Equals()`",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-4",
-          "title": "10.4 `GetHashCode()`",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-5",
-          "title": "10.5 Operator `==`",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-6",
-          "title": "10.6 `ReferenceEquals`",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-7",
-          "title": "10.7 Equality در Recordها",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-8",
-          "title": "10.8 پیاده‌سازی `IEquatable<T>`",
-          "available": true
-        },
-        {
-          "id": "chapter-10-lesson-9",
-          "title": "10.9 مشکلات Equality در Dictionary و HashSet",
+          "title": "10.1 Object Equality در C#",
           "available": true
         }
       ]
@@ -365,52 +325,7 @@
       "lessons": [
         {
           "id": "chapter-11-lesson-1",
-          "title": "11.1 Stack و Heap",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-2",
-          "title": "11.2 Value Type vs Reference Type",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-3",
-          "title": "11.3 Object Reference",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-4",
-          "title": "11.4 Reference Assignment",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-5",
-          "title": "11.5 Passing Objects to Methods",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-6",
-          "title": "11.6 Garbage Collector",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-7",
-          "title": "11.7 Object Lifetime",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-8",
-          "title": "11.8 `IDisposable`",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-9",
-          "title": "11.9 `using`",
-          "available": true
-        },
-        {
-          "id": "chapter-11-lesson-10",
-          "title": "11.10 Finalizer",
+          "title": "11.1 Object، Memory و Reference Types",
           "available": true
         }
       ]

@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Stack و Heap از مسیر حرفه‌ای .NET.">
-  <title>Stack و Heap | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Object، Memory و Reference Types در C# شامل Stack و Heap، Value Type و Reference Type، Reference Assignment، Passing Objects، Garbage Collector، Object Lifetime، IDisposable، using و Finalizer."
+    name="description" />
+  <title>Object، Memory و Reference Types در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,826 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-11-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-11-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 11 — Object، Memory و Reference Types</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 11 — <bdi>Object، Memory و Reference Types</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Stack و Heap</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>فصل 11 — <bdi>Object، Memory و Reference Types</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            برای درک عمیق‌تر رفتار objectها در C# باید بدانیم هنگام ساخت یک object چه اتفاقی برای داده‌ها و referenceها
+            می‌افتد،
+            تفاوت Value Type و Reference Type چیست، assignment چگونه کار می‌کند و .NET چگونه حافظهٔ objectهای مدیریت‌شده
+            را
+            با Garbage Collector مدیریت می‌کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              در این فصل هدف حفظ‌کردن جملهٔ سادهٔ «Value Type روی Stack و Reference Type روی Heap است» نیست؛
+              این جمله بیش از حد ساده‌سازی شده است. محل ذخیره‌سازی به context بستگی دارد. چیزی که باید دقیق یاد بگیریم،
+              تفاوت <strong>Value Semantics</strong> و <strong>Reference Semantics</strong> است.
+            </div>
+          </div>
+          <h2>11.1 <bdi>Stack</bdi> و <bdi>Heap</bdi></h2>
+          <p>
+            در اجرای برنامه، .NET از بخش‌های مختلف حافظه استفاده می‌کند. دو مفهوم مهمی که هنگام آموزش C# زیاد با آن‌ها
+            روبه‌رو می‌شویم
+            Stack و Managed Heap هستند.
+          </p>
+          <h3>Stack</h3>
+          <p>
+            Stack با اجرای Methodها و Call Frameهای آن‌ها ارتباط دارد. اطلاعاتی مانند بعضی local variableها،
+            پارامترها و داده‌های موردنیاز برای اجرای Method می‌توانند در stack frame قرار بگیرند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static void Calculate()
+{
+    int count = 10;
+    decimal amount = 500_000m;
+
+    Console.WriteLine(
+        count * amount);
+}</code></pre>
+          </div>
+          <p>
+            با پایان اجرای Method، stack frame مربوط به آن دیگر موردنیاز نیست.
+          </p>
+          <h3>Managed Heap</h3>
+          <p>
+            objectهای reference type معمولاً روی Managed Heap ساخته می‌شوند و Garbage Collector مسئول مدیریت حافظهٔ
+            آن‌هاست.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    public string Name { get; set; }
+}
+
+var customer =
+    new Customer
+    {
+        Name = "Hamed"
+    };</code></pre>
+          </div>
+          <p>
+            عبارت <code>new Customer()</code> یک object ایجاد می‌کند و متغیر <code>customer</code> یک reference برای
+            دسترسی به آن object نگه می‌دارد.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              نگویید «هر Value Type همیشه روی Stack است». مثلاً یک Value Type می‌تواند Field یک object باشد و دادهٔ آن
+              به‌عنوان بخشی از همان object روی Heap قرار بگیرد. همچنین runtime و JIT در جزئیات پیاده‌سازی آزادی عمل
+              دارند.
+            </div>
+          </div>
+          <h2>11.2 <bdi>Value Type vs Reference Type</bdi></h2>
+          <p>
+            تفاوت اصلی این دو گروه در semantics مربوط به مقدار و assignment است.
+          </p>
+          <h3>Value Type</h3>
+          <p>
+            متغیر Value Type مقدار خودش را نگه می‌دارد. هنگام assignment معمولاً مقدار کپی می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>int number1 = 10;
+
+int number2 = number1;
+
+number2 = 50;
+
+Console.WriteLine(number1);
+// 10
+
+Console.WriteLine(number2);
+// 50</code></pre>
+          </div>
+          <p>
+            تغییر <code>number2</code> روی <code>number1</code> اثری ندارد.
+          </p>
+          <p>نمونه‌های مهم Value Type:</p>
+          <ul>
+            <li><code>int</code></li>
+            <li><code>long</code></li>
+            <li><code>decimal</code></li>
+            <li><code>bool</code></li>
+            <li><code>DateTime</code></li>
+            <li><code>struct</code></li>
+            <li><code>enum</code></li>
+          </ul>
+          <h3>Reference Type</h3>
+          <p>
+            متغیر Reference Type به یک object اشاره می‌کند. هنگام assignment، reference کپی می‌شود؛
+            نه اینکه الزاماً یک object جدید ساخته شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer1 =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+var customer2 = customer1;
+
+customer2.Name = "Ali";
+
+Console.WriteLine(
+    customer1.Name);
+// Ali</code></pre>
+          </div>
+          <p>
+            هر دو reference به یک object اشاره می‌کنند؛ بنابراین تغییر object از طریق یکی، از طریق دیگری نیز قابل مشاهده
+            است.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Value Type</th>
+                <th>Reference Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>assignment معمولاً Value را کپی می‌کند.</td>
+                <td>assignment مقدار reference را کپی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>دو متغیر معمولاً دادهٔ مستقل دارند.</td>
+                <td>چند متغیر می‌توانند به یک object اشاره کنند.</td>
+              </tr>
+              <tr>
+                <td>نمونه: <code>int</code> و <code>struct</code></td>
+                <td>نمونه: <code>class</code>، array و delegate</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>11.3 <bdi>Object Reference</bdi></h2>
+          <p>
+            Reference را می‌توان مانند راه دسترسی به یک object در نظر گرفت. خود متغیر reference با object یکی نیست.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Customer customer =
+    new Customer
+    {
+        Name = "Hamed"
+    };</code></pre>
+          </div>
+          <p>در این کد دو مفهوم داریم:</p>
+          <ul>
+            <li><code>new Customer(...)</code> → ساخت object</li>
+            <li><code>customer</code> → reference برای دسترسی به object</li>
+          </ul>
+          <p>
+            یک object می‌تواند هم‌زمان از طریق چند reference قابل دسترسی باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Customer customer1 =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+Customer customer2 = customer1;
+Customer customer3 = customer1;</code></pre>
+          </div>
+          <p>
+            در اینجا سه object نداریم؛ یک object داریم و سه متغیر به همان instance اشاره می‌کنند.
+          </p>
+          <h3>Reference می‌تواند null باشد</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Customer? customer = null;</code></pre>
+          </div>
+          <p>
+            در این حالت reference به هیچ instanceای اشاره نمی‌کند. تلاش برای دسترسی نامعتبر به عضو object می‌تواند
+            باعث <code>NullReferenceException</code> شود.
+          </p>
+          <h2>11.4 <bdi>Reference Assignment</bdi></h2>
+          <p>
+            یکی از رایج‌ترین اشتباهات افراد تازه‌کار این است که تصور می‌کنند assignment یک Reference Type،
+            object را clone می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount
+    {
+        Balance = 1_000_000
+    };
+
+var account2 = account1;
+
+account2.Balance = 500_000;
+
+Console.WriteLine(
+    account1.Balance);
+// 500000</code></pre>
+          </div>
+          <p>
+            <code>account1</code> و <code>account2</code> دو reference هستند، اما هر دو به یک object اشاره می‌کنند.
+          </p>
+          <h3>ساخت object جدید</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount
+    {
+        Balance = 1_000_000
+    };
+
+var account2 =
+    new BankAccount
+    {
+        Balance = account1.Balance
+    };
+
+account2.Balance = 500_000;
+
+Console.WriteLine(
+    account1.Balance);
+// 1000000</code></pre>
+          </div>
+          <p>
+            اینجا دو object مستقل ساخته شده‌اند؛ بنابراین تغییر یکی مستقیماً دیگری را تغییر نمی‌دهد.
+          </p>
+          <h2>11.5 <bdi>Passing Objects to Methods</bdi></h2>
+          <p>
+            در C# پارامترها به‌صورت پیش‌فرض By Value ارسال می‌شوند. برای Reference Type این یعنی
+            <strong>مقدار reference کپی می‌شود</strong>.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static void Rename(
+    Customer customer)
+{
+    customer.Name = "Ali";
+}
+
+var customer =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+Rename(customer);
+
+Console.WriteLine(
+    customer.Name);
+// Ali</code></pre>
+          </div>
+          <p>
+            Method یک کپی از reference دریافت کرده، اما آن reference کپی‌شده همچنان به همان object اشاره می‌کند.
+            پس Method می‌تواند State object را تغییر دهد.
+          </p>
+          <h3>Reassign کردن Parameter</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static void Replace(
+    Customer customer)
+{
+    customer =
+        new Customer
+        {
+            Name = "Replaced"
+        };
+}
+
+var customer =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+Replace(customer);
+
+Console.WriteLine(
+    customer.Name);
+// Hamed</code></pre>
+          </div>
+          <p>
+            چرا مقدار اصلی تغییر نکرد؟ چون Method فقط کپی reference را reassign کرده است.
+            متغیر <code>customer</code> بیرون Method همچنان به object قبلی اشاره می‌کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              عبارت «objectها By Reference پاس داده می‌شوند» دقیق نیست.
+              Reference Typeها نیز به‌صورت پیش‌فرض <strong>By Value</strong> پاس داده می‌شوند؛ چیزی که کپی می‌شود مقدار
+              reference است.
+            </div>
+          </div>
+          <h3>ارسال reference با <code>ref</code></h3>
+          <p>
+            اگر خود متغیر reference را با <code>ref</code> ارسال کنیم، Method می‌تواند reference caller را نیز تغییر
+            دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static void Replace(
+    ref Customer customer)
+{
+    customer =
+        new Customer
+        {
+            Name = "Replaced"
+        };
+}
+
+var customer =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+Replace(ref customer);
+
+Console.WriteLine(
+    customer.Name);
+// Replaced</code></pre>
+          </div>
+          <h2>11.6 <bdi>Garbage Collector</bdi></h2>
+          <p>
+            در .NET حافظهٔ Managed Objectها عمدتاً توسط <bdi>Garbage Collector</bdi> یا GC مدیریت می‌شود.
+            برنامه‌نویس معمولاً لازم نیست حافظهٔ objectهای managed را به‌صورت دستی آزاد کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static void CreateCustomer()
+{
+    var customer =
+        new Customer
+        {
+            Name = "Hamed"
+        };
+
+    Console.WriteLine(
+        customer.Name);
+}</code></pre>
+          </div>
+          <p>
+            پس از پایان Method، اگر دیگر هیچ مسیر قابل‌دسترسی به object وجود نداشته باشد، object می‌تواند برای Garbage
+            Collection
+            واجد شرایط شود.
+          </p>
+          <h3>GC چه کاری انجام می‌دهد؟</h3>
+          <ul>
+            <li>objectهای managed را بررسی می‌کند.</li>
+            <li>objectهای قابل‌دسترسی را زنده نگه می‌دارد.</li>
+            <li>حافظهٔ objectهای غیرقابل‌دسترسی را در زمان مناسب reclaim می‌کند.</li>
+            <li>برای بهینه‌سازی، objectها را در Generationهای مختلف مدیریت می‌کند.</li>
+          </ul>
+          <h3>Generationها</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Generation</th>
+                <th>مفهوم کلی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gen 0</td>
+                <td>معمولاً objectهای جدید و کوتاه‌عمر</td>
+              </tr>
+              <tr>
+                <td>Gen 1</td>
+                <td>مرحلهٔ میانی برای objectهایی که از collection قبلی زنده مانده‌اند</td>
+              </tr>
+              <tr>
+                <td>Gen 2</td>
+                <td>معمولاً objectهای طولانی‌عمرتر</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              واجد شرایط شدن برای Garbage Collection به این معنی نیست که object همان لحظه حذف می‌شود.
+              زمان اجرای GC را Runtime مدیریت می‌کند و نباید به زمان دقیق آن وابسته باشیم.
+            </div>
+          </div>
+          <h2>11.7 <bdi>Object Lifetime</bdi></h2>
+          <p>
+            Lifetime یک object از زمان ایجاد آن شروع می‌شود و تا زمانی ادامه دارد که Runtime بتواند آن object را از طریق
+            referenceهای زنده و rootهای GC قابل‌دسترسی تشخیص دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Customer CreateCustomer()
+{
+    var customer =
+        new Customer
+        {
+            Name = "Hamed"
+        };
+
+    return customer;
+}
+
+var customer =
+    CreateCustomer();</code></pre>
+          </div>
+          <p>
+            با پایان <code>CreateCustomer()</code>، object از بین نمی‌رود؛ چون reference آن return شده و هنوز از بیرون
+            قابل دسترسی است.
+          </p>
+          <h3>Eligible for Collection</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+customer = null;</code></pre>
+          </div>
+          <p>
+            اگر reference دیگری به object وجود نداشته باشد، object می‌تواند برای collection واجد شرایط شود.
+            اما زمان واقعی reclaim شدن حافظه توسط GC تعیین می‌شود.
+          </p>
+          <h2>11.8 <code>IDisposable</code></h2>
+          <p>
+            Garbage Collector برای مدیریت حافظهٔ managed عالی است، اما بعضی objectها منابعی دارند که باید
+            <strong>deterministically</strong> و در زمان مشخص آزاد شوند؛ مانند streamها، handleهای سیستم‌عامل و برخی
+            resourceهای unmanaged.
+          </p>
+          <p>
+            برای چنین سناریوهایی از قرارداد <code>IDisposable</code> استفاده می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentFileWriter
+    : IDisposable
+{
+    private readonly StreamWriter _writer;
+
+    public PaymentFileWriter(
+        string path)
+    {
+        _writer =
+            new StreamWriter(path);
+    }
+
+    public void Write(
+        string transactionId)
+    {
+        _writer.WriteLine(
+            transactionId);
+    }
+
+    public void Dispose()
+    {
+        _writer.Dispose();
+    }
+}</code></pre>
+          </div>
+          <p>
+            <code>Dispose()</code> به مصرف‌کننده اجازه می‌دهد اعلام کند کار با resource تمام شده و resource باید آزاد
+            شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              <code>IDisposable</code> جای Garbage Collector را نمی‌گیرد. GC حافظهٔ managed را مدیریت می‌کند؛
+              Dispose برای آزادسازی به‌موقع resourceهایی است که lifetime آن‌ها نباید به زمان نامشخص اجرای GC وابسته
+              باشد.
+            </div>
+          </div>
+          <h2>11.9 <code>using</code></h2>
+          <p>
+            بهترین روش معمول برای استفاده از objectهای <code>IDisposable</code>، استفاده از <code>using</code> است.
+            این syntax تضمین می‌کند Dispose در پایان scope مربوطه فراخوانی شود، حتی اگر exception رخ دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>using (
+    var writer =
+        new PaymentFileWriter(
+            "transactions.txt"))
+{
+    writer.Write("TX-1001");
+    writer.Write("TX-1002");
+}</code></pre>
+          </div>
+          <p>
+            بعد از خروج از block، <code>Dispose()</code> فراخوانی می‌شود.
+          </p>
+          <h3>Using Declaration</h3>
+          <p>در C# مدرن می‌توان syntax کوتاه‌تری استفاده کرد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>using var writer =
+    new PaymentFileWriter(
+        "transactions.txt");
+
+writer.Write("TX-1001");
+writer.Write("TX-1002");</code></pre>
+          </div>
+          <p>
+            در این حالت resource در پایان scope جاری Dispose می‌شود.
+          </p>
+          <h3>تقریب ذهنی using</h3>
+          <p>
+            برای درک مفهوم، می‌توان <code>using</code> را شبیه مدیریت resource با <code>try/finally</code> در نظر گرفت:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var writer =
+    new PaymentFileWriter(
+        "transactions.txt");
+
+try
+{
+    writer.Write("TX-1001");
+}
+finally
+{
+    writer.Dispose();
+}</code></pre>
+          </div>
+          <h2>11.10 <bdi>Finalizer</bdi></h2>
+          <p>
+            Finalizer مکانیزمی برای cleanup نهایی typeهایی است که مستقیماً مالک unmanaged resource هستند و نیاز به
+            fallback cleanup دارند. Syntax آن شبیه Destructor در C++ به نظر می‌رسد، اما رفتار آن متفاوت است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class NativeResource
+{
+    ~NativeResource()
+    {
+        // Cleanup unmanaged resource
+    }
+}</code></pre>
+          </div>
+          <p>
+            برنامه‌نویس Finalizer را مستقیماً فراخوانی نمی‌کند و زمان اجرای دقیق آن قابل پیش‌بینی نیست.
+            Finalization همچنین هزینهٔ بیشتری برای GC ایجاد می‌کند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              برای هر class یک Finalizer نسازید. بیشتر classهای معمولی به Finalizer نیاز ندارند.
+              اگر class فقط objectهای managed مانند <code>StreamWriter</code> را در اختیار دارد، معمولاً Dispose کردن
+              همان resource کافی است.
+              Finalizer عمدتاً برای typeهایی مطرح است که مستقیماً unmanaged resource را مالک‌اند.
+            </div>
+          </div>
+          <h3><code>Dispose</code> در برابر <code>Finalizer</code></h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Dispose</th>
+                <th>Finalizer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cleanup deterministic</td>
+                <td>زمان اجرا غیرقطعی است.</td>
+              </tr>
+              <tr>
+                <td>توسط مصرف‌کننده یا using فراخوانی می‌شود.</td>
+                <td>Runtime/GC آن را مدیریت می‌کند.</td>
+              </tr>
+              <tr>
+                <td>روش اصلی آزادسازی به‌موقع resource</td>
+                <td>Fallback برای سناریوهای خاص unmanaged resource</td>
+              </tr>
+              <tr>
+                <td>هزینهٔ کمتری نسبت به finalization دارد.</td>
+                <td>Finalizable object هزینهٔ بیشتری برای GC دارد.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>Disposable Pattern با Finalizer</h2>
+          <p>
+            اگر type مستقیماً unmanaged resource را مدیریت کند، الگوی Dispose می‌تواند شامل Finalizer و
+            <code>GC.SuppressFinalize</code> باشد. در کد production معمولاً استفاده از wrapperهای امنی مانند
+            <code>SafeHandle</code> بر مدیریت مستقیم handle ترجیح دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class NativeResource
+    : IDisposable
+{
+    private bool _disposed;
+
+    public void Dispose()
+    {
+        Dispose(true);
+
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(
+        bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
+        {
+            // Dispose managed resources
+        }
+
+        // Release unmanaged resources
+
+        _disposed = true;
+    }
+
+    ~NativeResource()
+    {
+        Dispose(false);
+    }
+}</code></pre>
+          </div>
+          <p>
+            اگر <code>Dispose()</code> به‌درستی اجرا شود، <code>GC.SuppressFinalize(this)</code> به Runtime می‌گوید دیگر
+            نیازی
+            به اجرای Finalizer این instance نیست.
+          </p>
+          <h2>مثال واقعی: کار با فایل Transactionها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed class TransactionLogger
+    : IDisposable
+{
+    private readonly StreamWriter _writer;
+    private bool _disposed;
+
+    public TransactionLogger(
+        string filePath)
+    {
+        _writer =
+            new StreamWriter(
+                filePath,
+                append: true);
+    }
+
+    public void Log(
+        string transactionId,
+        decimal amount)
+    {
+        ObjectDisposedException
+            .ThrowIf(_disposed, this);
+
+        _writer.WriteLine(
+            $"{transactionId} | {amount}");
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        _writer.Dispose();
+
+        _disposed = true;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>using var logger =
+    new TransactionLogger(
+        "transactions.txt");
+
+logger.Log(
+    "TX-1001",
+    500_000);
+
+logger.Log(
+    "TX-1002",
+    750_000);</code></pre>
+          </div>
+          <p class="example-explanation">
+            <code>TransactionLogger</code> مالک یک <code>StreamWriter</code> است. با پایان scope،
+            <code>using</code> متد <code>Dispose()</code> را اجرا می‌کند و StreamWriter نیز به‌موقع Dispose می‌شود.
+            برای این class Finalizer لازم نیست، چون خودش مستقیماً unmanaged handle را مدیریت نمی‌کند.
+          </p>
+          <h2>تصویر ذهنی کامل</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Reference Variable
+       │
+       │ points to
+       ▼
+   ┌───────────────┐
+   │    Object     │
+   │ Managed Heap  │
+   └───────────────┘
+          ▲
+          │
+     another reference
+
+When object becomes unreachable
+          │
+          ▼
+Eligible for Garbage Collection
+          │
+          ▼
+Memory can eventually be reclaimed</code></pre>
+          </div>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>فرض کردن اینکه assignment یک Reference Type باعث clone شدن object می‌شود.</li>
+            <li>گفتن اینکه objectها به‌صورت پیش‌فرض By Reference به Method ارسال می‌شوند.</li>
+            <li>فرض کردن اینکه تمام Value Typeها همیشه روی Stack هستند.</li>
+            <li>وابسته شدن به زمان دقیق اجرای Garbage Collector.</li>
+            <li>استفاده نکردن از <code>using</code> برای resourceهای Disposable مناسب.</li>
+            <li>نوشتن Finalizer برای classهایی که نیازی به آن ندارند.</li>
+            <li>تصور اینکه GC به‌تنهایی تمام resourceهای خارجی را به‌موقع آزاد می‌کند.</li>
+          </ul>
+          <h2>جمع‌بندی فصل</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>مفهوم</th>
+                <th>نکتهٔ اصلی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Stack</td>
+                <td>با Method Callها و stack frameها ارتباط دارد.</td>
+              </tr>
+              <tr>
+                <td>Managed Heap</td>
+                <td>محل معمول allocation objectهای reference type مدیریت‌شده است.</td>
+              </tr>
+              <tr>
+                <td>Value Type</td>
+                <td>assignment معمولاً مقدار را کپی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Reference Type</td>
+                <td>assignment مقدار reference را کپی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Passing Object</td>
+                <td>به‌صورت پیش‌فرض reference نیز By Value پاس داده می‌شود.</td>
+              </tr>
+              <tr>
+                <td>GC</td>
+                <td>حافظهٔ managed objectهای unreachable را مدیریت می‌کند.</td>
+              </tr>
+              <tr>
+                <td>IDisposable</td>
+                <td>برای cleanup deterministic resourceهاست.</td>
+              </tr>
+              <tr>
+                <td>using</td>
+                <td>Dispose را در پایان scope تضمین می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Finalizer</td>
+                <td>Fallback خاص برای cleanup منابع unmanaged است.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: در Reference Typeها باید تفاوت میان object و reference را درک کنید. Assignment و ارسال object به
+              Method
+              معمولاً reference را کپی می‌کنند. Garbage Collector حافظهٔ managed را مدیریت می‌کند، اما resourceهایی که
+              نیاز به
+              cleanup به‌موقع دارند باید با <code>IDisposable</code> و <code>using</code> مدیریت شوند. Finalizer ابزار
+              عمومی cleanup نیست
+              و فقط در سناریوهای خاص مالکیت مستقیم unmanaged resource کاربرد دارد.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

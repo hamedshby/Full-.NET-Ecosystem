@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Reference Equality از مسیر حرفه‌ای .NET.">
-  <title>Reference Equality | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Object Equality در C# شامل Reference Equality، Value Equality، Equals، GetHashCode، operator ==، ReferenceEquals، Recordها، IEquatable&lt;T&gt; و Dictionary و HashSet."
+    name="description" />
+  <title>Object Equality در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,584 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-10-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-10-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 10 — Object Equality در C#</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 10 — <bdi>Object Equality</bdi> در <bdi>C#</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Reference Equality</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>فصل 10 — <bdi>Object Equality</bdi> در <bdi>C#</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در C# وقتی می‌گوییم دو object «برابر» هستند، باید مشخص کنیم منظورمان چیست:
+            آیا هر دو متغیر به <strong>همان instance</strong> اشاره می‌کنند، یا دو instance جدا هستند که
+            <strong>مقادیر معادل</strong> دارند؟ درک این تفاوت برای طراحی Value Objectها و استفاده صحیح از
+            <code>Dictionary</code> و <code>HashSet</code> بسیار مهم است.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              سؤال کلیدی Equality این است: «Identity مهم است یا Value؟»
+              Reference Equality دربارهٔ هویت object است؛ Value Equality دربارهٔ داده‌هایی است که از نظر برنامه دو
+              object را معادل می‌کنند.
+            </div>
+          </div>
+          <h2>10.1 <bdi>Reference Equality</bdi></h2>
+          <p>Reference Equality بررسی می‌کند آیا دو reference دقیقاً به یک instance اشاره می‌کنند.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    public string Name { get; set; }
+}
+
+var customer1 =
+    new Customer { Name = "Hamed" };
+
+var customer2 = customer1;
+
+Console.WriteLine(
+    ReferenceEquals(
+        customer1,
+        customer2));
+// True</code></pre>
+          </div>
+          <p>اما دو object جدا، حتی با دادهٔ یکسان، Reference Equality ندارند:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer1 =
+    new Customer { Name = "Hamed" };
+
+var customer2 =
+    new Customer { Name = "Hamed" };
+
+Console.WriteLine(
+    ReferenceEquals(
+        customer1,
+        customer2));
+// False</code></pre>
+          </div>
+          <h2>10.2 <bdi>Value Equality</bdi></h2>
+          <p>
+            Value Equality به جای هویت object، مقادیر مهم آن را مقایسه می‌کند. مثلاً در Domain ممکن است دو
+            <code>Money</code> زمانی برابر باشند که Amount و Currency یکسان داشته باشند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money1 =
+    new Money(100_000, "IRR");
+
+var money2 =
+    new Money(100_000, "IRR");</code></pre>
+          </div>
+          <p>
+            این دو instance متفاوت‌اند، اما می‌توانیم Equality را طوری تعریف کنیم که از نظر Value برابر باشند.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Reference Equality</th>
+                <th>Value Equality</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>همان instance؟</td>
+                <td>همان مقادیر مهم؟</td>
+              </tr>
+              <tr>
+                <td>Identity مهم است.</td>
+                <td>Content/Value مهم است.</td>
+              </tr>
+              <tr>
+                <td>مثلاً Entity instance</td>
+                <td>مثلاً Money یا Value Object</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>10.3 <code>Equals()</code></h2>
+          <p>
+            تمام typeها از <code>System.Object</code> قابلیت <code>Equals()</code> را دریافت می‌کنند.
+            برای classهای معمولی می‌توان آن را override کرد تا semantics مربوط به Value Equality را تعریف کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Money
+{
+    public decimal Amount { get; }
+    public string Currency { get; }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        Amount = amount;
+        Currency = currency;
+    }
+
+    public override bool Equals(
+        object? obj)
+    {
+        return obj is Money other
+            &amp;&amp; Amount == other.Amount
+            &amp;&amp; Currency == other.Currency;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money1 =
+    new Money(100_000, "IRR");
+
+var money2 =
+    new Money(100_000, "IRR");
+
+Console.WriteLine(
+    money1.Equals(money2));
+// True</code></pre>
+          </div>
+          <h3>قواعد مهم Equality</h3>
+          <ul>
+            <li><strong>Reflexive:</strong> هر object با خودش برابر است.</li>
+            <li><strong>Symmetric:</strong> اگر A با B برابر است، B نیز با A برابر باشد.</li>
+            <li><strong>Transitive:</strong> اگر A=B و B=C باشد، A=C باشد.</li>
+            <li><strong>Consistent:</strong> تا وقتی داده‌های مؤثر تغییر نکرده‌اند، نتیجه ثابت بماند.</li>
+            <li>یک object غیر-null با <code>null</code> برابر نیست.</li>
+          </ul>
+          <h2>10.4 <code>GetHashCode()</code></h2>
+          <p>
+            اگر Value Equality سفارشی تعریف می‌کنیم، <code>GetHashCode()</code> نیز باید با همان تعریف سازگار باشد.
+            Collectionهایی مانند <code>Dictionary</code> و <code>HashSet</code> از Hash Code استفاده می‌کنند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              اگر <code>a.Equals(b)</code> برابر <code>true</code> باشد، Hash Code هر دو نیز باید یکسان باشد.
+              برعکس آن الزامی نیست؛ دو object متفاوت ممکن است Hash Code یکسان داشته باشند.
+            </div>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public override int GetHashCode()
+{
+    return HashCode.Combine(
+        Amount,
+        Currency);
+}</code></pre>
+          </div>
+          <p>
+            بهتر است همان اعضایی که در Equality شرکت دارند، در محاسبهٔ Hash Code نیز استفاده شوند.
+          </p>
+          <h2>10.5 Operator <code>==</code></h2>
+          <p>
+            رفتار <code>==</code> به type بستگی دارد. برای بسیاری از classهای معمولی که این operator را overload
+            نکرده‌اند،
+            مقایسهٔ reference انجام می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer1 =
+    new Customer { Name = "Hamed" };
+
+var customer2 =
+    new Customer { Name = "Hamed" };
+
+Console.WriteLine(
+    customer1 == customer2);
+// False</code></pre>
+          </div>
+          <p>برای type سفارشی می‌توان <code>==</code> و <code>!=</code> را با semantics مربوط به Value Equality تعریف
+            کرد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static bool operator ==(
+    Money? left,
+    Money? right)
+{
+    return EqualityComparer&lt;Money&gt;
+        .Default
+        .Equals(left, right);
+}
+
+public static bool operator !=(
+    Money? left,
+    Money? right)
+{
+    return !(left == right);
+}</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              اگر <code>==</code> را overload می‌کنید، رفتار آن را با <code>Equals()</code> هماهنگ نگه دارید و
+              <code>!=</code> را نیز همراه آن تعریف کنید.
+            </div>
+          </div>
+          <h2>10.6 <code>ReferenceEquals</code></h2>
+          <p>
+            <code>object.ReferenceEquals()</code> بدون توجه به Value Equality بررسی می‌کند آیا دو reference به همان
+            object اشاره می‌کنند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money1 =
+    new Money(100_000, "IRR");
+
+var money2 =
+    new Money(100_000, "IRR");
+
+var money3 = money1;
+
+Console.WriteLine(
+    money1.Equals(money2));
+// True
+
+Console.WriteLine(
+    ReferenceEquals(
+        money1,
+        money2));
+// False
+
+Console.WriteLine(
+    ReferenceEquals(
+        money1,
+        money3));
+// True</code></pre>
+          </div>
+          <p class="example-explanation">
+            <code>money1</code> و <code>money2</code> می‌توانند از نظر Value برابر باشند، اما همچنان دو object مستقل
+            هستند.
+          </p>
+          <h2>10.7 Equality در <bdi>Record</bdi>ها</h2>
+          <p>
+            Recordها به‌صورت پیش‌فرض Value Equality تولیدشده توسط Compiler دارند و برای مدل‌های data-centric و بسیاری از
+            Value Objectهای ساده بسیار مناسب‌اند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money(
+    decimal Amount,
+    string Currency);
+
+var money1 =
+    new Money(100_000, "IRR");
+
+var money2 =
+    new Money(100_000, "IRR");
+
+Console.WriteLine(
+    money1 == money2);
+// True
+
+Console.WriteLine(
+    money1.Equals(money2));
+// True
+
+Console.WriteLine(
+    ReferenceEquals(
+        money1,
+        money2));
+// False</code></pre>
+          </div>
+          <p>
+            دو record می‌توانند دو instance جدا باشند، ولی چون مقادیرشان یکسان است از نظر Value برابر محسوب شوند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Record به‌تنهایی طراحی Domain را حل نمی‌کند. Validation، invariants و اینکه کدام داده‌ها واقعاً هویت یا
+              Value یک مفهوم را می‌سازند
+              همچنان باید آگاهانه طراحی شوند.
+            </div>
+          </div>
+          <h2>10.8 پیاده‌سازی <code>IEquatable&lt;T&gt;</code></h2>
+          <p>
+            برای typeهایی با Equality سفارشی می‌توان <code>IEquatable&lt;T&gt;</code> را پیاده‌سازی کرد تا یک
+            <code>Equals</code> strongly typed داشته باشیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed class Money
+    : IEquatable&lt;Money&gt;
+{
+    public decimal Amount { get; }
+    public string Currency { get; }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        Amount = amount;
+        Currency = currency;
+    }
+
+    public bool Equals(
+        Money? other)
+    {
+        if (other is null)
+            return false;
+
+        if (ReferenceEquals(
+            this,
+            other))
+        {
+            return true;
+        }
+
+        return Amount == other.Amount
+            &amp;&amp; Currency == other.Currency;
+    }
+
+    public override bool Equals(
+        object? obj)
+    {
+        return obj is Money other
+            &amp;&amp; Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(
+            Amount,
+            Currency);
+    }
+
+    public static bool operator ==(
+        Money? left,
+        Money? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+
+        if (left is null || right is null)
+            return false;
+
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(
+        Money? left,
+        Money? right)
+    {
+        return !(left == right);
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این پیاده‌سازی <code>Equals(Money?)</code>، <code>Equals(object?)</code>،
+            <code>GetHashCode()</code> و operatorها همگی از یک تعریف منطقی برای Equality پیروی می‌کنند.
+          </p>
+          <h2>10.9 مشکلات Equality در <bdi>Dictionary</bdi> و <bdi>HashSet</bdi></h2>
+          <p>
+            Collectionهای Hash-based ابتدا از Hash Code برای پیدا کردن محل احتمالی object استفاده می‌کنند و سپس Equality
+            را بررسی می‌کنند.
+            بنابراین قرارداد صحیح بین <code>Equals()</code> و <code>GetHashCode()</code> حیاتی است.
+          </p>
+          <h3>HashSet و Duplicateها</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money1 =
+    new Money(100_000, "IRR");
+
+var money2 =
+    new Money(100_000, "IRR");
+
+var set =
+    new HashSet&lt;Money&gt;();
+
+set.Add(money1);
+set.Add(money2);
+
+Console.WriteLine(set.Count);
+// 1</code></pre>
+          </div>
+          <p>
+            چون دو Money از نظر Equality برابر هستند و Hash Code سازگار دارند، <code>HashSet</code> آن‌ها را duplicate
+            تشخیص می‌دهد.
+          </p>
+          <h3>Dictionary و Equality کلید</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var prices =
+    new Dictionary&lt;Money, string&gt;();
+
+var key1 =
+    new Money(100_000, "IRR");
+
+prices[key1] = "Payment";
+
+var key2 =
+    new Money(100_000, "IRR");
+
+Console.WriteLine(
+    prices[key2]);
+// Payment</code></pre>
+          </div>
+          <p>
+            <code>key1</code> و <code>key2</code> یک reference نیستند، اما Dictionary به کمک Value Equality آن‌ها را
+            keyهای معادل می‌داند.
+          </p>
+          <h3>مشکل خطرناک: Mutable Key</h3>
+          <p>
+            اگر مقداری که در <code>GetHashCode()</code> شرکت دارد بعد از اضافه‌شدن object به collection تغییر کند،
+            object ممکن است دیگر از bucket مورد انتظار پیدا نشود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CustomerKey
+{
+    public int Id { get; set; }
+
+    public override bool Equals(
+        object? obj)
+    {
+        return obj is CustomerKey other
+            &amp;&amp; Id == other.Id;
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var key =
+    new CustomerKey { Id = 10 };
+
+var set =
+    new HashSet&lt;CustomerKey&gt;();
+
+set.Add(key);
+
+// Hash Code تغییر می‌کند
+key.Id = 20;
+
+Console.WriteLine(
+    set.Contains(key));
+// False می‌تواند نتیجهٔ مشاهده‌شده باشد</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">🚨</span>
+            <div class="callout-content">
+              اعضایی که در Equality و Hash Code یک Key شرکت می‌کنند بهتر است هنگام حضور object در
+              <code>Dictionary</code> یا <code>HashSet</code> تغییر نکنند. Immutable Value Objectها معمولاً Keyهای
+              امن‌تری هستند.
+            </div>
+          </div>
+          <h2>مثال واقعی: <bdi>TransactionId</bdi></h2>
+          <p>
+            در یک سیستم پرداخت می‌توان Transaction ID را به‌جای string خام، به شکل Value Object مدل کرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed record TransactionId
+{
+    public string Value { get; }
+
+    public TransactionId(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(
+                "Transaction ID is required.",
+                nameof(value));
+        }
+
+        Value = value;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var id1 =
+    new TransactionId("TX-1001");
+
+var id2 =
+    new TransactionId("TX-1001");
+
+Console.WriteLine(id1 == id2);
+// True
+
+var processedTransactions =
+    new HashSet&lt;TransactionId&gt;();
+
+processedTransactions.Add(id1);
+
+Console.WriteLine(
+    processedTransactions.Contains(id2));
+// True</code></pre>
+          </div>
+          <p class="example-explanation">
+            دو <code>TransactionId</code> با مقدار یکسان از دید Domain برابرند؛ بنابراین HashSet نیز می‌تواند از همان
+            Equality برای تشخیص Transaction تکراری استفاده کند.
+          </p>
+          <h2>جمع‌بندی ابزارهای Equality</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ابزار</th>
+                <th>کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Equals()</code></td>
+                <td>تعریف یا بررسی Equality منطقی</td>
+              </tr>
+              <tr>
+                <td><code>GetHashCode()</code></td>
+                <td>پشتیبانی صحیح از Hash-based Collectionها</td>
+              </tr>
+              <tr>
+                <td><code>==</code></td>
+                <td>Equality Operator؛ رفتار آن به type بستگی دارد.</td>
+              </tr>
+              <tr>
+                <td><code>ReferenceEquals()</code></td>
+                <td>بررسی یکسان بودن instance</td>
+              </tr>
+              <tr>
+                <td><code>IEquatable&lt;T&gt;</code></td>
+                <td>Equality strongly typed</td>
+              </tr>
+              <tr>
+                <td><code>record</code></td>
+                <td>Value Equality تولیدشده توسط Compiler</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: ابتدا مشخص کنید Equality در type شما بر اساس Identity است یا Value. اگر Value Equality سفارشی تعریف
+              می‌کنید،
+              <code>Equals()</code> و <code>GetHashCode()</code> را هماهنگ نگه دارید. برای typeهای مناسب از
+              <code>IEquatable&lt;T&gt;</code> یا record استفاده کنید و برای Keyهای Dictionary و اعضای HashSet از تغییر
+              مقادیر مؤثر در Hash Code جلوگیری کنید.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
