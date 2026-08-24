@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Record از مسیر حرفه‌ای .NET.">
-  <title>Record | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش بخش 13.3 Record در C# شامل Record Class، Value Equality، Positional Record، init، with expression، Deconstruction، Immutability، Inheritance و کاربرد Record در DTO و Value Object."
+    name="description" />
+  <title>13.3 Record در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,813 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-13-lesson-3">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-13-lesson-3"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 13 — Records, Structs و Classes</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Record</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>13.3 — <bdi>Record</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در C#، <code>record</code> نوعی type است که برای مدل‌کردن داده‌هایی با
+            <strong>Value-based Equality</strong> بسیار مناسب است.
+            Record به‌خصوص زمانی مفید است که مهم باشد دو object بر اساس مقادیرشان با هم مقایسه شوند،
+            نه صرفاً بر اساس اینکه آیا به یک instance مشترک اشاره می‌کنند یا نه.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              اگر فقط <code>record</code> بنویسیم، منظور <strong>record class</strong> است؛ یعنی همچنان یک Reference
+              Type داریم.
+              تفاوت مهم آن با Class معمولی، رفتارهای تولیدشده توسط Compiler مانند Value Equality، نمایش بهتر داده و
+              پشتیبانی مناسب از
+              <code>with</code> و positional syntax است.
+            </div>
+          </div>
+          <h2><bdi>Record</bdi> چیست؟</h2>
+          <p>
+            یک Record ساده را می‌توان مشابه Class تعریف کرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Customer
+{
+    public string FirstName
+    {
+        get;
+        init;
+    }
+
+    public string LastName
+    {
+        get;
+        init;
+    }
+}</code></pre>
+          </div>
+          <p>و سپس از آن object ساخت:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer =
+    new Customer
+    {
+        FirstName = "Hamed",
+        LastName = "Ahmadi"
+    };</code></pre>
+          </div>
+          <p>
+            تا اینجا ظاهر آن شبیه Class است؛ تفاوت مهم‌تر هنگام Equality و کار با داده‌ها مشخص می‌شود.
+          </p>
+          <h2>Record یک Reference Type است</h2>
+          <p>
+            <code>record</code> به‌صورت پیش‌فرض همان <code>record class</code> است و Reference Type محسوب می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money
+{
+    public decimal Amount
+    {
+        get;
+        init;
+    }
+
+    public string Currency
+    {
+        get;
+        init;
+    }
+}</code></pre>
+          </div>
+          <p>
+            پس نباید Record را با Struct اشتباه بگیریم. Record معمولی Reference Type است، در حالی که
+            <code>record struct</code> که در بخش بعدی بررسی می‌کنیم Value Type است.
+          </p>
+          <h2>مهم‌ترین ویژگی Record: <bdi>Value Equality</bdi></h2>
+          <p>
+            Class معمولی به‌صورت پیش‌فرض reference-based equality دارد، اما Recordها به‌صورت پیش‌فرض
+            بر اساس مقادیر اعضای خود مقایسه می‌شوند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money
+{
+    public decimal Amount
+    {
+        get;
+        init;
+    }
+
+    public string Currency
+    {
+        get;
+        init;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money1 =
+    new Money
+    {
+        Amount = 500_000,
+        Currency = "IRR"
+    };
+
+var money2 =
+    new Money
+    {
+        Amount = 500_000,
+        Currency = "IRR"
+    };
+
+Console.WriteLine(
+    money1 == money2);
+// True</code></pre>
+          </div>
+          <p>
+            دو instance متفاوت ساخته شده‌اند، اما چون مقادیرشان برابر است، Record آن‌ها را برابر در نظر می‌گیرد.
+          </p>
+          <h3>اما Referenceها یکی نیستند</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(
+    ReferenceEquals(
+        money1,
+        money2));
+// False</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              این نکته بسیار مهم است:
+              <code>money1 == money2</code> می‌تواند <code>true</code> باشد، در حالی که
+              <code>ReferenceEquals(money1, money2)</code> برابر <code>false</code> است.
+              یعنی دو object جدا داریم که از نظر Value برابر هستند.
+            </div>
+          </div>
+          <h2><bdi>Positional Record</bdi></h2>
+          <p>
+            یکی از جذاب‌ترین قابلیت‌های Record، تعریف بسیار کوتاه آن با Primary Constructor-like syntax است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money(
+    decimal Amount,
+    string Currency);</code></pre>
+          </div>
+          <p>
+            Compiler بخش زیادی از boilerplate موردنیاز را برای ما تولید می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money =
+    new Money(
+        500_000,
+        "IRR");
+
+Console.WriteLine(
+    money.Amount);
+
+Console.WriteLine(
+    money.Currency);</code></pre>
+          </div>
+          <p>
+            برای مدل‌های داده‌ای کوچک، این syntax بسیار خوانا و مختصر است.
+          </p>
+          <h2>Record و <code>init</code></h2>
+          <p>
+            Recordها معمولاً با immutable-style design استفاده می‌شوند.
+            Propertyهای <code>init</code> فقط هنگام initialization قابل مقداردهی هستند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record PaymentRequest
+{
+    public decimal Amount
+    {
+        get;
+        init;
+    }
+
+    public string CardNumber
+    {
+        get;
+        init;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var request =
+    new PaymentRequest
+    {
+        Amount = 500_000,
+        CardNumber = "6037..."
+    };
+
+// Compile Error:
+// request.Amount = 900_000;</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Record ذاتاً به معنی «کاملاً Immutable» نیست. می‌توان داخل Record Property با <code>set</code> تعریف کرد.
+              Immutable بودن یک تصمیم طراحی است؛ Record فقط ابزارهای بسیار مناسبی برای این سبک طراحی فراهم می‌کند.
+            </div>
+          </div>
+          <h2><code>with</code> Expression</h2>
+          <p>
+            وقتی object را immutable طراحی می‌کنیم، به‌جای تغییر object موجود می‌توان نسخهٔ جدیدی با چند مقدار متفاوت
+            ساخت.
+            Record این کار را با <code>with</code> بسیار ساده می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record PaymentRequest(
+    decimal Amount,
+    string Currency);</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var original =
+    new PaymentRequest(
+        500_000,
+        "IRR");
+
+var updated =
+    original with
+    {
+        Amount = 700_000
+    };</code></pre>
+          </div>
+          <p>
+            <code>original</code> تغییر نمی‌کند. یک Record جدید ساخته می‌شود که مقادیر قبلی را دارد،
+            به‌جز Propertyهایی که در <code>with</code> تغییر داده‌ایم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(
+    original.Amount);
+// 500000
+
+Console.WriteLine(
+    updated.Amount);
+// 700000</code></pre>
+          </div>
+          <h3>with یک Shallow Copy ایجاد می‌کند</h3>
+          <p>
+            نکتهٔ مهم این است که copy انجام‌شده توسط <code>with</code> برای referenceهای داخلی، shallow است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Order(
+    string Number,
+    List&lt;string&gt; Items);
+
+var order1 =
+    new Order(
+        "1001",
+        new List&lt;string&gt;
+        {
+            "Book"
+        });
+
+var order2 =
+    order1 with
+    {
+        Number = "1002"
+    };
+
+order2.Items.Add(
+    "Laptop");</code></pre>
+          </div>
+          <p>
+            در این مثال، هر دو Record می‌توانند به همان <code>List&lt;string&gt;</code> داخلی اشاره کنند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              اگر Record را برای immutable design استفاده می‌کنید، فقط <code>init</code> کافی نیست.
+              باید Mutability اعضای داخلی مانند <code>List&lt;T&gt;</code> را نیز در نظر بگیرید.
+            </div>
+          </div>
+          <h2><bdi>Deconstruction</bdi></h2>
+          <p>
+            Positional Record به‌صورت خودکار امکان Deconstruction را فراهم می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money(
+    decimal Amount,
+    string Currency);
+
+var money =
+    new Money(
+        500_000,
+        "IRR");
+
+var (amount, currency) =
+    money;
+
+Console.WriteLine(amount);
+// 500000
+
+Console.WriteLine(currency);
+// IRR</code></pre>
+          </div>
+          <p>
+            این قابلیت در pattern matching و کار با مدل‌های داده‌ای کوچک بسیار مفید است.
+          </p>
+          <h2>نمایش بهتر با <code>ToString()</code></h2>
+          <p>
+            Recordها یک <code>ToString()</code> مناسب برای نمایش داده‌ها تولید می‌کنند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money =
+    new Money(
+        500_000,
+        "IRR");
+
+Console.WriteLine(money);</code></pre>
+          </div>
+          <p>خروجی چیزی شبیه این خواهد بود:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Money { Amount = 500000, Currency = IRR }</code></pre>
+          </div>
+          <p>
+            این رفتار هنگام Debugging و Logging می‌تواند بسیار مفید باشد.
+          </p>
+          <h2>Record می‌تواند Method داشته باشد</h2>
+          <p>
+            Record فقط برای نگهداری data نیست و می‌تواند Behavior نیز داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money(
+    decimal Amount,
+    string Currency)
+{
+    public Money Add(
+        Money other)
+    {
+        if (Currency !=
+            other.Currency)
+        {
+            throw new InvalidOperationException(
+                "Currencies must match.");
+        }
+
+        return new Money(
+            Amount + other.Amount,
+            Currency);
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var first =
+    new Money(
+        100_000,
+        "IRR");
+
+var second =
+    new Money(
+        200_000,
+        "IRR");
+
+var result =
+    first.Add(second);
+
+Console.WriteLine(
+    result.Amount);
+// 300000</code></pre>
+          </div>
+          <h2>Validation در Record</h2>
+          <p>
+            در Positional Record می‌توان validation را نیز طراحی کرد، اما برای Domain Modelهای دارای invariantهای جدی
+            گاهی syntax صریح‌تر خواناتر است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money
+{
+    public decimal Amount
+    {
+        get;
+    }
+
+    public string Currency
+    {
+        get;
+    }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        if (amount &lt; 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        if (string.IsNullOrWhiteSpace(
+            currency))
+        {
+            throw new ArgumentException(
+                "Currency is required.",
+                nameof(currency));
+        }
+
+        Amount = amount;
+        Currency = currency;
+    }
+}</code></pre>
+          </div>
+          <h2>Record و Inheritance</h2>
+          <p>
+            Record Class از inheritance پشتیبانی می‌کند، اما Record Class فقط می‌تواند از Record Class دیگری ارث ببرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Payment(
+    decimal Amount);
+
+public record CardPayment(
+    decimal Amount,
+    string CardNumber)
+    : Payment(Amount);</code></pre>
+          </div>
+          <p>
+            Equality در hierarchy مربوط به Recordها نیز type را در نظر می‌گیرد.
+            یعنی صرفاً برابر بودن propertyها کافی نیست که objectهای دو Record Type متفاوت برابر باشند.
+          </p>
+          <h2>Record و Interface</h2>
+          <p>
+            Record می‌تواند مانند Class معمولی Interface پیاده‌سازی کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IHasAmount
+{
+    decimal Amount { get; }
+}
+
+public record Payment(
+    decimal Amount,
+    string Currency)
+    : IHasAmount;</code></pre>
+          </div>
+          <h2>Record برای DTO</h2>
+          <p>
+            یکی از کاربردهای بسیار رایج Record، مدل‌کردن Request و Responseهای ساده است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record CreatePaymentRequest(
+    string CardNumber,
+    decimal Amount);
+
+public record CreatePaymentResponse(
+    string TransactionId,
+    bool IsSuccessful);</code></pre>
+          </div>
+          <p>
+            این مدل‌ها بیشتر «داده» را منتقل می‌کنند و Identity یا Lifecycle پیچیده‌ای ندارند؛
+            بنابراین syntax مختصر Record برای آن‌ها بسیار مناسب است.
+          </p>
+          <h2>Record برای Message و Event</h2>
+          <p>
+            در سیستم‌های Event-Driven نیز Record می‌تواند برای پیام‌های immutable-style انتخاب مناسبی باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record PaymentCompleted(
+    Guid TransactionId,
+    decimal Amount,
+    DateTimeOffset CompletedAt);</code></pre>
+          </div>
+          <p>
+            Event معمولاً بیانگر چیزی است که اتفاق افتاده و بهتر است بعد از ایجاد تغییر نکند.
+            Record این intent را به شکل خوبی در کد نشان می‌دهد.
+          </p>
+          <h2>Record به‌عنوان Value Object</h2>
+          <p>
+            در Domain-Driven Design، Value Object با مقدارش شناخته می‌شود، نه با Identity.
+            Record به دلیل Value Equality می‌تواند گزینهٔ بسیار مناسبی برای بسیاری از Value Objectها باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record Money(
+    decimal Amount,
+    string Currency);</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var price1 =
+    new Money(
+        500_000,
+        "IRR");
+
+var price2 =
+    new Money(
+        500_000,
+        "IRR");
+
+Console.WriteLine(
+    price1 == price2);
+// True</code></pre>
+          </div>
+          <p>
+            از دید Domain، دو مقدار <code>500000 IRR</code> یک مفهوم یکسان را بیان می‌کنند؛
+            مهم نیست دو instance متفاوت در حافظه باشند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              این دقیقاً یکی از دلایلی است که Record برای Value Objectها جذاب است:
+              Compiler بخش زیادی از Equality boilerplate را برای ما تولید می‌کند.
+            </div>
+          </div>
+          <h2>آیا Record برای Entity مناسب است؟</h2>
+          <p>
+            Record از نظر فنی می‌تواند برای مدل‌های مختلف استفاده شود، اما Value Equality پیش‌فرض آن همیشه با مفهوم
+            Entity هماهنگ نیست.
+            Entity معمولاً با Identity شناخته می‌شود، نه با تمام مقادیر Propertyهایش.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Transaction
+{
+    public Guid Id
+    {
+        get;
+    }
+
+    public TransactionStatus Status
+    {
+        get;
+        private set;
+    }
+
+    // Entity behavior...
+}</code></pre>
+          </div>
+          <p>
+            برای Entityهای دارای Lifecycle و State متغیر، Class معمولی اغلب intent واضح‌تری دارد.
+            Record بیشتر در DTOها، Commands، Events و Value Objectها می‌درخشد.
+          </p>
+          <h2>Record و Class چه شباهت‌هایی دارند؟</h2>
+          <ul>
+            <li>Record معمولی Reference Type است.</li>
+            <li>می‌تواند Property و Method داشته باشد.</li>
+            <li>می‌تواند Constructor داشته باشد.</li>
+            <li>می‌تواند Interface پیاده‌سازی کند.</li>
+            <li>می‌تواند inheritance داشته باشد، با قواعد مخصوص Recordها.</li>
+            <li>می‌تواند Mutable یا Immutable-style طراحی شود.</li>
+          </ul>
+          <h2>تفاوت مهم Class معمولی و Record</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>موضوع</th>
+                <th>Class معمولی</th>
+                <th>Record</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نوع پیش‌فرض</td>
+                <td>Reference Type</td>
+                <td>Reference Type</td>
+              </tr>
+              <tr>
+                <td>Equality پیش‌فرض</td>
+                <td>Reference-based</td>
+                <td>Value-based</td>
+              </tr>
+              <tr>
+                <td><code>==</code></td>
+                <td>معمولاً Reference Equality</td>
+                <td>Value Equality</td>
+              </tr>
+              <tr>
+                <td><code>with</code></td>
+                <td>پشتیبانی معمول Record را ندارد.</td>
+                <td>پشتیبانی مستقیم دارد.</td>
+              </tr>
+              <tr>
+                <td>Deconstruction</td>
+                <td>باید در صورت نیاز طراحی شود.</td>
+                <td>در Positional Record تولید می‌شود.</td>
+              </tr>
+              <tr>
+                <td><code>ToString()</code></td>
+                <td>به‌صورت پیش‌فرض معمولاً نام type</td>
+                <td>نمایش اعضای Record</td>
+              </tr>
+              <tr>
+                <td>کاربرد رایج</td>
+                <td>Entity و objectهای دارای Identity</td>
+                <td>DTO، Message، Event و Value Object</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>Record و Reference Assignment</h2>
+          <p>
+            با وجود Value Equality، فراموش نکنید که Record Class همچنان Reference Type است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var payment1 =
+    new PaymentRequest(
+        500_000,
+        "IRR");
+
+var payment2 =
+    payment1;
+
+Console.WriteLine(
+    ReferenceEquals(
+        payment1,
+        payment2));
+// True</code></pre>
+          </div>
+          <p>
+            Assignment یک Record Class نیز reference را کپی می‌کند.
+            Value Equality به معنی Value Type بودن نیست.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              دو مفهوم را با هم اشتباه نکنید:
+              <strong>Value Equality</strong> دربارهٔ نحوهٔ مقایسه است؛
+              <strong>Value Type</strong> دربارهٔ semantics نوع و نحوهٔ assignment/copy است.
+              Record Class Value Equality دارد، اما همچنان Reference Type است.
+            </div>
+          </div>
+          <h2>مثال واقعی: Payment Result</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record PaymentResult(
+    bool IsSuccessful,
+    string? TransactionId,
+    string? ErrorCode)
+{
+    public static PaymentResult Success(
+        string transactionId)
+    {
+        return new PaymentResult(
+            true,
+            transactionId,
+            null);
+    }
+
+    public static PaymentResult Failed(
+        string errorCode)
+    {
+        return new PaymentResult(
+            false,
+            null,
+            errorCode);
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var success =
+    PaymentResult.Success(
+        "TX-10001");
+
+var failed =
+    PaymentResult.Failed(
+        "INVALID_CARD");</code></pre>
+          </div>
+          <p class="example-explanation">
+            این type بیشتر نتیجهٔ یک عملیات را توصیف می‌کند و Identity مستقل ندارد.
+            Record برای چنین مدل‌هایی خوانا، مختصر و مناسب است.
+          </p>
+          <h2>چه زمانی Record انتخاب مناسبی است؟</h2>
+          <ul>
+            <li>Equality بر اساس داده‌ها برایتان مهم است.</li>
+            <li>مدل بیشتر Data-oriented است.</li>
+            <li>DTO، Request یا Response می‌سازید.</li>
+            <li>Command یا Event مدل می‌کنید.</li>
+            <li>Value Object دارید.</li>
+            <li>Immutable-style design می‌خواهید.</li>
+            <li>استفاده از <code>with</code> برای ساخت نسخهٔ تغییر‌یافته مفید است.</li>
+          </ul>
+          <h2>چه زمانی Record را با احتیاط انتخاب کنیم؟</h2>
+          <ul>
+            <li>Object یک Entity با Identity مستقل است.</li>
+            <li>Lifecycle و تغییر State بخش اصلی مدل است.</li>
+            <li>اعضای mutable داخلی باعث می‌شوند تصور immutability اشتباه شود.</li>
+            <li>Value Equality تولیدشده با semantics واقعی Domain هماهنگ نیست.</li>
+          </ul>
+          <h2>ویژگی‌های مهم Record</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>Record Class</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نوع</td>
+                <td>Reference Type</td>
+              </tr>
+              <tr>
+                <td>Equality</td>
+                <td>Value-based</td>
+              </tr>
+              <tr>
+                <td>Positional Syntax</td>
+                <td>دارد.</td>
+              </tr>
+              <tr>
+                <td><code>with</code></td>
+                <td>دارد.</td>
+              </tr>
+              <tr>
+                <td>Deconstruction</td>
+                <td>برای Positional Record به‌صورت خودکار</td>
+              </tr>
+              <tr>
+                <td>Inheritance</td>
+                <td>بین Record Classها پشتیبانی می‌شود.</td>
+              </tr>
+              <tr>
+                <td>Interface</td>
+                <td>می‌تواند implement کند.</td>
+              </tr>
+              <tr>
+                <td>Immutability</td>
+                <td>رایج و مناسب است، اما اجباری نیست.</td>
+              </tr>
+              <tr>
+                <td>کاربرد رایج</td>
+                <td>DTO، Message، Event و Value Object</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>تصور اینکه Record یک Value Type است.</li>
+            <li>تصور اینکه Record همیشه کاملاً Immutable است.</li>
+            <li>نادیده گرفتن Shallow Copy در <code>with</code>.</li>
+            <li>استفادهٔ خودکار از Record برای هر Entity فقط به دلیل syntax کوتاه‌تر.</li>
+            <li>اشتباه گرفتن Value Equality با Reference Equality.</li>
+            <li>قرار دادن collectionهای mutable داخل Record و انتظار immutability کامل.</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              قاعدهٔ ذهنی خوب: اگر object بیشتر با <strong>داده‌هایش</strong> تعریف می‌شود تا با Identity،
+              و می‌خواهید دو نمونه با مقادیر یکسان برابر محسوب شوند، Record گزینه‌ای بسیار جدی است.
+            </div>
+          </div>
+          <h2>جمع‌بندی 13.3</h2>
+          <p>
+            Record در C# ابزاری قدرتمند برای مدل‌کردن داده‌های Value-based است.
+            Record معمولی یک Reference Type است، اما برخلاف Class معمولی Value Equality دارد.
+            Positional syntax، <code>with</code> expression، Deconstruction و <code>ToString()</code> مناسب از
+            قابلیت‌های مهم آن هستند.
+            Record به‌خصوص برای DTOها، Messages، Events و Value Objectها کاربرد زیادی دارد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکتهٔ کلیدی: <code>record</code> را «Struct جدید» تصور نکنید.
+              Record Class همچنان Reference Type است؛ تفاوت مهم آن با Class معمولی این است که Compiler
+              رفتارهای Value-oriented مانند Equality را برای شما فراهم می‌کند.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

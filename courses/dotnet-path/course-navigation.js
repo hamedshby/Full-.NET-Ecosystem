@@ -112,46 +112,6 @@
           "id": "chapter-5-lesson-1",
           "title": "5.1 Inheritance چیست؟",
           "available": true
-        },
-        {
-          "id": "chapter-5-lesson-2",
-          "title": "5.2 Base Class و Derived Class",
-          "available": true
-        },
-        {
-          "id": "chapter-5-lesson-3",
-          "title": "5.3 استفاده از `base`",
-          "available": true
-        },
-        {
-          "id": "chapter-5-lesson-4",
-          "title": "5.4 Protected Members",
-          "available": true
-        },
-        {
-          "id": "chapter-5-lesson-5",
-          "title": "5.5 Method Overriding",
-          "available": true
-        },
-        {
-          "id": "chapter-5-lesson-6",
-          "title": "5.6 جلوگیری از Inheritance",
-          "available": true
-        },
-        {
-          "id": "chapter-5-lesson-7",
-          "title": "5.7 مشکلات Inheritance",
-          "available": true
-        },
-        {
-          "id": "chapter-5-lesson-8",
-          "title": "5.8 چه زمانی از Inheritance استفاده نکنیم؟",
-          "available": true
-        },
-        {
-          "id": "chapter-5-lesson-9",
-          "title": "5.9 Composition over Inheritance",
-          "available": true
         }
       ]
     },
@@ -171,31 +131,6 @@
         {
           "id": "chapter-7-lesson-1",
           "title": "7.1 Abstraction چیست؟",
-          "available": true
-        },
-        {
-          "id": "chapter-7-lesson-2",
-          "title": "7.2 Abstract Class",
-          "available": true
-        },
-        {
-          "id": "chapter-7-lesson-3",
-          "title": "7.3 Interface",
-          "available": true
-        },
-        {
-          "id": "chapter-7-lesson-4",
-          "title": "7.4 Abstract Class vs Interface",
-          "available": true
-        },
-        {
-          "id": "chapter-7-lesson-5",
-          "title": "7.5 چه زمانی Interface استفاده کنیم؟",
-          "available": true
-        },
-        {
-          "id": "chapter-7-lesson-6",
-          "title": "7.6 Interface Segregation در طراحی واقعی",
           "available": true
         }
       ]
@@ -315,42 +250,7 @@
       "lessons": [
         {
           "id": "chapter-12-lesson-1",
-          "title": "12.1 Static Class",
-          "available": true
-        },
-        {
-          "id": "chapter-12-lesson-2",
-          "title": "12.2 Static Method",
-          "available": true
-        },
-        {
-          "id": "chapter-12-lesson-3",
-          "title": "12.3 Static Property",
-          "available": true
-        },
-        {
-          "id": "chapter-12-lesson-4",
-          "title": "12.4 Static Field",
-          "available": true
-        },
-        {
-          "id": "chapter-12-lesson-5",
-          "title": "12.5 Static Constructor",
-          "available": true
-        },
-        {
-          "id": "chapter-12-lesson-6",
-          "title": "12.6 مشکلات استفاده بیش از حد از Static",
-          "available": true
-        },
-        {
-          "id": "chapter-12-lesson-7",
-          "title": "12.7 Static و Testability",
-          "available": true
-        },
-        {
-          "id": "chapter-12-lesson-8",
-          "title": "12.8 Static vs Dependency Injection",
+          "title": "12.1 Static چیست؟",
           "available": true
         }
       ]

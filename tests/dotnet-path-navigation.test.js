@@ -24,11 +24,20 @@ test('the professional .NET path exposes the approved training headings in order
     '1.1 OOP چیست؟',
     '1.2 مفاهیم پایه'
   ]);
+  assert.deepEqual(dotnetChapters[4].lessons.map(lesson => lesson.title), [
+    '5.1 Inheritance چیست؟'
+  ]);
   assert.deepEqual(dotnetChapters[5].lessons.map(lesson => lesson.title), [
     '6.1 Polymorphism چیست؟'
   ]);
+  assert.deepEqual(dotnetChapters[6].lessons.map(lesson => lesson.title), [
+    '7.1 Abstraction چیست؟'
+  ]);
+  assert.deepEqual(dotnetChapters[11].lessons.map(lesson => lesson.title), [
+    '12.1 Static چیست؟'
+  ]);
   assert.equal(dotnetChapters[19].lessons.length, 17);
-  assert.equal(availableLessons.length, 185);
+  assert.equal(availableLessons.length, 165);
 });
 
 test('navigation opens OOP and marks its first lesson current', () => {
@@ -53,13 +62,47 @@ test('navigation opens only the chapter containing a middle lesson', () => {
   assert.match(html, /<details class="course-chapter" open>[\s\S]*?<summary>فصل 20 — Design Patterns و OOP<\/summary>/);
 });
 
+test('the Abstraction lesson keeps chapter 7 open in the navigation', () => {
+  const page = fs.readFileSync(
+    path.join(__dirname, '..', 'courses', 'dotnet-path', 'lessons', 'chapter-7-lesson-1.html'),
+    'utf8'
+  );
+  const currentLessonId = page.match(/data-current-lesson="([^"]+)"/)?.[1];
+  const navigation = renderDotnetNavigation(currentLessonId);
+
+  assert.match(navigation, /<details class="course-chapter" open>[\s\S]*?<summary>فصل 7 — Abstraction<\/summary>/);
+  assert.match(navigation, /href="\.\.\/lessons\/chapter-7-lesson-1\.html" aria-current="page"/);
+});
+
+test('the Class, Struct and Record lessons keep chapter 13 open', () => {
+  for (const lessonId of ['chapter-13-lesson-1', 'chapter-13-lesson-2', 'chapter-13-lesson-3']) {
+    const page = fs.readFileSync(
+      path.join(__dirname, '..', 'courses', 'dotnet-path', 'lessons', `${lessonId}.html`),
+      'utf8'
+    );
+    const currentLessonId = page.match(/data-current-lesson="([^"]+)"/)?.[1];
+    const navigation = renderDotnetNavigation(currentLessonId);
+
+    assert.match(
+      navigation,
+      /<details class="course-chapter" open>[\s\S]*?<summary>فصل 13 — Records, Structs و Classes<\/summary>/,
+      lessonId
+    );
+    assert.match(
+      navigation,
+      new RegExp(`href="\\.\\.\\/lessons\\/${lessonId}\\.html" aria-current="page"`),
+      lessonId
+    );
+  }
+});
+
 test('every professional .NET heading links to an existing standalone page', () => {
   const root = path.join(__dirname, '..');
   const navigation = renderDotnetNavigation('basic-concepts');
   const lessons = dotnetChapters.flatMap(chapter => chapter.lessons);
 
-  assert.equal(lessons.length, 185);
-  assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 185);
+  assert.equal(lessons.length, 165);
+  assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 165);
 
   for (const lesson of lessons) {
     const relativePage = lesson.id === 'oop-introduction'

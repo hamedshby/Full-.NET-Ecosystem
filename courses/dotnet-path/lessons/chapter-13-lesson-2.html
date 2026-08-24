@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Struct از مسیر حرفه‌ای .NET.">
-  <title>Struct | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش بخش 13.2 Struct در C# شامل تعریف Struct، Value Type بودن، کپی در Assignment، Constructor، Mutability، readonly struct، Equality، Boxing و کاربردهای مناسب."
+    name="description" />
+  <title>13.2 Struct در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,756 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-13-lesson-2">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-13-lesson-2"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 13 — Records, Structs و Classes</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Struct</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>13.2 — <bdi>Struct</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در C#، <code>struct</code> برای تعریف یک <strong>Value Type</strong> سفارشی استفاده می‌شود.
+            Structها برای مدل‌کردن داده‌های کوچک و منسجمی مناسب‌اند که معمولاً با «مقدارشان» معنا پیدا می‌کنند، نه با
+            Identity مستقل.
+            نمونه‌های رایج در .NET شامل <code>DateTime</code>، <code>Guid</code> و <code>decimal</code> هستند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              مهم‌ترین تفاوت ذهنی Struct و Class این است که Struct <strong>Value Semantics</strong> دارد.
+              در assignment یا passing معمولی، مقدار Struct کپی می‌شود؛ در حالی که برای Class معمولاً reference کپی
+              می‌شود.
+            </div>
+          </div>
+          <h2><bdi>Struct</bdi> چیست؟</h2>
+          <p>
+            Struct یک User-Defined Value Type است و می‌تواند مانند Class اعضایی مثل Property، Method و Constructor داشته
+            باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public struct Money
+{
+    public decimal Amount
+    {
+        get;
+        set;
+    }
+
+    public string Currency
+    {
+        get;
+        set;
+    }
+
+    public void Print()
+    {
+        Console.WriteLine(
+            $"{Amount} {Currency}");
+    }
+}</code></pre>
+          </div>
+          <p>
+            می‌توان از Struct نیز با <code>new</code> مقدار ساخت:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money =
+    new Money
+    {
+        Amount = 500_000,
+        Currency = "IRR"
+    };
+
+money.Print();</code></pre>
+          </div>
+          <h2>Struct یک <bdi>Value Type</bdi> است</h2>
+          <p>
+            وقتی یک Struct را به متغیر دیگری assign می‌کنیم، مقدار آن کپی می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money1 =
+    new Money
+    {
+        Amount = 100_000,
+        Currency = "IRR"
+    };
+
+var money2 =
+    money1;
+
+money2.Amount =
+    500_000;
+
+Console.WriteLine(
+    money1.Amount);
+// 100000
+
+Console.WriteLine(
+    money2.Amount);
+// 500000</code></pre>
+          </div>
+          <p>
+            برخلاف Class، تغییر <code>money2</code> باعث تغییر <code>money1</code> نمی‌شود، چون دو مقدار مستقل داریم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>money1
+┌────────────────────┐
+│ Amount = 100000    │
+│ Currency = "IRR"   │
+└────────────────────┘
+
+          copy
+
+money2
+┌────────────────────┐
+│ Amount = 500000    │
+│ Currency = "IRR"   │
+└────────────────────┘</code></pre>
+          </div>
+          <h2>Struct و Class در Assignment</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Struct</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Reference Type است.</td>
+                <td>Value Type است.</td>
+              </tr>
+              <tr>
+                <td>Assignment معمولاً reference را کپی می‌کند.</td>
+                <td>Assignment مقدار را کپی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>دو متغیر ممکن است به یک object اشاره کنند.</td>
+                <td>دو متغیر معمولاً مقدار مستقل دارند.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>Struct و Methodها</h2>
+          <p>
+            Struct می‌تواند Behavior هم داشته باشد و فقط یک container برای data نیست.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public struct Money
+{
+    public decimal Amount
+    {
+        get;
+        set;
+    }
+
+    public string Currency
+    {
+        get;
+        set;
+    }
+
+    public Money Add(
+        Money other)
+    {
+        if (Currency != other.Currency)
+        {
+            throw new InvalidOperationException(
+                "Currencies must match.");
+        }
+
+        return new Money
+        {
+            Amount =
+                Amount + other.Amount,
+
+            Currency =
+                Currency
+        };
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money1 =
+    new Money
+    {
+        Amount = 100_000,
+        Currency = "IRR"
+    };
+
+var money2 =
+    new Money
+    {
+        Amount = 200_000,
+        Currency = "IRR"
+    };
+
+var result =
+    money1.Add(money2);
+
+Console.WriteLine(
+    result.Amount);
+// 300000</code></pre>
+          </div>
+          <h2>Constructor در Struct</h2>
+          <p>
+            Struct می‌تواند Constructor داشته باشد و از نسخه‌های جدید C# امکان تعریف parameterless constructor نیز وجود
+            دارد.
+            اما Struct همیشه یک حالت default نیز دارد که در آن Fieldها و Propertyهای ذخیره‌شده مقدار پیش‌فرض type خود را
+            می‌گیرند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public struct Money
+{
+    public decimal Amount
+    {
+        get;
+    }
+
+    public string Currency
+    {
+        get;
+    }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        Amount = amount;
+        Currency = currency;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var money =
+    new Money(
+        500_000,
+        "IRR");</code></pre>
+          </div>
+          <h3>مقدار default</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Money money = default;
+
+Console.WriteLine(
+    money.Amount);
+// 0
+
+Console.WriteLine(
+    money.Currency is null);
+// True</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              برای Struct باید همیشه به حالت <code>default</code> فکر کنید.
+              اگر type شما فقط زمانی معتبر است که حتماً Constructor خاصی اجرا شود، Struct ممکن است نیازمند طراحی
+              دقیق‌تری باشد.
+            </div>
+          </div>
+          <h2>Mutable Struct</h2>
+          <p>
+            Struct می‌تواند Mutable باشد، اما Mutable Structها در کد واقعی می‌توانند رفتارهای گیج‌کننده‌ای ایجاد کنند؛
+            چون در نقاط مختلف کپی می‌شوند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public struct Counter
+{
+    public int Value
+    {
+        get;
+        set;
+    }
+
+    public void Increment()
+    {
+        Value++;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در ظاهر ساده است، اما وقتی این Struct از property، collection یا APIهای مختلف عبور کند،
+            کپی شدن آن می‌تواند باعث شود تغییر روی نسخه‌ای انجام شود که انتظارش را نداریم.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              به همین دلیل برای بسیاری از Structهای Domain، طراحی immutable یا <code>readonly struct</code> معمولاً
+              انتخاب امن‌تر و قابل‌فهم‌تری است.
+            </div>
+          </div>
+          <h2><code>readonly struct</code></h2>
+          <p>
+            با <code>readonly struct</code> می‌توان اعلام کرد که instance بعد از ساخته‌شدن نباید State قابل‌تغییر داشته
+            باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public readonly struct Money
+{
+    public decimal Amount
+    {
+        get;
+    }
+
+    public string Currency
+    {
+        get;
+    }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        Amount = amount;
+        Currency = currency;
+    }
+}</code></pre>
+          </div>
+          <p>
+            این طراحی برای Value Typeهایی مثل Money معمولاً طبیعی‌تر است.
+          </p>
+          <h2>Struct و Equality</h2>
+          <p>
+            Value Typeها رفتار Equality متفاوتی از Classهای معمولی دارند.
+            برای Structها، <code>ValueType.Equals()</code> به‌صورت پیش‌فرض بر اساس Fieldهای instance عمل می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public readonly struct Coordinate
+{
+    public double X
+    {
+        get;
+    }
+
+    public double Y
+    {
+        get;
+    }
+
+    public Coordinate(
+        double x,
+        double y)
+    {
+        X = x;
+        Y = y;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var point1 =
+    new Coordinate(
+        10,
+        20);
+
+var point2 =
+    new Coordinate(
+        10,
+        20);
+
+Console.WriteLine(
+    point1.Equals(point2));
+// True</code></pre>
+          </div>
+          <p>
+            با این حال، برای typeهای performance-sensitive یا semantics خاص، می‌توان Equality را صریح‌تر با
+            <code>IEquatable&lt;T&gt;</code> پیاده‌سازی کرد.
+          </p>
+          <h2>Struct و Operator <code>==</code></h2>
+          <p>
+            برای Struct سفارشی، operator <code>==</code> به‌صورت خودکار برای همهٔ structها وجود ندارد.
+            اگر بخواهیم از آن استفاده کنیم باید در صورت نیاز خودمان تعریفش کنیم، یا از <code>record struct</code>
+            استفاده کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public readonly struct Money
+{
+    public decimal Amount { get; }
+
+    public Money(decimal amount)
+    {
+        Amount = amount;
+    }
+
+    public static bool operator ==(
+        Money left,
+        Money right)
+    {
+        return
+            left.Amount ==
+            right.Amount;
+    }
+
+    public static bool operator !=(
+        Money left,
+        Money right)
+    {
+        return !(left == right);
+    }
+
+    public override bool Equals(
+        object? obj)
+    {
+        return obj is Money other
+            &amp;&amp; Amount == other.Amount;
+    }
+
+    public override int GetHashCode()
+    {
+        return Amount.GetHashCode();
+    }
+}</code></pre>
+          </div>
+          <h2>Struct و Inheritance</h2>
+          <p>
+            Struct نمی‌تواند از Class یا Struct دیگری ارث‌بری کند و نمی‌تواند Base Class برای Struct یا Class دیگری
+            باشد.
+            اما می‌تواند Interface پیاده‌سازی کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPrintable
+{
+    string Print();
+}
+
+public readonly struct Money
+    : IPrintable
+{
+    public decimal Amount { get; }
+    public string Currency { get; }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        Amount = amount;
+        Currency = currency;
+    }
+
+    public string Print()
+    {
+        return
+            $"{Amount} {Currency}";
+    }
+}</code></pre>
+          </div>
+          <h2>Struct و <bdi>Boxing</bdi></h2>
+          <p>
+            وقتی یک Value Type باید به <code>object</code> یا بعضی interfaceها تبدیل شود، ممکن است Boxing اتفاق بیفتد.
+            در Boxing، مقدار داخل یک object روی managed heap قرار می‌گیرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>int number = 10;
+
+object boxed =
+    number;</code></pre>
+          </div>
+          <p>
+            برای Struct سفارشی نیز همین مفهوم وجود دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Money money =
+    new Money(
+        500_000,
+        "IRR");
+
+object boxedMoney =
+    money;</code></pre>
+          </div>
+          <h3>Unboxing</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Money original =
+    (Money)boxedMoney;</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Boxing می‌تواند allocation و هزینهٔ اضافی ایجاد کند. معمولاً نباید فقط به خاطر «سریع‌تر بودن» سراغ Struct
+              برویم؛
+              اندازهٔ type، الگوی استفاده، کپی شدن و Boxing همگی در performance واقعی اهمیت دارند.
+            </div>
+          </div>
+          <h2>Struct کجا ذخیره می‌شود؟</h2>
+          <p>
+            عبارت معروف «Struct روی Stack است» بیش از حد ساده است. Struct یک Value Type است،
+            اما محل فیزیکی داده به context بستگی دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    public Money Amount
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این مثال <code>Money</code> به‌عنوان بخشی از object مربوط به <code>Payment</code> نگهداری می‌شود.
+            بنابراین مفهوم Value Type را نباید با «همیشه Stack» یکی بدانیم.
+          </p>
+          <h2>Passing Struct to Methods</h2>
+          <p>
+            Struct به‌صورت پیش‌فرض By Value پاس داده می‌شود؛ یعنی یک کپی از مقدار به Method می‌رسد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static void ChangeAmount(
+    Money money)
+{
+    money.Amount =
+        900_000;
+}
+
+var money =
+    new Money
+    {
+        Amount = 100_000,
+        Currency = "IRR"
+    };
+
+ChangeAmount(money);
+
+Console.WriteLine(
+    money.Amount);
+// 100000</code></pre>
+          </div>
+          <p>
+            Method روی یک کپی کار کرده است.
+            برای Structهای بزرگ، در سناریوهای performance-sensitive می‌توان از <code>in</code> برای ارسال read-only
+            reference استفاده کرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>static decimal ReadAmount(
+    in Money money)
+{
+    return money.Amount;
+}</code></pre>
+          </div>
+          <h2>چه زمانی Struct انتخاب مناسبی است؟</h2>
+          <p>Struct معمولاً گزینهٔ خوبی است وقتی:</p>
+          <ul>
+            <li>type کوچک است.</li>
+            <li>مفهوم آن Value-based است.</li>
+            <li>Identity مستقل ندارد.</li>
+            <li>بهتر است immutable باشد.</li>
+            <li>معمولاً به polymorphic class hierarchy نیاز ندارد.</li>
+            <li>کپی شدن مقدار از نظر معنایی طبیعی است.</li>
+          </ul>
+          <h3>مثال‌های مناسب</h3>
+          <ul>
+            <li>Coordinate</li>
+            <li>Range</li>
+            <li>Percentage</li>
+            <li>Small Measurement Value</li>
+            <li>بعضی Value Objectهای کوچک</li>
+          </ul>
+          <h2>چه زمانی Struct انتخاب خوبی نیست؟</h2>
+          <ul>
+            <li>Object دارای Identity و Lifecycle مستقل است.</li>
+            <li>State بزرگ و سنگین دارد و زیاد کپی می‌شود.</li>
+            <li>نیاز به Class Inheritance داریم.</li>
+            <li>Shared reference semantics موردنیاز است.</li>
+            <li>Mutable بودن type باعث کپی‌های گیج‌کننده می‌شود.</li>
+          </ul>
+          <h2>مثال واقعی: Percentage</h2>
+          <p>
+            Percentage نمونه‌ای مناسب از یک Value Type کوچک و immutable است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public readonly struct Percentage
+    : IEquatable&lt;Percentage&gt;
+{
+    public decimal Value
+    {
+        get;
+    }
+
+    public Percentage(
+        decimal value)
+    {
+        if (value &lt; 0 ||
+            value &gt; 100)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(value));
+        }
+
+        Value = value;
+    }
+
+    public decimal ApplyTo(
+        decimal amount)
+    {
+        return amount *
+            (Value / 100m);
+    }
+
+    public bool Equals(
+        Percentage other)
+    {
+        return Value ==
+            other.Value;
+    }
+
+    public override bool Equals(
+        object? obj)
+    {
+        return obj is Percentage other
+            &amp;&amp; Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return $"{Value}%";
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var feePercent =
+    new Percentage(2.5m);
+
+decimal fee =
+    feePercent.ApplyTo(
+        1_000_000);
+
+Console.WriteLine(fee);
+// 25000</code></pre>
+          </div>
+          <p class="example-explanation">
+            <code>Percentage</code> Identity مستقلی ندارد؛ مقدار 2.5% در هر جای برنامه همان مفهوم را دارد.
+            این type کوچک، immutable و Value-based است و بنابراین Struct می‌تواند انتخاب مناسبی برای آن باشد.
+          </p>
+          <h2>ویژگی‌های مهم Struct</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>Struct</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نوع</td>
+                <td>Value Type</td>
+              </tr>
+              <tr>
+                <td>Assignment</td>
+                <td>مقدار کپی می‌شود.</td>
+              </tr>
+              <tr>
+                <td>Identity مستقل</td>
+                <td>معمولاً ندارد.</td>
+              </tr>
+              <tr>
+                <td>Inheritance از Class</td>
+                <td>ندارد.</td>
+              </tr>
+              <tr>
+                <td>Interface</td>
+                <td>می‌تواند implement کند.</td>
+              </tr>
+              <tr>
+                <td>Constructor</td>
+                <td>پشتیبانی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>حالت default</td>
+                <td>همیشه باید در طراحی در نظر گرفته شود.</td>
+              </tr>
+              <tr>
+                <td>Mutability</td>
+                <td>ممکن است، ولی immutable معمولاً امن‌تر است.</td>
+              </tr>
+              <tr>
+                <td>Equality</td>
+                <td>Value-based behavior از ValueType دارد؛ قابل سفارشی‌سازی است.</td>
+              </tr>
+              <tr>
+                <td>کاربرد رایج</td>
+                <td>Valueهای کوچک و منسجم</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>گفتن اینکه Struct همیشه روی Stack ذخیره می‌شود.</li>
+            <li>انتخاب Struct فقط به امید performance بهتر.</li>
+            <li>ساخت Mutable Struct بزرگ.</li>
+            <li>فراموش کردن اینکه assignment و parameter passing می‌تواند باعث copy شود.</li>
+            <li>نادیده گرفتن حالت <code>default</code>.</li>
+            <li>استفاده از Struct برای Entity دارای Identity و Lifecycle.</li>
+            <li>نادیده گرفتن Boxing در APIهایی که با <code>object</code> یا interface کار می‌کنند.</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              قاعدهٔ ذهنی خوب: اگر مفهوم شما بیشتر شبیه «یک مقدار» است تا «یک شیء دارای هویت»، کوچک است و copy شدن آن
+              طبیعی است،
+              Struct ارزش بررسی دارد. اگر Identity، Lifecycle و shared reference behavior مهم‌اند، Class معمولاً گزینهٔ
+              طبیعی‌تری است.
+            </div>
+          </div>
+          <h2>جمع‌بندی 13.2</h2>
+          <p>
+            Struct در C# یک Value Type سفارشی است. هنگام assignment و passing معمولی، مقدار آن کپی می‌شود.
+            Struct می‌تواند Property، Method، Constructor و Interface داشته باشد، اما Class Inheritance ندارد.
+            برای typeهای کوچک، Value-based و ترجیحاً immutable بسیار مناسب است.
+            در عین حال باید هزینهٔ copy، Boxing، حالت default و مشکلات Mutable Structها را در طراحی در نظر گرفت.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکتهٔ کلیدی: تفاوت واقعی Struct و Class فقط «Stack در برابر Heap» نیست.
+              تفاوت مهم‌تر، <strong>Value Semantics در برابر Reference Semantics</strong> است.
+              Struct را زمانی انتخاب کنید که کپی شدن مقدار و نبود Identity مستقل با مفهوم Domain شما سازگار باشد.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

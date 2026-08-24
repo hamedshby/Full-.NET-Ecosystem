@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Abstraction چیست؟ از مسیر حرفه‌ای .NET.">
-  <title>Abstraction چیست؟ | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Abstraction در C# شامل Abstract Class، Abstract Method و Property، Interface، Explicit Interface Implementation، مقایسه Abstract Class و Interface و Interface Segregation."
+    name="description" />
+  <title>Abstraction در C# و OOP | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,921 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-7-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-7-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 7 — Abstraction</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Abstraction چیست؟</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>فصل 7 — <bdi>Abstraction</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <bdi>Abstraction</bdi> یا انتزاع یکی از اصول اصلی Object-Oriented Programming است.
+            Abstraction یعنی مصرف‌کننده بداند یک object <strong>چه کاری انجام می‌دهد</strong>، بدون اینکه مجبور باشد
+            جزئیات داخلی و نحوهٔ انجام آن کار را بداند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              در Abstraction تمرکز روی <strong>What</strong> است، نه <strong>How</strong>.
+              مثلاً کد Business فقط می‌گوید «پرداخت را انجام بده»؛ لازم نیست بداند ارتباط با بانک، ساخت Request،
+              امضای پیام و پردازش Response دقیقاً چگونه انجام می‌شود.
+            </div>
+          </div>
+          <h2>7.1 <bdi>Abstraction</bdi> چیست؟</h2>
+          <p>
+            فرض کنید برای پرداخت با درگاه بانکی چنین کدی داریم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var gateway =
+    new BankPaymentGateway();
+
+PaymentResult result =
+    gateway.Pay(
+        amount: 500_000);</code></pre>
+          </div>
+          <p>
+            مصرف‌کننده فقط متد <code>Pay</code> را می‌بیند. جزئیاتی مانند ساخت HTTP Request، Authentication،
+            Serialization، Retry و ارتباط با سرویس خارجی می‌توانند پشت این API پنهان شوند.
+          </p>
+          <p>
+            این همان Abstraction است: ارائهٔ یک مدل ساده و معنادار از یک عملیات پیچیده.
+          </p>
+          <h3>Abstraction و Encapsulation چه تفاوتی دارند؟</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Abstraction</th>
+                <th>Encapsulation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>تمرکز روی چه چیزی ارائه می‌شود.</td>
+                <td>تمرکز روی محافظت از State و جزئیات داخلی است.</td>
+              </tr>
+              <tr>
+                <td>Complexity را از مصرف‌کننده پنهان می‌کند.</td>
+                <td>دسترسی مستقیم و تغییر نامعتبر را محدود می‌کند.</td>
+              </tr>
+              <tr>
+                <td>مثلاً <code>IPaymentGateway.Pay()</code></td>
+                <td>مثلاً <code>Balance { get; private set; }</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Abstraction فقط به معنی استفاده از <code>abstract</code> یا <code>interface</code> نیست.
+              این دو ابزار زبان برای ساخت abstraction هستند، اما خود مفهوم Abstraction گسترده‌تر از syntax زبان است.
+            </div>
+          </div>
+          <h2>7.2 <bdi>Abstract Class</bdi></h2>
+          <p>
+            Abstract Class کلاسی است که برای ارائهٔ یک Base Type عمومی طراحی شده و نمی‌توان مستقیماً از آن instance
+            ساخت.
+            این class می‌تواند هم رفتار ناقص و قابل‌تخصصی‌سازی و هم رفتار کامل و مشترک داشته باشد.
+          </p>
+          <h3><code>abstract class</code></h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    public decimal Amount { get; }
+
+    protected Payment(decimal amount)
+    {
+        Amount = amount;
+    }
+}</code></pre>
+          </div>
+          <p>نمی‌توان مستقیماً چنین کاری انجام داد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>// Compile Error
+// var payment =
+//     new Payment(500_000);</code></pre>
+          </div>
+          <p>
+            باید یک class واقعی‌تر از آن ارث ببرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : Payment
+{
+    public CardPayment(
+        decimal amount)
+        : base(amount)
+    {
+    }
+}</code></pre>
+          </div>
+          <h3><bdi>Abstract Method</bdi></h3>
+          <p>
+            Abstract Method فقط قرارداد Method را مشخص می‌کند و implementation ندارد.
+            Derived Class موظف است آن را override کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    public decimal Amount { get; }
+
+    protected Payment(decimal amount)
+    {
+        Amount = amount;
+    }
+
+    public abstract PaymentResult Process();
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : Payment
+{
+    public CardPayment(
+        decimal amount)
+        : base(amount)
+    {
+    }
+
+    public override PaymentResult Process()
+    {
+        Console.WriteLine(
+            "Processing card payment");
+
+        return new PaymentResult(true);
+    }
+}</code></pre>
+          </div>
+          <h3><bdi>Concrete Method</bdi></h3>
+          <p>
+            Abstract Class می‌تواند Method معمولی با implementation کامل نیز داشته باشد.
+            این رفتار می‌تواند بین تمام Derived Classها مشترک باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    public decimal Amount { get; }
+
+    protected Payment(decimal amount)
+    {
+        Amount = amount;
+    }
+
+    public abstract PaymentResult Process();
+
+    public void ValidateAmount()
+    {
+        if (Amount &lt;= 0)
+        {
+            throw new InvalidOperationException(
+                "Amount must be greater than zero.");
+        }
+    }
+}</code></pre>
+          </div>
+          <p>
+            <code>Process()</code> رفتار abstract است، اما <code>ValidateAmount()</code> یک Concrete Method با
+            implementation مشترک است.
+          </p>
+          <h3><bdi>Abstract Property</bdi></h3>
+          <p>
+            Property نیز می‌تواند abstract باشد. Base Class فقط اعلام می‌کند Derived Class باید آن را ارائه کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    public abstract string ProviderName
+    {
+        get;
+    }
+
+    public abstract PaymentResult Process();
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : Payment
+{
+    public override string ProviderName
+        =&gt; "Bank Gateway";
+
+    public override PaymentResult Process()
+    {
+        return new PaymentResult(true);
+    }
+}</code></pre>
+          </div>
+          <h3>Abstract Class می‌تواند State داشته باشد</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    protected Payment(
+        Guid transactionId,
+        decimal amount)
+    {
+        TransactionId = transactionId;
+        Amount = amount;
+    }
+
+    public Guid TransactionId { get; }
+
+    public decimal Amount { get; }
+
+    public abstract PaymentResult Process();
+}</code></pre>
+          </div>
+          <p>
+            این ویژگی زمانی مفید است که typeهای مختلف واقعاً یک Base Concept مشترک با State و رفتار مشترک داشته باشند.
+          </p>
+          <h2>7.3 <bdi>Interface</bdi></h2>
+          <p>
+            Interface یک قرارداد را تعریف می‌کند. مصرف‌کننده می‌تواند به جای وابستگی به یک Concrete Class،
+            به این قرارداد وابسته شود.
+          </p>
+          <h3>تعریف Interface</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            این interface نمی‌گوید پرداخت چگونه انجام شود؛ فقط می‌گوید هر Payment Gateway باید چنین عملیاتی ارائه دهد.
+          </p>
+          <h3>پیاده‌سازی Interface</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class MellatPaymentGateway
+    : IPaymentGateway
+{
+    public async Task&lt;PaymentResult&gt; PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        // Call Mellat Bank API
+
+        await Task.Delay(
+            100,
+            cancellationToken);
+
+        return new PaymentResult(true);
+    }
+}</code></pre>
+          </div>
+          <p>
+            کد Business می‌تواند فقط <code>IPaymentGateway</code> را بشناسد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentGateway
+        _paymentGateway;
+
+    public PaymentService(
+        IPaymentGateway paymentGateway)
+    {
+        _paymentGateway =
+            paymentGateway;
+    }
+
+    public Task&lt;PaymentResult&gt; PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        return _paymentGateway.PayAsync(
+            amount,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            <code>PaymentService</code> نمی‌داند پشت interface درگاه ملت، سامان یا یک Fake Gateway برای تست قرار دارد.
+            این وابستگی به abstraction، Coupling را کاهش می‌دهد.
+          </p>
+          <h3>چند Interface برای یک Class</h3>
+          <p>
+            C# اجازهٔ Multiple Class Inheritance نمی‌دهد، اما یک class می‌تواند چند interface را implement کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task PayAsync();
+}
+
+public interface IHealthCheck
+{
+    bool IsHealthy();
+}
+
+public interface ITransactionLogger
+{
+    void Log(string transactionId);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankGateway
+    : IPaymentGateway,
+      IHealthCheck,
+      ITransactionLogger
+{
+    public Task PayAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    public bool IsHealthy()
+    {
+        return true;
+    }
+
+    public void Log(
+        string transactionId)
+    {
+        Console.WriteLine(
+            transactionId);
+    }
+}</code></pre>
+          </div>
+          <h3><bdi>Explicit Interface Implementation</bdi></h3>
+          <p>
+            گاهی دو interface عضو هم‌نام دارند، یا نمی‌خواهیم یک عضو interface مستقیماً از طریق Concrete Type دیده شود.
+            در این حالت Explicit Interface Implementation مفید است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface ICustomerNotifier
+{
+    void Send();
+}
+
+public interface IAdminNotifier
+{
+    void Send();
+}
+
+public class NotificationService
+    : ICustomerNotifier,
+      IAdminNotifier
+{
+    void ICustomerNotifier.Send()
+    {
+        Console.WriteLine(
+            "Send customer notification");
+    }
+
+    void IAdminNotifier.Send()
+    {
+        Console.WriteLine(
+            "Send admin notification");
+    }
+}</code></pre>
+          </div>
+          <p>برای فراخوانی باید object را از طریق interface مناسب ببینیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var service =
+    new NotificationService();
+
+ICustomerNotifier customerNotifier =
+    service;
+
+customerNotifier.Send();
+
+IAdminNotifier adminNotifier =
+    service;
+
+adminNotifier.Send();</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Explicit Interface Implementation زمانی مفید است که یک class چند نقش متفاوت دارد و می‌خواهیم رفتار هر نقش
+              فقط از طریق interface مربوط به همان نقش قابل دسترسی باشد.
+            </div>
+          </div>
+          <h2>7.4 <bdi>Abstract Class vs Interface</bdi></h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Abstract Class</th>
+                <th>Interface</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>برای یک Base Type واقعی و مشترک مناسب است.</td>
+                <td>برای تعریف Capability یا Contract مناسب است.</td>
+              </tr>
+              <tr>
+                <td>می‌تواند Instance State داشته باشد.</td>
+                <td>برای نگهداری Instance State طراحی نشده است.</td>
+              </tr>
+              <tr>
+                <td>می‌تواند Constructor داشته باشد.</td>
+                <td>Constructor برای ساخت instance ندارد.</td>
+              </tr>
+              <tr>
+                <td>می‌تواند Field داشته باشد.</td>
+                <td>Instance Field ندارد.</td>
+              </tr>
+              <tr>
+                <td>می‌تواند abstract و concrete member داشته باشد.</td>
+                <td>Contract را تعریف می‌کند و در C# مدرن می‌تواند بعضی memberها implementation پیش‌فرض داشته باشد.</td>
+              </tr>
+              <tr>
+                <td>یک class فقط از یک class مستقیم ارث می‌برد.</td>
+                <td>یک class می‌تواند چند interface را implement کند.</td>
+              </tr>
+              <tr>
+                <td>رابطهٔ Is-A قوی‌تر است.</td>
+                <td>بیشتر بیانگر «این type این قابلیت/قرارداد را دارد» است.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>مثال Abstract Class</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    protected Payment(
+        decimal amount)
+    {
+        Amount = amount;
+    }
+
+    public decimal Amount { get; }
+
+    public abstract void Process();
+
+    protected void Validate()
+    {
+        if (Amount &lt;= 0)
+            throw new InvalidOperationException();
+    }
+}</code></pre>
+          </div>
+          <h3>مثال Interface</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProcessor
+{
+    Task&lt;PaymentResult&gt; ProcessAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            در مثال اول typeها یک Base Concept و State مشترک دارند. در مثال دوم فقط می‌خواهیم Contract پردازش پرداخت را
+            تعریف کنیم.
+          </p>
+          <h2>آیا Interface همیشه فقط Method Signature دارد؟</h2>
+          <p>
+            در C# مدرن Interfaceها قابلیت‌هایی مانند Default Interface Members و اعضای static نیز دارند.
+            بنابراین تعریف قدیمی «Interface هیچ implementationای ندارد» دیگر به‌صورت مطلق صحیح نیست.
+            با این حال، نقش اصلی Interface همچنان تعریف یک قرارداد و abstraction بین اجزای سیستم است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface ILogger
+{
+    void Log(string message);
+
+    void LogInfo(string message)
+    {
+        Log($"INFO: {message}");
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              وجود Default Implementation به این معنی نیست که Interface را به یک Base Class بزرگ تبدیل کنیم.
+              Interface بهتر است همچنان یک قرارداد منسجم و کوچک باقی بماند.
+            </div>
+          </div>
+          <h2>7.5 چه زمانی <bdi>Interface</bdi> استفاده کنیم؟</h2>
+          <p>
+            Interface زمانی بسیار مفید است که بخواهیم کد مصرف‌کننده از implementation واقعی مستقل باشد.
+          </p>
+          <h3>1. چند Implementation داریم</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task PayAsync();
+}
+
+public class MellatGateway
+    : IPaymentGateway
+{
+    public Task PayAsync()
+        =&gt; Task.CompletedTask;
+}
+
+public class SamanGateway
+    : IPaymentGateway
+{
+    public Task PayAsync()
+        =&gt; Task.CompletedTask;
+}</code></pre>
+          </div>
+          <h3>2. Dependency Injection</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>services.AddScoped
+    &lt;IPaymentGateway,
+     MellatGateway&gt;();</code></pre>
+          </div>
+          <p>
+            Business Service به interface وابسته می‌شود و DI Container implementation واقعی را inject می‌کند.
+          </p>
+          <h3>3. تست‌پذیری</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class FakePaymentGateway
+    : IPaymentGateway
+{
+    public Task PayAsync()
+    {
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در Unit Test می‌توان implementation واقعی شبکه را با Fake یا Mock جایگزین کرد.
+          </p>
+          <h3>4. جداکردن لایه‌ها</h3>
+          <p>
+            در معماری‌هایی مانند Clean Architecture، Application Layer می‌تواند Contract را تعریف کند و Infrastructure
+            Layer
+            implementation مربوط به Database، Message Broker یا External API را ارائه دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Application
+    │
+    │ depends on
+    ▼
+IPaymentGateway
+    ▲
+    │ implements
+    │
+Infrastructure
+MellatPaymentGateway</code></pre>
+          </div>
+          <h3>5. وقتی یک Capability مستقل داریم</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface ICacheable
+{
+    string CacheKey { get; }
+}
+
+public interface IAuditable
+{
+    DateTimeOffset CreatedAt { get; }
+}</code></pre>
+          </div>
+          <p>
+            یک type می‌تواند چند capability مستقل را هم‌زمان داشته باشد، بدون اینکه مجبور به ساخت hierarchy پیچیدهٔ
+            Inheritance شویم.
+          </p>
+          <h2>Interface را فقط برای Mock نسازید</h2>
+          <p>
+            Testability مزیت مهم Interface است، اما تنها دلیل ساخت interface نباید «شاید روزی Mock لازم شود» باشد.
+            Interface باید یک abstraction معنادار در طراحی ایجاد کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              Interface خوب معمولاً یک نقش یا capability واضح دارد؛ مانند
+              <code>IPaymentGateway</code>، <code>IMessagePublisher</code> یا <code>IClock</code>.
+              نام و اعضای آن باید نشان دهند مصرف‌کننده دقیقاً به چه قراردادی وابسته است.
+            </div>
+          </div>
+          <h2>7.6 <bdi>Interface Segregation</bdi> در طراحی واقعی</h2>
+          <p>
+            Interface Segregation Principle یا ISP یکی از اصول SOLID است و می‌گوید:
+            Client نباید مجبور باشد به Methodهایی وابسته شود که به آن‌ها نیاز ندارد.
+            به زبان ساده، چند interface کوچک و متمرکز معمولاً بهتر از یک interface بزرگ و همه‌کاره هستند.
+          </p>
+          <h3>طراحی ضعیف: Fat Interface</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentService
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        decimal amount);
+
+    Task RefundAsync(
+        string transactionId);
+
+    Task SendSmsAsync(
+        string mobile);
+
+    Task SaveReportAsync();
+
+    Task ExportExcelAsync();
+
+    Task ClearCacheAsync();
+}</code></pre>
+          </div>
+          <p>
+            این interface چند مسئولیت کاملاً متفاوت دارد. یک class که فقط Payment Processing انجام می‌دهد مجبور است
+            به عملیات SMS، Excel و Cache نیز وابسته شود.
+          </p>
+          <h3>تفکیک Interfaceها</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProcessor
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        decimal amount);
+}
+
+public interface IRefundProcessor
+{
+    Task RefundAsync(
+        string transactionId);
+}
+
+public interface INotificationSender
+{
+    Task SendAsync(
+        string mobile,
+        string message);
+}
+
+public interface IReportExporter
+{
+    Task ExportAsync();
+}</code></pre>
+          </div>
+          <p>
+            حالا هر Client فقط contract موردنیاز خودش را دریافت می‌کند.
+          </p>
+          <h3>مثال واقعی در Payment System</h3>
+          <p>
+            فرض کنید یک API فقط وظیفهٔ انجام تراکنش خرید را دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PurchaseService
+{
+    private readonly IPaymentProcessor
+        _paymentProcessor;
+
+    public PurchaseService(
+        IPaymentProcessor paymentProcessor)
+    {
+        _paymentProcessor =
+            paymentProcessor;
+    }
+
+    public Task&lt;PaymentResult&gt; PurchaseAsync(
+        decimal amount)
+    {
+        return _paymentProcessor.PayAsync(
+            amount);
+    }
+}</code></pre>
+          </div>
+          <p>
+            <code>PurchaseService</code> فقط چیزی را می‌بیند که واقعاً لازم دارد. عملیات Refund، Report و Notification
+            جزء dependencyهای آن نیستند.
+          </p>
+          <h3>یک Class می‌تواند چند Interface کوچک را پیاده‌سازی کند</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankPaymentService
+    : IPaymentProcessor,
+      IRefundProcessor
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        decimal amount)
+    {
+        // Process payment
+
+        return Task.FromResult(
+            new PaymentResult(true));
+    }
+
+    public Task RefundAsync(
+        string transactionId)
+    {
+        // Process refund
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            با اینکه یک concrete class هر دو قابلیت را دارد، Clientها مجبور نیستند به هر دو capability وابسته شوند.
+          </p>
+          <h2>ISP و Dependency Injection</h2>
+          <p>
+            Interfaceهای کوچک باعث می‌شوند Constructor هر Service دقیق‌تر نشان دهد آن Service واقعاً به چه قابلیت‌هایی
+            نیاز دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class RefundService
+{
+    private readonly IRefundProcessor
+        _refundProcessor;
+
+    public RefundService(
+        IRefundProcessor refundProcessor)
+    {
+        _refundProcessor =
+            refundProcessor;
+    }
+}</code></pre>
+          </div>
+          <p>
+            این طراحی بهتر از inject کردن یک interface عظیم است که ده‌ها Method غیرمرتبط دارد.
+          </p>
+          <h2>نشانه‌های Interface بیش از حد بزرگ</h2>
+          <ul>
+            <li>بعضی implementationها مجبورند Methodهایی را با <code>NotSupportedException</code> پیاده‌سازی کنند.</li>
+            <li>Client فقط از یک یا دو Method از یک interface بزرگ استفاده می‌کند.</li>
+            <li>تغییر یک قابلیت باعث rebuild یا تغییر Clientهای نامرتبط می‌شود.</li>
+            <li>نام interface بسیار عمومی است؛ مانند <code>IManager</code> یا <code>IService</code>.</li>
+            <li>Interface چند مسئولیت متفاوت مانند Payment، Logging، Cache و Reporting را هم‌زمان دارد.</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Interface Segregation به معنی ساختن یک interface برای تک‌تک Methodها نیست.
+              هدف، ساخت contractهای <strong>cohesive</strong> و متناسب با نیاز Clientهاست؛ نه خردکردن افراطی طراحی.
+            </div>
+          </div>
+          <h2>مثال کامل Abstraction در Payment Processing</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record PaymentRequest(
+    string CardNumber,
+    decimal Amount);
+
+public record PaymentResult(
+    bool IsSuccess,
+    string? TransactionId = null);
+
+public interface IPaymentGateway
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}
+
+public class BankPaymentGateway
+    : IPaymentGateway
+{
+    public async Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        // Authentication
+        // Create bank request
+        // Send HTTP request
+        // Parse response
+
+        await Task.Delay(
+            100,
+            cancellationToken);
+
+        return new PaymentResult(
+            true,
+            Guid.NewGuid().ToString());
+    }
+}
+
+public class PaymentService
+{
+    private readonly IPaymentGateway
+        _gateway;
+
+    public PaymentService(
+        IPaymentGateway gateway)
+    {
+        _gateway = gateway;
+    }
+
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.Amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(request.Amount));
+        }
+
+        return _gateway.PayAsync(
+            request,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این طراحی <code>PaymentService</code> به جزئیات بانک وابسته نیست. فقط contract مربوط به
+            <code>IPaymentGateway</code> را می‌شناسد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>services.AddScoped
+    &lt;IPaymentGateway,
+     BankPaymentGateway&gt;();
+
+services.AddScoped
+    &lt;PaymentService&gt;();</code></pre>
+          </div>
+          <p class="example-explanation">
+            اگر فردا بانک یا Provider تغییر کند، می‌توان implementation جدیدی از <code>IPaymentGateway</code> ساخت.
+            Business Service همچنان با همان abstraction کار می‌کند و نیازی ندارد جزئیات Provider جدید را بشناسد.
+          </p>
+          <h2>جمع‌بندی Abstract Class و Interface</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>نیاز طراحی</th>
+                <th>انتخاب محتمل</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Base Concept واقعی با State مشترک</td>
+                <td>Abstract Class</td>
+              </tr>
+              <tr>
+                <td>رفتار مشترک و قابل reuse میان Derived Typeها</td>
+                <td>Abstract Class</td>
+              </tr>
+              <tr>
+                <td>تعریف Contract بین لایه‌ها</td>
+                <td>Interface</td>
+              </tr>
+              <tr>
+                <td>چند implementation قابل جایگزینی</td>
+                <td>Interface</td>
+              </tr>
+              <tr>
+                <td>یک class با چند capability مستقل</td>
+                <td>چند Interface</td>
+              </tr>
+              <tr>
+                <td>Dependency Injection و جداکردن Infrastructure</td>
+                <td>Interface معمولاً مناسب است.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: Abstraction جزئیات غیرضروری را از مصرف‌کننده پنهان می‌کند و یک قرارداد ساده و معنادار ارائه می‌دهد.
+              Abstract Class زمانی مفید است که typeها واقعاً Base State و رفتار مشترک دارند. Interface برای تعریف
+              contract،
+              جایگزین‌کردن implementationها و کاهش Coupling بسیار مناسب است. با Interface Segregation نیز contractها را
+              کوچک، cohesive و متناسب با نیاز Client طراحی می‌کنیم.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

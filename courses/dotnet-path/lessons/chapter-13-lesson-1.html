@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Class از مسیر حرفه‌ای .NET.">
-  <title>Class | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش بخش 13.1 Class در C# شامل تعریف Class، ساخت Object، State و Behavior، Reference Type، Constructor، Reference Assignment، Mutable و Immutable Class و Equality."
+    name="description" />
+  <title>13.1 Class در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,619 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-13-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-13-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 13 — Records, Structs و Classes</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Class</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>13.1 — <bdi>Class</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در C#، <code>class</code> یکی از اصلی‌ترین ابزارها برای مدل‌کردن مفاهیم در برنامه‌های شی‌گرا است.
+            Class یک <strong>Reference Type</strong> است و می‌تواند State و Behavior یک مفهوم را در کنار هم قرار دهد.
+            برای مثال در یک سیستم بانکی، مفاهیمی مانند Customer، BankAccount و Transaction می‌توانند با Class مدل شوند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Class را می‌توان یک تعریف یا Blueprint در نظر گرفت و Object را instance ساخته‌شده از آن Class.
+              یک Class می‌تواند مشخص کند object چه اطلاعاتی دارد و چه رفتارهایی می‌تواند انجام دهد.
+            </div>
+          </div>
+          <h2><bdi>Class</bdi> چیست؟</h2>
+          <p>
+            Class یک User-Defined Reference Type است که می‌تواند اعضایی مانند Field، Property، Method و Constructor
+            داشته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber
+    {
+        get;
+        set;
+    }
+
+    public decimal Balance
+    {
+        get;
+        private set;
+    }
+
+    public void Deposit(
+        decimal amount)
+    {
+        Balance += amount;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این مثال <code>BankAccount</code> یک Class است که هم اطلاعات حساب را نگهداری می‌کند و هم رفتار مربوط به
+            حساب را ارائه می‌دهد.
+          </p>
+          <h2>ساخت Object از Class</h2>
+          <p>
+            تعریف Class به‌تنهایی به معنی ساخت object نیست. برای ساخت یک instance معمولاً از <code>new</code> استفاده
+            می‌کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount();</code></pre>
+          </div>
+          <p>
+            اکنون <code>account</code> یک متغیر Reference Type است که به یک instance از <code>BankAccount</code> اشاره
+            می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>account.AccountNumber =
+    "100-200-300";
+
+account.Deposit(
+    500_000);
+
+Console.WriteLine(
+    account.Balance);
+// 500000</code></pre>
+          </div>
+          <h2>State و Behavior در Class</h2>
+          <p>
+            یکی از مهم‌ترین کاربردهای Class این است که State و Behavior مرتبط را در یک واحد منطقی کنار هم قرار دهد.
+          </p>
+          <h3>State</h3>
+          <p>
+            State وضعیت فعلی object را نشان می‌دهد و معمولاً با Fieldها و Propertyها نگهداری می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public string AccountNumber
+{
+    get;
+    set;
+}
+
+public decimal Balance
+{
+    get;
+    private set;
+}</code></pre>
+          </div>
+          <h3>Behavior</h3>
+          <p>
+            Behavior کارهایی است که object می‌تواند انجام دهد و معمولاً با Methodها مدل می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Deposit(
+    decimal amount)
+{
+    Balance += amount;
+}</code></pre>
+          </div>
+          <p>
+            در طراحی شی‌گرای مناسب، Methodها فقط عملیات تصادفی نیستند؛ آن‌ها معمولاً رفتار مرتبط با State همان object را
+            بیان می‌کنند.
+          </p>
+          <h2>Class یک Reference Type است</h2>
+          <p>
+            یکی از مهم‌ترین ویژگی‌های Class در C# این است که Classها Reference Type هستند.
+            متغیری که یک object را نگه می‌دارد، در واقع reference مربوط به آن object را در اختیار دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount();
+
+account1.AccountNumber =
+    "1001";
+
+var account2 =
+    account1;</code></pre>
+          </div>
+          <p>
+            در اینجا object جدیدی برای <code>account2</code> ساخته نشده است.
+            هر دو متغیر به همان instance اشاره می‌کنند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>account2.Deposit(
+    500_000);
+
+Console.WriteLine(
+    account1.Balance);
+// 500000</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Assignment یک Class باعث clone شدن object نمی‌شود. مقدار reference کپی می‌شود؛ بنابراین چند متغیر
+              می‌توانند به یک object مشترک اشاره کنند.
+            </div>
+          </div>
+          <h2>Reference Assignment</h2>
+          <p>مثال زیر را دقیق بررسی کنید:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer1 =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+var customer2 =
+    customer1;
+
+customer2.Name =
+    "Ali";
+
+Console.WriteLine(
+    customer1.Name);
+// Ali</code></pre>
+          </div>
+          <p>
+            چون <code>customer1</code> و <code>customer2</code> به یک object اشاره می‌کنند، تغییر State از طریق یکی از
+            referenceها
+            از طریق reference دیگر نیز قابل مشاهده است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>customer1 ──────┐
+                │
+                ▼
+          ┌──────────────┐
+          │   Customer   │
+          │ Name = "Ali" │
+          └──────────────┘
+                ▲
+                │
+customer2 ──────┘</code></pre>
+          </div>
+          <h2>هر <code>new</code> می‌تواند یک Instance جدید بسازد</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer1 =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+var customer2 =
+    new Customer
+    {
+        Name = "Hamed"
+    };</code></pre>
+          </div>
+          <p>
+            با وجود یکسان بودن مقادیر، اینجا دو instance مستقل ساخته شده‌اند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(
+    ReferenceEquals(
+        customer1,
+        customer2));
+// False</code></pre>
+          </div>
+          <h2>Constructor در Class</h2>
+          <p>
+            Class می‌تواند Constructor داشته باشد تا هنگام ساخت object، State اولیه معتبر ایجاد شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public string AccountNumber
+    {
+        get;
+    }
+
+    public decimal Balance
+    {
+        get;
+        private set;
+    }
+
+    public BankAccount(
+        string accountNumber,
+        decimal initialBalance)
+    {
+        if (string.IsNullOrWhiteSpace(
+            accountNumber))
+        {
+            throw new ArgumentException(
+                "Account number is required.",
+                nameof(accountNumber));
+        }
+
+        if (initialBalance &lt; 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(initialBalance));
+        }
+
+        AccountNumber =
+            accountNumber;
+
+        Balance =
+            initialBalance;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account =
+    new BankAccount(
+        "100-200-300",
+        1_000_000);</code></pre>
+          </div>
+          <p>
+            Constructor کمک می‌کند object از همان لحظهٔ ساخته‌شدن در وضعیت معتبر قرار بگیرد.
+          </p>
+          <h2>Mutable Class</h2>
+          <p>
+            اگر State یک object بعد از ساخته‌شدن قابل تغییر باشد، آن object Mutable است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    public string Name
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+customer.Name =
+    "Ali";</code></pre>
+          </div>
+          <p>
+            در بسیاری از Domain Modelها تغییر State طبیعی است؛ مثلاً وضعیت یک Order یا Balance یک Account می‌تواند در
+            طول زمان تغییر کند.
+          </p>
+          <h2>Immutable Class</h2>
+          <p>
+            می‌توان Class را طوری طراحی کرد که State آن پس از construction مستقیماً قابل تغییر نباشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed class Money
+{
+    public decimal Amount
+    {
+        get;
+    }
+
+    public string Currency
+    {
+        get;
+    }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        Amount = amount;
+        Currency = currency;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این طراحی Setter عمومی نداریم. بعد از ساخته‌شدن <code>Money</code>، مصرف‌کننده نمی‌تواند Amount یا
+            Currency آن را مستقیماً تغییر دهد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Reference Type بودن به معنی Mutable بودن نیست. یک Class همچنان Reference Type است، حتی اگر آن را به‌صورت
+              Immutable طراحی کنیم.
+            </div>
+          </div>
+          <h2>Class و Encapsulation</h2>
+          <p>
+            Class فقط ظرفی برای Propertyها نیست. یکی از اهداف مهم آن محافظت از invariants و قرار دادن رفتار کنار داده
+            است.
+          </p>
+          <h3>طراحی ضعیف</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            هر بخش برنامه می‌تواند Balance را به هر مقداری تغییر دهد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>account.Balance =
+    -10_000_000;</code></pre>
+          </div>
+          <h3>طراحی بهتر</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public decimal Balance
+    {
+        get;
+        private set;
+    }
+
+    public void Withdraw(
+        decimal amount)
+    {
+        if (amount &lt;= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+        }
+
+        if (amount &gt; Balance)
+        {
+            throw new InvalidOperationException(
+                "Insufficient balance.");
+        }
+
+        Balance -= amount;
+    }
+}</code></pre>
+          </div>
+          <p>
+            حالا تغییر Balance از طریق یک Behavior معنادار انجام می‌شود و Class می‌تواند قوانین خودش را enforce کند.
+          </p>
+          <h2>Equality پیش‌فرض در Class</h2>
+          <p>
+            برای Classهای معمولی، Equality پیش‌فرض معمولاً بر اساس reference identity است، مگر اینکه Equality را
+            override یا overload کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Customer
+{
+    public string Name
+    {
+        get;
+        init;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customer1 =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+var customer2 =
+    new Customer
+    {
+        Name = "Hamed"
+    };
+
+Console.WriteLine(
+    customer1 == customer2);
+// False</code></pre>
+          </div>
+          <p>
+            با اینکه Propertyها مقدار یکسان دارند، دو object مستقل هستند.
+            این نکته یکی از تفاوت‌های مهمی است که بعداً هنگام مقایسهٔ <code>class</code> و <code>record</code> خواهیم
+            دید.
+          </p>
+          <h2>Class در مدل‌سازی Entity</h2>
+          <p>
+            Class انتخاب طبیعی و رایجی برای Entityهایی است که Identity و Lifecycle دارند.
+            برای مثال یک Transaction ممکن است در طول زمان Stateهای مختلفی داشته باشد، اما همچنان همان Transaction باقی
+            بماند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Transaction
+{
+    public Guid Id
+    {
+        get;
+    }
+
+    public decimal Amount
+    {
+        get;
+    }
+
+    public TransactionStatus Status
+    {
+        get;
+        private set;
+    }
+
+    public Transaction(
+        Guid id,
+        decimal amount)
+    {
+        Id = id;
+        Amount = amount;
+        Status =
+            TransactionStatus.Pending;
+    }
+
+    public void Complete()
+    {
+        if (Status !=
+            TransactionStatus.Pending)
+        {
+            throw new InvalidOperationException(
+                "Only pending transactions can be completed.");
+        }
+
+        Status =
+            TransactionStatus.Completed;
+    }
+}</code></pre>
+          </div>
+          <p>
+            این object دارای Identity، State و Behavior است و Class ابزار مناسبی برای مدل‌کردن چنین مفهومی است.
+          </p>
+          <h2>مثال استفاده</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var transaction =
+    new Transaction(
+        Guid.NewGuid(),
+        500_000);
+
+Console.WriteLine(
+    transaction.Status);
+// Pending
+
+transaction.Complete();
+
+Console.WriteLine(
+    transaction.Status);
+// Completed</code></pre>
+          </div>
+          <p class="example-explanation">
+            به جای اینکه کد بیرونی مستقیماً Status را تغییر دهد، خود Transaction رفتار <code>Complete()</code> را ارائه
+            می‌دهد
+            و قانون تغییر State را کنترل می‌کند.
+          </p>
+          <h2>ویژگی‌های مهم Class</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>Class</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نوع</td>
+                <td>Reference Type</td>
+              </tr>
+              <tr>
+                <td>ساخت Instance</td>
+                <td>معمولاً با <code>new</code></td>
+              </tr>
+              <tr>
+                <td>Assignment</td>
+                <td>Reference کپی می‌شود.</td>
+              </tr>
+              <tr>
+                <td>Inheritance</td>
+                <td>پشتیبانی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Polymorphism</td>
+                <td>پشتیبانی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Constructor</td>
+                <td>پشتیبانی می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Mutable بودن</td>
+                <td>می‌تواند Mutable یا Immutable باشد.</td>
+              </tr>
+              <tr>
+                <td>Equality پیش‌فرض</td>
+                <td>برای class معمولی معمولاً Reference-based است.</td>
+              </tr>
+              <tr>
+                <td>کاربرد رایج</td>
+                <td>Entityها و objectهای دارای Identity، State و Behavior</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>تصور اینکه assignment یک Class باعث کپی کامل object می‌شود.</li>
+            <li>فرض اینکه هر Class الزاماً Mutable است.</li>
+            <li>استفاده از Class فقط به‌عنوان مجموعه‌ای از Getter و Setter بدون Behavior.</li>
+            <li>قرار دادن Setter عمومی روی Stateهایی که باید توسط Business Rule کنترل شوند.</li>
+            <li>فرض اینکه دو Class با Propertyهای یکسان به‌صورت پیش‌فرض برابر هستند.</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              در طراحی Domain، اگر یک مفهوم Identity دارد، Lifecycle آن مهم است و State آن از طریق Behaviorهای مشخص
+              تغییر می‌کند،
+              Class معمولاً یکی از اولین گزینه‌هایی است که باید بررسی کنید.
+            </div>
+          </div>
+          <h2>جمع‌بندی 13.1</h2>
+          <p>
+            Class در C# یک Reference Type است که برای مدل‌کردن objectهای دارای State و Behavior استفاده می‌شود.
+            ساخت objectهای مختلف از یک Class امکان‌پذیر است و چند reference نیز می‌توانند به یک instance مشترک اشاره
+            کنند.
+            Class می‌تواند Mutable یا Immutable باشد، از Constructor، Encapsulation، Inheritance و Polymorphism پشتیبانی
+            کند
+            و برای مدل‌کردن Entityهای دارای Identity و Lifecycle بسیار مناسب است.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکتهٔ کلیدی این بخش: <code>class</code> را فقط به‌عنوان «قالب ساخت object» نبینید.
+              در طراحی شی‌گرا، Class ابزاری برای قرار دادن State، Behavior و Business Ruleهای مرتبط در یک abstraction
+              منسجم است.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

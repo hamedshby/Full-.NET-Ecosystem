@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Static Class از مسیر حرفه‌ای .NET.">
-  <title>Static Class | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Static در طراحی شی‌گرا شامل Static Class، Method، Property، Field، Constructor، مشکلات استفاده بیش از حد، Testability و مقایسه با Dependency Injection."
+    name="description" />
+  <title>Static در طراحی شی‌گرا در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,686 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-12-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-12-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 12 — Static در طراحی شی‌گرا</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Static Class</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>فصل 12 — <bdi>Static</bdi> در طراحی شی‌گرا</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            کلمهٔ کلیدی <code>static</code> یکی از ابزارهای مهم C# است. با Static می‌توان عضو یا حتی یک class را
+            به خود type وابسته کرد، نه به یک object مشخص. این قابلیت برای utilityهای بدون State و بعضی داده‌های مشترک
+            مفید است،
+            اما استفادهٔ بیش از حد از آن می‌تواند Coupling، Shared State و مشکلات تست‌پذیری ایجاد کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              عضو Instance به یک object مشخص تعلق دارد؛ عضو Static به خود type تعلق دارد.
+              بنابراین برای استفاده از عضو Static معمولاً نیازی به ساخت object با <code>new</code> نیست.
+            </div>
+          </div>
+          <h2>12.1 <bdi>Static Class</bdi></h2>
+          <p>
+            Static Class کلاسی است که نمی‌توان از آن instance ساخت و تمام اعضای آن باید static باشند.
+            این نوع class برای عملیات stateless و utilityهای عمومی مناسب است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class MoneyCalculator
+{
+    public static decimal CalculateFee(
+        decimal amount,
+        decimal feePercent)
+    {
+        return amount * feePercent;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>decimal fee =
+    MoneyCalculator.CalculateFee(
+        1_000_000,
+        0.01m);
+
+Console.WriteLine(fee);
+// 10000</code></pre>
+          </div>
+          <h3>ویژگی‌های Static Class</h3>
+          <ul>
+            <li>نمی‌توان از آن object ساخت.</li>
+            <li>Instance Constructor ندارد.</li>
+            <li>تمام اعضای آن static هستند.</li>
+            <li>برای utilityهای stateless مناسب است.</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              هر class بدون State لزوماً نباید Static باشد. اگر نیاز به Dependency Injection، چند implementation یا Test
+              Double دارید،
+              Static کردن class می‌تواند انعطاف طراحی را کاهش دهد.
+            </div>
+          </div>
+          <h2>12.2 <bdi>Static Method</bdi></h2>
+          <p>
+            Static Method به خود type تعلق دارد و برای فراخوانی آن نیازی به instance نداریم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentValidator
+{
+    public static bool IsValidAmount(
+        decimal amount)
+    {
+        return amount &gt; 0;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>bool isValid =
+    PaymentValidator.IsValidAmount(
+        500_000);</code></pre>
+          </div>
+          <p>
+            Static Method بدون داشتن reference به یک object نمی‌تواند مستقیماً به Instance State دسترسی داشته باشد.
+          </p>
+          <h3>چه زمانی Static Method مناسب است؟</h3>
+          <ul>
+            <li>عملیات stateless است.</li>
+            <li>به dependency خارجی نیاز ندارد.</li>
+            <li>به State یک object مشخص وابسته نیست.</li>
+            <li>رفتار pure یا utility است.</li>
+          </ul>
+          <h2>12.3 <bdi>Static Property</bdi></h2>
+          <p>
+            Static Property به type تعلق دارد و مقدار آن بین تمام instanceها مشترک است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    public static string BankName
+    {
+        get;
+        set;
+    } = "DotNet Bank";
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Console.WriteLine(
+    BankAccount.BankName);
+
+BankAccount.BankName =
+    "OOP Bank";</code></pre>
+          </div>
+          <p>
+            تغییر این Property برای کل type قابل مشاهده است، نه فقط برای یک object.
+          </p>
+          <h2>12.4 <bdi>Static Field</bdi></h2>
+          <p>
+            Static Field یک محل ذخیره‌سازی مشترک برای کل type ایجاد می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAccount
+{
+    private static int _accountCount;
+
+    public BankAccount()
+    {
+        _accountCount++;
+    }
+
+    public static int AccountCount
+        =&gt; _accountCount;
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var account1 =
+    new BankAccount();
+
+var account2 =
+    new BankAccount();
+
+Console.WriteLine(
+    BankAccount.AccountCount);
+// 2</code></pre>
+          </div>
+          <h3>Shared Mutable State</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class GlobalPaymentState
+{
+    public static decimal TotalAmount;
+}</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">🚨</span>
+            <div class="callout-content">
+              Shared Mutable Static State می‌تواند باعث Race Condition، coupling پنهان و وابستگی بین Testها شود،
+              مخصوصاً در برنامه‌های concurrent مانند ASP.NET Core.
+            </div>
+          </div>
+          <h2>12.5 <bdi>Static Constructor</bdi></h2>
+          <p>
+            Static Constructor برای initialization یک‌بارهٔ State مربوط به type استفاده می‌شود و Runtime آن را مدیریت
+            می‌کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentSettings
+{
+    public static readonly Guid InstanceId;
+
+    public static string EnvironmentName
+    {
+        get;
+    }
+
+    static PaymentSettings()
+    {
+        InstanceId =
+            Guid.NewGuid();
+
+        EnvironmentName =
+            Environment.GetEnvironmentVariable(
+                "ASPNETCORE_ENVIRONMENT")
+            ?? "Production";
+    }
+}</code></pre>
+          </div>
+          <ul>
+            <li>Parameter ندارد.</li>
+            <li>Access Modifier ندارد.</li>
+            <li>مستقیماً فراخوانی نمی‌شود.</li>
+            <li>حداکثر یک‌بار برای type اجرا می‌شود.</li>
+          </ul>
+          <h2>12.6 مشکلات استفاده بیش از حد از <bdi>Static</bdi></h2>
+          <h3>Global State</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class CurrentPayment
+{
+    public static string?
+        TransactionId { get; set; }
+
+    public static decimal
+        Amount { get; set; }
+}</code></pre>
+          </div>
+          <p>
+            چند request یا thread می‌توانند روی State مشترک کار کنند و اطلاعات یکدیگر را overwrite کنند.
+          </p>
+          <h3>Hidden Dependency</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class EmailSender
+{
+    public static void Send(
+        string message)
+    {
+        // Send email
+    }
+}
+
+public class PaymentService
+{
+    public void Pay()
+    {
+        EmailSender.Send(
+            "Payment completed");
+    }
+}</code></pre>
+          </div>
+          <p>
+            از Constructor مربوط به <code>PaymentService</code> مشخص نیست که این class به Email Sending وابسته است.
+          </p>
+          <h3>Coupling بالا</h3>
+          <p>
+            کد مستقیماً به implementation مشخص وابسته می‌شود و جایگزین‌کردن آن سخت‌تر خواهد شد.
+          </p>
+          <h3>Concurrency</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class Counter
+{
+    public static int Value;
+
+    public static void Increment()
+    {
+        Value++;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در محیط concurrent، <code>Value++</code> یک عملیات atomic نیست و می‌تواند باعث Lost Update شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              مشکل اصلی Static بودن نیست؛ مشکل زمانی ایجاد می‌شود که Business State قابل‌تغییر یا dependency خارجی را
+              به‌صورت global و پنهان مدیریت کنیم.
+            </div>
+          </div>
+          <h2>12.7 <bdi>Static و Testability</bdi></h2>
+          <p>
+            Static Utilityهای ساده معمولاً تست‌پذیری خوبی دارند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class FeeCalculator
+{
+    public static decimal Calculate(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Method deterministic است و dependency خارجی ندارد.
+          </p>
+          <h3>مشکل dependencyهای Static</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class SystemClock
+{
+    public static DateTime UtcNow
+        =&gt; DateTime.UtcNow;
+}
+
+public class TransactionService
+{
+    public Transaction Create()
+    {
+        return new Transaction
+        {
+            CreatedAt =
+                SystemClock.UtcNow
+        };
+    }
+}</code></pre>
+          </div>
+          <p>
+            Unit Test نمی‌تواند زمان را به‌راحتی کنترل کند.
+          </p>
+          <h3>نسخه قابل تست</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IClock
+{
+    DateTime UtcNow { get; }
+}
+
+public class SystemClock
+    : IClock
+{
+    public DateTime UtcNow
+        =&gt; DateTime.UtcNow;
+}
+
+public class TransactionService
+{
+    private readonly IClock _clock;
+
+    public TransactionService(
+        IClock clock)
+    {
+        _clock = clock;
+    }
+
+    public Transaction Create()
+    {
+        return new Transaction
+        {
+            CreatedAt =
+                _clock.UtcNow
+        };
+    }
+}</code></pre>
+          </div>
+          <h3>Fake برای Unit Test</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class FakeClock
+    : IClock
+{
+    public DateTime UtcNow
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Static Mutable State یکی از دلایل رایج Testهای flaky است؛ مخصوصاً وقتی ترتیب اجرای Testها یا Parallel
+              Execution
+              روی نتیجه اثر بگذارد.
+            </div>
+          </div>
+          <h2>12.8 <bdi>Static vs Dependency Injection</bdi></h2>
+          <p>
+            Static و Dependency Injection جایگزین مطلق یکدیگر نیستند. هرکدام برای سناریوی متفاوتی مناسب‌اند.
+          </p>
+          <h3>طراحی Static</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class NotificationService
+{
+    public static Task SendAsync(
+        string message)
+    {
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <h3>طراحی با Dependency Injection</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface INotificationSender
+{
+    Task SendAsync(
+        string message);
+}
+
+public class SmsNotificationSender
+    : INotificationSender
+{
+    public Task SendAsync(
+        string message)
+    {
+        return Task.CompletedTask;
+    }
+}
+
+public class PaymentService
+{
+    private readonly INotificationSender
+        _notificationSender;
+
+    public PaymentService(
+        INotificationSender notificationSender)
+    {
+        _notificationSender =
+            notificationSender;
+    }
+
+    public async Task PayAsync()
+    {
+        // Payment logic
+
+        await _notificationSender.SendAsync(
+            "Payment completed");
+    }
+}</code></pre>
+          </div>
+          <h3>ثبت در ASP.NET Core DI</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;INotificationSender,
+     SmsNotificationSender&gt;();
+
+builder.Services.AddScoped
+    &lt;PaymentService&gt;();</code></pre>
+          </div>
+          <h2>مقایسه Static و DI</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>موضوع</th>
+                <th>Static</th>
+                <th>Dependency Injection</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ساخت object</td>
+                <td>نیاز ندارد.</td>
+                <td>Container یا Caller مدیریت می‌کند.</td>
+              </tr>
+              <tr>
+                <td>Dependency visibility</td>
+                <td>ممکن است پنهان باشد.</td>
+                <td>معمولاً در Constructor واضح است.</td>
+              </tr>
+              <tr>
+                <td>چند Implementation</td>
+                <td>سخت‌تر</td>
+                <td>طبیعی و ساده</td>
+              </tr>
+              <tr>
+                <td>Unit Testing</td>
+                <td>برای dependency خارجی سخت‌تر</td>
+                <td>Fake/Mock قابل inject است.</td>
+              </tr>
+              <tr>
+                <td>Lifetime</td>
+                <td>Type/Process-level</td>
+                <td>Transient / Scoped / Singleton</td>
+              </tr>
+              <tr>
+                <td>Utility بدون State</td>
+                <td>بسیار مناسب</td>
+                <td>اغلب unnecessary</td>
+              </tr>
+              <tr>
+                <td>Business Service وابسته به IO</td>
+                <td>معمولاً ضعیف‌تر</td>
+                <td>معمولاً مناسب‌تر</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>چه چیزهایی معمولاً Static مناسبی هستند؟</h2>
+          <ul>
+            <li>Pure Functionها</li>
+            <li>Extension Methodها</li>
+            <li>Helperهای بدون dependency و State</li>
+            <li>Constants و metadataهای واقعاً سراسری</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static class CardNumberExtensions
+{
+    public static string Mask(
+        this string cardNumber)
+    {
+        return
+            $"******{cardNumber[^4..]}";
+    }
+}</code></pre>
+          </div>
+          <h2>چه چیزهایی معمولاً بهتر است Static نباشند؟</h2>
+          <ul>
+            <li>Repositoryها</li>
+            <li>Database Access</li>
+            <li>HTTP Client Wrapperها</li>
+            <li>Message Publisherها</li>
+            <li>Email/SMS Senderها</li>
+            <li>Clock و Random Generator وقتی کنترل آن‌ها در Test مهم است</li>
+            <li>Business Serviceهای وابسته به IO</li>
+            <li>State مربوط به Request یا User</li>
+          </ul>
+          <h2>مثال واقعی: Payment Service</h2>
+          <h3>نسخه با Static Dependency</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    public async Task PayAsync(
+        decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        await BankApi.SendAsync(
+            amount);
+
+        await SmsSender.SendAsync(
+            "Payment completed");
+
+        GlobalMetrics.PaymentCount++;
+    }
+}</code></pre>
+          </div>
+          <p>
+            این class ظاهراً Constructor ندارد، اما در واقع چند dependency پنهان دارد.
+          </p>
+          <h3>نسخه مبتنی بر Abstraction و DI</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken);
+}
+
+public interface INotificationSender
+{
+    Task SendAsync(
+        string message,
+        CancellationToken cancellationToken);
+}
+
+public interface IPaymentMetrics
+{
+    void PaymentCompleted();
+}
+
+public class PaymentService
+{
+    private readonly IPaymentGateway
+        _paymentGateway;
+
+    private readonly INotificationSender
+        _notificationSender;
+
+    private readonly IPaymentMetrics
+        _metrics;
+
+    public PaymentService(
+        IPaymentGateway paymentGateway,
+        INotificationSender notificationSender,
+        IPaymentMetrics metrics)
+    {
+        _paymentGateway = paymentGateway;
+        _notificationSender = notificationSender;
+        _metrics = metrics;
+    }
+
+    public async Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        await _paymentGateway.PayAsync(
+            amount,
+            cancellationToken);
+
+        await _notificationSender.SendAsync(
+            "Payment completed",
+            cancellationToken);
+
+        _metrics.PaymentCompleted();
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            در نسخهٔ دوم dependencyها explicit هستند، implementationها قابل جایگزینی‌اند و Unit Test می‌تواند Fakeهای
+            مناسب را inject کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              قاعدهٔ عملی: اگر رفتار <strong>stateless، deterministic و بدون dependency خارجی</strong> است،
+              Static می‌تواند انتخاب خوبی باشد. اگر رفتار به Database، HTTP، Clock، File، Message Broker یا State وابسته
+              است،
+              object با dependencyهای صریح و DI معمولاً طراحی انعطاف‌پذیرتری می‌دهد.
+            </div>
+          </div>
+          <h2>جمع‌بندی فصل</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>مفهوم</th>
+                <th>نکتهٔ اصلی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Static Class</td>
+                <td>Type بدون instance برای رفتارهای stateless</td>
+              </tr>
+              <tr>
+                <td>Static Method</td>
+                <td>رفتاری متعلق به type</td>
+              </tr>
+              <tr>
+                <td>Static Property</td>
+                <td>Property مشترک در سطح type</td>
+              </tr>
+              <tr>
+                <td>Static Field</td>
+                <td>State مشترک؛ در صورت mutable بودن نیازمند احتیاط</td>
+              </tr>
+              <tr>
+                <td>Static Constructor</td>
+                <td>Initialization یک‌بارهٔ type</td>
+              </tr>
+              <tr>
+                <td>Testability</td>
+                <td>Static dependencyهای خارجی معمولاً تست را سخت‌تر می‌کنند.</td>
+              </tr>
+              <tr>
+                <td>Dependency Injection</td>
+                <td>Dependencyها را explicit، قابل جایگزینی و قابل تست می‌کند.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              خلاصه: Static دشمن OOP نیست. برای utilityهای بدون State ابزار بسیار خوبی است.
+              مشکل زمانی آغاز می‌شود که Static به محل نگهداری Business State یا دسترسی مستقیم به dependencyهای خارجی
+              تبدیل شود.
+              در چنین سناریوهایی Dependency Injection معمولاً Coupling کمتر، Testability بهتر و کنترل Lifetime دقیق‌تری
+              فراهم می‌کند.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
