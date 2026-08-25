@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Generics و Polymorphism از مسیر حرفه‌ای .NET.">
-  <title>Generics و Polymorphism | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش بخش 14.5 Generics و Polymorphism در C# شامل ارتباط Generics با Runtime Polymorphism، Generic Constraints، Base Type و Interface، Generic Repository، Payment Processing و تفاوت compile-time generic dispatch با runtime polymorphism."
+    name="description" />
+  <title>14.5 Generics و Polymorphism در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,869 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-14-lesson-5">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-14-lesson-5"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 14 — Generic Programming و OOP</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Generics و Polymorphism</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>14.5 — <bdi>Generics و Polymorphism</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <strong>Generics</strong> و <strong>Polymorphism</strong> دو قابلیت متفاوت در C# هستند،
+            اما وقتی در کنار هم استفاده شوند می‌توانند طراحی‌های بسیار قدرتمند، reusable و type-safe ایجاد کنند.
+            Generics به ما اجازه می‌دهند یک الگوریتم یا ساختار را برای Typeهای مختلف بنویسیم؛
+            Polymorphism نیز اجازه می‌دهد objectهای متفاوت را از طریق یک قرارداد مشترک استفاده کنیم.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              به زبان ساده:
+              <strong>Generics</strong> می‌گویند «این کد می‌تواند با Typeهای مختلف کار کند»،
+              و <strong>Polymorphism</strong> می‌گوید «Typeهای مختلف می‌توانند از طریق یک Base Type یا Interface رفتار
+              متفاوت خودشان را اجرا کنند».
+            </div>
+          </div>
+          <h2>مرور کوتاه Polymorphism</h2>
+          <p>
+            فرض کنید چند روش پرداخت داریم که همگی یک قرارداد مشترک را پیاده‌سازی می‌کنند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentMethod
+{
+    void Pay(
+        decimal amount);
+}
+
+public class CardPayment
+    : IPaymentMethod
+{
+    public void Pay(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Card payment: {amount}");
+    }
+}
+
+public class WalletPayment
+    : IPaymentMethod
+{
+    public void Pay(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Wallet payment: {amount}");
+    }
+}</code></pre>
+          </div>
+          <p>
+            اکنون می‌توانیم هر دو implementation را از طریق <code>IPaymentMethod</code> استفاده کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>IPaymentMethod payment =
+    new CardPayment();
+
+payment.Pay(
+    500_000);
+
+payment =
+    new WalletPayment();
+
+payment.Pay(
+    500_000);</code></pre>
+          </div>
+          <p>
+            این Runtime Polymorphism است؛ متدی که اجرا می‌شود به object واقعی بستگی دارد.
+          </p>
+          <h2>Generics کجای این طراحی قرار می‌گیرد؟</h2>
+          <p>
+            حالا فرض کنید می‌خواهیم یک Processor داشته باشیم که با انواع مختلف Payment Method کار کند.
+            می‌توانیم آن را Generic کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentProcessor&lt;T&gt;
+    where T : IPaymentMethod
+{
+    private readonly T
+        _paymentMethod;
+
+    public PaymentProcessor(
+        T paymentMethod)
+    {
+        _paymentMethod =
+            paymentMethod;
+    }
+
+    public void Process(
+        decimal amount)
+    {
+        _paymentMethod.Pay(
+            amount);
+    }
+}</code></pre>
+          </div>
+          <p>
+            Constraint زیر به Compiler می‌گوید <code>T</code> حتماً باید <code>IPaymentMethod</code> را implement کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>where T : IPaymentMethod</code></pre>
+          </div>
+          <p>
+            به همین دلیل داخل Generic Class می‌توانیم با اطمینان متد <code>Pay()</code> را فراخوانی کنیم.
+          </p>
+          <h2>استفاده با Implementationهای مختلف</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var cardProcessor =
+    new PaymentProcessor&lt;CardPayment&gt;(
+        new CardPayment());
+
+cardProcessor.Process(
+    500_000);
+
+var walletProcessor =
+    new PaymentProcessor&lt;WalletPayment&gt;(
+        new WalletPayment());
+
+walletProcessor.Process(
+    250_000);</code></pre>
+          </div>
+          <p>
+            یک Generic Class داریم، اما می‌تواند با چند implementation مختلف از abstraction مشترک کار کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              در این طراحی Generics باعث Reusability و Type Safety شده است،
+              در حالی که Interface قرارداد مشترکی را برای رفتار polymorphic مشخص می‌کند.
+            </div>
+          </div>
+          <h2>Generic Constraint و Polymorphism</h2>
+          <p>
+            Generic Constraint پلی مهم بین Generics و OOP است.
+            بدون Constraint، Compiler اطلاعات زیادی دربارهٔ <code>T</code> ندارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Processor&lt;T&gt;
+{
+    public void Process(
+        T item)
+    {
+        // Compile Error:
+        // item.Pay();
+    }
+}</code></pre>
+          </div>
+          <p>
+            اما اگر Constraint تعریف کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Processor&lt;T&gt;
+    where T : IPaymentMethod
+{
+    public void Process(
+        T item)
+    {
+        item.Pay(
+            500_000);
+    }
+}</code></pre>
+          </div>
+          <p>
+            Compiler اکنون می‌داند هر Typeای که جایگزین <code>T</code> شود، قرارداد <code>IPaymentMethod</code> را دارد.
+          </p>
+          <h2>Generics با Base Class</h2>
+          <p>
+            Polymorphism فقط با Interface نیست. Generic Constraint می‌تواند یک Base Class نیز باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    public decimal Amount
+    {
+        get;
+    }
+
+    protected Payment(
+        decimal amount)
+    {
+        Amount = amount;
+    }
+
+    public abstract void Process();
+}
+
+public class CardPayment
+    : Payment
+{
+    public CardPayment(
+        decimal amount)
+        : base(amount)
+    {
+    }
+
+    public override void Process()
+    {
+        Console.WriteLine(
+            "Processing card payment");
+    }
+}</code></pre>
+          </div>
+          <p>
+            Generic Processor را می‌توان به تمام Derived Typeهای <code>Payment</code> محدود کرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentHandler&lt;T&gt;
+    where T : Payment
+{
+    public void Handle(
+        T payment)
+    {
+        payment.Process();
+    }
+}</code></pre>
+          </div>
+          <p>
+            اگر <code>T</code> یک Derived Class باشد، فراخوانی <code>Process()</code> همچنان می‌تواند از Runtime
+            Polymorphism استفاده کند.
+          </p>
+          <h2>Dynamic Dispatch داخل Generic Code</h2>
+          <p>
+            فرض کنید دو نوع Payment داریم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : Payment
+{
+    public CardPayment(
+        decimal amount)
+        : base(amount)
+    {
+    }
+
+    public override void Process()
+    {
+        Console.WriteLine(
+            "Card payment");
+    }
+}
+
+public class CryptoPayment
+    : Payment
+{
+    public CryptoPayment(
+        decimal amount)
+        : base(amount)
+    {
+    }
+
+    public override void Process()
+    {
+        Console.WriteLine(
+            "Crypto payment");
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var cardHandler =
+    new PaymentHandler&lt;CardPayment&gt;();
+
+cardHandler.Handle(
+    new CardPayment(
+        500_000));
+
+var cryptoHandler =
+    new PaymentHandler&lt;CryptoPayment&gt;();
+
+cryptoHandler.Handle(
+    new CryptoPayment(
+        700_000));</code></pre>
+          </div>
+          <p>
+            Generic Handler یک الگوریتم مشترک دارد، اما رفتار واقعی Payment توسط implementation مربوط به همان Type اجرا
+            می‌شود.
+          </p>
+          <h2>Generics جایگزین Polymorphism نیست</h2>
+          <p>
+            این دو مفهوم مسئله‌های متفاوتی را حل می‌کنند.
+            برای مثال، اگر فقط بخواهیم مجموعه‌ای از Payment Methodهای مختلف داشته باشیم،
+            ممکن است اصلاً Generic لازم نباشد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>List&lt;IPaymentMethod&gt;
+    paymentMethods =
+    [
+        new CardPayment(),
+        new WalletPayment()
+    ];
+
+foreach (
+    IPaymentMethod paymentMethod
+    in paymentMethods)
+{
+    paymentMethod.Pay(
+        500_000);
+}</code></pre>
+          </div>
+          <p>
+            در اینجا خود <code>List&lt;T&gt;</code> Generic است، اما polymorphic behavior از طریق
+            <code>IPaymentMethod</code> اتفاق می‌افتد.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              فقط به این دلیل که چند implementation داریم، لازم نیست Service خودمان را Generic کنیم.
+              گاهی وابستگی مستقیم به یک Interface ساده‌تر، خواناتر و مناسب‌تر است.
+            </div>
+          </div>
+          <h2>Generic Processor یا Interface Dependency؟</h2>
+          <p>
+            این طراحی را ببینید:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentMethod
+        _paymentMethod;
+
+    public PaymentService(
+        IPaymentMethod paymentMethod)
+    {
+        _paymentMethod =
+            paymentMethod;
+    }
+
+    public void Process(
+        decimal amount)
+    {
+        _paymentMethod.Pay(
+            amount);
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Service بدون Generic نیز polymorphic است و در بسیاری از Business Serviceها همین طراحی کافی است.
+          </p>
+          <p>
+            نسخه Generic:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService&lt;T&gt;
+    where T : IPaymentMethod
+{
+    private readonly T
+        _paymentMethod;
+
+    public PaymentService(
+        T paymentMethod)
+    {
+        _paymentMethod =
+            paymentMethod;
+    }
+}</code></pre>
+          </div>
+          <p>
+            نسخه Generic زمانی ارزش بیشتری دارد که خود Type مشخص <code>T</code> بخشی از API یا رفتار طراحی باشد،
+            یا لازم باشد type-specific information را در Compile Time حفظ کنیم.
+          </p>
+          <h2>مثال واقعی: Generic Repository و Polymorphism</h2>
+          <p>
+            فرض کنید تمام Entityها یک Base Class مشترک دارند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Entity
+{
+    public Guid Id
+    {
+        get;
+        protected set;
+    }
+}
+
+public class Customer
+    : Entity
+{
+    public string Name
+    {
+        get;
+        set;
+    }
+}
+
+public class Transaction
+    : Entity
+{
+    public decimal Amount
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            می‌توانیم Repository را Generic طراحی کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Repository&lt;TEntity&gt;
+    where TEntity : Entity
+{
+    private readonly List&lt;TEntity&gt;
+        _items = new();
+
+    public void Add(
+        TEntity entity)
+    {
+        _items.Add(entity);
+    }
+
+    public TEntity? Find(
+        Guid id)
+    {
+        return _items.FirstOrDefault(
+            x =&gt; x.Id == id);
+    }
+}</code></pre>
+          </div>
+          <p>
+            حالا یک implementation مشترک برای تمام Entityها داریم، اما Type Safety هر Entity حفظ می‌شود:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customerRepository =
+    new Repository&lt;Customer&gt;();
+
+var transactionRepository =
+    new Repository&lt;Transaction&gt;();</code></pre>
+          </div>
+          <p>
+            Generic Constraint اجازه می‌دهد Repository از اعضای Base Class مانند <code>Id</code> استفاده کند.
+          </p>
+          <h2>Generic Interface و Polymorphism</h2>
+          <p>
+            یکی از کاربردهای مهم ترکیب Generics و Polymorphism، Generic Interfaceها هستند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IHandler&lt;TRequest&gt;
+{
+    Task HandleAsync(
+        TRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            برای هر Request می‌توان implementation متفاوتی داشت:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CreatePaymentHandler
+    : IHandler&lt;CreatePaymentRequest&gt;
+{
+    public Task HandleAsync(
+        CreatePaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        Console.WriteLine(
+            "Create payment");
+
+        return Task.CompletedTask;
+    }
+}
+
+public class RefundPaymentHandler
+    : IHandler&lt;RefundPaymentRequest&gt;
+{
+    public Task HandleAsync(
+        RefundPaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        Console.WriteLine(
+            "Refund payment");
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            هر Handler همان abstraction عمومی را پیاده‌سازی می‌کند، اما رفتار مخصوص Request خودش را دارد.
+          </p>
+          <h2>مثال نزدیک به CQRS</h2>
+          <p>
+            این الگو در معماری‌هایی مانند CQRS بسیار رایج است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface ICommandHandler
+    &lt;TCommand, TResult&gt;
+{
+    Task&lt;TResult&gt; HandleAsync(
+        TCommand command,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            یک Handler برای Purchase:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PurchaseHandler
+    : ICommandHandler
+        &lt;PurchaseCommand,
+         PurchaseResult&gt;
+{
+    public Task&lt;PurchaseResult&gt;
+        HandleAsync(
+            PurchaseCommand command,
+            CancellationToken cancellationToken)
+    {
+        // Purchase logic
+
+        return Task.FromResult(
+            new PurchaseResult());
+    }
+}</code></pre>
+          </div>
+          <p>
+            و Handler دیگری برای Reversal:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class ReversalHandler
+    : ICommandHandler
+        &lt;ReversalCommand,
+         ReversalResult&gt;
+{
+    public Task&lt;ReversalResult&gt;
+        HandleAsync(
+            ReversalCommand command,
+            CancellationToken cancellationToken)
+    {
+        // Reversal logic
+
+        return Task.FromResult(
+            new ReversalResult());
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            Generic Interface شکل قرارداد را reusable کرده است و Polymorphism اجازه می‌دهد هر Handler implementation
+            متفاوت خودش را داشته باشد.
+            این ترکیب در بسیاری از Frameworkها و معماری‌های مدرن .NET دیده می‌شود.
+          </p>
+          <h2>Compile-Time Type Safety + Runtime Behavior</h2>
+          <p>
+            یکی از جذاب‌ترین ویژگی‌های ترکیب Generics و Polymorphism این است که می‌توانیم
+            Type Safety را در Compile Time داشته باشیم و در عین حال رفتار متفاوت objectها را در Runtime اجرا کنیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static void Execute&lt;T&gt;(
+    T payment,
+    decimal amount)
+    where T : IPaymentMethod
+{
+    payment.Pay(
+        amount);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Execute(
+    new CardPayment(),
+    500_000);
+
+Execute(
+    new WalletPayment(),
+    250_000);</code></pre>
+          </div>
+          <p>
+            Compiler تضمین می‌کند argument قرارداد موردنظر را دارد و implementation واقعی رفتار خودش را اجرا می‌کند.
+          </p>
+          <h2>تفاوت Generic Dispatch و Runtime Polymorphism</h2>
+          <p>
+            مهم است Generics را خودِ Runtime Polymorphism تصور نکنیم.
+            Generic Type Argument معمولاً در Compile Time مشخص و type-safe است؛
+            اما virtual/interface dispatch تعیین می‌کند کدام implementation در Runtime اجرا شود.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Generics</th>
+                <th>Polymorphism</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>تمرکز روی Type Parameterها دارد.</td>
+                <td>تمرکز روی رفتار چندشکلی دارد.</td>
+              </tr>
+              <tr>
+                <td>Reusability و Type Safety ایجاد می‌کند.</td>
+                <td>جایگزینی implementationها را ممکن می‌کند.</td>
+              </tr>
+              <tr>
+                <td>مثل <code>Repository&lt;T&gt;</code></td>
+                <td>مثل <code>IPaymentMethod.Pay()</code></td>
+              </tr>
+              <tr>
+                <td>Type Argument مشخص می‌شود.</td>
+                <td>رفتار واقعی می‌تواند در Runtime انتخاب شود.</td>
+              </tr>
+              <tr>
+                <td>با Constraint می‌تواند قابلیت‌های T را محدود کند.</td>
+                <td>با Interface یا virtual/override قرارداد رفتاری می‌سازد.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>مثال کامل: Notification Pipeline</h2>
+          <p>
+            فرض کنید چند نوع Notification داریم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface INotification
+{
+}
+
+public record PaymentCompleted(
+    Guid TransactionId)
+    : INotification;
+
+public record PaymentFailed(
+    Guid TransactionId,
+    string ErrorCode)
+    : INotification;</code></pre>
+          </div>
+          <p>
+            یک Generic Handler تعریف می‌کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface INotificationHandler&lt;T&gt;
+    where T : INotification
+{
+    Task HandleAsync(
+        T notification,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            هر Notification Handler رفتار خودش را دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentCompletedHandler
+    : INotificationHandler
+        &lt;PaymentCompleted&gt;
+{
+    public Task HandleAsync(
+        PaymentCompleted notification,
+        CancellationToken cancellationToken)
+    {
+        Console.WriteLine(
+            "Payment completed.");
+
+        return Task.CompletedTask;
+    }
+}
+
+public class PaymentFailedHandler
+    : INotificationHandler
+        &lt;PaymentFailed&gt;
+{
+    public Task HandleAsync(
+        PaymentFailed notification,
+        CancellationToken cancellationToken)
+    {
+        Console.WriteLine(
+            $"Payment failed: {notification.ErrorCode}");
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این طراحی:
+          </p>
+          <ul>
+            <li>Generics قرارداد Handler را reusable کرده است.</li>
+            <li>Constraint مشخص می‌کند فقط Notificationها مجاز هستند.</li>
+            <li>هر Handler implementation متفاوتی دارد.</li>
+            <li>Compiler ارتباط Request و Handler را type-safe نگه می‌دارد.</li>
+            <li>Polymorphism امکان کار از طریق abstraction را فراهم می‌کند.</li>
+          </ul>
+          <h2>Generics و Dependency Injection</h2>
+          <p>
+            Generic abstractionها در ASP.NET Core DI نیز بسیار رایج‌اند.
+            برای مثال می‌توان یک Open Generic registration داشت:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IRepository&lt;T&gt;
+{
+}
+
+public class Repository&lt;T&gt;
+    : IRepository&lt;T&gt;
+{
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped(
+    typeof(IRepository&lt;&gt;),
+    typeof(Repository&lt;&gt;));</code></pre>
+          </div>
+          <p>
+            سپس DI Container می‌تواند هنگام نیاز Type بستهٔ مناسب را ایجاد کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IRepository&lt;Payment&gt;
+        _repository;
+
+    public PaymentService(
+        IRepository&lt;Payment&gt; repository)
+    {
+        _repository =
+            repository;
+    }
+}</code></pre>
+          </div>
+          <p>
+            اینجا Generic Interface یک abstraction type-safe ایجاد کرده و implementation از طریق Dependency Injection
+            جایگزین‌پذیر است.
+          </p>
+          <h2>چه زمانی Generics و Polymorphism را ترکیب کنیم؟</h2>
+          <ul>
+            <li>وقتی یک قرارداد مشترک برای چند Type داریم.</li>
+            <li>وقتی باید Type دقیق در Compile Time حفظ شود.</li>
+            <li>وقتی الگوریتم یا infrastructure مشترک است ولی implementationها متفاوت‌اند.</li>
+            <li>در Handlerها، Repositoryها، Pipelineها و Strategyهای type-specific.</li>
+            <li>وقتی Generic Constraint یک abstraction واقعی Domain یا Application را بیان می‌کند.</li>
+          </ul>
+          <h2>چه زمانی ترکیب آن‌ها بیش از حد پیچیده می‌شود؟</h2>
+          <p>
+            Generics می‌توانند طراحی را قدرتمند کنند، اما abstractionهای چندلایه و Type Parameterهای زیاد ممکن است
+            خوانایی را کاهش دهند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>// خواندن چنین طراحی‌هایی
+// می‌تواند سخت شود:
+
+Processor
+    &lt;TRequest,
+     TResponse,
+     THandler,
+     TValidator,
+     TStrategy&gt;</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Generic abstraction را فقط زمانی اضافه کنید که یک الگوی واقعی و تکرارشونده وجود دارد.
+              هدف، طراحی واضح‌تر و reusableتر است؛ نه نمایش پیچیدگی Type System.
+            </div>
+          </div>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>تصور اینکه Generics و Polymorphism یک مفهوم هستند.</li>
+            <li>Generic کردن Service فقط چون چند implementation از یک Interface وجود دارد.</li>
+            <li>فراموش کردن Constraint و در نتیجه ناتوانی در استفاده از رفتار موردنیاز روی <code>T</code>.</li>
+            <li>استفاده از Type Parameterهای زیاد و ایجاد abstraction پیچیده.</li>
+            <li>جایگزین کردن inheritance یا interface ساده با Genericهای غیرضروری.</li>
+            <li>تصور اینکه Generic بودن به‌تنهایی Runtime Polymorphism ایجاد می‌کند.</li>
+          </ul>
+          <h2>مدل ذهنی ساده</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>              Generics
+                 │
+                 │
+        "با چه Typeای کار کنم؟"
+                 │
+                 ▼
+        PaymentProcessor&lt;T&gt;
+                 │
+          where T : IPayment
+                 │
+                 ▼
+            IPayment
+          /          \
+         /            \
+CardPayment       WalletPayment
+     │                 │
+     └──── Polymorphism ┘
+          "چه رفتاری
+           اجرا شود؟"</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              مدل ذهنی پیشنهادی:
+              <strong>Generics دربارهٔ Type است؛ Polymorphism دربارهٔ Behavior.</strong>
+              Generic Constraint این دو دنیا را به هم متصل می‌کند و می‌گوید Type عمومی <code>T</code> باید چه قرارداد
+              رفتاری‌ای داشته باشد.
+            </div>
+          </div>
+          <h2>جمع‌بندی 14.5</h2>
+          <p>
+            Generics و Polymorphism دو قابلیت مکمل هستند.
+            Generics امکان نوشتن کد reusable و type-safe برای Typeهای مختلف را فراهم می‌کند،
+            در حالی که Polymorphism اجازه می‌دهد implementationهای متفاوت از طریق یک Base Class یا Interface رفتار مخصوص
+            خودشان را اجرا کنند.
+            Generic Constraints نیز به Generic Code اجازه می‌دهند به abstractionهای OOP تکیه کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکتهٔ کلیدی:
+              <code>Repository&lt;TEntity&gt;</code>، <code>IHandler&lt;TRequest&gt;</code> و
+              <code>ICommandHandler&lt;TCommand, TResult&gt;</code> نمونه‌های خوبی از ترکیب Generics با abstraction و
+              polymorphism هستند.
+              اما اگر یک Interface ساده مسئله را حل می‌کند، Generic کردن طراحی الزاماً آن را بهتر نمی‌کند.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

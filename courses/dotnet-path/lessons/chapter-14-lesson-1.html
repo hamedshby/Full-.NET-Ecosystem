@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Generic Class از مسیر حرفه‌ای .NET.">
-  <title>Generic Class | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش بخش 14.1 Generic Class در C# شامل مفهوم Generics، Type Parameter، ساخت Generic Class، استفاده با چند Type، Type Safety، Reusability، Generic Repository و مثال‌های واقعی."
+    name="description" />
+  <title>14.1 Generic Class در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,798 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-14-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-14-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 14 — Generic Programming و OOP</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Generic Class</h1>
+          <div class="article-tag">🧩 مفاهیم پایه OOP</div>
+          <h1>14.1 — <bdi>Generic Class</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در C#، <strong>Generic Class</strong> کلاسی است که به‌جای وابستگی به یک Type مشخص،
+            می‌تواند با Typeهای مختلف کار کند.
+            به این ترتیب یک بار ساختار و رفتار Class را طراحی می‌کنیم و هنگام استفاده مشخص می‌کنیم
+            که آن Class دقیقاً با چه Typeای کار کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Generics به ما کمک می‌کنند کدی بنویسیم که هم <strong>Reusable</strong> باشد و هم
+              <strong>Type-Safe</strong>. یعنی بدون تکرار یک منطق برای Typeهای مختلف، همچنان کنترل Typeها را در Compile
+              Time حفظ کنیم.
+            </div>
+          </div>
+          <h2>مشکل قبل از <bdi>Generic Class</bdi></h2>
+          <p>
+            فرض کنید می‌خواهیم یک Class ساده داشته باشیم که یک مقدار را نگهداری کند.
+            اگر فقط با <code>int</code> کار کنیم، می‌توانیم چنین Classی بنویسیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class IntBox
+{
+    public int Value
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            اگر برای <code>string</code> هم همین قابلیت را بخواهیم، ممکن است Class دیگری بسازیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class StringBox
+{
+    public string Value
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            و برای <code>decimal</code> دوباره:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class DecimalBox
+{
+    public decimal Value
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Classها تقریباً یک کار انجام می‌دهند و فقط Type آن‌ها متفاوت است.
+            این یعنی Code Duplication.
+          </p>
+          <h2>راه‌حل با Generic Class</h2>
+          <p>
+            با Generic Class می‌توانیم Type را به یک Parameter تبدیل کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Box&lt;T&gt;
+{
+    public T Value
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            در اینجا <code>T</code> یک <strong>Type Parameter</strong> است.
+            هنگام تعریف Class هنوز نمی‌دانیم <code>T</code> دقیقاً چه Typeای خواهد بود.
+          </p>
+          <h2><code>T</code> چیست؟</h2>
+          <p>
+            <code>T</code> یک نام قراردادی برای Type Parameter است.
+            حرف <code>T</code> معمولاً مخفف Type در نظر گرفته می‌شود، اما اجباری نیست.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Box&lt;T&gt;
+{
+    public T Value
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            وقتی از Class استفاده می‌کنیم، Type واقعی را مشخص می‌کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var numberBox =
+    new Box&lt;int&gt;();
+
+numberBox.Value =
+    100;
+
+var nameBox =
+    new Box&lt;string&gt;();
+
+nameBox.Value =
+    "Hamed";</code></pre>
+          </div>
+          <p>
+            در <code>Box&lt;int&gt;</code>، تمام جاهایی که <code>T</code> استفاده شده به <code>int</code> مربوط می‌شوند.
+            در <code>Box&lt;string&gt;</code> نیز <code>T</code> به <code>string</code> مربوط است.
+          </p>
+          <h2>Generic Class و Type Safety</h2>
+          <p>
+            یکی از مزیت‌های مهم Generics این است که Type مورد انتظار در Compile Time مشخص است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var box =
+    new Box&lt;int&gt;();
+
+box.Value = 100;
+
+// Compile Error:
+// box.Value = "Hamed";</code></pre>
+          </div>
+          <p>
+            چون این object از نوع <code>Box&lt;int&gt;</code> است، Property مربوط به <code>Value</code> فقط مقدار
+            <code>int</code> می‌پذیرد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              Generic به معنی «هر چیزی را قبول کن» نیست.
+              برعکس، Generic یعنی Class را برای Typeهای مختلف قابل استفاده کنیم،
+              اما هر بار Type دقیق آن را مشخص و کنترل کنیم.
+            </div>
+          </div>
+          <h2>Generic Class با Constructor</h2>
+          <p>
+            Generic Class می‌تواند Constructor داشته باشد و مقدار Generic را هنگام ساخت object دریافت کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Box&lt;T&gt;
+{
+    public T Value
+    {
+        get;
+    }
+
+    public Box(
+        T value)
+    {
+        Value = value;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var idBox =
+    new Box&lt;int&gt;(
+        1001);
+
+var nameBox =
+    new Box&lt;string&gt;(
+        "Hamed");</code></pre>
+          </div>
+          <h2>استفاده از <code>T</code> در Method</h2>
+          <p>
+            Type Parameter تعریف‌شده روی Class را می‌توان در Propertyها، Fieldها، Constructorها و Methodهای همان Class
+            استفاده کرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Storage&lt;T&gt;
+{
+    private T? _value;
+
+    public void Save(
+        T value)
+    {
+        _value = value;
+    }
+
+    public T? Get()
+    {
+        return _value;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var storage =
+    new Storage&lt;string&gt;();
+
+storage.Save(
+    "Payment completed");
+
+string? message =
+    storage.Get();</code></pre>
+          </div>
+          <h2>Generic Class با Collection</h2>
+          <p>
+            یکی از کاربردهای طبیعی Generic Class، نگهداری مجموعه‌ای از objectها با Type مشخص است.
+            خود .NET نیز collectionهایی مانند <code>List&lt;T&gt;</code> را بر همین اساس ارائه می‌دهد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class MemoryStore&lt;T&gt;
+{
+    private readonly List&lt;T&gt;
+        _items = new();
+
+    public void Add(
+        T item)
+    {
+        _items.Add(item);
+    }
+
+    public IReadOnlyList&lt;T&gt; GetAll()
+    {
+        return _items;
+    }
+}</code></pre>
+          </div>
+          <p>اکنون می‌توانیم همان Class را برای Customer استفاده کنیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customerStore =
+    new MemoryStore&lt;Customer&gt;();
+
+customerStore.Add(
+    new Customer());</code></pre>
+          </div>
+          <p>و همان Class را برای Transaction:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var transactionStore =
+    new MemoryStore&lt;Transaction&gt;();
+
+transactionStore.Add(
+    new Transaction());</code></pre>
+          </div>
+          <p>
+            منطق ذخیره‌سازی را یک بار نوشته‌ایم، اما برای Typeهای مختلف از آن استفاده می‌کنیم.
+          </p>
+          <h2>Generic Class با چند Type Parameter</h2>
+          <p>
+            یک Generic Class محدود به یک Type Parameter نیست.
+            می‌توان چند Type Parameter تعریف کرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Pair&lt;TKey, TValue&gt;
+{
+    public TKey Key
+    {
+        get;
+    }
+
+    public TValue Value
+    {
+        get;
+    }
+
+    public Pair(
+        TKey key,
+        TValue value)
+    {
+        Key = key;
+        Value = value;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var transaction =
+    new Pair&lt;string, decimal&gt;(
+        "TX-1001",
+        500_000);
+
+Console.WriteLine(
+    transaction.Key);
+
+Console.WriteLine(
+    transaction.Value);</code></pre>
+          </div>
+          <p>
+            در این مثال:
+          </p>
+          <ul>
+            <li><code>TKey</code> با <code>string</code> جایگزین شده است.</li>
+            <li><code>TValue</code> با <code>decimal</code> جایگزین شده است.</li>
+          </ul>
+          <h2>نام‌گذاری Type Parameterها</h2>
+          <p>
+            اگر فقط یک Type Parameter ساده داریم، <code>T</code> معمولاً کافی است.
+            اما وقتی چند Type Parameter یا نقش مشخص داریم، نام‌های معنادار خوانایی را بهتر می‌کنند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Repository&lt;TEntity&gt;
+{
+}
+
+public class Result&lt;TData&gt;
+{
+}
+
+public class Cache&lt;TKey, TValue&gt;
+{
+}</code></pre>
+          </div>
+          <p>
+            نام‌هایی مثل <code>TEntity</code>، <code>TKey</code> و <code>TValue</code> intent طراحی را بهتر نشان
+            می‌دهند.
+          </p>
+          <h2>Generic Class در .NET</h2>
+          <p>
+            Generics فقط قابلیتی برای Classهای خودمان نیستند.
+            بخش بزرگی از APIهای .NET بر پایه Generics طراحی شده‌اند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>List&lt;string&gt; names =
+    new();
+
+Dictionary&lt;string, decimal&gt;
+    balances =
+        new();
+
+HashSet&lt;Guid&gt; transactionIds =
+    new();
+
+Task&lt;PaymentResult&gt; result;</code></pre>
+          </div>
+          <p>
+            در تمام این مثال‌ها Type داخل <code>&lt;...&gt;</code> مشخص می‌کند Generic Type با چه داده‌ای کار خواهد کرد.
+          </p>
+          <h2>Generic Class و Reusability</h2>
+          <p>
+            فرض کنید برای Responseهای API یک ساختار مشترک داریم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class ApiResponse&lt;T&gt;
+{
+    public bool IsSuccess
+    {
+        get;
+        init;
+    }
+
+    public T? Data
+    {
+        get;
+        init;
+    }
+
+    public string? Error
+    {
+        get;
+        init;
+    }
+}</code></pre>
+          </div>
+          <p>
+            برای دریافت Customer:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>ApiResponse&lt;Customer&gt;
+    customerResponse =
+        new()
+        {
+            IsSuccess = true,
+            Data = customer
+        };</code></pre>
+          </div>
+          <p>
+            برای دریافت Transaction:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>ApiResponse&lt;Transaction&gt;
+    transactionResponse =
+        new()
+        {
+            IsSuccess = true,
+            Data = transaction
+        };</code></pre>
+          </div>
+          <p>
+            نیازی نیست <code>CustomerApiResponse</code>، <code>TransactionApiResponse</code> و ده‌ها Class مشابه بسازیم.
+          </p>
+          <h2>مثال واقعی: Generic Repository</h2>
+          <p>
+            یکی از مثال‌های شناخته‌شده برای درک Generic Class، Repository است.
+            فرض کنید چند Entity مختلف داریم و عملیات پایه برای آن‌ها مشابه است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Repository&lt;TEntity&gt;
+{
+    private readonly List&lt;TEntity&gt;
+        _items = new();
+
+    public void Add(
+        TEntity entity)
+    {
+        _items.Add(entity);
+    }
+
+    public IReadOnlyList&lt;TEntity&gt; GetAll()
+    {
+        return _items;
+    }
+}</code></pre>
+          </div>
+          <p>Repository مربوط به Customer:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var customerRepository =
+    new Repository&lt;Customer&gt;();
+
+customerRepository.Add(
+    new Customer());</code></pre>
+          </div>
+          <p>Repository مربوط به Payment:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var paymentRepository =
+    new Repository&lt;Payment&gt;();
+
+paymentRepository.Add(
+    new Payment());</code></pre>
+          </div>
+          <p class="example-explanation">
+            منطق پایهٔ Repository فقط یک بار نوشته شده است و Type واقعی Entity هنگام استفاده مشخص می‌شود.
+            در پروژه‌های واقعی Repository معمولاً dependencyهایی مانند DbContext نیز دارد و طراحی آن می‌تواند پیچیده‌تر
+            باشد؛
+            این مثال صرفاً برای درک Generic Class است.
+          </p>
+          <h2>Generic Class و OOP</h2>
+          <p>
+            Generics جایگزین OOP نیستند. آن‌ها می‌توانند در کنار Encapsulation، Abstraction و Polymorphism استفاده شوند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Result&lt;T&gt;
+{
+    public bool IsSuccess
+    {
+        get;
+    }
+
+    public T? Value
+    {
+        get;
+    }
+
+    public string? Error
+    {
+        get;
+    }
+
+    private Result(
+        bool isSuccess,
+        T? value,
+        string? error)
+    {
+        IsSuccess = isSuccess;
+        Value = value;
+        Error = error;
+    }
+
+    public static Result&lt;T&gt; Success(
+        T value)
+    {
+        return new Result&lt;T&gt;(
+            true,
+            value,
+            null);
+    }
+
+    public static Result&lt;T&gt; Failure(
+        string error)
+    {
+        return new Result&lt;T&gt;(
+            false,
+            default,
+            error);
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این مثال Generic بودن باعث Reusability شده و Encapsulation نیز اجازه نمی‌دهد object در وضعیت نامعتبر
+            ساخته شود.
+          </p>
+          <h2>Generic Typeهای مختلف، Typeهای متفاوت هستند</h2>
+          <p>
+            نکتهٔ مهم این است که <code>Box&lt;int&gt;</code> و <code>Box&lt;string&gt;</code> یک Type یکسان نیستند.
+            هرکدام یک constructed generic type متفاوت هستند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>Box&lt;int&gt; numberBox =
+    new(100);
+
+Box&lt;string&gt; textBox =
+    new("Hello");
+
+// Compile Error:
+// numberBox = textBox;</code></pre>
+          </div>
+          <p>
+            Generic بودن Type Safety را حذف نمی‌کند؛ بلکه Type Safety را همراه با Reusability فراهم می‌کند.
+          </p>
+          <h2>Generic Class و <code>object</code></h2>
+          <p>
+            قبل از Generics ممکن بود برای عمومی‌کردن یک Class از <code>object</code> استفاده شود:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class ObjectBox
+{
+    public object? Value
+    {
+        get;
+        set;
+    }
+}</code></pre>
+          </div>
+          <p>
+            مشکل این طراحی این است که تقریباً هر چیزی می‌تواند داخل آن قرار بگیرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var box =
+    new ObjectBox();
+
+box.Value = 100;
+
+box.Value = "Hamed";
+
+box.Value =
+    new Customer();</code></pre>
+          </div>
+          <p>
+            هنگام خواندن نیز ممکن است Cast لازم باشد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>int number =
+    (int)box.Value!;</code></pre>
+          </div>
+          <p>
+            اگر Type واقعی اشتباه باشد، خطا ممکن است در Runtime رخ دهد.
+          </p>
+          <h3>نسخه Generic</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var box =
+    new Box&lt;int&gt;(
+        100);
+
+int number =
+    box.Value;</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              Generics معمولاً نسبت به استفادهٔ عمومی از <code>object</code>، Type Safety بهتر و نیاز کمتر به Cast ایجاد
+              می‌کنند.
+              برای Value Typeها نیز می‌توانند از Boxingهای غیرضروری در بسیاری از سناریوها جلوگیری کنند.
+            </div>
+          </div>
+          <h2>آیا داخل Generic Class هر کاری با <code>T</code> می‌توانیم انجام دهیم؟</h2>
+          <p>
+            خیر. وقتی Compiler فقط می‌داند یک مقدار از نوع <code>T</code> است، نمی‌تواند فرض کند آن Type Method یا
+            Property خاصی دارد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Printer&lt;T&gt;
+{
+    public void Print(
+        T value)
+    {
+        // Compiler cannot assume:
+        // value.Pay();
+        // value.Save();
+    }
+}</code></pre>
+          </div>
+          <p>
+            برای اینکه Compiler دربارهٔ قابلیت‌های <code>T</code> اطلاعات بیشتری داشته باشد،
+            از <strong>Generic Constraints</strong> استفاده می‌کنیم که در بخش 14.4 به‌صورت کامل بررسی خواهد شد.
+          </p>
+          <h2>مثال Payment Processing</h2>
+          <p>
+            فرض کنید نتیجهٔ عملیات مختلف Payment System ساختار یکسانی دارد، اما Data آن‌ها متفاوت است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class OperationResult&lt;TData&gt;
+{
+    public bool IsSuccessful
+    {
+        get;
+        init;
+    }
+
+    public TData? Data
+    {
+        get;
+        init;
+    }
+
+    public string? ErrorCode
+    {
+        get;
+        init;
+    }
+}</code></pre>
+          </div>
+          <p>نتیجهٔ Purchase:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var purchaseResult =
+    new OperationResult&lt;PurchaseResponse&gt;
+    {
+        IsSuccessful = true,
+        Data =
+            new PurchaseResponse()
+    };</code></pre>
+          </div>
+          <p>نتیجهٔ Balance Inquiry:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var balanceResult =
+    new OperationResult&lt;BalanceResponse&gt;
+    {
+        IsSuccessful = true,
+        Data =
+            new BalanceResponse()
+    };</code></pre>
+          </div>
+          <p>
+            ساختار Result ثابت مانده، اما نوع Data متناسب با هر operation تغییر کرده است.
+            این یکی از کاربردهای بسیار رایج Generic Class در پروژه‌های واقعی است.
+          </p>
+          <h2>مزایای Generic Class</h2>
+          <ul>
+            <li>کاهش Code Duplication</li>
+            <li>افزایش Reusability</li>
+            <li>Type Safety در Compile Time</li>
+            <li>کاهش نیاز به Cast</li>
+            <li>امکان طراحی APIهای عمومی و در عین حال strongly typed</li>
+            <li>استفادهٔ مجدد از یک الگوریتم یا ساختار برای Typeهای مختلف</li>
+          </ul>
+          <h2>چه زمانی Generic Class مناسب است؟</h2>
+          <p>
+            وقتی رفتار یا ساختار اصلی برای چند Type یکسان است و فقط Type داده تغییر می‌کند، Generic Class ارزش بررسی
+            دارد.
+          </p>
+          <h3>مثال‌های رایج</h3>
+          <ul>
+            <li><code>Result&lt;T&gt;</code></li>
+            <li><code>ApiResponse&lt;T&gt;</code></li>
+            <li><code>Repository&lt;TEntity&gt;</code></li>
+            <li><code>Cache&lt;TKey, TValue&gt;</code></li>
+            <li><code>Queue&lt;T&gt;</code></li>
+            <li><code>List&lt;T&gt;</code></li>
+          </ul>
+          <h2>چه زمانی Generic نسازیم؟</h2>
+          <p>
+            صرف اینکه دو Class کمی شبیه هم هستند دلیل کافی برای Generic کردن آن‌ها نیست.
+            اگر رفتار Domain آن‌ها متفاوت است، Generic abstraction ممکن است طراحی را پیچیده و مبهم کند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              هدف Generics حذف هر نوع تکرار نیست.
+              Generic زمانی مفید است که یک abstraction واقعی و مشترک وجود داشته باشد و تفاوت اصلی Type داده باشد.
+              Genericهای بیش از حد پیچیده می‌توانند خوانایی کد را کاهش دهند.
+            </div>
+          </div>
+          <h2>ویژگی‌های مهم Generic Class</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>مفهوم</th>
+                <th>توضیح</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Type Parameter</td>
+                <td>Typeای مانند <code>T</code> که هنگام تعریف هنوز مشخص نشده است.</td>
+              </tr>
+              <tr>
+                <td>Type Argument</td>
+                <td>Type واقعی مانند <code>int</code> یا <code>Customer</code> هنگام استفاده</td>
+              </tr>
+              <tr>
+                <td>Type Safety</td>
+                <td>Typeها در Compile Time بررسی می‌شوند.</td>
+              </tr>
+              <tr>
+                <td>Reusability</td>
+                <td>یک Class برای Typeهای مختلف قابل استفاده است.</td>
+              </tr>
+              <tr>
+                <td>Multiple Type Parameters</td>
+                <td>مانند <code>Dictionary&lt;TKey, TValue&gt;</code></td>
+              </tr>
+              <tr>
+                <td>Constraints</td>
+                <td>می‌توان Typeهای مجاز برای <code>T</code> را محدود کرد.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>تصور اینکه <code>T</code> یعنی <code>object</code>.</li>
+            <li>تصور اینکه Generic باعث حذف Type Safety می‌شود.</li>
+            <li>Generic کردن Classهایی که abstraction مشترک واقعی ندارند.</li>
+            <li>استفاده از نام‌های نامفهوم برای چند Type Parameter.</li>
+            <li>فرض اینکه می‌توان هر Method دلخواهی را روی <code>T</code> صدا زد.</li>
+            <li>پیچیده‌کردن طراحی فقط برای جلوگیری از چند خط تکرار.</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              قاعدهٔ ذهنی خوب: اگر می‌توانید جملهٔ
+              «این Class یک رفتار ثابت دارد، اما باید با چند Type مختلف کار کند»
+              را دربارهٔ طراحی خود بگویید، Generic Class احتمالاً گزینهٔ مناسبی است.
+            </div>
+          </div>
+          <h2>جمع‌بندی 14.1</h2>
+          <p>
+            Generic Class به ما اجازه می‌دهد Classهایی reusable و type-safe طراحی کنیم که با Typeهای مختلف کار می‌کنند.
+            Type Parameterهایی مانند <code>T</code> هنگام تعریف نقش placeholder دارند و هنگام استفاده با Type واقعی
+            جایگزین می‌شوند.
+            این قابلیت در بسیاری از APIهای اصلی .NET مانند <code>List&lt;T&gt;</code>،
+            <code>Dictionary&lt;TKey, TValue&gt;</code> و <code>Task&lt;T&gt;</code> استفاده شده است.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکتهٔ کلیدی: Generics ترکیبی از <strong>Reusability + Type Safety</strong> را فراهم می‌کنند.
+              به‌جای ساخت چند Class مشابه یا استفادهٔ بی‌رویه از <code>object</code>، می‌توان یک Generic Class طراحی کرد
+              و Type واقعی را هنگام استفاده مشخص کرد.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
