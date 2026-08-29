@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Single Responsibility Principle — SRP از مسیر حرفه‌ای .NET.">
-  <title>Single Responsibility Principle — SRP | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش بخش 15.2 Single Responsibility Principle یا SRP در C# شامل تعریف، Reason to Change، مثال اشتباه، Refactoring و مثال واقعی در Payment System."
+    name="description" />
+  <title>15.2 Single Responsibility Principle — SRP در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,459 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-15-lesson-2">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-15-lesson-2"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 15 — SOLID Principles</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Single Responsibility Principle — SRP</h1>
+          <div class="article-tag">🧱 اصول SOLID</div>
+          <h1>15.2 — <bdi>Single Responsibility Principle — SRP</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <strong>Single Responsibility Principle</strong> یا <strong>SRP</strong> اولین اصل از مجموعه SOLID است.
+            این اصل می‌گوید یک Class باید فقط <strong>یک Reason to Change</strong> اصلی داشته باشد.
+            یعنی مسئولیت‌های مستقل و نامرتبط نباید داخل یک Class جمع شوند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              تعریف معروف SRP:
+              <strong>A class should have only one reason to change.</strong>
+              نکته مهم این است که «یک مسئولیت» الزاماً یعنی «یک Method» نیست.
+            </div>
+          </div>
+          <h2>تعریف SRP</h2>
+          <p>
+            برای درک SRP بهتر است به جای پرسیدن «این Class چند کار انجام می‌دهد؟»
+            بپرسیم:
+            <strong>این Class به چند دلیل مستقل ممکن است تغییر کند؟</strong>
+          </p>
+          <p>
+            اگر یک Class هم Business Rule داشته باشد، هم Database Code، هم Email ارسال کند و هم Logging انجام دهد،
+            چند منبع تغییر مختلف روی آن اثر می‌گذارند و SRP نقض شده است.
+          </p>
+          <h2>مثال اشتباه</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    public void ProcessPayment(
+        PaymentRequest request)
+    {
+        // Business validation
+        if (request.Amount &lt;= 0)
+        {
+            throw new InvalidOperationException();
+        }
+
+        // Fee calculation
+        decimal fee =
+            request.Amount * 0.01m;
+
+        // Save to database
+        using var connection =
+            new SqlConnection(
+                "connection-string");
+
+        connection.Open();
+
+        // Send email
+        using var smtp =
+            new SmtpClient();
+
+        smtp.Send(
+            "payment@company.com",
+            request.CustomerEmail,
+            "Payment completed",
+            "Your payment was successful.");
+
+        // Logging
+        File.AppendAllText(
+            "payment-log.txt",
+            request.Amount.ToString());
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Class چند Responsibility مختلف دارد:
+          </p>
+          <ul>
+            <li>Validation</li>
+            <li>Fee Calculation</li>
+            <li>Persistence</li>
+            <li>Notification</li>
+            <li>Logging</li>
+          </ul>
+          <table>
+            <thead>
+              <tr>
+                <th>بخش</th>
+                <th>Reason to Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Validation</td>
+                <td>تغییر Business Rules</td>
+              </tr>
+              <tr>
+                <td>Fee</td>
+                <td>تغییر قوانین کارمزد</td>
+              </tr>
+              <tr>
+                <td>Database</td>
+                <td>تغییر Persistence</td>
+              </tr>
+              <tr>
+                <td>Email</td>
+                <td>تغییر Notification Provider</td>
+              </tr>
+              <tr>
+                <td>Logging</td>
+                <td>تغییر Logging Infrastructure</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              اینکه همه این کدها به «Payment» مربوط هستند، به این معنی نیست که یک Responsibility دارند.
+              منبع تغییر آن‌ها متفاوت است.
+            </div>
+          </div>
+          <h2>Refactoring</h2>
+          <p>
+            اول Persistence را جدا می‌کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentRepository
+{
+    Task SaveAsync(
+        Payment payment,
+        CancellationToken cancellationToken);
+}
+
+public class SqlPaymentRepository
+    : IPaymentRepository
+{
+    public Task SaveAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        // SQL persistence
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            سپس Fee Calculation:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IFeeCalculator
+{
+    decimal Calculate(
+        decimal amount);
+}
+
+public class PaymentFeeCalculator
+    : IFeeCalculator
+{
+    public decimal Calculate(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+}</code></pre>
+          </div>
+          <p>
+            و Notification:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentNotifier
+{
+    Task NotifySuccessAsync(
+        Payment payment,
+        CancellationToken cancellationToken);
+}
+
+public class EmailPaymentNotifier
+    : IPaymentNotifier
+{
+    public Task NotifySuccessAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        // Send email
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <h2>PaymentService بعد از Refactoring</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentRepository
+        _repository;
+
+    private readonly IFeeCalculator
+        _feeCalculator;
+
+    private readonly IPaymentNotifier
+        _notifier;
+
+    public PaymentService(
+        IPaymentRepository repository,
+        IFeeCalculator feeCalculator,
+        IPaymentNotifier notifier)
+    {
+        _repository = repository;
+        _feeCalculator = feeCalculator;
+        _notifier = notifier;
+    }
+
+    public async Task ProcessAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.Amount &lt;= 0)
+        {
+            throw new InvalidOperationException(
+                "Amount must be greater than zero.");
+        }
+
+        decimal fee =
+            _feeCalculator.Calculate(
+                request.Amount);
+
+        var payment =
+            new Payment(
+                request.Amount,
+                fee,
+                request.CustomerEmail);
+
+        await _repository.SaveAsync(
+            payment,
+            cancellationToken);
+
+        await _notifier.NotifySuccessAsync(
+            payment,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p>
+            اکنون PaymentService مسئول Orchestration مربوط به Use Case پرداخت است.
+            Persistence، Fee Calculation و Notification هر کدام در Component مخصوص خود قرار دارند.
+          </p>
+          <h2>SRP یعنی یک Method؟</h2>
+          <p>
+            خیر. یک Class می‌تواند چند Method داشته باشد، به شرط اینکه همه حول یک Responsibility منسجم باشند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentFeeCalculator
+{
+    public decimal CalculatePurchaseFee(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+
+    public decimal CalculateRefundFee(
+        decimal amount)
+    {
+        return amount * 0.005m;
+    }
+
+    public decimal CalculateSettlementFee(
+        decimal amount)
+    {
+        return amount * 0.002m;
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Class سه Method دارد، اما هر سه درباره یک Responsibility هستند:
+            <strong>محاسبه Fee</strong>.
+          </p>
+          <h2>مثال واقعی در Payment System</h2>
+          <p>
+            فرض کنید Purchase Service باید Transaction را Validate کند، ذخیره کند و Event منتشر کند.
+            نسخه ضعیف ممکن است همه چیز را داخل یک Class قرار دهد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PurchaseService
+{
+    public async Task PurchaseAsync(
+        PurchaseRequest request)
+    {
+        // Validation
+
+        // Create transaction
+
+        // SQL insert
+
+        // Publish RabbitMQ event
+
+        // Logging
+    }
+}</code></pre>
+          </div>
+          <p>
+            با رشد سیستم، این Class به دلایل مختلف تغییر می‌کند.
+            راه بهتر این است که Responsibilityها جدا شوند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPurchaseValidator
+{
+    void Validate(
+        PurchaseRequest request);
+}
+
+public interface ITransactionRepository
+{
+    Task SaveAsync(
+        Transaction transaction,
+        CancellationToken cancellationToken);
+}
+
+public interface IEventPublisher
+{
+    Task PublishAsync&lt;T&gt;(
+        T message,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PurchaseService
+{
+    private readonly IPurchaseValidator
+        _validator;
+
+    private readonly ITransactionRepository
+        _repository;
+
+    private readonly IEventPublisher
+        _publisher;
+
+    public PurchaseService(
+        IPurchaseValidator validator,
+        ITransactionRepository repository,
+        IEventPublisher publisher)
+    {
+        _validator = validator;
+        _repository = repository;
+        _publisher = publisher;
+    }
+
+    public async Task PurchaseAsync(
+        PurchaseRequest request,
+        CancellationToken cancellationToken)
+    {
+        _validator.Validate(request);
+
+        var transaction =
+            Transaction.CreatePurchase(
+                request.CardNumber,
+                request.Amount);
+
+        await _repository.SaveAsync(
+            transaction,
+            cancellationToken);
+
+        await _publisher.PublishAsync(
+            new PaymentCreated(
+                transaction.Id,
+                transaction.Amount),
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            اگر RabbitMQ با Kafka جایگزین شود، PurchaseService نباید به خاطر این تغییر Infrastructure مجبور به تغییر
+            Business Logic شود.
+            این یکی از نشانه‌های طراحی بهتر بر اساس SRP است.
+          </p>
+          <h2>مزایای SRP</h2>
+          <ul>
+            <li>Maintainability بهتر</li>
+            <li>Testability بیشتر</li>
+            <li>Coupling کمتر بین مسئولیت‌های نامرتبط</li>
+            <li>Refactoring ساده‌تر</li>
+            <li>کاهش Side Effect هنگام تغییر</li>
+            <li>خوانایی بهتر کد</li>
+          </ul>
+          <h2>نشانه‌های نقض SRP</h2>
+          <ul>
+            <li>Class بسیار بزرگ و شبیه God Class است.</li>
+            <li>Business Logic و Infrastructure Code مخلوط شده‌اند.</li>
+            <li>Constructor تعداد زیادی Dependency نامرتبط دارد.</li>
+            <li>برای تست یک Rule ساده باید Database یا Message Broker را Mock کنیم.</li>
+            <li>یک Class توسط چند نوع تغییر مستقل دائماً ویرایش می‌شود.</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              SRP به معنی ساخت صدها Class کوچک نیست.
+              اگر Responsibilityها واقعاً از یک منبع تغییر می‌آیند، جدا کردن آن‌ها فقط به خاطر کم کردن تعداد خطوط
+              می‌تواند Over-Engineering باشد.
+            </div>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎤</span>
+            <div class="callout-content">
+              در مصاحبه بهتر است نگویید:
+              «SRP یعنی هر Class فقط یک کار انجام دهد.»
+              پاسخ دقیق‌تر:
+              <strong>A class should have only one reason to change.</strong>
+              سپس یک مثال از جدا کردن Business Logic از Persistence یا Notification بزنید.
+            </div>
+          </div>
+          <h2>جمع‌بندی 15.2</h2>
+          <p>
+            Single Responsibility Principle می‌گوید هر Class باید Responsibility منسجمی داشته باشد و
+            تا حد امکان تنها یک Reason to Change اصلی داشته باشد.
+            ترکیب Business Logic، Database، Messaging، Notification و Logging در یک Class باعث Coupling بالا و نگهداری
+            سخت‌تر می‌شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکته کلیدی:
+              <strong>SRP یعنی Separation by Reason to Change، نه Separation by Number of Methods.</strong>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
