@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Liskov Substitution Principle — LSP از مسیر حرفه‌ای .NET.">
-  <title>Liskov Substitution Principle — LSP | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Liskov Substitution Principle یا LSP در C# شامل تعریف، مثال اشتباه، Refactoring، Contract، Precondition/Postcondition و مثال واقعی Payment System."
+    name="description" />
+  <title>15.4 Liskov Substitution Principle — LSP در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,533 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-15-lesson-4">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-15-lesson-4"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 15 — SOLID Principles</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Liskov Substitution Principle — LSP</h1>
+          <div class="article-tag">🧱 اصول SOLID</div>
+          <h1>15.4 — <bdi>Liskov Substitution Principle — LSP</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <strong>Liskov Substitution Principle</strong> یا <strong>LSP</strong> سومین اصل SOLID است.
+            این اصل می‌گوید اگر Typeای از Base Type یا Interface دیگری مشتق شده است،
+            باید بتوان آن را بدون شکستن رفتار مورد انتظار سیستم جایگزین Base Type کرد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              تعریف ساده:
+              <strong>Subtypes must be substitutable for their base types.</strong>
+              یعنی هر Subtype باید Contract رفتاری Base Type را حفظ کند.
+            </div>
+          </div>
+          <h2>LSP دقیقاً یعنی چه؟</h2>
+          <p>
+            فرض کنید یک Method با Base Type کار می‌کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Execute(
+    PaymentMethod paymentMethod)
+{
+    paymentMethod.Pay(
+        500_000);
+}</code></pre>
+          </div>
+          <p>
+            اگر <code>CardPayment</code> و <code>WalletPayment</code> از <code>PaymentMethod</code> مشتق شده‌اند،
+            هر دو باید بدون ایجاد رفتار غیرمنتظره قابل استفاده باشند.
+          </p>
+          <h2>مثال اشتباه معروف: Rectangle و Square</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Rectangle
+{
+    public virtual int Width { get; set; }
+
+    public virtual int Height { get; set; }
+
+    public int Area()
+    {
+        return Width * Height;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Square
+    : Rectangle
+{
+    public override int Width
+    {
+        set
+        {
+            base.Width = value;
+            base.Height = value;
+        }
+    }
+
+    public override int Height
+    {
+        set
+        {
+            base.Width = value;
+            base.Height = value;
+        }
+    }
+}</code></pre>
+          </div>
+          <p>
+            حالا این Method را ببینید:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public static void Resize(
+    Rectangle rectangle)
+{
+    rectangle.Width = 5;
+    rectangle.Height = 10;
+
+    Console.WriteLine(
+        rectangle.Area());
+}</code></pre>
+          </div>
+          <p>
+            برای Rectangle انتظار Area برابر 50 است،
+            اما اگر Square جایگزین شود نتیجه 100 می‌شود.
+            پس Subtype رفتار مورد انتظار Base Type را تغییر داده است.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              ممکن است inheritance از نظر Syntax کاملاً معتبر باشد،
+              اما از نظر رفتار و Contract، LSP را نقض کند.
+            </div>
+          </div>
+          <h2>Refactoring مثال Rectangle و Square</h2>
+          <p>
+            یک abstraction واقعی‌تر تعریف می‌کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IShape
+{
+    int Area();
+}
+
+public class Rectangle
+    : IShape
+{
+    public int Width { get; init; }
+
+    public int Height { get; init; }
+
+    public int Area()
+    {
+        return Width * Height;
+    }
+}
+
+public class Square
+    : IShape
+{
+    public int Side { get; init; }
+
+    public int Area()
+    {
+        return Side * Side;
+    }
+}</code></pre>
+          </div>
+          <p>
+            حالا Contract مشترک فقط چیزی است که واقعاً بین هر دو Type مشترک است:
+            محاسبه Area.
+          </p>
+          <h2>مثال اشتباه در Payment System</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class PaymentMethod
+{
+    public abstract Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken);
+
+    public abstract Task RefundAsync(
+        decimal amount,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            CardPayment هر دو قابلیت را دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : PaymentMethod
+{
+    public override Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task RefundAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            اما GiftCardPayment Refund را پشتیبانی نمی‌کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class GiftCardPayment
+    : PaymentMethod
+{
+    public override Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public override Task RefundAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        throw new NotSupportedException(
+            "Gift card cannot be refunded.");
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Class از نظر Compiler یک PaymentMethod است،
+            ولی از نظر رفتار نمی‌تواند جایگزین آن شود.
+          </p>
+          <h2>چرا این طراحی نقض LSP است؟</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public async Task RefundAsync(
+    PaymentMethod paymentMethod,
+    decimal amount,
+    CancellationToken cancellationToken)
+{
+    await paymentMethod.RefundAsync(
+        amount,
+        cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            Caller با دیدن <code>PaymentMethod</code> انتظار دارد Refund قابل انجام باشد.
+            اما GiftCardPayment در Runtime Exception می‌دهد.
+          </p>
+          <h2>Refactoring با Interfaceهای دقیق‌تر</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPayable
+{
+    Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken);
+}
+
+public interface IRefundable
+{
+    Task RefundAsync(
+        decimal amount,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            CardPayment هر دو قابلیت را دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : IPayable,
+      IRefundable
+{
+    public Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task RefundAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            GiftCardPayment فقط Contract واقعی خودش را اعلام می‌کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class GiftCardPayment
+    : IPayable
+{
+    public Task PayAsync(
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              اگر implementation طبیعی یک Method فقط <code>NotSupportedException</code> است،
+              احتمالاً abstraction بیش از حد بزرگ یا hierarchy اشتباه طراحی شده است.
+            </div>
+          </div>
+          <h2>LSP و Contract</h2>
+          <p>
+            Contract فقط Method Signature نیست.
+            رفتار مورد انتظار نیز بخشی از Contract است.
+            Subtype باید انتظارهای Base Type را حفظ کند.
+          </p>
+          <ul>
+            <li>ورودی معتبر Base Type را بی‌دلیل رد نکند.</li>
+            <li>Guarantee خروجی را ضعیف‌تر نکند.</li>
+            <li>Invariantهای اصلی را نشکند.</li>
+            <li>برای رفتار عادی Exception غیرمنتظره ایجاد نکند.</li>
+          </ul>
+          <h2>Precondition</h2>
+          <p>
+            Subtype نباید Precondition را سخت‌تر کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class Payment
+{
+    public abstract void Pay(
+        decimal amount);
+}
+
+public class SpecialPayment
+    : Payment
+{
+    public override void Pay(
+        decimal amount)
+    {
+        if (amount &lt; 1_000_000)
+        {
+            throw new InvalidOperationException();
+        }
+
+        // ...
+    }
+}</code></pre>
+          </div>
+          <p>
+            اگر Base Type هر Amount مثبت را قبول می‌کند،
+            Derived Type نباید ناگهان فقط Amountهای بالاتر از یک میلیون را بپذیرد.
+          </p>
+          <h2>Postcondition</h2>
+          <p>
+            Subtype نباید Guarantee خروجی Base Type را ضعیف‌تر کند.
+            مثلاً اگر Contract می‌گوید در Success همیشه TransactionId تولید می‌شود،
+            تمام implementationها باید آن را رعایت کنند.
+          </p>
+          <h2>Inheritance فقط برای Code Reuse نیست</h2>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Inheritance یک تعهد رفتاری است.
+              اگر فقط برای reuse کردن چند Method از Base Class ارث‌بری می‌کنیم،
+              ولی Subtype Contract آن را حفظ نمی‌کند، Composition معمولاً انتخاب بهتری است.
+            </div>
+          </div>
+          <h2>LSP و Interfaceها</h2>
+          <p>
+            LSP فقط برای Class inheritance نیست.
+            Implementationهای یک Interface هم باید Contract مشترک را حفظ کنند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface ITransactionRepository
+{
+    Task&lt;Transaction?&gt; GetAsync(
+        Guid id,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            اگر یک Repository برای Not Found مقدار null برگرداند
+            ولی implementation دیگری برای همان وضعیت Exception بدهد،
+            رفتار abstraction برای Caller قابل اعتماد نیست؛ مگر اینکه Contract این تفاوت را صریح تعریف کرده باشد.
+          </p>
+          <h2>Code Smell: Type Checking</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public void Process(
+    PaymentMethod payment)
+{
+    if (payment is GiftCardPayment)
+    {
+        // Special workaround
+    }
+    else
+    {
+        // Normal behavior
+    }
+}</code></pre>
+          </div>
+          <p>
+            اگر Caller مرتباً مجبور شود Type واقعی را بررسی کند،
+            ممکن است polymorphic abstraction اشتباه طراحی شده باشد.
+          </p>
+          <h2>مثال واقعی Refactored در Payment System</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProcessor
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}
+
+public interface IRefundProcessor
+{
+    Task&lt;RefundResult&gt; RefundAsync(
+        RefundRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardProcessor
+    : IPaymentProcessor,
+      IRefundProcessor
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            new PaymentResult());
+    }
+
+    public Task&lt;RefundResult&gt; RefundAsync(
+        RefundRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            new RefundResult());
+    }
+}
+
+public class GiftCardProcessor
+    : IPaymentProcessor
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            new PaymentResult());
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            Caller مسیر Refund فقط <code>IRefundProcessor</code> می‌گیرد.
+            پس هیچ Processor ناسازگار وارد این مسیر نمی‌شود و Contract قابل اعتماد می‌ماند.
+          </p>
+          <h2>نشانه‌های نقض LSP</h2>
+          <ul>
+            <li>Derived Type برای Methodهای Base Type <code>NotSupportedException</code> می‌دهد.</li>
+            <li>Subtype ورودی‌های معتبر Base Type را رد می‌کند.</li>
+            <li>Subtype Guarantee ضعیف‌تری ایجاد می‌کند.</li>
+            <li>Caller مجبور است با <code>is</code> یا Type Check رفتار خاص بنویسد.</li>
+            <li>Derived Type معنای اصلی عملیات Base Type را تغییر می‌دهد.</li>
+          </ul>
+          <h2>قبل و بعد از LSP</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>طراحی ضعیف</th>
+                <th>طراحی بهتر</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Subtype بعضی Methodها را پشتیبانی نمی‌کند.</td>
+                <td>Contractهای دقیق و capability-based</td>
+              </tr>
+              <tr>
+                <td>NotSupportedException</td>
+                <td>Interface مناسب برای قابلیت واقعی</td>
+              </tr>
+              <tr>
+                <td>Type Checking در Caller</td>
+                <td>Polymorphism قابل اعتماد</td>
+              </tr>
+              <tr>
+                <td>Inheritance فقط برای Reuse</td>
+                <td>Inheritance برای رابطه رفتاری واقعی</td>
+              </tr>
+              <tr>
+                <td>Contract مبهم</td>
+                <td>Contract مشخص و قابل پیش‌بینی</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎤</span>
+            <div class="callout-content">
+              پاسخ خوب:
+              <strong>LSP means a subtype should be usable wherever its base type is expected without breaking the
+                expected behavior.</strong>
+              مثال:
+              اگر Base Payment قابلیت Refund دارد ولی یک Derived Type در Refund
+              <code>NotSupportedException</code> بدهد، hierarchy احتمالاً LSP را نقض کرده است.
+            </div>
+          </div>
+          <h2>جمع‌بندی LSP</h2>
+          <p>
+            Liskov Substitution Principle می‌گوید Subtype باید Contract رفتاری Base Type را حفظ کند.
+            Inheritance صرفاً یک رابطه Syntaxی نیست؛ یک تعهد رفتاری است.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              مدل ذهنی:
+              <strong>اگر B از A است، باید بتوان B را هر جایی که A انتظار می‌رود قرار داد، بدون اینکه رفتار قابل انتظار
+                سیستم شکسته شود.</strong>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

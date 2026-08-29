@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Open/Closed Principle — OCP از مسیر حرفه‌ای .NET.">
-  <title>Open/Closed Principle — OCP | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Open/Closed Principle یا OCP در C# شامل تعریف، مثال اشتباه، Refactoring، استفاده از Abstraction و Polymorphism و مثال واقعی در Payment System."
+    name="description" />
+  <title>Open/Closed Principle</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,620 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-15-lesson-3">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-15-lesson-3"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 15 — SOLID Principles</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Open/Closed Principle — OCP</h1>
+          <div class="article-tag">🧱 اصول SOLID</div>
+          <h1><bdi>Open/Closed Principle — OCP</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <strong>Open/Closed Principle</strong> یا <strong>OCP</strong> دومین اصل از مجموعه SOLID است.
+            این اصل می‌گوید اجزای نرم‌افزار باید برای <strong>Extension باز</strong> باشند،
+            اما برای <strong>Modification بسته</strong> باشند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              تعریف معروف OCP:
+              <strong>Software entities should be open for extension, but closed for modification.</strong>
+              یعنی بتوانیم رفتار جدید اضافه کنیم، بدون اینکه دائماً کد پایدار و موجود را تغییر دهیم.
+            </div>
+          </div>
+          <h2>OCP دقیقاً یعنی چه؟</h2>
+          <p>
+            هدف OCP این نیست که هیچ Classی هرگز تغییر نکند.
+            بلکه می‌گوید وقتی یک بخش از سیستم پایدار شده است،
+            اضافه شدن Feature یا رفتار جدید بهتر است از طریق Extension انجام شود،
+            نه با دستکاری مداوم کد قبلی.
+          </p>
+          <p>
+            یکی از رایج‌ترین روش‌های رسیدن به OCP استفاده از:
+          </p>
+          <ul>
+            <li>Abstraction</li>
+            <li>Interface</li>
+            <li>Inheritance</li>
+            <li>Polymorphism</li>
+            <li>Strategy Pattern</li>
+            <li>Dependency Injection</li>
+          </ul>
+          <h2>مثال اشتباه</h2>
+          <p>
+            فرض کنید در یک Payment System چند روش پرداخت داریم:
+            Card، Wallet و Crypto.
+            یک پیاده‌سازی ضعیف ممکن است چنین باشد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentProcessor
+{
+    public void Process(
+        string paymentType,
+        decimal amount)
+    {
+        if (paymentType == "Card")
+        {
+            Console.WriteLine(
+                $"Card payment: {amount}");
+        }
+        else if (paymentType == "Wallet")
+        {
+            Console.WriteLine(
+                $"Wallet payment: {amount}");
+        }
+        else if (paymentType == "Crypto")
+        {
+            Console.WriteLine(
+                $"Crypto payment: {amount}");
+        }
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این طراحی هر بار روش پرداخت جدیدی اضافه شود،
+            باید Class موجود را تغییر دهیم.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>else if (paymentType == "BankTransfer")
+{
+    // New logic
+}</code></pre>
+          </div>
+          <p>
+            این یعنی Class برای Extension باز نیست؛
+            چون برای اضافه کردن رفتار جدید مجبوریم Implementation موجود را Modify کنیم.
+          </p>
+          <h2>مشکل این طراحی چیست؟</h2>
+          <ul>
+            <li>با اضافه شدن هر Payment Type، شرط‌های بیشتری ایجاد می‌شود.</li>
+            <li>احتمال Regression بالا می‌رود.</li>
+            <li>Class بزرگ‌تر و پیچیده‌تر می‌شود.</li>
+            <li>Unit Testها سخت‌تر می‌شوند.</li>
+            <li>تغییر یک Payment Method ممکن است روی بقیه اثر بگذارد.</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              وجود <code>if/else</code> یا <code>switch</code> همیشه به معنی نقض OCP نیست،
+              اما اگر برای هر Feature جدید مجبور باشید دائماً شرط جدیدی به یک Class مرکزی اضافه کنید،
+              احتمالاً طراحی نیاز به بازنگری دارد.
+            </div>
+          </div>
+          <h2>Refactoring با Abstraction</h2>
+          <p>
+            ابتدا یک قرارداد مشترک برای روش‌های پرداخت تعریف می‌کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentMethod
+{
+    void Process(
+        decimal amount);
+}</code></pre>
+          </div>
+          <p>
+            هر Payment Method پیاده‌سازی خودش را دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CardPayment
+    : IPaymentMethod
+{
+    public void Process(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Card payment: {amount}");
+    }
+}
+
+public class WalletPayment
+    : IPaymentMethod
+{
+    public void Process(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Wallet payment: {amount}");
+    }
+}</code></pre>
+          </div>
+          <h2>PaymentProcessor بعد از Refactoring</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentProcessor
+{
+    private readonly IPaymentMethod
+        _paymentMethod;
+
+    public PaymentProcessor(
+        IPaymentMethod paymentMethod)
+    {
+        _paymentMethod =
+            paymentMethod;
+    }
+
+    public void Process(
+        decimal amount)
+    {
+        _paymentMethod.Process(
+            amount);
+    }
+}</code></pre>
+          </div>
+          <p>
+            اکنون PaymentProcessor به یک Abstraction وابسته است و درباره Implementationها چیزی نمی‌داند.
+          </p>
+          <h2>اضافه کردن Feature جدید بدون تغییر کد قبلی</h2>
+          <p>
+            اگر فردا Bank Transfer اضافه شود، فقط یک Class جدید ایجاد می‌کنیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankTransferPayment
+    : IPaymentMethod
+{
+    public void Process(
+        decimal amount)
+    {
+        Console.WriteLine(
+            $"Bank transfer: {amount}");
+    }
+}</code></pre>
+          </div>
+          <p>
+            نیازی نیست <code>PaymentProcessor</code> یا Classهای قبلی را تغییر دهیم.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              اینجا سیستم برای Extension باز است،
+              چون می‌توانیم Payment Method جدید اضافه کنیم،
+              و برای Modification بسته است،
+              چون کد پایدار قبلی را دست نمی‌زنیم.
+            </div>
+          </div>
+          <h2>OCP و Polymorphism</h2>
+          <p>
+            Polymorphism یکی از مهم‌ترین ابزارهای اجرای OCP در OOP است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>IPaymentMethod paymentMethod =
+    new CardPayment();
+
+paymentMethod.Process(
+    500_000);
+
+paymentMethod =
+    new WalletPayment();
+
+paymentMethod.Process(
+    250_000);</code></pre>
+          </div>
+          <p>
+            Caller فقط Interface را می‌شناسد؛
+            رفتار واقعی بر اساس Implementation انتخاب می‌شود.
+          </p>
+          <h2>مثال واقعی: Fee Calculation</h2>
+          <p>
+            فرض کنید Fee برای Transaction Typeهای مختلف متفاوت است.
+            نسخه ضعیف:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class FeeCalculator
+{
+    public decimal Calculate(
+        string transactionType,
+        decimal amount)
+    {
+        if (transactionType == "Purchase")
+        {
+            return amount * 0.01m;
+        }
+
+        if (transactionType == "Refund")
+        {
+            return amount * 0.005m;
+        }
+
+        if (transactionType == "Settlement")
+        {
+            return amount * 0.002m;
+        }
+
+        return 0;
+    }
+}</code></pre>
+          </div>
+          <p>
+            هر بار Transaction Type جدید اضافه شود،
+            باید همین Class تغییر کند.
+          </p>
+          <h2>Refactoring با Strategy</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IFeeStrategy
+{
+    decimal Calculate(
+        decimal amount);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PurchaseFeeStrategy
+    : IFeeStrategy
+{
+    public decimal Calculate(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+}
+
+public class RefundFeeStrategy
+    : IFeeStrategy
+{
+    public decimal Calculate(
+        decimal amount)
+    {
+        return amount * 0.005m;
+    }
+}</code></pre>
+          </div>
+          <p>
+            Calculator اصلی فقط Strategy را اجرا می‌کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class FeeCalculator
+{
+    private readonly IFeeStrategy
+        _strategy;
+
+    public FeeCalculator(
+        IFeeStrategy strategy)
+    {
+        _strategy =
+            strategy;
+    }
+
+    public decimal Calculate(
+        decimal amount)
+    {
+        return _strategy.Calculate(
+            amount);
+    }
+}</code></pre>
+          </div>
+          <h2>مثال واقعی‌تر: Discount System</h2>
+          <p>
+            فرض کنید قوانین Discount مرتباً تغییر می‌کنند.
+            یک طراحی شرطی ممکن است سریعاً پیچیده شود:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public decimal CalculateDiscount(
+    Customer customer,
+    decimal amount)
+{
+    if (customer.Type == CustomerType.Normal)
+    {
+        return amount * 0.02m;
+    }
+
+    if (customer.Type == CustomerType.Vip)
+    {
+        return amount * 0.10m;
+    }
+
+    if (customer.Type == CustomerType.Partner)
+    {
+        return amount * 0.15m;
+    }
+
+    return 0;
+}</code></pre>
+          </div>
+          <p>
+            راه extensible:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IDiscountPolicy
+{
+    decimal Calculate(
+        decimal amount);
+}
+
+public class NormalCustomerDiscount
+    : IDiscountPolicy
+{
+    public decimal Calculate(
+        decimal amount)
+        =&gt; amount * 0.02m;
+}
+
+public class VipCustomerDiscount
+    : IDiscountPolicy
+{
+    public decimal Calculate(
+        decimal amount)
+        =&gt; amount * 0.10m;
+}</code></pre>
+          </div>
+          <h2>OCP و Dependency Injection</h2>
+          <p>
+            Dependency Injection کمک می‌کند Implementationها بدون تغییر Consumer جایگزین شوند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentMethod,
+     CardPayment&gt;();</code></pre>
+          </div>
+          <p>
+            اگر Implementation عوض شود:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentMethod,
+     WalletPayment&gt;();</code></pre>
+          </div>
+          <p>
+            Consumer نیازی به تغییر ندارد.
+          </p>
+          <h2>OCP به معنی Interface برای همه چیز نیست</h2>
+          <p>
+            یکی از سوءبرداشت‌های رایج این است که برای رعایت OCP باید برای تمام Classها Interface بسازیم.
+            این کار می‌تواند سیستم را بیش از حد Abstract کند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Abstraction را زمانی ایجاد کنید که واقعاً یک محور تغییر یا Extension وجود دارد.
+              اگر یک Class ساده و پایدار است و هیچ رفتار جایگزینی ندارد،
+              ساخت Interface فقط برای «رعایت SOLID» می‌تواند Over-Engineering باشد.
+            </div>
+          </div>
+          <h2>OCP و Switch Expression</h2>
+          <p>
+            وجود Switch همیشه بد نیست.
+            برای داده‌های ثابت و محدود، گاهی Switch ساده‌تر و خواناتر است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>string GetStatusText(
+    PaymentStatus status)
+{
+    return status switch
+    {
+        PaymentStatus.Pending =&gt;
+            "Pending",
+
+        PaymentStatus.Successful =&gt;
+            "Successful",
+
+        PaymentStatus.Failed =&gt;
+            "Failed",
+
+        _ =&gt;
+            "Unknown"
+    };
+}</code></pre>
+          </div>
+          <p>
+            اگر مجموعه Statusها عملاً ثابت و محدود باشد، این طراحی لزوماً مشکل OCP ندارد.
+            اما اگر هر Feature جدید دائماً branch جدیدی به Business Logic اضافه می‌کند،
+            Abstraction احتمالاً مناسب‌تر است.
+          </p>
+          <h2>نشانه‌های نقض OCP</h2>
+          <ul>
+            <li>اضافه شدن هر Feature نیازمند تغییر یک Class مرکزی است.</li>
+            <li>Switch یا if/else دائماً بزرگ‌تر می‌شود.</li>
+            <li>Class درباره همه Implementationهای ممکن knowledge دارد.</li>
+            <li>افزودن رفتار جدید باعث Regression در رفتارهای قبلی می‌شود.</li>
+            <li>برای اضافه کردن یک Provider جدید باید Business Service را تغییر دهید.</li>
+          </ul>
+          <h2>OCP در Payment Gateway</h2>
+          <p>
+            فرض کنید سیستم باید با چند Payment Gateway مختلف کار کند:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAGateway
+    : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        // Bank A API call
+
+        return Task.FromResult(
+            new PaymentResult());
+    }
+}
+
+public class BankBGateway
+    : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        // Bank B API call
+
+        return Task.FromResult(
+            new PaymentResult());
+    }
+}</code></pre>
+          </div>
+          <p>
+            Application Service فقط Abstraction را می‌شناسد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentGateway
+        _gateway;
+
+    public PaymentService(
+        IPaymentGateway gateway)
+    {
+        _gateway =
+            gateway;
+    }
+
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return _gateway.PayAsync(
+            request,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            اگر فردا Bank C اضافه شود،
+            یک Implementation جدید از <code>IPaymentGateway</code> ساخته می‌شود.
+            PaymentService نیازی به تغییر ندارد.
+            این یک مثال واقعی از OCP در سیستم‌های Payment است.
+          </p>
+          <h2>مزایای OCP</h2>
+          <ul>
+            <li>کاهش Regression Risk</li>
+            <li>Extension ساده‌تر</li>
+            <li>Coupling کمتر</li>
+            <li>استفاده بهتر از Polymorphism</li>
+            <li>Testability بهتر</li>
+            <li>جایگزینی ساده‌تر Implementationها</li>
+            <li>کاهش تغییرات روی کد پایدار</li>
+          </ul>
+          <h2>قبل و بعد از OCP</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>قبل</th>
+                <th>بعد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>if/else مرکزی</td>
+                <td>Implementationهای مستقل</td>
+              </tr>
+              <tr>
+                <td>تغییر Class قبلی برای Feature جدید</td>
+                <td>اضافه کردن Class جدید</td>
+              </tr>
+              <tr>
+                <td>Coupling بالا</td>
+                <td>وابستگی به Abstraction</td>
+              </tr>
+              <tr>
+                <td>Risk بالاتر Regression</td>
+                <td>تغییرات ایزوله‌تر</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎤</span>
+            <div class="callout-content">
+              در مصاحبه می‌توانید بگویید:
+              <strong>OCP means software entities should be open for extension but closed for modification.</strong>
+              بعد مثال بزنید که به‌جای اضافه کردن if/else برای Payment Type جدید،
+              یک Interface تعریف می‌کنیم و Implementation جدید اضافه می‌کنیم.
+            </div>
+          </div>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>تصور اینکه OCP یعنی هیچ کدی نباید تغییر کند.</li>
+            <li>ساخت Interface برای تمام Classها بدون نیاز واقعی.</li>
+            <li>استفاده از inheritance فقط برای رعایت OCP.</li>
+            <li>ایجاد Abstractionهای پیچیده برای سناریوهای ساده.</li>
+            <li>تبدیل هر switch کوچک به چندین Class بدون دلیل.</li>
+            <li>نادیده گرفتن Polymorphism و Dependency Injection در نقاط Extension واقعی.</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              مدل ذهنی خوب:
+              اگر هر بار Feature جدید می‌آید مجبورید یک Class پایدار را باز کنید و branch جدید اضافه کنید،
+              به این فکر کنید که آیا آن نقطه باید یک Extension Point داشته باشد یا نه.
+            </div>
+          </div>
+          <h2>جمع‌بندی OCP</h2>
+          <p>
+            Open/Closed Principle می‌گوید طراحی خوب باید اجازه دهد رفتار جدید با کمترین تغییر در کد موجود اضافه شود.
+            در OOP، Interface، Abstraction و Polymorphism ابزارهای اصلی برای ساخت Extension Point هستند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکته کلیدی:
+              <strong>Extend behavior by adding new code, not by repeatedly rewriting stable code.</strong>
+              اما OCP را فقط در نقاطی اعمال کنید که واقعاً احتمال Extension و Variation وجود دارد.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
