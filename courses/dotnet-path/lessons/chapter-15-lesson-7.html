@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس مثال کامل SOLID در یک پروژه .NET از مسیر حرفه‌ای .NET.">
-  <title>مثال کامل SOLID در یک پروژه .NET | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="مثال کامل SOLID در یک پروژه .NET شامل SRP، OCP، LSP، ISP و DIP با سناریوی واقعی Payment System، کد C#، Dependency Injection و ساختار پروژه."
+    name="description" />
+  <title>مثال کامل SOLID در یک پروژه .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,766 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-15-lesson-7">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-15-lesson-7"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 15 — SOLID Principles</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>مثال کامل SOLID در یک پروژه .NET</h1>
+          <div class="article-tag">🧱 اصول SOLID</div>
+          <h1><bdi>مثال کامل SOLID در یک پروژه .NET</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            در بخش‌های قبلی هر یک از اصول SOLID را جداگانه بررسی کردیم.
+            در پروژه واقعی، این اصول در کنار هم استفاده می‌شوند.
+            در این بخش یک نمونه Payment Processing در .NET می‌سازیم تا نقش
+            <strong>SRP، OCP، LSP، ISP و DIP</strong> را در یک جریان واقعی ببینیم.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              هدف این مثال ساخت یک Architecture کامل Production نیست؛
+              هدف این است که ببینیم SOLID چگونه Change، Coupling و Testability را مدیریت می‌کند.
+            </div>
+          </div>
+          <h2>سناریو</h2>
+          <ul>
+            <li>Validate کردن Request</li>
+            <li>محاسبه Fee</li>
+            <li>ارسال درخواست به Payment Gateway</li>
+            <li>ذخیره Transaction</li>
+            <li>Publish کردن Event</li>
+            <li>ارسال Notification</li>
+          </ul>
+          <h2>نسخه ضعیف</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    public async Task&lt;PaymentResult&gt; ProcessAsync(
+        PaymentRequest request)
+    {
+        if (request.Amount &lt;= 0)
+            throw new InvalidOperationException();
+
+        decimal fee =
+            request.Amount * 0.01m;
+
+        using var httpClient =
+            new HttpClient();
+
+        // Call bank API
+
+        using var connection =
+            new SqlConnection(
+                "connection-string");
+
+        // Save transaction
+
+        // Publish RabbitMQ event
+
+        using var smtp =
+            new SmtpClient();
+
+        // Send email
+
+        return new PaymentResult();
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Class هم Business Rule را می‌داند، هم SQL Server، هم Bank API، هم RabbitMQ و هم Email.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>مشکل</th>
+                <th>اصل مرتبط</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>چند Responsibility در یک Class</td>
+                <td>SRP</td>
+              </tr>
+              <tr>
+                <td>Gateway جدید نیازمند تغییر Service</td>
+                <td>OCP</td>
+              </tr>
+              <tr>
+                <td>رفتار ناسازگار بین Gatewayها</td>
+                <td>LSP</td>
+              </tr>
+              <tr>
+                <td>Interface بزرگ Provider</td>
+                <td>ISP</td>
+              </tr>
+              <tr>
+                <td>وابستگی Business Logic به Infrastructure</td>
+                <td>DIP</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>SRP — جدا کردن Responsibilityها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentValidator
+{
+    void Validate(
+        PaymentRequest request);
+}
+
+public interface IFeeCalculator
+{
+    decimal Calculate(
+        decimal amount);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentValidator
+    : IPaymentValidator
+{
+    public void Validate(
+        PaymentRequest request)
+    {
+        if (request.Amount &lt;= 0)
+        {
+            throw new InvalidOperationException(
+                "Amount must be greater than zero.");
+        }
+    }
+}
+
+public class DefaultFeeCalculator
+    : IFeeCalculator
+{
+    public decimal Calculate(
+        decimal amount)
+    {
+        return amount * 0.01m;
+    }
+}</code></pre>
+          </div>
+          <p>
+            Validation و Fee Calculation هر کدام Responsibility مشخصی دارند و مستقل تست می‌شوند.
+          </p>
+          <h2>OCP — Payment Gateway قابل توسعه</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task&lt;GatewayPaymentResult&gt; PayAsync(
+        PaymentGatewayRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAPaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;GatewayPaymentResult&gt; PayAsync(
+        PaymentGatewayRequest request,
+        CancellationToken cancellationToken)
+    {
+        // Bank A API
+
+        return Task.FromResult(
+            new GatewayPaymentResult(
+                true,
+                "BANK-A-123"));
+    }
+}
+
+public class BankBPaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;GatewayPaymentResult&gt; PayAsync(
+        PaymentGatewayRequest request,
+        CancellationToken cancellationToken)
+    {
+        // Bank B API
+
+        return Task.FromResult(
+            new GatewayPaymentResult(
+                true,
+                "BANK-B-456"));
+    }
+}</code></pre>
+          </div>
+          <p>
+            برای اضافه کردن Bank C فقط یک Implementation جدید می‌سازیم؛
+            Use Case قبلی تغییر نمی‌کند.
+          </p>
+          <h2>LSP — Contract یکسان بین Gatewayها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record GatewayPaymentResult(
+    bool IsSuccess,
+    string? ReferenceNumber,
+    string? ErrorCode = null);</code></pre>
+          </div>
+          <p>
+            تمام Gatewayها باید Contract یکسانی داشته باشند.
+            اگر Failure عادی با Result برمی‌گردد،
+            یک Implementation نباید همان شرایط را با رفتار غیرمنتظره یا Contract متفاوت مدیریت کند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              OCP اجازه Extension می‌دهد و LSP تضمین می‌کند Implementation جدید واقعاً بتواند جای قبلی قرار بگیرد.
+            </div>
+          </div>
+          <h2>ISP — جدا کردن Capabilityها</h2>
+          <p>Interface بزرگ:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProvider
+{
+    Task PayAsync();
+
+    Task RefundAsync();
+
+    Task GetBalanceAsync();
+
+    Task SettleAsync();
+}</code></pre>
+          </div>
+          <p>نسخه بهتر:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task&lt;GatewayPaymentResult&gt; PayAsync(
+        PaymentGatewayRequest request,
+        CancellationToken cancellationToken);
+}
+
+public interface IRefundGateway
+{
+    Task&lt;GatewayRefundResult&gt; RefundAsync(
+        RefundGatewayRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            هر Provider فقط Capability واقعی خودش را implement می‌کند.
+          </p>
+          <h2>DIP — Repository Abstraction</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentRepository
+{
+    Task AddAsync(
+        Payment payment,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class EfPaymentRepository
+    : IPaymentRepository
+{
+    private readonly PaymentDbContext
+        _dbContext;
+
+    public EfPaymentRepository(
+        PaymentDbContext dbContext)
+    {
+        _dbContext =
+            dbContext;
+    }
+
+    public async Task AddAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        await _dbContext.Payments.AddAsync(
+            payment,
+            cancellationToken);
+
+        await _dbContext.SaveChangesAsync(
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <h2>DIP — Event Publisher</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IEventPublisher
+{
+    Task PublishAsync&lt;TEvent&gt;(
+        TEvent @event,
+        CancellationToken cancellationToken);
+}
+
+public class RabbitMqEventPublisher
+    : IEventPublisher
+{
+    public Task PublishAsync&lt;TEvent&gt;(
+        TEvent @event,
+        CancellationToken cancellationToken)
+    {
+        // RabbitMQ implementation
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <h2>Notification</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentNotifier
+{
+    Task NotifyAsync(
+        Payment payment,
+        CancellationToken cancellationToken);
+}
+
+public class EmailPaymentNotifier
+    : IPaymentNotifier
+{
+    public Task NotifyAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        // Email Provider
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <h2>Domain Entity</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    public Guid Id { get; private set; }
+
+    public decimal Amount { get; private set; }
+
+    public decimal Fee { get; private set; }
+
+    public PaymentStatus Status { get; private set; }
+
+    private Payment()
+    {
+    }
+
+    public static Payment Create(
+        decimal amount,
+        decimal fee)
+    {
+        return new Payment
+        {
+            Id = Guid.NewGuid(),
+            Amount = amount,
+            Fee = fee,
+            Status = PaymentStatus.Pending
+        };
+    }
+
+    public void MarkAsSuccessful()
+    {
+        Status =
+            PaymentStatus.Successful;
+    }
+
+    public void MarkAsFailed()
+    {
+        Status =
+            PaymentStatus.Failed;
+    }
+}</code></pre>
+          </div>
+          <h2>Application Use Case نهایی</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class ProcessPaymentHandler
+{
+    private readonly IPaymentValidator
+        _validator;
+
+    private readonly IFeeCalculator
+        _feeCalculator;
+
+    private readonly IPaymentGateway
+        _gateway;
+
+    private readonly IPaymentRepository
+        _repository;
+
+    private readonly IEventPublisher
+        _publisher;
+
+    private readonly IPaymentNotifier
+        _notifier;
+
+    public ProcessPaymentHandler(
+        IPaymentValidator validator,
+        IFeeCalculator feeCalculator,
+        IPaymentGateway gateway,
+        IPaymentRepository repository,
+        IEventPublisher publisher,
+        IPaymentNotifier notifier)
+    {
+        _validator = validator;
+        _feeCalculator = feeCalculator;
+        _gateway = gateway;
+        _repository = repository;
+        _publisher = publisher;
+        _notifier = notifier;
+    }
+
+    public async Task&lt;PaymentResult&gt; HandleAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        _validator.Validate(
+            request);
+
+        decimal fee =
+            _feeCalculator.Calculate(
+                request.Amount);
+
+        var payment =
+            Payment.Create(
+                request.Amount,
+                fee);
+
+        var gatewayResult =
+            await _gateway.PayAsync(
+                new PaymentGatewayRequest(
+                    request.Amount + fee),
+                cancellationToken);
+
+        if (!gatewayResult.IsSuccess)
+        {
+            payment.MarkAsFailed();
+
+            await _repository.AddAsync(
+                payment,
+                cancellationToken);
+
+            return PaymentResult.Failed(
+                gatewayResult.ErrorCode);
+        }
+
+        payment.MarkAsSuccessful();
+
+        await _repository.AddAsync(
+            payment,
+            cancellationToken);
+
+        await _publisher.PublishAsync(
+            new PaymentCompleted(
+                payment.Id,
+                payment.Amount),
+            cancellationToken);
+
+        await _notifier.NotifyAsync(
+            payment,
+            cancellationToken);
+
+        return PaymentResult.Success(
+            payment.Id,
+            gatewayResult.ReferenceNumber);
+    }
+}</code></pre>
+          </div>
+          <h2>آیا Handler خودش SRP را نقض نمی‌کند؟</h2>
+          <p>
+            خیر، چون Responsibility اصلی آن
+            <strong>Orchestration یک Use Case مشخص</strong> است.
+            Ruleهای تخصصی در Componentهای جدا قرار دارند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              SRP یعنی یک Reason to Change منسجم؛
+              نه یک Method، یک Dependency یا کوچک‌ترین Class ممکن.
+            </div>
+          </div>
+          <h2>DTO و Result</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record PaymentRequest(
+    string CustomerId,
+    decimal Amount);
+
+public record PaymentGatewayRequest(
+    decimal Amount);
+
+public record PaymentCompleted(
+    Guid PaymentId,
+    decimal Amount);</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public record PaymentResult
+{
+    public bool IsSuccess { get; init; }
+
+    public Guid? PaymentId { get; init; }
+
+    public string? ReferenceNumber { get; init; }
+
+    public string? ErrorCode { get; init; }
+
+    public static PaymentResult Success(
+        Guid paymentId,
+        string? referenceNumber)
+        =&gt; new()
+        {
+            IsSuccess = true,
+            PaymentId = paymentId,
+            ReferenceNumber = referenceNumber
+        };
+
+    public static PaymentResult Failed(
+        string? errorCode)
+        =&gt; new()
+        {
+            IsSuccess = false,
+            ErrorCode = errorCode
+        };
+}</code></pre>
+          </div>
+          <h2>Dependency Injection در Program.cs</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentValidator,
+     PaymentValidator&gt;();
+
+builder.Services.AddScoped
+    &lt;IFeeCalculator,
+     DefaultFeeCalculator&gt;();
+
+builder.Services.AddHttpClient
+    &lt;IPaymentGateway,
+     BankAPaymentGateway&gt;();
+
+builder.Services.AddScoped
+    &lt;IPaymentRepository,
+     EfPaymentRepository&gt;();
+
+builder.Services.AddScoped
+    &lt;IEventPublisher,
+     RabbitMqEventPublisher&gt;();
+
+builder.Services.AddScoped
+    &lt;IPaymentNotifier,
+     EmailPaymentNotifier&gt;();
+
+builder.Services.AddScoped
+    &lt;ProcessPaymentHandler&gt;();</code></pre>
+          </div>
+          <h2>Minimal API Endpoint</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>app.MapPost(
+    "/payments",
+    async (
+        PaymentRequest request,
+        ProcessPaymentHandler handler,
+        CancellationToken cancellationToken) =&gt;
+    {
+        var result =
+            await handler.HandleAsync(
+                request,
+                cancellationToken);
+
+        return result.IsSuccess
+            ? Results.Ok(result)
+            : Results.BadRequest(result);
+    });</code></pre>
+          </div>
+          <h2>ساختار پیشنهادی Solution</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>PaymentSystem
+│
+├── PaymentSystem.Api
+│   └── Program.cs
+│
+├── PaymentSystem.Application
+│   ├── Payments
+│   │   ├── ProcessPaymentHandler.cs
+│   │   ├── PaymentValidator.cs
+│   │   └── DefaultFeeCalculator.cs
+│   │
+│   └── Abstractions
+│       ├── IPaymentGateway.cs
+│       ├── IPaymentRepository.cs
+│       ├── IEventPublisher.cs
+│       └── IPaymentNotifier.cs
+│
+├── PaymentSystem.Domain
+│   ├── Payment.cs
+│   └── PaymentStatus.cs
+│
+└── PaymentSystem.Infrastructure
+    ├── Persistence
+    │   └── EfPaymentRepository.cs
+    ├── Gateways
+    │   └── BankAPaymentGateway.cs
+    ├── Messaging
+    │   └── RabbitMqEventPublisher.cs
+    └── Notifications
+        └── EmailPaymentNotifier.cs</code></pre>
+          </div>
+          <h2>هر اصل SOLID کجاست؟</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>اصل</th>
+                <th>در پروژه</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SRP</td>
+                <td>Validator، FeeCalculator، Repository، Gateway، Publisher و Notifier مسئولیت‌های جدا دارند.</td>
+              </tr>
+              <tr>
+                <td>OCP</td>
+                <td>Gateway جدید با Implementation جدید اضافه می‌شود.</td>
+              </tr>
+              <tr>
+                <td>LSP</td>
+                <td>تمام Gatewayها Contract یکسان IPaymentGateway را حفظ می‌کنند.</td>
+              </tr>
+              <tr>
+                <td>ISP</td>
+                <td>Purchase و Refund در Contractهای جدا قرار می‌گیرند.</td>
+              </tr>
+              <tr>
+                <td>DIP</td>
+                <td>Application به Abstraction وابسته است و Infrastructure آن را implement می‌کند.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>تست بدون Infrastructure واقعی</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class FakePaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;GatewayPaymentResult&gt; PayAsync(
+        PaymentGatewayRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            new GatewayPaymentResult(
+                true,
+                "TEST-123"));
+    }
+}</code></pre>
+          </div>
+          <p>
+            به دلیل DIP می‌توان Use Case را بدون Bank API، SQL Server یا RabbitMQ واقعی تست کرد.
+          </p>
+          <h2>آیا این طراحی Over-Engineering نیست؟</h2>
+          <p>
+            در یک پروژه خیلی کوچک شاید باشد.
+            SOLID به معنی ساخت Interface و Class برای هر چند خط کد نیست.
+            در نقاطی از سیستم که واقعاً Change و Variation وجود دارد، این تفکیک ارزشمند می‌شود.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              هدف SOLID افزایش تعداد فایل‌ها نیست؛
+              هدف کاهش Coupling، محدود کردن دامنه تغییر و واضح‌تر کردن Responsibilityهاست.
+            </div>
+          </div>
+          <h2>Code Review Checklist</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>سؤال</th>
+                <th>اصل</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>آیا Class چند Responsibility مستقل دارد؟</td>
+                <td>SRP</td>
+              </tr>
+              <tr>
+                <td>برای Feature جدید باید Class پایدار را تغییر دهیم؟</td>
+                <td>OCP</td>
+              </tr>
+              <tr>
+                <td>آیا تمام Subtypeها Contract یکسان دارند؟</td>
+                <td>LSP</td>
+              </tr>
+              <tr>
+                <td>آیا Client به Method غیرضروری وابسته است؟</td>
+                <td>ISP</td>
+              </tr>
+              <tr>
+                <td>آیا Business Logic مستقیماً Infrastructure را می‌شناسد؟</td>
+                <td>DIP</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>پاسخ مصاحبه‌ای کوتاه</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">English</span></div>
+            <pre><code>In a payment service, I separate validation, persistence,
+gateway communication, notification, and event publishing.
+
+The application layer depends on abstractions such as
+IPaymentGateway and IPaymentRepository.
+
+New gateways can be added without changing the payment use case,
+which supports OCP.
+
+All gateway implementations follow the same contract,
+which supports LSP.
+
+Payment and refund capabilities can be separated into focused interfaces,
+which supports ISP.
+
+And the business logic remains independent from SQL Server,
+RabbitMQ, and specific bank providers,
+which is an example of DIP.</code></pre>
+          </div>
+          <h2>جمع‌بندی مثال کامل SOLID</h2>
+          <p>
+            SOLID زمانی ارزش واقعی خود را نشان می‌دهد که سیستم رشد می‌کند و تغییرات متعدد وارد می‌شوند.
+            یک طراحی خوب باید اجازه دهد Database، Message Broker، Payment Gateway یا Business Rule تغییر کند،
+            بدون اینکه بخش‌های نامرتبط سیستم بازنویسی شوند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکته کلیدی:
+              <strong>SOLID درباره تعداد Classها نیست؛ درباره ساخت مرزهایی است که تغییر را قابل کنترل می‌کنند.</strong>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

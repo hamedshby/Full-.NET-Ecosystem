@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Interface Segregation Principle — ISP از مسیر حرفه‌ای .NET.">
-  <title>Interface Segregation Principle — ISP | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Interface Segregation Principle یا ISP در C# شامل تعریف، Fat Interface، مثال اشتباه، Refactoring، Capability-based Interfaces و مثال واقعی در Payment System."
+    name="description" />
+  <title>15.5 Interface Segregation Principle — ISP در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,546 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-15-lesson-5">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-15-lesson-5"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 15 — SOLID Principles</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Interface Segregation Principle — ISP</h1>
+          <div class="article-tag">🧱 اصول SOLID</div>
+          <h1>15.5 — <bdi>Interface Segregation Principle — ISP</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <strong>Interface Segregation Principle</strong> یا <strong>ISP</strong>
+            چهارمین اصل از مجموعه SOLID است.
+            این اصل می‌گوید Clientها نباید مجبور شوند به Methodهایی وابسته باشند که به آن‌ها نیاز ندارند.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              تعریف معروف ISP:
+              <strong>Clients should not be forced to depend on methods they do not use.</strong>
+              یعنی به‌جای یک Interface بزرگ و عمومی، بهتر است Interfaceهای کوچک‌تر و متمرکز بر قابلیت واقعی طراحی شوند.
+            </div>
+          </div>
+          <h2>ISP دقیقاً چه مشکلی را حل می‌کند؟</h2>
+          <p>
+            اگر یک Interface چند قابلیت نامرتبط را کنار هم قرار دهد،
+            هر Implementation مجبور می‌شود تمام Methodهای آن را پیاده‌سازی کند؛
+            حتی وقتی بعضی Methodها هیچ معنایی برای آن Class ندارند.
+          </p>
+          <ul>
+            <li>Method خالی نوشته می‌شود.</li>
+            <li><code>NotSupportedException</code> پرتاب می‌شود.</li>
+            <li>Implementation مصنوعی ایجاد می‌شود.</li>
+            <li>Client به قابلیت‌هایی وابسته می‌شود که استفاده نمی‌کند.</li>
+          </ul>
+          <h2>مثال اشتباه: Fat Interface</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentDevice
+{
+    void Pay(
+        decimal amount);
+
+    void Refund(
+        decimal amount);
+
+    void PrintReceipt();
+
+    void ReadNfcCard();
+
+    void ScanQrCode();
+}</code></pre>
+          </div>
+          <p>
+            حالا یک Online Payment Gateway داریم که فقط Pay و Refund انجام می‌دهد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class OnlinePaymentGateway
+    : IPaymentDevice
+{
+    public void Pay(
+        decimal amount)
+    {
+        // Online payment
+    }
+
+    public void Refund(
+        decimal amount)
+    {
+        // Online refund
+    }
+
+    public void PrintReceipt()
+    {
+        throw new NotSupportedException();
+    }
+
+    public void ReadNfcCard()
+    {
+        throw new NotSupportedException();
+    }
+
+    public void ScanQrCode()
+    {
+        throw new NotSupportedException();
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              اگر یک Interface باعث شود Implementationها Methodهای خالی یا
+              <code>NotSupportedException</code> داشته باشند، احتمالاً Interface بیش از حد بزرگ است.
+            </div>
+          </div>
+          <h2>Refactoring با Interfaceهای کوچک‌تر</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPayable
+{
+    void Pay(
+        decimal amount);
+}
+
+public interface IRefundable
+{
+    void Refund(
+        decimal amount);
+}
+
+public interface IReceiptPrinter
+{
+    void PrintReceipt();
+}
+
+public interface INfcReader
+{
+    void ReadNfcCard();
+}
+
+public interface IQrScanner
+{
+    void ScanQrCode();
+}</code></pre>
+          </div>
+          <p>
+            حالا OnlinePaymentGateway فقط قابلیت‌هایی را implement می‌کند که واقعاً دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class OnlinePaymentGateway
+    : IPayable,
+      IRefundable
+{
+    public void Pay(
+        decimal amount)
+    {
+        // Online payment
+    }
+
+    public void Refund(
+        decimal amount)
+    {
+        // Online refund
+    }
+}</code></pre>
+          </div>
+          <h2>POS Device</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PosDevice
+    : IPayable,
+      IRefundable,
+      IReceiptPrinter,
+      INfcReader
+{
+    public void Pay(
+        decimal amount)
+    {
+        // POS payment
+    }
+
+    public void Refund(
+        decimal amount)
+    {
+        // POS refund
+    }
+
+    public void PrintReceipt()
+    {
+        // Print receipt
+    }
+
+    public void ReadNfcCard()
+    {
+        // Read NFC
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              ISP یعنی Interfaceها را بر اساس <strong>نیاز Client</strong> و <strong>قابلیت واقعی</strong> طراحی کنیم،
+              نه اینکه تمام Methodهای مرتبط با یک موضوع را داخل یک Interface بزرگ قرار دهیم.
+            </div>
+          </div>
+          <h2>مثال اشتباه در Repository</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IRepository&lt;T&gt;
+{
+    Task&lt;T?&gt; GetAsync(
+        Guid id);
+
+    Task AddAsync(
+        T entity);
+
+    Task UpdateAsync(
+        T entity);
+
+    Task DeleteAsync(
+        T entity);
+
+    Task ExportAsync();
+
+    Task ArchiveAsync();
+}</code></pre>
+          </div>
+          <p>
+            ممکن است بعضی Repositoryها فقط Read-only باشند،
+            اما مجبور می‌شوند Add، Update، Delete و Archive را هم implement کنند.
+          </p>
+          <h2>Refactoring Repository بر اساس Capability</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IReadRepository&lt;T&gt;
+{
+    Task&lt;T?&gt; GetAsync(
+        Guid id);
+}
+
+public interface IWriteRepository&lt;T&gt;
+{
+    Task AddAsync(
+        T entity);
+
+    Task UpdateAsync(
+        T entity);
+}
+
+public interface IDeleteRepository&lt;T&gt;
+{
+    Task DeleteAsync(
+        T entity);
+}</code></pre>
+          </div>
+          <p>
+            حالا یک Read-only Service فقط به Contract مورد نیاز خودش وابسته می‌شود:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentQueryService
+{
+    private readonly IReadRepository&lt;Payment&gt;
+        _repository;
+
+    public PaymentQueryService(
+        IReadRepository&lt;Payment&gt; repository)
+    {
+        _repository =
+            repository;
+    }
+}</code></pre>
+          </div>
+          <h2>مثال واقعی در Payment System</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProvider
+{
+    Task&lt;PurchaseResult&gt; PurchaseAsync(
+        PurchaseRequest request,
+        CancellationToken cancellationToken);
+
+    Task&lt;RefundResult&gt; RefundAsync(
+        RefundRequest request,
+        CancellationToken cancellationToken);
+
+    Task&lt;BalanceResult&gt; GetBalanceAsync(
+        CancellationToken cancellationToken);
+
+    Task&lt;SettlementResult&gt; SettleAsync(
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            Provider A شاید تمام قابلیت‌ها را پشتیبانی کند،
+            اما Provider B فقط Purchase و Refund داشته باشد.
+            در این حالت Interface بالا برای Provider B بیش از حد بزرگ است.
+          </p>
+          <h2>Refactoring Payment Provider</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPurchaseProvider
+{
+    Task&lt;PurchaseResult&gt; PurchaseAsync(
+        PurchaseRequest request,
+        CancellationToken cancellationToken);
+}
+
+public interface IRefundProvider
+{
+    Task&lt;RefundResult&gt; RefundAsync(
+        RefundRequest request,
+        CancellationToken cancellationToken);
+}
+
+public interface IBalanceProvider
+{
+    Task&lt;BalanceResult&gt; GetBalanceAsync(
+        CancellationToken cancellationToken);
+}
+
+public interface ISettlementProvider
+{
+    Task&lt;SettlementResult&gt; SettleAsync(
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class ProviderA
+    : IPurchaseProvider,
+      IRefundProvider,
+      IBalanceProvider,
+      ISettlementProvider
+{
+    // All supported operations
+}
+
+public class ProviderB
+    : IPurchaseProvider,
+      IRefundProvider
+{
+    // Only supported operations
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            هر Provider فقط Capability واقعی خودش را اعلام می‌کند.
+            دیگر Method جعلی یا <code>NotSupportedException</code> لازم نیست.
+            این یک کاربرد واقعی ISP در Payment System است.
+          </p>
+          <h2>ISP و Dependency Injection</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class RefundService
+{
+    private readonly IRefundProvider
+        _refundProvider;
+
+    public RefundService(
+        IRefundProvider refundProvider)
+    {
+        _refundProvider =
+            refundProvider;
+    }
+}</code></pre>
+          </div>
+          <p>
+            RefundService فقط چیزی را دریافت می‌کند که واقعاً نیاز دارد.
+            این موضوع Coupling را کمتر و Intent را واضح‌تر می‌کند.
+          </p>
+          <h2>ISP و Unit Test</h2>
+          <p>
+            Interfaceهای کوچک‌تر Mock و Fake کردن Dependencyها را ساده‌تر می‌کنند.
+            Client مجبور نیست برای Test یک Method ساده، Contract بزرگی را Mock کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface INotificationSender
+{
+    Task SendAsync(
+        string message);
+}</code></pre>
+          </div>
+          <h2>آیا Interface هرچه کوچک‌تر باشد بهتر است؟</h2>
+          <p>
+            خیر.
+            هدف ISP ساخت یک Interface برای هر Method نیست.
+            Methodهایی که از دید Client یک مفهوم منسجم دارند می‌توانند داخل یک Interface باقی بمانند.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              ISP یعنی <strong>Client-specific interfaces</strong>،
+              نه اینکه هر Method را بی‌دلیل داخل Interface جدا قرار دهیم.
+              Cohesion همچنان مهم است.
+            </div>
+          </div>
+          <h2>ISP و LSP چه ارتباطی دارند؟</h2>
+          <p>
+            یک Fat Interface ممکن است Class را مجبور کند Methodهایی را implement کند که پشتیبانی نمی‌کند.
+            در نتیجه <code>NotSupportedException</code> ایجاد می‌شود و این موضوع می‌تواند LSP را هم نقض کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Fat Interface
+     │
+     ▼
+Unused Methods
+     │
+     ▼
+NotSupportedException
+     │
+     ▼
+Possible LSP Violation</code></pre>
+          </div>
+          <h2>ISP و SRP چه تفاوتی دارند؟</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>SRP</th>
+                <th>ISP</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>تمرکز روی Responsibility یک Class</td>
+                <td>تمرکز روی Dependency Client به Interface</td>
+              </tr>
+              <tr>
+                <td>یک Reason to Change اصلی</td>
+                <td>عدم وابستگی به Methodهای غیرضروری</td>
+              </tr>
+              <tr>
+                <td>Class Design</td>
+                <td>Interface Design</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نشانه‌های نقض ISP</h2>
+          <ul>
+            <li>Interface تعداد زیادی Method نامرتبط دارد.</li>
+            <li>Implementation بعضی Methodها را خالی می‌گذارد.</li>
+            <li><code>NotSupportedException</code> زیاد دیده می‌شود.</li>
+            <li>Client فقط بخش کوچکی از Interface را استفاده می‌کند.</li>
+            <li>Mock کردن Interface برای Unit Test سخت و پرحجم است.</li>
+            <li>یک تغییر کوچک روی Interface، Clientهای نامرتبط را تحت تأثیر قرار می‌دهد.</li>
+          </ul>
+          <h2>Code Smell: Interfaceهای Managerگونه</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentManager
+{
+    void Pay();
+
+    void Refund();
+
+    void Settle();
+
+    void Export();
+
+    void Notify();
+
+    void Archive();
+
+    void Print();
+
+    void Validate();
+}</code></pre>
+          </div>
+          <h2>قبل و بعد از ISP</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>قبل</th>
+                <th>بعد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Fat Interface</td>
+                <td>Interfaceهای کوچک و منسجم</td>
+              </tr>
+              <tr>
+                <td>Methodهای اجباری</td>
+                <td>فقط Capability واقعی</td>
+              </tr>
+              <tr>
+                <td>NotSupportedException</td>
+                <td>Contract دقیق‌تر</td>
+              </tr>
+              <tr>
+                <td>Coupling بیشتر</td>
+                <td>Dependency محدودتر</td>
+              </tr>
+              <tr>
+                <td>Mockهای بزرگ</td>
+                <td>Unit Test ساده‌تر</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎤</span>
+            <div class="callout-content">
+              پاسخ مناسب:
+              <strong>ISP says that clients should not be forced to depend on methods they do not use.</strong>
+              مثلاً اگر یک Payment Provider فقط Purchase را پشتیبانی می‌کند،
+              نباید مجبور شود Interfaceای با Refund، Settlement و Balance را کامل implement کند.
+            </div>
+          </div>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>ساخت یک Interface برای تمام قابلیت‌های یک Domain.</li>
+            <li>ساخت یک Interface جدا برای هر Method بدون نیاز واقعی.</li>
+            <li>نادیده گرفتن Client هنگام طراحی Interface.</li>
+            <li>استفاده از <code>NotSupportedException</code> برای Methodهای اجباری.</li>
+            <li>وابسته کردن Read-only Service به Interface کامل CRUD.</li>
+            <li>تصور اینکه ISP فقط درباره تعداد Methodهاست.</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              مدل ذهنی:
+              <strong>هر Client فقط باید Contractی را ببیند که واقعاً به آن نیاز دارد.</strong>
+            </div>
+          </div>
+          <h2>جمع‌بندی ISP</h2>
+          <p>
+            Interface Segregation Principle می‌گوید Interfaceها باید متناسب با نیاز Clientها و قابلیت واقعی
+            Implementationها طراحی شوند.
+            Fat Interface باعث Coupling بیشتر، Implementationهای مصنوعی و Testability پایین‌تر می‌شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکته کلیدی:
+              <strong>Prefer small, cohesive, client-focused interfaces over large general-purpose interfaces.</strong>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

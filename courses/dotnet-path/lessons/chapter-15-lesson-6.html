@@ -1,15 +1,18 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Dependency Inversion Principle — DIP از مسیر حرفه‌ای .NET.">
-  <title>Dependency Inversion Principle — DIP | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Dependency Inversion Principle یا DIP در C# شامل High-Level و Low-Level Modules، Abstraction، مثال اشتباه، Refactoring، Dependency Injection و مثال واقعی در Payment System."
+    name="description" />
+  <title>15.6 Dependency Inversion Principle — DIP در C# | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
 <body>
@@ -17,25 +20,872 @@
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-15-lesson-6">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-15-lesson-6"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 15 — SOLID Principles</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Dependency Inversion Principle — DIP</h1>
+          <div class="article-tag">🧱 اصول SOLID</div>
+          <h1>15.6 — <bdi>Dependency Inversion Principle — DIP</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>
+            <strong>Dependency Inversion Principle</strong> یا <strong>DIP</strong>
+            پنجمین اصل از مجموعه SOLID است.
+            این اصل دربارهٔ جهت Dependencyها در طراحی نرم‌افزار است و می‌گوید
+            Business Logic سطح بالا نباید مستقیماً به جزئیات Infrastructure وابسته باشد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              تعریف معروف DIP دو بخش دارد:
+              <br />
+              <strong>1. High-level modules should not depend on low-level modules. Both should depend on
+                abstractions.</strong>
+              <br />
+              <strong>2. Abstractions should not depend on details. Details should depend on abstractions.</strong>
+            </div>
+          </div>
+          <h2>High-Level Module چیست؟</h2>
+          <p>
+            High-Level Module معمولاً بخشی از سیستم است که Business Rule یا Use Case اصلی را اجرا می‌کند.
+          </p>
+          <p>برای مثال در Payment System:</p>
+          <ul>
+            <li>Process Payment</li>
+            <li>Refund Transaction</li>
+            <li>Settlement</li>
+            <li>Transfer Money</li>
+            <li>Create Order</li>
+          </ul>
+          <p>
+            این بخش‌ها مشخص می‌کنند سیستم <strong>چه کاری</strong> باید انجام دهد.
+          </p>
+          <h2>Low-Level Module چیست؟</h2>
+          <p>
+            Low-Level Module معمولاً جزئیات فنی اجرای عملیات است.
+          </p>
+          <ul>
+            <li>SQL Server</li>
+            <li>Entity Framework Core</li>
+            <li>Redis</li>
+            <li>RabbitMQ</li>
+            <li>SMTP</li>
+            <li>File System</li>
+            <li>External Bank API</li>
+          </ul>
+          <p>
+            این بخش‌ها بیشتر مشخص می‌کنند سیستم <strong>چگونه</strong> یک کار را انجام دهد.
+          </p>
+          <h2>مثال اشتباه</h2>
+          <p>
+            فرض کنید PaymentService مستقیماً Repository مربوط به SQL Server را می‌سازد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly SqlPaymentRepository
+        _repository;
+
+    public PaymentService()
+    {
+        _repository =
+            new SqlPaymentRepository();
+    }
+
+    public async Task ProcessAsync(
+        Payment payment)
+    {
+        // Business Logic
+
+        await _repository.SaveAsync(
+            payment);
+    }
+}</code></pre>
+          </div>
+          <p>
+            در این طراحی PaymentService که یک High-Level Module است،
+            مستقیماً به <code>SqlPaymentRepository</code> که یک Detail سطح پایین است وابسته شده است.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>PaymentService
+      │
+      ▼
+SqlPaymentRepository
+      │
+      ▼
+SQL Server</code></pre>
+          </div>
+          <h2>مشکل این Dependency چیست؟</h2>
+          <p>
+            اگر فردا Persistence تغییر کند و بخواهیم به‌جای SQL Server از API، MongoDB یا یک Implementation دیگر استفاده
+            کنیم،
+            باید PaymentService را تغییر دهیم.
+          </p>
+          <p>
+            Business Logic به یک Detail فنی گره خورده است.
+          </p>
+          <ul>
+            <li>Coupling بالا می‌رود.</li>
+            <li>Unit Test سخت‌تر می‌شود.</li>
+            <li>جایگزینی Infrastructure دشوار می‌شود.</li>
+            <li>Business Logic دربارهٔ جزئیات فنی knowledge پیدا می‌کند.</li>
+            <li>تغییر Low-Level Module روی High-Level Module اثر مستقیم دارد.</li>
+          </ul>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              مشکل فقط استفاده از SQL Server نیست.
+              مشکل این است که Business Logic مستقیماً به Implementation مشخص SQL وابسته شده است.
+            </div>
+          </div>
+          <h2>Refactoring با Abstraction</h2>
+          <p>
+            بین High-Level و Low-Level Module یک Abstraction قرار می‌دهیم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentRepository
+{
+    Task SaveAsync(
+        Payment payment);
+}</code></pre>
+          </div>
+          <p>
+            PaymentService حالا به Interface وابسته می‌شود:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentRepository
+        _repository;
+
+    public PaymentService(
+        IPaymentRepository repository)
+    {
+        _repository =
+            repository;
+    }
+
+    public async Task ProcessAsync(
+        Payment payment)
+    {
+        // Business Logic
+
+        await _repository.SaveAsync(
+            payment);
+    }
+}</code></pre>
+          </div>
+          <p>
+            Implementation مربوط به SQL نیز به همان Abstraction وابسته است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class SqlPaymentRepository
+    : IPaymentRepository
+{
+    public Task SaveAsync(
+        Payment payment)
+    {
+        // SQL Server implementation
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <h2>جهت Dependency بعد از DIP</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>        IPaymentRepository
+         ▲             ▲
+         │             │
+PaymentService   SqlPaymentRepository
+ High-Level          Low-Level</code></pre>
+          </div>
+          <p>
+            هر دو طرف به Abstraction وابسته‌اند.
+            PaymentService دیگر SqlPaymentRepository را نمی‌شناسد.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              نکتهٔ اصلی DIP این نیست که «همه‌جا Interface بسازیم».
+              هدف این است که <strong>Policy و Business Logic به Detail وابسته نباشند؛ Detail باید با Contract مورد نیاز
+                Policy سازگار شود.</strong>
+            </div>
+          </div>
+          <h2>Dependency Inversion با Dependency Injection فرق دارد</h2>
+          <p>
+            این دو مفهوم بسیار به هم مرتبط‌اند، اما یکی نیستند.
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Dependency Inversion Principle</th>
+                <th>Dependency Injection</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>یک Design Principle است.</td>
+                <td>یک Technique برای تأمین Dependency است.</td>
+              </tr>
+              <tr>
+                <td>دربارهٔ جهت Dependency صحبت می‌کند.</td>
+                <td>دربارهٔ نحوهٔ دریافت Dependency صحبت می‌کند.</td>
+              </tr>
+              <tr>
+                <td>High-Level باید به Abstraction وابسته باشد.</td>
+                <td>Dependency از بیرون به Object داده می‌شود.</td>
+              </tr>
+              <tr>
+                <td>عضوی از SOLID است.</td>
+                <td>یکی از روش‌های پیاده‌سازی loosely coupled design است.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>Dependency Injection بدون DIP</h2>
+          <p>
+            حتی می‌توان Dependency Injection داشت ولی DIP را خوب رعایت نکرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly SqlPaymentRepository
+        _repository;
+
+    public PaymentService(
+        SqlPaymentRepository repository)
+    {
+        _repository =
+            repository;
+    }
+}</code></pre>
+          </div>
+          <p>
+            Dependency از Constructor تزریق شده است،
+            اما High-Level Module هنوز به Concrete Implementation وابسته است.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              Constructor Injection به‌تنهایی به معنی رعایت DIP نیست.
+              مهم این است که Dependencyهای معماری در نقاط مناسب به Abstraction وابسته شوند.
+            </div>
+          </div>
+          <h2>Constructor Injection</h2>
+          <p>
+            رایج‌ترین روش Dependency Injection در ASP.NET Core، Constructor Injection است:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentRepository
+        _repository;
+
+    public PaymentService(
+        IPaymentRepository repository)
+    {
+        _repository =
+            repository;
+    }
+}</code></pre>
+          </div>
+          <p>
+            PaymentService Dependency را نمی‌سازد.
+            Dependency از بیرون به آن داده می‌شود.
+          </p>
+          <h2>ثبت Dependency در ASP.NET Core</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentRepository,
+     SqlPaymentRepository&gt;();
+
+builder.Services.AddScoped
+    &lt;PaymentService&gt;();</code></pre>
+          </div>
+          <p>
+            DI Container هنگام ساخت PaymentService،
+            Implementation مربوط به <code>IPaymentRepository</code> را Resolve می‌کند.
+          </p>
+          <h2>تغییر Implementation</h2>
+          <p>
+            فرض کنید برای Integration Test یا یک محیط دیگر Implementation جدیدی داریم:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class InMemoryPaymentRepository
+    : IPaymentRepository
+{
+    private readonly List&lt;Payment&gt;
+        _payments = new();
+
+    public Task SaveAsync(
+        Payment payment)
+    {
+        _payments.Add(
+            payment);
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            بدون تغییر PaymentService می‌توان Mapping را عوض کرد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentRepository,
+     InMemoryPaymentRepository&gt;();</code></pre>
+          </div>
+          <h2>مثال واقعی: Notification</h2>
+          <p>
+            نسخهٔ Coupled:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly SmtpClient
+        _smtpClient;
+
+    public PaymentService()
+    {
+        _smtpClient =
+            new SmtpClient();
+    }
+
+    public void CompletePayment(
+        Payment payment)
+    {
+        // Business Logic
+
+        _smtpClient.Send(
+            "system@company.com",
+            payment.CustomerEmail,
+            "Payment",
+            "Payment completed.");
+    }
+}</code></pre>
+          </div>
+          <p>
+            PaymentService مستقیماً SMTP را می‌شناسد.
+            نسخه بهتر:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentNotifier
+{
+    Task NotifySuccessAsync(
+        Payment payment,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class EmailPaymentNotifier
+    : IPaymentNotifier
+{
+    public Task NotifySuccessAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        // SMTP / Email Provider
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentNotifier
+        _notifier;
+
+    public PaymentService(
+        IPaymentNotifier notifier)
+    {
+        _notifier =
+            notifier;
+    }
+
+    public async Task CompleteAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        // Business Logic
+
+        await _notifier.NotifySuccessAsync(
+            payment,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <h2>مثال واقعی: Message Broker</h2>
+          <p>
+            یکی از کاربردهای مهم DIP در Microserviceها جدا کردن Application Logic از Message Broker است.
+          </p>
+          <h3>طراحی Coupled</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PurchaseService
+{
+    private readonly RabbitMqPublisher
+        _publisher;
+
+    public PurchaseService(
+        RabbitMqPublisher publisher)
+    {
+        _publisher =
+            publisher;
+    }
+
+    public async Task PurchaseAsync()
+    {
+        // Business Logic
+
+        await _publisher.PublishAsync(
+            "payment.created");
+    }
+}</code></pre>
+          </div>
+          <p>
+            Application Service اکنون RabbitMQ را مستقیماً می‌شناسد.
+          </p>
+          <h3>نسخه Refactored</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IEventPublisher
+{
+    Task PublishAsync&lt;TEvent&gt;(
+        TEvent @event,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class RabbitMqEventPublisher
+    : IEventPublisher
+{
+    public Task PublishAsync&lt;TEvent&gt;(
+        TEvent @event,
+        CancellationToken cancellationToken)
+    {
+        // RabbitMQ implementation
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            Application Service فقط مفهوم Event Publishing را می‌شناسد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PurchaseService
+{
+    private readonly IEventPublisher
+        _publisher;
+
+    public PurchaseService(
+        IEventPublisher publisher)
+    {
+        _publisher =
+            publisher;
+    }
+
+    public async Task PurchaseAsync(
+        CancellationToken cancellationToken)
+    {
+        // Business Logic
+
+        await _publisher.PublishAsync(
+            new PaymentCreated(),
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p class="example-explanation">
+            اگر RabbitMQ با Kafka یا Azure Service Bus جایگزین شود،
+            Application Service نباید به خاطر تغییر Message Broker بازنویسی شود.
+            Infrastructure جدید Contract مربوط به <code>IEventPublisher</code> را پیاده‌سازی می‌کند.
+          </p>
+          <h2>مثال واقعی Payment Gateway</h2>
+          <p>
+            Business Logic نباید مستقیماً Client مربوط به یک بانک خاص را بشناسد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAPaymentGateway
+    : IPaymentGateway
+{
+    private readonly HttpClient
+        _httpClient;
+
+    public BankAPaymentGateway(
+        HttpClient httpClient)
+    {
+        _httpClient =
+            httpClient;
+    }
+
+    public async Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        // Call Bank A API
+
+        return new PaymentResult();
+    }
+}</code></pre>
+          </div>
+          <p>
+            Payment Use Case فقط Contract را می‌شناسد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class ProcessPaymentUseCase
+{
+    private readonly IPaymentGateway
+        _paymentGateway;
+
+    public ProcessPaymentUseCase(
+        IPaymentGateway paymentGateway)
+    {
+        _paymentGateway =
+            paymentGateway;
+    }
+
+    public Task&lt;PaymentResult&gt; ExecuteAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return _paymentGateway.PayAsync(
+            request,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <h2>DIP و Testability</h2>
+          <p>
+            یکی از نتایج مهم DIP این است که High-Level Logic را می‌توان بدون Infrastructure واقعی تست کرد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class FakePaymentRepository
+    : IPaymentRepository
+{
+    public bool WasSaved
+    {
+        get;
+        private set;
+    }
+
+    public Task SaveAsync(
+        Payment payment)
+    {
+        WasSaved = true;
+
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>
+            برای Unit Test نیازی به SQL Server واقعی نداریم.
+          </p>
+          <h2>DIP و Clean Architecture</h2>
+          <p>
+            Dependency Inversion یکی از پایه‌های مهم معماری‌هایی مانند Clean Architecture است.
+            در چنین طراحی‌هایی Business Layer نباید به Infrastructure Layer وابسته باشد.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Infrastructure
+      │
+      │ implements
+      ▼
+Application Abstraction
+      ▲
+      │ depends on
+      │
+Application / Domain</code></pre>
+          </div>
+          <p>
+            در سطح Source Code، Infrastructure معمولاً Reference لازم را به لایه‌ای می‌دهد که Contract در آن تعریف شده
+            است،
+            نه برعکس.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              در معماری خوب، Business Rules در مرکز قرار می‌گیرند.
+              Database، Message Broker، Email Provider و External APIها جزئیاتی هستند که باید بتوان آن‌ها را در اطراف
+              Business Logic تغییر داد.
+            </div>
+          </div>
+          <h2>Abstraction را کجا تعریف کنیم؟</h2>
+          <p>
+            یک نکتهٔ معماری مهم این است که Contract بهتر است از نیاز Consumer و High-Level Policy شکل بگیرد،
+            نه صرفاً به‌عنوان یک Wrapper از API یک ابزار Infrastructure.
+          </p>
+          <p>
+            مثلاً Application به این قابلیت نیاز دارد:
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface ITransactionRepository
+{
+    Task&lt;Transaction?&gt; GetAsync(
+        Guid transactionId,
+        CancellationToken cancellationToken);
+
+    Task SaveAsync(
+        Transaction transaction,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <p>
+            Infrastructure باید خودش را با این نیاز سازگار کند.
+          </p>
+          <h2>آیا برای هر Class باید Interface بسازیم؟</h2>
+          <p>
+            خیر.
+            DIP به معنی Interface برای همه چیز نیست.
+          </p>
+          <div class="callout callout-warning">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              اگر Class یک Detail قابل تعویض، مرز معماری، External Dependency یا نقطهٔ Variation نیست،
+              ساخت Interface فقط برای اینکه «SOLID رعایت شود» می‌تواند Over-Engineering باشد.
+            </div>
+          </div>
+          <h2>چه Dependencyهایی معمولاً ارزش Abstraction دارند؟</h2>
+          <ul>
+            <li>Database / Repository</li>
+            <li>External API</li>
+            <li>Message Broker</li>
+            <li>Email / SMS Provider</li>
+            <li>File Storage</li>
+            <li>Clock / Time Provider در بعضی Domainها</li>
+            <li>Payment Gateway</li>
+            <li>Cache Provider</li>
+          </ul>
+          <h2>DIP و OCP</h2>
+          <p>
+            DIP معمولاً به رعایت OCP کمک می‌کند.
+            وقتی High-Level Module به Abstraction وابسته است،
+            می‌توان Implementation جدید اضافه کرد بدون اینکه Business Logic تغییر کند.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>IPaymentGateway
+      ▲
+      │
+ ┌────┴──────────┐
+ │               │
+BankAGateway   BankBGateway</code></pre>
+          </div>
+          <p>
+            اضافه شدن Bank C می‌تواند فقط با یک Implementation جدید انجام شود.
+          </p>
+          <h2>DIP و Dependency Injection Container</h2>
+          <p>
+            DI Container ابزار مفیدی برای Wire کردن Dependencyها است،
+            اما خود Container اصل DIP نیست.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentGateway,
+     BankAPaymentGateway&gt;();
+
+builder.Services.AddScoped
+    &lt;IEventPublisher,
+     RabbitMqEventPublisher&gt;();
+
+builder.Services.AddScoped
+    &lt;IPaymentRepository,
+     SqlPaymentRepository&gt;();</code></pre>
+          </div>
+          <p>
+            این قسمت معمولاً در Composition Root قرار می‌گیرد؛
+            جایی که Concrete Implementationها به Abstractionها متصل می‌شوند.
+          </p>
+          <h2>Composition Root چیست؟</h2>
+          <p>
+            Composition Root محلی است که Object Graph برنامه ساخته و Dependencyها به هم متصل می‌شوند.
+            در ASP.NET Core معمولاً بخش بزرگی از این کار در <code>Program.cs</code> انجام می‌شود.
+          </p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var builder =
+    WebApplication.CreateBuilder(
+        args);
+
+builder.Services.AddScoped
+    &lt;IPaymentRepository,
+     SqlPaymentRepository&gt;();
+
+builder.Services.AddScoped
+    &lt;IPaymentGateway,
+     BankAPaymentGateway&gt;();
+
+builder.Services.AddScoped
+    &lt;PaymentService&gt;();</code></pre>
+          </div>
+          <h2>نشانه‌های نقض DIP</h2>
+          <ul>
+            <li>Business Service داخل خودش Dependency را با <code>new</code> می‌سازد.</li>
+            <li>Application Layer مستقیماً به EF Core، RabbitMQ یا SMTP وابسته است.</li>
+            <li>تغییر Infrastructure نیازمند تغییر Business Logic است.</li>
+            <li>Unit Test بدون Database یا External Service قابل اجرا نیست.</li>
+            <li>High-Level Module به Concrete Class وابسته است در حالی که Variation واقعی وجود دارد.</li>
+            <li>Business Code جزئیات Connection، Queue یا HTTP Provider را می‌داند.</li>
+          </ul>
+          <h2>Code Smell: ساخت Dependency داخل Service</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class OrderService
+{
+    public void CreateOrder()
+    {
+        var repository =
+            new SqlOrderRepository();
+
+        var email =
+            new SmtpEmailSender();
+
+        var publisher =
+            new RabbitMqPublisher();
+
+        // ...
+    }
+}</code></pre>
+          </div>
+          <p>
+            این Service هم به Concrete Typeها وابسته است و هم مسئول ساخت Dependencyها شده است.
+            تست و تغییر آن دشوارتر خواهد بود.
+          </p>
+          <h2>قبل و بعد از DIP</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>قبل</th>
+                <th>بعد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>High-Level → Concrete Low-Level</td>
+                <td>High-Level → Abstraction ← Low-Level</td>
+              </tr>
+              <tr>
+                <td>Business Logic وابسته به SQL/RabbitMQ</td>
+                <td>Business Logic وابسته به Contract</td>
+              </tr>
+              <tr>
+                <td>تغییر Infrastructure سخت</td>
+                <td>Implementation قابل جایگزینی</td>
+              </tr>
+              <tr>
+                <td>Unit Test وابسته به Infrastructure</td>
+                <td>Fake/Mock ساده‌تر</td>
+              </tr>
+              <tr>
+                <td>Coupling بالا</td>
+                <td>Coupling کنترل‌شده‌تر</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎤</span>
+            <div class="callout-content">
+              پاسخ خوب:
+              <strong>Dependency Inversion says high-level modules should not depend on low-level modules; both should
+                depend on abstractions.</strong>
+              سپس توضیح دهید که مثلاً PaymentService نباید مستقیماً به
+              <code>SqlPaymentRepository</code> یا <code>RabbitMqPublisher</code> وابسته باشد،
+              بلکه باید به Contractهایی مثل <code>IPaymentRepository</code> و <code>IEventPublisher</code> وابسته شود.
+            </div>
+          </div>
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li>یکی دانستن DIP و Dependency Injection.</li>
+            <li>تصور اینکه Constructor Injection به‌تنهایی یعنی رعایت DIP.</li>
+            <li>ساخت Interface برای تمام Classها بدون وجود Boundary یا Variation واقعی.</li>
+            <li>تعریف Abstraction بر اساس جزئیات Infrastructure به‌جای نیاز Business.</li>
+            <li>استفاده از Service Locator به‌جای Dependencyهای واضح.</li>
+            <li>تزریق تعداد بسیار زیادی Dependency بدون بررسی SRP.</li>
+          </ul>
+          <div class="callout callout-info">
+            <span class="callout-icon">🎯</span>
+            <div class="callout-content">
+              مدل ذهنی:
+              <strong>Business Logic نباید بداند داده در SQL ذخیره می‌شود، Event با RabbitMQ ارسال می‌شود یا Email با چه
+                Providerی فرستاده می‌شود.</strong>
+              Business Logic باید فقط Contract مورد نیاز خودش را بشناسد.
+            </div>
+          </div>
+          <h2>جمع‌بندی DIP</h2>
+          <p>
+            Dependency Inversion Principle جهت Dependencyهای معماری را از Detailهای فنی به سمت Abstractionها تغییر
+            می‌دهد.
+            High-Level Business Logic نباید مستقیماً به Low-Level Infrastructure وابسته باشد.
+            هر دو باید از Contractهای مناسب استفاده کنند.
+          </p>
+          <p>
+            Dependency Injection و DI Container ابزارهایی هستند که پیاده‌سازی چنین طراحی‌ای را ساده‌تر می‌کنند،
+            اما DIP یک اصل معماری است و نباید با DI اشتباه گرفته شود.
+          </p>
+          <div class="callout callout-info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              نکته کلیدی:
+              <strong>Depend on abstractions, not concrete details — especially across architectural
+                boundaries.</strong>
+              Database، Message Broker و External Provider باید Detailهای قابل جایگزینی باشند؛
+              Business Rules باید تا حد ممکن مستقل از آن‌ها باقی بمانند.
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
