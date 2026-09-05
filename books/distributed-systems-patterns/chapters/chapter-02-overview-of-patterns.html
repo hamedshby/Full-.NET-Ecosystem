@@ -1,0 +1,2131 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta
+    name="description"
+    content="صفحهٔ Chapter 2: Overview of the Patterns از کتاب Patterns of Distributed Systems."
+  >
+
+  <title>
+    Overview of the Patterns | Patterns of Distributed Systems
+  </title>
+
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+
+      try {
+        const t = localStorage.getItem('dotnet-academy-theme');
+
+        document.documentElement.dataset.theme =
+          t === 'dark' || t === 'light'
+            ? t
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+      } catch {
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+
+  <script defer src="../book-navigation.js"></script>
+  <script defer src="../book.js"></script>
+</head>
+
+<body>
+
+  <a class="skip-link" href="#chapter-content">
+    پرش به محتوای Chapter
+  </a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری کتاب">
+
+      <a class="course-brand" href="../../../index.html">
+        آکادمی دات‌نت
+      </a>
+
+      <span class="course-name">
+        <bdi>Patterns of Distributed Systems</bdi>
+      </span>
+
+      <a class="back-link" href="../index.html">
+        صفحهٔ کتاب
+      </a>
+
+      <button
+        id="book-menu-toggle"
+        class="book-menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="book-sidebar">
+        فهرست
+      </button>
+
+      <button
+        id="theme-toggle"
+        class="icon-button"
+        type="button"
+        aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره"
+        aria-pressed="false">
+
+        <svg
+          class="nav-icon theme-icon-moon"
+          viewBox="0 0 24 24"
+          aria-hidden="true">
+          <path
+            d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z">
+          </path>
+        </svg>
+
+        <svg
+          class="nav-icon theme-icon-sun"
+          viewBox="0 0 24 24"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path
+            d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4-1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+
+      </button>
+
+    </nav>
+  </header>
+
+
+  <div class="book-layout">
+
+    <main
+      id="chapter-content"
+      class="book-main chapter-main">
+
+      <nav
+        class="chapter-breadcrumb"
+        aria-label="مسیر راهنما">
+
+        <a href="../index.html">
+          کتاب
+        </a>
+
+        <span>/</span>
+
+        <bdi>Narratives</bdi>
+
+      </nav>
+
+
+      <article class="chapter-card">
+
+        <p class="chapter-status chapter-status--ready">
+          آمادهٔ مطالعه
+        </p>
+
+        <p class="chapter-number">
+          Chapter 2
+        </p>
+
+        <h1>
+          <bdi>Overview of the Patterns</bdi>
+        </h1>
+
+
+        <div class="chapter-article">
+
+          <!-- ========================================================= -->
+          <!-- Introduction -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <p class="article-lead">
+              در Chapter قبل دیدیم که Distributed کردن Data معمولاً ما را
+              به دو مفهوم اساسی می‌رساند:
+              <bdi>Partitioning</bdi> و <bdi>Replication</bdi>.
+              در این Chapter نویسنده ابتدا روی Replication تمرکز می‌کند و
+              با یک سناریوی ساده، Patternهای اصلی موردنیاز برای ساخت یک
+              Distributed Data System قابل‌اعتماد را قدم‌به‌قدم کنار هم
+              قرار می‌دهد.
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>مدل ذهنی Chapter</strong>
+
+              <p>
+                این فصل قرار نیست هر Pattern را با تمام جزئیات آموزش دهد.
+                هدف اصلی این است که ببینیم Patternهایی مانند
+                <bdi>Write-Ahead Log</bdi>،
+                <bdi>Leader and Followers</bdi>،
+                <bdi>HeartBeat</bdi>،
+                <bdi>Majority Quorum</bdi>،
+                <bdi>Generation Clock</bdi>
+                و <bdi>High-Water Mark</bdi>
+                چگونه برای حل مشکلات مختلف یک Cluster به یکدیگر وابسته می‌شوند.
+              </p>
+
+            </div>
+
+            <h3>سناریوی مشترک فصل</h3>
+
+            <p>
+              فرض کنید مقدار موجودی تعدادی Widget در چهار شهر نگهداری می‌شود:
+            </p>
+
+            <div class="failure-table">
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Location</th>
+                    <th>Widget Count</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td><bdi>Boston</bdi></td>
+                    <td>50</td>
+                  </tr>
+
+                  <tr>
+                    <td><bdi>Philadelphia</bdi></td>
+                    <td>38</td>
+                  </tr>
+
+                  <tr>
+                    <td><bdi>London</bdi></td>
+                    <td>20</td>
+                  </tr>
+
+                  <tr>
+                    <td><bdi>Pune</bdi></td>
+                    <td>75</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+
+            <p>
+              این Data روی سه Node با نام‌های
+              <bdi>Jupiter</bdi>،
+              <bdi>Saturn</bdi>
+              و <bdi>Neptune</bdi>
+              Replicate شده است.
+            </p>
+
+            <div
+              class="architecture-flow"
+              aria-label="Replication روی سه Node">
+
+              <div class="architecture-node">
+                Jupiter
+              </div>
+
+              <div class="architecture-arrow" aria-hidden="true">
+                ↔
+              </div>
+
+              <div class="architecture-node">
+                Saturn
+              </div>
+
+              <div class="architecture-arrow" aria-hidden="true">
+                ↔
+              </div>
+
+              <div class="architecture-node">
+                Neptune
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Keeping Data Resilient -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              <bdi>Keeping Data Resilient on a Single Server</bdi>
+            </h2>
+
+            <p>
+              جالب است که اولین مشکل Consistency حتی قبل از Distribution
+              ظاهر می‌شود.
+              فرض کنید اطلاعات شهرها در Fileهای جداگانه نگهداری شوند.
+              می‌خواهیم 40 Widget از Boston به Pune منتقل کنیم.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Boston<br>
+                50
+              </div>
+
+              <div class="architecture-arrow">
+                -40 →
+              </div>
+
+              <div class="architecture-node">
+                Pune<br>
+                75
+              </div>
+
+            </div>
+
+            <p>
+              نتیجهٔ صحیح باید این باشد:
+            </p>
+
+            <div class="failure-table">
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Location</th>
+                    <th>Before</th>
+                    <th>After</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Boston</td>
+                    <td>50</td>
+                    <td>10</td>
+                  </tr>
+
+                  <tr>
+                    <td>Pune</td>
+                    <td>75</td>
+                    <td>115</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+
+            <h3>Problem</h3>
+
+            <p>
+              اگر Process ابتدا Boston را از 50 به 10 تغییر دهد،
+              اما قبل از Update کردن Pune Crash کند،
+              سیستم در وضعیت ناسازگار قرار می‌گیرد:
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Boston<br>
+                10 ✓
+              </div>
+
+              <div class="architecture-arrow">
+                💥
+              </div>
+
+              <div class="architecture-node">
+                Pune<br>
+                75 ✗
+              </div>
+
+            </div>
+
+            <p>
+              در ظاهر 40 Widget از سیستم ناپدید شده است.
+            </p>
+
+
+            <h3>
+              <bdi>Write-Ahead Log</bdi>
+            </h3>
+
+            <p>
+              راه‌حل این است که قبل از اعمال تغییر اصلی،
+              اطلاعات Operation ابتدا در یک Log پایدار نوشته شود.
+              این Pattern با نام
+              <bdi>Write-Ahead Log</bdi>
+              یا <bdi>WAL</bdi> شناخته می‌شود.
+            </p>
+
+            <div
+              class="architecture-flow"
+              aria-label="Write Ahead Log flow">
+
+              <div class="architecture-node">
+                Request
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Write-Ahead Log
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Update Data
+              </div>
+
+            </div>
+
+            <p>
+              Log باید اطلاعات کافی برای Recovery داشته باشد.
+              اگر Process بعد از Update کردن Boston Crash کند،
+              هنگام Restart می‌توان با خواندن Log تشخیص داد Operation
+              چه بوده و State را دوباره به وضعیت Consistent رساند.
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>اصل مهم</strong>
+
+              <p>
+                اگر چند Node از State یکسان شروع کنند و دقیقاً همان
+                Log Entryها را با همان ترتیب اجرا کنند،
+                در نهایت به State یکسان می‌رسند.
+                همین ویژگی WAL را برای Replication نیز بسیار مهم می‌کند.
+              </p>
+
+            </div>
+
+            <div class="lesson-callout">
+
+              <strong>ارتباط با Database</strong>
+
+              <p>
+                Databaseها برای پیاده‌سازی Transaction و Recovery
+                از ساختاری مشابه Write-Ahead Log استفاده می‌کنند.
+                بنابراین این Pattern فقط مخصوص Distributed Systems نیست؛
+                قبل از Distribution هم برای Durability و Consistency
+                اهمیت دارد.
+              </p>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Competing Updates -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              <bdi>Competing Updates</bdi>
+            </h2>
+
+            <p>
+              حالا سیستم را Distributed می‌کنیم.
+              دو User هم‌زمان به دو Node متفاوت Request می‌فرستند.
+            </p>
+
+            <div class="failure-table">
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Request</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td>Alice</td>
+                    <td>
+                      انتقال 30 Widget از Boston به London
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Bob</td>
+                    <td>
+                      انتقال 40 Widget از Boston به Pune
+                    </td>
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+            <p>
+              مشکل اینجاست که Boston فقط 50 Widget دارد.
+              اگر هر Node مستقل تصمیم بگیرد،
+              هر دو Request ممکن است براساس مقدار 50 اجرا شوند.
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>Problem</strong>
+
+              <p>
+                وقتی چند Node اجازهٔ Update مستقل داشته باشند،
+                Ordering درخواست‌های هم‌زمان مشخص نیست و Replicaها
+                ممکن است به Stateهای متفاوت برسند.
+              </p>
+
+            </div>
+
+
+            <h3>
+              <bdi>Leader and Followers</bdi>
+            </h3>
+
+            <p>
+              یکی از ساده‌ترین راه‌حل‌ها این است که تنها یک Node
+              مسئول تصمیم‌گیری درباره Updateها باشد.
+            </p>
+
+            <div
+              class="architecture-flow"
+              aria-label="Leader and Followers">
+
+              <div class="architecture-node">
+                Jupiter<br>
+                Follower
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Neptune<br>
+                Leader
+              </div>
+
+              <div class="architecture-arrow">
+                ←
+              </div>
+
+              <div class="architecture-node">
+                Saturn<br>
+                Follower
+              </div>
+
+            </div>
+
+            <p>
+              تمام Updateها در نهایت به Leader می‌رسند.
+              در مثال کتاب Neptune به عنوان Leader انتخاب شده است.
+            </p>
+
+            <p>
+              Request مربوط به Bob مستقیم به Neptune می‌رسد،
+              درحالی‌که Request مربوط به Alice ابتدا به Jupiter می‌رسد
+              و Jupiter آن را به Neptune Forward می‌کند.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Alice
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Jupiter<br>
+                Follower
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Neptune<br>
+                Leader
+              </div>
+
+            </div>
+
+            <p>
+              حالا Leader یک نقطهٔ واحد برای Ordering Updateها دارد.
+              مثلاً می‌تواند ابتدا Request Bob را اجرا کند.
+            </p>
+
+            <p>
+              بعد از انتقال 40 Widget:
+            </p>
+
+            <pre><code>Boston = 10</code></pre>
+
+            <p>
+              بنابراین Request Alice برای انتقال 30 Widget دیگر
+              قابل اجرا نیست و می‌تواند Reject شود.
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>چرا Leader مهم است؟</strong>
+
+              <p>
+                Leader باعث می‌شود Updateهای متعارض یک Ordering مشخص
+                داشته باشند. اما در عوض یک سؤال بسیار مهم ایجاد می‌شود:
+                اگر Leader Fail شود چه اتفاقی می‌افتد؟
+              </p>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Leader Failure -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              <bdi>Dealing with the Leader Failing</bdi>
+            </h2>
+
+            <p>
+              فرض کنید Neptune که Leader است Request مربوط به Bob را
+              دریافت کرده و شروع به Replicate کردن آن می‌کند.
+            </p>
+
+            <p>
+              Neptune موفق می‌شود Update را برای Jupiter ارسال کند،
+              اما ارتباطش با Saturn قطع می‌شود.
+              کمی بعد ارتباط Neptune با هر دو Follower از بین می‌رود.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Jupiter
+              </div>
+
+              <div class="architecture-arrow">
+                X
+              </div>
+
+              <div class="architecture-node">
+                Neptune<br>
+                Leader
+              </div>
+
+              <div class="architecture-arrow">
+                X
+              </div>
+
+              <div class="architecture-node">
+                Saturn
+              </div>
+
+            </div>
+
+            <p>
+              Jupiter و Saturn هنوز با یکدیگر ارتباط دارند،
+              اما دیگر به Leader دسترسی ندارند.
+            </p>
+
+
+            <h3>
+              <bdi>HeartBeat</bdi>
+            </h3>
+
+            <p>
+              مشکل اول این است که Nodeها چگونه بفهمند Leader دیگر
+              در دسترس نیست؟
+            </p>
+
+            <p>
+              Leader نمی‌تواند پیامی بفرستد و بگوید:
+              «ارتباط من قطع شده است»، چون دقیقاً خود ارتباط قطع شده است.
+            </p>
+
+            <p>
+              برای حل این مسئله Nodeها از
+              <bdi>HeartBeat</bdi>
+              استفاده می‌کنند.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Neptune<br>
+                Leader
+              </div>
+
+              <div class="architecture-arrow">
+                ♥ ♥ ♥ →
+              </div>
+
+              <div class="architecture-node">
+                Saturn
+              </div>
+
+            </div>
+
+            <p>
+              HeartBeat یک Message دوره‌ای است که نشان می‌دهد Node
+              هنوز Alive و قابل دسترس است.
+              البته لازم نیست همیشه Message جداگانه‌ای برای HeartBeat
+              وجود داشته باشد؛ Communicationهای عادی سیستم نیز
+              می‌توانند نقش HeartBeat را ایفا کنند.
+            </p>
+
+            <p>
+              اگر Saturn برای مدتی HeartBeat از Neptune دریافت نکند،
+              Neptune را Down در نظر می‌گیرد.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                HeartBeat
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Timeout
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Mark Leader Down
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Leader Election
+              </div>
+
+            </div>
+
+            <div class="lesson-callout">
+
+              <strong>نکتهٔ Distributed Systems</strong>
+
+              <p>
+                نرسیدن HeartBeat الزاماً ثابت نمی‌کند Process Crash کرده است.
+                ممکن است Network قطع شده باشد یا Process Pause شده باشد.
+                سیستم فقط می‌تواند براساس Timeout تصمیم بگیرد که Node
+                دیگر قابل اعتماد نیست.
+              </p>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Logs and Replication -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              Replication با استفاده از
+              <bdi>Write-Ahead Log</bdi>
+            </h2>
+
+            <p>
+              حالا مشکل پیچیده‌تری داریم.
+              فرض کنید Neptune دو Request دریافت کرده است:
+            </p>
+
+            <ul>
+              <li>
+                <bdi>B1</bdi> از Bob
+              </li>
+
+              <li>
+                <bdi>A1</bdi> از Alice
+              </li>
+            </ul>
+
+            <p>
+              هر دو Entry روی Jupiter Replicate شده‌اند،
+              ولی Saturn هنوز آن‌ها را دریافت نکرده است.
+              سپس Neptune Crash می‌کند.
+            </p>
+
+            <div class="failure-table">
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>Node</th>
+                    <th>Log</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Jupiter</td>
+                    <td>B1, A1</td>
+                  </tr>
+
+                  <tr>
+                    <td>Saturn</td>
+                    <td>Empty</td>
+                  </tr>
+
+                  <tr>
+                    <td>Neptune</td>
+                    <td>B1, A1 — Crash</td>
+                  </tr>
+                </tbody>
+
+              </table>
+
+            </div>
+
+            <p>
+              Jupiter و Saturn State یکسانی ندارند.
+              اما چون تغییرات به‌صورت Log Entry ذخیره شده‌اند،
+              می‌توان از Log برای همگام‌سازی استفاده کرد.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Jupiter<br>
+                Log Index 2
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Missing Entries
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Saturn<br>
+                Log Index 0
+              </div>
+
+            </div>
+
+            <p>
+              اگر Logهای Nodeها قابل مقایسه باشند،
+              Node عقب‌مانده می‌تواند Entryهای Missing را دریافت کند
+              و به State جدید برسد.
+            </p>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Generation Clock -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              <bdi>Multiple Failures Need a Generation Clock</bdi>
+            </h2>
+
+            <p>
+              مقایسهٔ سادهٔ Log Index همیشه کافی نیست.
+              چند Failure پشت سر هم می‌تواند باعث شود دو Node
+              در یک Index یکسان، Entryهای متفاوت داشته باشند.
+            </p>
+
+
+            <h3>سناریوی Failure</h3>
+
+            <p>
+              Neptune در حالی که Leader است Request مربوط به Bob را
+              در Log Index شماره 1 ثبت می‌کند:
+            </p>
+
+            <pre><code>Index: 1
+Entry: B1</code></pre>
+
+            <p>
+              اما قبل از Replication Crash می‌کند.
+            </p>
+
+            <p>
+              سپس Jupiter Leader جدید می‌شود و Request مربوط به Alice
+              را در همان Index ثبت می‌کند:
+            </p>
+
+            <pre><code>Index: 1
+Entry: A1</code></pre>
+
+            <p>
+              Jupiter نیز قبل از Replication Crash می‌کند.
+            </p>
+
+            <p>
+              وقتی هر دو Node دوباره بالا بیایند ممکن است وضعیت چنین باشد:
+            </p>
+
+            <div class="failure-table">
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>Node</th>
+                    <th>Index</th>
+                    <th>Entry</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>Neptune</td>
+                    <td>1</td>
+                    <td>B1</td>
+                  </tr>
+
+                  <tr>
+                    <td>Jupiter</td>
+                    <td>1</td>
+                    <td>A1</td>
+                  </tr>
+                </tbody>
+
+              </table>
+
+            </div>
+
+            <p>
+              فقط نگاه کردن به Index دیگر کافی نیست.
+              هر دو Entry دارای Index شماره 1 هستند.
+            </p>
+
+
+            <h3>
+              <bdi>Generation Clock</bdi>
+            </h3>
+
+            <p>
+              راه‌حل این است که هر Leadership یک Generation داشته باشد.
+              با هر Leader Election مقدار Generation افزایش پیدا می‌کند.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Neptune<br>
+                Leader<br>
+                Generation 1
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Jupiter<br>
+                Leader<br>
+                Generation 2
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Next Leader<br>
+                Generation 3
+              </div>
+
+            </div>
+
+            <p>
+              حالا Log Entry مربوط به Neptune چنین است:
+            </p>
+
+            <pre><code>Index: 1
+Entry: B1
+Generation: 1</code></pre>
+
+            <p>
+              و Entry مربوط به Jupiter:
+            </p>
+
+            <pre><code>Index: 1
+Entry: A1
+Generation: 2</code></pre>
+
+            <p>
+              بنابراین در صورت Conflict،
+              Entry مربوط به Generation جدیدتر قابل تشخیص است.
+            </p>
+
+
+            <div class="lesson-callout">
+
+              <strong>Generation فقط برای Conflict نیست</strong>
+
+              <p>
+                Generation همچنین مانع فعالیت یک Leader قدیمی می‌شود.
+                اگر Leader قدیمی پس از Network Partition دوباره برگردد،
+                Nodeها می‌توانند Requestهای متعلق به Generation قدیمی‌تر
+                را Reject کنند.
+              </p>
+
+            </div>
+
+
+            <h3>Old Leader Problem</h3>
+
+            <p>
+              فرض کنید Neptune در Generation 1 Leader بوده،
+              اما فقط به دلیل Network Partition از Cluster جدا شده است.
+            </p>
+
+            <p>
+              Jupiter و Saturn تصور می‌کنند Neptune Fail شده و
+              Jupiter را با Generation 2 به عنوان Leader انتخاب می‌کنند.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Neptune<br>
+                Generation 1
+              </div>
+
+              <div class="architecture-arrow">
+                Request →
+              </div>
+
+              <div class="architecture-node">
+                Jupiter<br>
+                Generation 2
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Reject Old Generation
+              </div>
+
+            </div>
+
+            <p>
+              وقتی Neptune دوباره متصل شود،
+              Requestهای Generation 1 دیگر پذیرفته نمی‌شوند.
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>مدل ذهنی</strong>
+
+              <p>
+                فقط دانستن اینکه «چه کسی Leader است» کافی نیست.
+                Nodeها باید بدانند «این Leader متعلق به کدام دورهٔ
+                Leadership است».
+              </p>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Majority Quorum -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              <bdi>
+                Log Entries Cannot Be Committed until They Are Accepted
+                by a Majority Quorum
+              </bdi>
+            </h2>
+
+            <p>
+              تا اینجا دیدیم Entryهایی که فقط روی Leader نوشته شده‌اند
+              ممکن است پس از Failure از بین بروند یا توسط Leader جدید
+              Overwrite شوند.
+            </p>
+
+            <p>
+              بنابراین Leader نباید صرفاً بعد از نوشتن Entry در Log
+              خودش آن را Commit شده در نظر بگیرد.
+            </p>
+
+
+            <h3>
+              <bdi>Majority Quorum</bdi>
+            </h3>
+
+            <p>
+              یک Log Entry زمانی Commit می‌شود که توسط Majority
+              از Nodeهای Cluster پذیرفته شده باشد.
+            </p>
+
+            <div class="number-example">
+
+              <strong>Cluster سه Node</strong>
+
+              <p>
+                تعداد Nodeها:
+                <code>3</code>
+              </p>
+
+              <p>
+                Majority:
+                <code>2</code>
+              </p>
+
+              <p>
+                بنابراین Leader + حداقل یک Follower
+                برای رسیدن به Quorum کافی است.
+              </p>
+
+            </div>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Bob<br>
+                B1
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Neptune<br>
+                Leader
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Jupiter<br>
+                Ack
+              </div>
+
+            </div>
+
+            <p>
+              وقتی Neptune خودش Entry را دارد و Jupiter نیز آن را
+              پذیرفته است:
+            </p>
+
+            <pre><code>Accepted Nodes = 2
+Cluster Nodes  = 3
+
+2 / 3 = Majority Quorum</code></pre>
+
+            <p>
+              حالا Neptune می‌تواند B1 را Commit کند.
+            </p>
+
+
+            <h3>Committed vs Uncommitted</h3>
+
+            <div class="failure-table">
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Meaning</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td>
+                      <bdi>Uncommitted</bdi>
+                    </td>
+                    <td>
+                      Entry در Log وجود دارد، اما هنوز Majority آن را
+                      تأیید نکرده است.
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <bdi>Committed</bdi>
+                    </td>
+                    <td>
+                      Entry توسط Majority پذیرفته شده و دیگر نباید
+                      در اثر Leader Failure از بین برود.
+                    </td>
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+
+            <div class="lesson-callout">
+
+              <strong>چرا Majority مهم است؟</strong>
+
+              <p>
+                Leader Election نیز برای معتبر بودن نیازمند مشارکت
+                Majority Cluster است.
+                از آنجا که هر Entry Commit شده نیز روی Majority قرار دارد،
+                هر Majority جدیدی حداقل با بخشی از Majority قبلی
+                Intersection خواهد داشت.
+                بنابراین Commitهای معتبر گم نمی‌شوند.
+              </p>
+
+            </div>
+
+
+            <h3>Leader Crash بعد از Commit</h3>
+
+            <p>
+              فرض کنید Neptune:
+            </p>
+
+            <ol>
+              <li>
+                B1 را در Log خودش ذخیره می‌کند.
+              </li>
+
+              <li>
+                B1 را روی Saturn Replicate می‌کند.
+              </li>
+
+              <li>
+                Saturn پاسخ OK می‌دهد.
+              </li>
+
+              <li>
+                Majority Quorum حاصل می‌شود.
+              </li>
+
+              <li>
+                Neptune Crash می‌کند.
+              </li>
+            </ol>
+
+            <p>
+              B1 همچنان روی Saturn وجود دارد.
+              Leader جدید باید قبل از پذیرش Updateهای تازه،
+              Commitهای معتبر قبلی را حفظ کند.
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>ارتباط با Raft</strong>
+
+              <p>
+                کتاب اشاره می‌کند که Raft برای Leader Election
+                تلاش می‌کند Nodeای را انتخاب کند که Log
+                به‌روزتری دارد.
+                این کار از انتقال و مقایسهٔ کامل Logهای بزرگ
+                در زمان Election جلوگیری می‌کند.
+              </p>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- High Water Mark -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              <bdi>
+                Followers Commit Based on a High-Water Mark
+              </bdi>
+            </h2>
+
+            <p>
+              Leader می‌داند چه زمانی Majority Quorum حاصل شده است،
+              چون Acknowledgmentهای Followerها را دریافت می‌کند.
+              اما سؤال بعدی این است:
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>Problem</strong>
+
+              <p>
+                Follower از کجا بفهمد کدام Log Entry واقعاً Commit شده است؟
+              </p>
+
+            </div>
+
+            <p>
+              در Cluster سه Node ممکن است موضوع ساده به نظر برسد،
+              اما در Cluster بزرگ‌تر این‌طور نیست.
+            </p>
+
+            <p>
+              مثلاً در یک Cluster پنج Node:
+            </p>
+
+            <pre><code>Leader + 1 Follower = 2 Nodes
+
+Majority of 5 = 3 Nodes</code></pre>
+
+            <p>
+              بنابراین صرف دریافت یک Entry از Leader برای Follower
+              ثابت نمی‌کند آن Entry Commit شده است.
+            </p>
+
+
+            <h3>
+              <bdi>High-Water Mark</bdi>
+            </h3>
+
+            <p>
+              Leader یک مقدار به نام
+              <bdi>High-Water Mark</bdi>
+              نگهداری می‌کند.
+            </p>
+
+            <p>
+              این مقدار برابر Index آخرین Log Entry
+              است که Commit شدن آن قطعی شده است.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Log 1<br>
+                ✓
+              </div>
+
+              <div class="architecture-node">
+                Log 2<br>
+                ✓
+              </div>
+
+              <div class="architecture-node">
+                Log 3<br>
+                ✓
+              </div>
+
+              <div class="architecture-node">
+                Log 4<br>
+                ?
+              </div>
+
+            </div>
+
+            <pre><code>High-Water Mark = 3</code></pre>
+
+            <p>
+              یعنی Entryهای:
+            </p>
+
+            <pre><code>1
+2
+3</code></pre>
+
+            <p>
+              Commit شده‌اند،
+              اما Entry شماره 4 هنوز Uncommitted است.
+            </p>
+
+
+            <h3>انتقال High-Water Mark به Followerها</h3>
+
+            <p>
+              Leader مقدار High-Water Mark را در HeartBeat
+              برای Followerها ارسال می‌کند.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Leader<br>
+                HWM = 3
+              </div>
+
+              <div class="architecture-arrow">
+                HeartBeat →
+              </div>
+
+              <div class="architecture-node">
+                Follower
+              </div>
+
+            </div>
+
+            <p>
+              Follower بعد از دریافت:
+            </p>
+
+            <pre><code>High-Water Mark = 3</code></pre>
+
+            <p>
+              می‌داند تمام Log Entryهای خودش تا Index شماره 3
+              قابل Commit هستند.
+            </p>
+
+
+            <h3>مثال Step-by-Step</h3>
+
+            <p>
+              Bob درخواست B1 را برای Neptune می‌فرستد.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Bob
+              </div>
+
+              <div class="architecture-arrow">
+                B1 →
+              </div>
+
+              <div class="architecture-node">
+                Neptune<br>
+                Leader
+              </div>
+
+            </div>
+
+            <p>
+              Neptune آن را در Log قرار می‌دهد:
+            </p>
+
+            <pre><code>Index: 1
+Entry: B1
+Generation: 1</code></pre>
+
+            <p>
+              سپس B1 را برای Jupiter و Saturn Replicate می‌کند.
+            </p>
+
+            <p>
+              Jupiter سریع‌تر پاسخ می‌دهد:
+            </p>
+
+            <pre><code>Neptune + Jupiter = Majority</code></pre>
+
+            <p>
+              در نتیجه Neptune:
+            </p>
+
+            <pre><code>High-Water Mark = 1</code></pre>
+
+            <p>
+              را ثبت می‌کند و B1 را روی Data Store اعمال می‌کند.
+            </p>
+
+
+            <h3>چند Request پشت سر هم</h3>
+
+            <p>
+              سپس Alice سه Request ارسال می‌کند:
+            </p>
+
+            <pre><code>A1
+A2
+A3</code></pre>
+
+            <p>
+              Log Leader می‌تواند چنین باشد:
+            </p>
+
+            <pre><code>Index 1 → B1
+Index 2 → A1
+Index 3 → A2
+Index 4 → A3</code></pre>
+
+            <p>
+              اما Saturn به دلیل مشکل Network این Replicationها را
+              دریافت نمی‌کند.
+            </p>
+
+            <div class="failure-table">
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>Node</th>
+                    <th>Known Log</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td>Neptune</td>
+                    <td>B1, A1, A2, A3</td>
+                  </tr>
+
+                  <tr>
+                    <td>Jupiter</td>
+                    <td>B1, A1, A2</td>
+                  </tr>
+
+                  <tr>
+                    <td>Saturn</td>
+                    <td>B1</td>
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+            <p>
+              اگر Neptune قبل از تکمیل همهٔ Replicationها Crash کند،
+              Jupiter و Saturn Leader Election انجام می‌دهند.
+            </p>
+
+            <p>
+              Jupiter که Log به‌روزتری دارد Leader می‌شود و
+              Entryهای معتبر را برای Saturn Replicate می‌کند.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Jupiter<br>
+                New Leader
+              </div>
+
+              <div class="architecture-arrow">
+                Missing Log Entries →
+              </div>
+
+              <div class="architecture-node">
+                Saturn
+              </div>
+
+            </div>
+
+            <p>
+              سپس High-Water Mark جدید نیز از طریق HeartBeat
+              منتشر می‌شود.
+            </p>
+
+
+            <h3>بازگشت Leader قدیمی</h3>
+
+            <p>
+              حالا فرض کنید Neptune دوباره Restore شود.
+            </p>
+
+            <p>
+              Neptune هنوز Entry قدیمی A3 را در Log خودش دارد،
+              اما این Entry هیچ‌گاه Commit نشده بود.
+            </p>
+
+            <p>
+              Neptune هنگام ارتباط با Cluster متوجه می‌شود
+              Generation جدیدی وجود دارد و Jupiter Leader جدید است.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Neptune<br>
+                Old Leader
+              </div>
+
+              <div class="architecture-arrow">
+                Generation 1
+              </div>
+
+              <div class="architecture-node">
+                Jupiter<br>
+                Generation 2
+              </div>
+
+            </div>
+
+            <p>
+              Neptune نقش Follower را می‌پذیرد و Log Entryهای
+              ناسازگار بعد از High-Water Mark خودش را Discard می‌کند.
+            </p>
+
+            <pre><code>Committed Entries → Keep
+
+Uncommitted Conflicting Entries → Discard</code></pre>
+
+            <div class="lesson-callout">
+
+              <strong>نکتهٔ بسیار مهم</strong>
+
+              <p>
+                Log داشتن به تنهایی کافی نیست.
+                سیستم باید بتواند تشخیص دهد کدام بخش Log واقعاً Commit
+                شده و کدام بخش فقط روی بعضی Nodeها نوشته شده است.
+                High-Water Mark همین مرز را مشخص می‌کند.
+              </p>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- How Patterns Fit Together -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              Patternهایی که تا اینجا کنار هم قرار گرفتند
+            </h2>
+
+            <p>
+              یکی از مهم‌ترین اهداف Chapter 2 نشان دادن رابطهٔ بین
+              Patternهاست.
+              هر Pattern مشکل مشخصی را حل می‌کند،
+              اما معمولاً بدون Patternهای دیگر کامل نیست.
+            </p>
+
+            <div class="failure-table">
+
+              <table>
+
+                <thead>
+                  <tr>
+                    <th>Problem</th>
+                    <th>Pattern</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  <tr>
+                    <td>
+                      Crash هنگام Update داده
+                    </td>
+                    <td>
+                      <bdi>Write-Ahead Log</bdi>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      Competing Updates
+                    </td>
+                    <td>
+                      <bdi>Leader and Followers</bdi>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      تشخیص Node یا Leader غیرقابل دسترس
+                    </td>
+                    <td>
+                      <bdi>HeartBeat</bdi>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      تشخیص Leadership جدید از قدیمی
+                    </td>
+                    <td>
+                      <bdi>Generation Clock</bdi>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      تصمیم‌گیری معتبر در Cluster
+                    </td>
+                    <td>
+                      <bdi>Majority Quorum</bdi>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      Replication قابل Recovery
+                    </td>
+                    <td>
+                      <bdi>Replicated Log</bdi>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      تشخیص مرز Entryهای Commit شده
+                    </td>
+                    <td>
+                      <bdi>High-Water Mark</bdi>
+                    </td>
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Write-Ahead Log
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Leader & Followers
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                HeartBeat
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Generation Clock
+              </div>
+
+            </div>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Majority Quorum
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                Replicated Log
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                High-Water Mark
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Practical Mental Model -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              یک مدل ذهنی نزدیک به سیستم‌های واقعی
+            </h2>
+
+            <p>
+              می‌توانیم مفهوم این Chapter را با یک Data Cluster
+              سه‌نودی تصور کنیم:
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Node 1<br>
+                Follower
+              </div>
+
+              <div class="architecture-arrow">
+                ↔
+              </div>
+
+              <div class="architecture-node">
+                Node 2<br>
+                Leader
+              </div>
+
+              <div class="architecture-arrow">
+                ↔
+              </div>
+
+              <div class="architecture-node">
+                Node 3<br>
+                Follower
+              </div>
+
+            </div>
+
+            <p>
+              یک Write جدید ابتدا به Leader می‌رسد:
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Client
+              </div>
+
+              <div class="architecture-arrow">
+                Request →
+              </div>
+
+              <div class="architecture-node">
+                Leader
+              </div>
+
+              <div class="architecture-arrow">
+                Log →
+              </div>
+
+              <div class="architecture-node">
+                Followers
+              </div>
+
+            </div>
+
+            <p>
+              روند کلی از دید مفهومی:
+            </p>
+
+            <pre><code>1. Client sends request
+
+2. Leader appends request to log
+
+3. Leader replicates log entry
+
+4. Followers acknowledge
+
+5. Majority Quorum is reached
+
+6. Entry becomes committed
+
+7. Leader advances High-Water Mark
+
+8. Followers learn High-Water Mark
+
+9. Followers apply committed entries</code></pre>
+
+            <p>
+              اگر Leader Fail شود:
+            </p>
+
+            <pre><code>HeartBeat timeout
+        ↓
+Leader Election
+        ↓
+Generation increases
+        ↓
+Most appropriate node becomes leader
+        ↓
+Logs are reconciled
+        ↓
+Only valid committed history survives</code></pre>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Payment Example -->
+          <!-- ========================================================= -->
+
+          <section>
+
+            <h2>
+              مثال ذهنی در یک سیستم Payment
+            </h2>
+
+            <p>
+              فرض کنید اطلاعات Transactionهای پرداخت روی یک
+              Distributed Data Store سه‌نودی نگهداری می‌شود.
+            </p>
+
+            <div class="architecture-flow">
+
+              <div class="architecture-node">
+                Payment API
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                DB Leader
+              </div>
+
+              <div class="architecture-arrow">
+                →
+              </div>
+
+              <div class="architecture-node">
+                DB Followers
+              </div>
+
+            </div>
+
+            <p>
+              یک Payment جدید با شناسهٔ زیر وارد می‌شود:
+            </p>
+
+            <pre><code>PaymentId = 84521
+Amount    = 2,000,000
+Status    = Succeeded</code></pre>
+
+            <p>
+              Leader ابتدا Operation را در Log ثبت می‌کند.
+            </p>
+
+            <pre><code>Log Index: 10452
+
+PaymentId: 84521
+
+Status: Succeeded</code></pre>
+
+            <p>
+              سپس Log Entry برای Replicaها ارسال می‌شود.
+            </p>
+
+            <p>
+              تا زمانی که Majority آن را نپذیرفته باشد،
+              Entry هنوز:
+            </p>
+
+            <pre><code>Uncommitted</code></pre>
+
+            <p>
+              است.
+            </p>
+
+            <p>
+              وقتی Majority تأیید کرد:
+            </p>
+
+            <pre><code>Committed</code></pre>
+
+            <p>
+              می‌شود.
+            </p>
+
+            <div class="lesson-callout">
+
+              <strong>چرا این موضوع در Payment مهم است؟</strong>
+
+              <p>
+                اگر سیستم به Client پاسخ Success بدهد ولی اطلاعات
+                Payment فقط روی Nodeای ذخیره شده باشد که بلافاصله Crash
+                می‌کند، ممکن است پس از Failover آن Payment ناپدید شود.
+                Consensus و Quorum تلاش می‌کنند مانع چنین وضعیتی شوند.
+              </p>
+
+            </div>
+
+          </section>
+
+
+          <!-- ========================================================= -->
+          <!-- Chapter Summary -->
+          <!-- ========================================================= -->
+
+          <section class="chapter-summary">
+
+            <h2>
+              جمع‌بندی Chapter تا بخش موجود در فایل
+            </h2>
+
+            <ul>
+
+              <li>
+                <bdi>Write-Ahead Log</bdi>
+                تغییرات را قبل از اعمال نهایی در یک Log پایدار ثبت می‌کند.
+              </li>
+
+              <li>
+                <bdi>Leader and Followers</bdi>
+                Ordering Updateها را با متمرکز کردن تصمیم Write روی Leader
+                ساده‌تر می‌کند.
+              </li>
+
+              <li>
+                <bdi>HeartBeat</bdi>
+                برای تشخیص Nodeهایی استفاده می‌شود که دیگر قابل دسترس
+                به نظر نمی‌رسند.
+              </li>
+
+              <li>
+                در صورت Failure Leader باید
+                <bdi>Leader Election</bdi>
+                انجام شود.
+              </li>
+
+              <li>
+                <bdi>Generation Clock</bdi>
+                دوره‌های مختلف Leadership را از یکدیگر متمایز می‌کند.
+              </li>
+
+              <li>
+                Generation مانع پذیرفته شدن Requestهای یک Leader قدیمی
+                پس از انتخاب Leader جدید می‌شود.
+              </li>
+
+              <li>
+                یک Log Entry قبل از رسیدن به
+                <bdi>Majority Quorum</bdi>
+                نباید Commit شده در نظر گرفته شود.
+              </li>
+
+              <li>
+                Majority Quorum کمک می‌کند Commitهای معتبر پس از
+                Leader Failure نیز در Cluster باقی بمانند.
+              </li>
+
+              <li>
+                <bdi>High-Water Mark</bdi>
+                Index آخرین Entry قطعاً Commit شده را مشخص می‌کند.
+              </li>
+
+              <li>
+                Leader می‌تواند High-Water Mark را همراه HeartBeat
+                به Followerها منتقل کند.
+              </li>
+
+              <li>
+                Followerها با استفاده از High-Water Mark تشخیص می‌دهند
+                کدام Log Entryها را می‌توانند روی State خود اعمال کنند.
+              </li>
+
+              <li>
+                Leader قدیمی پس از بازگشت باید Generation جدید را
+                بپذیرد و Entryهای Uncommitted متعارض خود را کنار بگذارد.
+              </li>
+
+            </ul>
+
+
+            <div class="lesson-callout">
+
+              <strong>مهم‌ترین پیام Chapter</strong>
+
+              <p>
+                یک Distributed System قابل‌اعتماد معمولاً با یک Pattern
+                ساخته نمی‌شود.
+                Reliability حاصل همکاری چند Pattern است:
+                Log برای Recovery،
+                Leader برای Ordering،
+                HeartBeat برای Failure Detection،
+                Generation برای تشخیص Leadership،
+                Quorum برای Commit
+                و High-Water Mark برای مشخص کردن مرز State معتبر.
+              </p>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </article>
+
+
+      <nav
+        class="chapter-pager"
+        aria-label="Chapter قبلی و بعدی">
+
+        <a
+          rel="prev"
+          href="chapter-01-promise-and-perils.html">
+          Chapter قبلی:
+          <bdi>The Promise and Perils of Distributed Systems</bdi>
+        </a>
+
+        <a
+          rel="next"
+          href="chapter-03-write-ahead-log.html">
+          Chapter بعدی:
+          <bdi>Write-Ahead Log</bdi>
+        </a>
+
+      </nav>
+
+    </main>
+
+
+    <aside
+      id="book-sidebar"
+      class="book-sidebar"
+      aria-label="فهرست کتاب"
+      data-current-chapter="overview-of-patterns"
+      data-link-prefix="">
+
+      <h2>
+        <bdi>Patterns of Distributed Systems</bdi>
+      </h2>
+
+      <p>
+        برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.
+      </p>
+
+    </aside>
+
+  </div>
+
+</body>
+</html>

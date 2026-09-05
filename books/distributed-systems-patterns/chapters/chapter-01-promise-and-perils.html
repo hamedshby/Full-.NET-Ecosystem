@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="صفحهٔ Chapter 1: The Promise and Perils of Distributed Systems از کتاب Patterns of Distributed Systems.">
+  <title>The Promise and Perils of Distributed Systems | Patterns of Distributed Systems</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../book-navigation.js"></script>
+  <script defer src="../book.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#chapter-content">پرش به محتوای Chapter</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری کتاب">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>Patterns of Distributed Systems</bdi></span>
+      <a class="back-link" href="../index.html">صفحهٔ کتاب</a>
+      <button id="book-menu-toggle" class="book-menu-toggle" type="button" aria-expanded="false" aria-controls="book-sidebar">فهرست</button>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4-1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="book-layout">
+    <main id="chapter-content" class="book-main chapter-main">
+      <nav class="chapter-breadcrumb" aria-label="مسیر راهنما"><a href="../index.html">کتاب</a><span>/</span><bdi>Narratives</bdi></nav>
+      <article class="chapter-card">
+        <p class="chapter-status chapter-status--ready">آمادهٔ مطالعه</p>
+        <p class="chapter-number">Chapter 1</p>
+        <h1><bdi>The Promise and Perils of Distributed Systems</bdi></h1>
+        <div class="chapter-article">
+  <section>
+    <p class="article-lead">فرض کنید یک فروشگاه اینترنتی روی یک Server اجرا می‌شود. کاربران کالا جست‌وجو می‌کنند، آن را به سبد خرید اضافه می‌کنند، سفارش می‌سازند و سوابق سفارش را می‌بینند. تا وقتی تعداد درخواست‌ها کم است همه‌چیز ساده به نظر می‌رسد؛ اما هر Server سقف فیزیکی دارد و رشد بار کاری دیر یا زود ما را به آن سقف می‌رساند.</p>
+    <div class="lesson-callout">
+      <strong>مدل ذهنی Chapter</strong>
+      <p>Distribution قدرت پردازش و ظرفیت داده را افزایش می‌دهد، اما هم‌زمان Failure و Coordination را به بخشی از طراحی نرم‌افزار تبدیل می‌کند.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><bdi>The Limits of a Single Server</bdi></h2>
+    <p>هر محاسبه روی چهار منبع فیزیکی تکیه دارد. ظرفیت نهایی یک Server را منبعی تعیین می‌کند که زودتر از بقیه به سقف برسد؛ به این منبع محدودکننده معمولاً <bdi>Bottleneck</bdi> می‌گوییم.</p>
+    <div class="concept-grid">
+      <article class="concept-card">
+        <h3><bdi>Network</bdi></h3>
+        <p>حجم داده‌ای که در یک بازهٔ زمانی می‌تواند وارد یا خارج شود.</p>
+      </article>
+      <article class="concept-card">
+        <h3><bdi>Disk</bdi></h3>
+        <p>سرعت Read و Write که به الگوی Sequential یا Random و استفاده از Cache وابسته است.</p>
+      </article>
+      <article class="concept-card">
+        <h3><bdi>CPU</bdi></h3>
+        <p>توان اجرای منطق برنامه، Serialization، Encryption و Query processing.</p>
+      </article>
+      <article class="concept-card">
+        <h3><bdi>Memory</bdi></h3>
+        <p>فضای لازم برای داده‌های فعال، Cache، Buffer و اجرای Processها.</p>
+      </article>
+    </div>
+
+    <div class="number-example">
+      <strong>مثال قابل‌محاسبه</strong>
+      <p>یک اتصال <code>1 Gbps</code> تقریباً <code>125 MB/s</code> ظرفیت خام دارد.</p>
+      <p>اگر اندازهٔ هر Record برابر <code>1 KB</code> باشد، سقف نظری نزدیک به <code>125,000 request/s</code> است.</p>
+      <p>اگر همان Record به <code>5 KB</code> برسد، سقف نظری به حدود <code>25,000 request/s</code> کاهش پیدا می‌کند.</p>
+    </div>
+    <p>این عددها سقف نظری‌اند؛ Protocol overhead، Response، Retry و سایر پردازش‌ها ظرفیت واقعی را کمتر می‌کنند. نکتهٔ اصلی این است که بزرگ‌تر شدن هر Request بدون تغییر Bandwidth، تعداد Request قابل‌انتقال را کاهش می‌دهد.</p>
+
+    <h3>چرا افزایش Request همیشه Throughput را بیشتر نمی‌کند؟</h3>
+    <p>تا پیش از اشباع منابع، Server می‌تواند با افزایش بار، کار بیشتری انجام دهد. بعد از اشباع، Requestهای تازه وارد Queue می‌شوند. Queue طولانی‌تر یعنی زمان انتظار و <bdi>Latency</bdi> بیشتر؛ اگر فشار ادامه پیدا کند، Timeout و Retry نیز بار مضاعفی می‌سازند و Throughput مؤثر ممکن است افت کند.</p>
+  </section>
+
+  <section>
+    <h2><bdi>Separate Business Logic and Data Layer</bdi></h2>
+    <p>اولین گام رایج برای عبور از محدودیت یک Server، جدا کردن <bdi>Business Logic</bdi> از <bdi>Data Layer</bdi> است:</p>
+    <div class="architecture-flow" aria-label="جریان درخواست از کاربر تا لایهٔ داده">
+      <div class="architecture-node">User</div>
+      <div class="architecture-arrow" aria-hidden="true">→</div>
+      <div class="architecture-node">Stateless API</div>
+      <div class="architecture-arrow" aria-hidden="true">→</div>
+      <div class="architecture-node">Stateful Database</div>
+    </div>
+    <p><bdi>Stateless</bdi> یعنی Server پردازشی برای ادامهٔ Request بعدی به State محلی و اختصاصی همان کاربر وابسته نیست. بنابراین می‌توان چند نمونه از API را پشت <bdi>Load Balancer</bdi> قرار داد و Requestها را میان آن‌ها پخش کرد.</p>
+    <div class="architecture-flow" aria-label="چند Server پردازشی متصل به یک Database">
+      <div class="architecture-node">API Server 1<br>API Server 2<br>API Server 3</div>
+      <div class="architecture-arrow" aria-hidden="true">→</div>
+      <div class="architecture-node">Database</div>
+    </div>
+    <p>اگر یک API Server از کار بیفتد، نمونهٔ دیگری می‌تواند Request بعدی را بگیرد. Cache در لایه‌های مختلف نیز کمک می‌کند فقط بخشی از Requestها به Database برسند. بااین‌حال Database هنوز Stateful و معمولاً نقطهٔ مشترک همهٔ Requestهاست؛ پس ممکن است خودش به Bottleneck بعدی تبدیل شود.</p>
+  </section>
+
+  <section>
+    <h2><bdi>Partitioning Data</bdi></h2>
+    <p>وقتی حجم داده به صدها Terabyte یا Petabyte می‌رسد، یا تعداد Queryها از توان یک Database Server عبور می‌کند، فقط Scale کردن لایهٔ API کافی نیست. داده باید میان چند Node تقسیم شود تا هر Node از CPU، Memory، Network و Disk مستقل خود استفاده کند.</p>
+    <div class="architecture-flow" aria-label="تقسیم Compute و Data میان چند Server">
+      <div class="architecture-node">Compute Cluster</div>
+      <div class="architecture-arrow" aria-hidden="true">→</div>
+      <div class="architecture-node">Data Partition A</div>
+      <div class="architecture-node">Data Partition B</div>
+      <div class="architecture-node">Data Partition C</div>
+    </div>
+    <p>این تقسیم ظرفیت را افزایش می‌دهد، اما پرسش‌های تازه‌ای ایجاد می‌کند: هر Key روی کدام Node است؟ اگر Node در دسترس نبود چه می‌شود؟ هنگام اضافه یا حذف Node داده‌ها چگونه جابه‌جا می‌شوند؟ Chapterهای بعدی Patternهای لازم برای پاسخ به همین پرسش‌ها را معرفی می‌کنند.</p>
+  </section>
+
+  <section>
+    <h2><bdi>A Look at Failures</bdi></h2>
+    <p>در یک ماشین، احتمال Failure ممکن است کوچک به نظر برسد. اما Cluster تعداد زیادی Disk، Network link، Process و Power unit دارد. زیاد شدن Componentها یعنی Failure از یک اتفاق نادر به یک رویداد عادی عملیاتی تبدیل می‌شود.</p>
+    <div class="number-example">
+      <strong>اثر مقیاس روی احتمال Failure</strong>
+      <p>اگر احتمال خرابی هر Disk در یک روز <code>1 / 1000</code> باشد، برای یک Disk نگرانی روزانه کوچک است. اما در مجموعه‌ای شامل <code>1000</code> Disk، انتظار مشاهدهٔ تقریباً یک خرابی در روز منطقی می‌شود.</p>
+    </div>
+    <p>آمارهای عملیاتی Data Centerها نشان می‌دهند Failure فقط خرابی Disk نیست. دامنهٔ مشکل از یک Process تا Rack، Network و Power گسترش دارد:</p>
+    <div class="failure-table">
+      <table>
+        <thead><tr><th>نوع Failure</th><th>رفتار قابل‌مشاهده</th><th>اثر احتمالی</th></tr></thead>
+        <tbody>
+          <tr><td><bdi>Machine / Disk Failure</bdi></td><td>یک ماشین یا Disk ناگهان از دسترس خارج می‌شود.</td><td>از دسترس خارج شدن Partition یا Replica محلی</td></tr>
+          <tr><td><bdi>Rack / PDU Failure</bdi></td><td>ده‌ها یا صدها ماشین هم‌زمان ناپدید می‌شوند.</td><td>Failure هم‌بسته؛ Replicaهای هم‌مکان ممکن است با هم از دست بروند.</td></tr>
+          <tr><td><bdi>Packet Loss</bdi></td><td>ارتباط کاملاً قطع نیست، اما بخشی از Packetها گم می‌شود.</td><td>Latency، Retry و تشخیص اشتباه Node failure</td></tr>
+          <tr><td><bdi>DNS / Router Failure</bdi></td><td>نام سرویس یا مسیر Network موقتاً در دسترس نیست.</td><td>قطع ارتباط با وجود سالم بودن Process مقصد</td></tr>
+          <tr><td><bdi>Maintenance / Rewiring</bdi></td><td>بخشی از زیرساخت عمداً و به‌صورت Rolling خارج می‌شود.</td><td>کاهش ظرفیت و نیاز به تحمل Failure برنامه‌ریزی‌شده</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>جایگزین کردن یک Stateless API Server معمولاً ساده است، چون State اختصاصی روی آن نگهداری نمی‌شود. جایگزین کردن Data Node دشوارتر است: نمونهٔ تازه باید State صحیح داشته باشد و با سایر Nodeها هماهنگ شود تا دادهٔ Stale یا نادرست به کاربر نشان ندهد.</p>
+  </section>
+
+  <section>
+    <h2><bdi>Replication: Masking Failures</bdi></h2>
+    <p><bdi>Replication</bdi> یعنی نگهداری Copyهای هماهنگ از داده روی چند ماشین. اگر یک Node در دسترس نباشد، Client می‌تواند از Replica دیگری سرویس بگیرد. هدف فقط داشتن Copy نیست؛ نرم‌افزار باید Failure را تشخیص دهد و نگذارد Inconsistency به رفتار قابل‌مشاهده برای کاربر تبدیل شود.</p>
+
+    <div class="concept-grid">
+      <article class="concept-card">
+        <h3><bdi>Process Crash</bdi></h3>
+        <p>Process ممکن است به‌دلیل Hardware failure یا Exception متوقف و دوباره اجرا شود. داده‌ای که پیش‌تر با پاسخ موفق تأیید شده باید بعد از Restart همچنان موجود باشد.</p>
+      </article>
+      <article class="concept-card">
+        <h3><bdi>Network Delay</bdi></h3>
+        <p>TCP/IP سقف قطعی برای زمان تحویل Message نمی‌دهد. نرسیدن Response الزاماً به معنی خراب بودن Node نیست؛ ممکن است فقط Network کند باشد.</p>
+      </article>
+      <article class="concept-card">
+        <h3><bdi>Process Pause</bdi></h3>
+        <p>یک Process ممکن است برای Garbage Collection یا فشار سیستم Pause شود. اگر پس از اعلام Failure دوباره فعال شود، Messageهای دیررس آن باید با احتیاط پردازش شوند.</p>
+      </article>
+      <article class="concept-card">
+        <h3><bdi>Unsynchronized Clocks</bdi></h3>
+        <p>Clock ماشین‌ها دقیقاً برابر نیست و Network failure می‌تواند NTP synchronization را مختل کند. بنابراین Ordering داده را نمی‌توان صرفاً به System timestamp سپرد.</p>
+      </article>
+    </div>
+
+    <div class="lesson-callout">
+      <strong>ابهام بنیادی</strong>
+      <p>از دید یک Process، «Node خراب شده»، «Network کند است» و «Process مقصد Pause شده» ممکن است همگی فقط به شکل «Response نرسید» دیده شوند. بسیاری از پیچیدگی‌های Distributed Systems از همین ابهام آغاز می‌شوند.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><bdi>Defining the Term “Distributed Systems”</bdi></h2>
+    <p><bdi>Distributed System</bdi> یک Software architecture متشکل از چند Node متصل به Network است که برای رسیدن به هدفی مشترک با یکدیگر Communication و Coordination انجام می‌دهند و در بیرون مانند یک سیستم واحد دیده می‌شوند.</p>
+    <p>Distribution سه وعدهٔ مهم دارد:</p>
+    <ul>
+      <li>تقسیم Workload و اجرای Parallel برای افزایش ظرفیت پردازش؛</li>
+      <li>مدیریت حجم زیاد داده و تعداد بالای کاربر هم‌زمان؛</li>
+      <li>دستیابی به Fault Tolerance و Resilience با توزیع Service و Replication داده.</li>
+    </ul>
+    <p>در مقابل، این مزایا رایگان نیستند. Network نامطمئن، Partial failure، Clock skew و نیاز به Coordination هزینه‌هایی هستند که Design باید آشکارا مدیریت کند.</p>
+  </section>
+
+  <section>
+    <h2><bdi>The Patterns Approach</bdi></h2>
+    <p>یک Pattern نامی مشخص برای یک مسئلهٔ تکرارشونده در Context معین و ساختار یک Solution تجربه‌شده است. Pattern صرفاً ایدهٔ جذاب یا نام تازه نیست؛ باید در چند Implementation مستقل مشاهده شده باشد. معیار رایج <bdi>Rule of Three</bdi> می‌گوید پیش از Pattern نامیدن یک Solution، بهتر است دست‌کم در سه سیستم دیده شده باشد.</p>
+    <p>ارزش رویکرد Pattern در این است که فاصلهٔ میان Theory و Code را کم می‌کند. نام مشترک Pattern باعث می‌شود اعضای تیم دربارهٔ Design دقیق‌تر گفتگو کنند و جزئیات آن را در Codebaseهای واقعی تشخیص دهند.</p>
+    <p>Patternهای این کتاب از مطالعهٔ سیستم‌های Open Source واقعی مانند Apache Kafka، Apache Cassandra، MongoDB، Apache Pulsar، etcd، Apache ZooKeeper، CockroachDB، YugabyteDB، Akka و JGroups استخراج شده‌اند.</p>
+    <div class="lesson-callout">
+      <strong>Patternها مستقل از هم نیستند</strong>
+      <p>در یک Distributed System واقعی، چند Pattern کنار هم قرار می‌گیرند. برای نمونه، Replicated Log به Leader election، Majority Quorum، Generation Clock و High-Water Mark وابسته می‌شود. فهم رابطهٔ Patternها از حفظ تعریف جداگانهٔ آن‌ها مهم‌تر است.</p>
+    </div>
+  </section>
+
+  <section class="chapter-summary">
+    <h2>جمع‌بندی Chapter</h2>
+    <ul>
+      <li>یک Server به Network، Disk، CPU و Memory محدود است.</li>
+      <li>Stateless compute را می‌توان ساده‌تر Scale و جایگزین کرد؛ Stateful data نیازمند Coordination است.</li>
+      <li>Partitioning ظرفیت را افزایش می‌دهد، اما تعداد نقاط Failure را نیز بیشتر می‌کند.</li>
+      <li>Replication برای Availability ضروری است، ولی تشخیص Failure و حفظ Consistency را پیچیده می‌کند.</li>
+      <li>Process Crash، Network Delay، Process Pause و Unsynchronized Clocks باید جزئی از مدل طراحی باشند.</li>
+      <li>Patterns زبان مشترکی برای Solutionهای تکرارشونده و اثبات‌شده در Codebaseهای واقعی فراهم می‌کنند.</li>
+    </ul>
+  </section>
+</div>
+      </article>
+      <nav class="chapter-pager" aria-label="Chapter قبلی و بعدی">
+        <a href="../index.html">Chapter قبلی: صفحهٔ کتاب</a>
+        <a rel="next" href="chapter-02-overview-of-patterns.html">Chapter بعدی: <bdi>Overview of the Patterns</bdi></a>
+      </nav>
+    </main>
+    <aside id="book-sidebar" class="book-sidebar" aria-label="فهرست کتاب" data-current-chapter="promise-and-perils" data-link-prefix="">
+      <h2><bdi>Patterns of Distributed Systems</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+  </div>
+</body>
+</html>
