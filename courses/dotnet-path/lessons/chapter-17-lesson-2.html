@@ -1,44 +1,111 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
 
+<html dir="rtl" lang="fa">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Tight Coupling از مسیر حرفه‌ای .NET.">
-  <title>Tight Coupling | مسیر حرفه‌ای .NET</title>
-  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="مثال کامل SOLID در یک پروژه .NET شامل SRP، OCP، LSP، ISP و DIP با سناریوی واقعی Payment System، کد C#، Dependency Injection و ساختار پروژه." name="description"/>
+<title>17.2 — Tight Coupling | مسیر حرفه‌ای .NET</title>
+<script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+<link href="../../microservices/course.css" rel="stylesheet"/>
+<script defer="" src="../course-navigation.js"></script>
+<script defer="" src="../course.js"></script>
 </head>
-
 <body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
-  </header>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<a href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+<button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+<button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره" type="button">تم</button>
+</header>
+<div class="course-shell">
+<aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-17-lesson-2" id="course-sidebar">
+<h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+<p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+</aside>
+<main class="lesson-content" id="lesson-content">
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+<div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+<div class="lesson-body">
+<div class="article-header">
+<div class="article-tag">🔗 Coupling در طراحی نرم‌افزار</div>
+<h1>17.2 — Tight Coupling</h1>
+<div class="article-meta">
+<div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+<div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+<div class="meta-item">👤 تیم فنی</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="content"><p><strong>Tight Coupling</strong> زمانی است که Componentها شدیداً به Concrete Implementation و جزئیات یکدیگر وابسته باشند.</p>
+<div class="callout callout-info"><span class="callout-icon">💡</span><div class="callout-content">در Tight Coupling، تغییر یا جایگزینی یک Dependency معمولاً Consumer را هم مجبور به تغییر می‌کند.</div></div>
+<h2>مثال اشتباه</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentService
+{
+    private readonly SqlPaymentRepository _repository;
 
-  <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-17-lesson-2">
-      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
-      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
-    </aside>
+    public PaymentService()
+    {
+        _repository = new SqlPaymentRepository();
+    }
 
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 17 — Coupling و Cohesion</nav>
-      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
-      <div class="lesson-body">
-        <div class="article-header">
-          <h1>Tight Coupling</h1>
-        </div>
-        <div class="divider"></div>
-        <div class="content"></div>
-      </div>
-    </main>
-  </div>
+    public Task PayAsync(Payment payment)
+    {
+        return _repository.SaveAsync(payment);
+    }
+}</code></pre></div>
+<p>PaymentService هم Concrete Type را می‌شناسد و هم خودش آن را می‌سازد.</p>
+<div class="code-block"><div class="code-header"><span class="code-lang">Text</span></div><pre><code>PaymentService
+      │
+      ▼
+SqlPaymentRepository
+      │
+      ▼
+SQL Server</code></pre></div>
+<h2>مشکلات</h2>
+<ul><li>جایگزینی Repository سخت‌تر است.</li><li>Unit Test ممکن است به Database واقعی وابسته شود.</li><li>Business Logic جزئیات Persistence را می‌شناسد.</li><li>تغییر Infrastructure به Consumer سرایت می‌کند.</li></ul>
+<h2>مثال واقعی‌تر</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public async Task ProcessAsync(Payment payment)
+{
+    var repository = new SqlPaymentRepository();
+    var publisher = new RabbitMqPublisher();
+    var notifier = new SmtpEmailSender();
+
+    await repository.SaveAsync(payment);
+    await publisher.PublishAsync(payment);
+    await notifier.SendAsync(payment);
+}</code></pre></div>
+<p>Business Flow مستقیماً به SQL Server، RabbitMQ و SMTP گره خورده است.</p>
+<h2>مشکل در Unit Test</h2>
+<div class="callout callout-warning"><span class="callout-icon">⚠️</span><div class="callout-content">اگر برای تست یک Business Rule ساده مجبور به راه‌اندازی Database، Network یا External Service واقعی باشید، Coupling طراحی را بررسی کنید.</div></div>
+<h2>آیا new همیشه بد است؟</h2>
+<p>خیر. ساخت Entity، DTO یا Value Object با <code>new</code> طبیعی است. مسئله زمانی مهم می‌شود که Business Service خودش External/Infrastructure Dependency قابل جایگزینی را بسازد.</p>
+<h2>Tight Coupling در Microservices</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">Text</span></div><pre><code>Payment
+   ├──► Customer
+   ├──► Order
+   ├──► Notification
+   └──► Reporting</code></pre></div>
+<p>اگر مسیر اصلی Payment به Availability هم‌زمان همه این سرویس‌ها وابسته باشد، Operational/Temporal Coupling افزایش می‌یابد.</p>
+<h2>Shared Database</h2>
+<p>وقتی چند Service مستقیماً Tableهای یکدیگر را تغییر می‌دهند، تغییر Schema می‌تواند چند سرویس را هم‌زمان بشکند.</p>
+<h2>کاهش Tight Coupling با DIP</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">Text</span></div><pre><code>Before:
+PaymentService → SqlPaymentRepository
+
+After:
+PaymentService → IPaymentRepository ← SqlPaymentRepository</code></pre></div>
+<h2>نشانه‌ها</h2>
+<ul><li>Concrete Dependencyهای زیاد در Business Logic</li><li>ساخت Repository/Gateway/Publisher داخل Service</li><li>شناخت Connection String یا Queue Detail در Business Code</li><li>تغییر Provider باعث تغییر چند Consumer می‌شود</li><li>Mock کردن Dependency دشوار است</li></ul>
+<div class="callout callout-info"><span class="callout-icon">🎯</span><div class="callout-content">Concrete Dependency همیشه بد نیست. معیار اصلی این است: <strong>آیا تغییر Detail باعث تغییر غیرضروری Consumer می‌شود؟</strong></div></div>
+<h2>نکته مصاحبه‌ای</h2>
+<div class="callout callout-info"><span class="callout-icon">🎤</span><div class="callout-content"><strong>Tight coupling means components depend heavily on concrete details of each other.</strong> This increases change impact and usually makes testing and replacement harder.</div></div>
+<h2>جمع‌بندی</h2><p>Tight Coupling یعنی knowledge زیاد از Implementation و وابستگی شدید بین اجزا؛ نتیجه آن معمولاً Flexibility و Testability کمتر است.</p></div>
+</div>
+</main>
+</div>
 </body>
-
 </html>

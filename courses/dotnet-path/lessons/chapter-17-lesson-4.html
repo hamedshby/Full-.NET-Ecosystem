@@ -1,44 +1,83 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
 
+<html dir="rtl" lang="fa">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Cohesion چیست؟ از مسیر حرفه‌ای .NET.">
-  <title>Cohesion چیست؟ | مسیر حرفه‌ای .NET</title>
-  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="مثال کامل SOLID در یک پروژه .NET شامل SRP، OCP، LSP، ISP و DIP با سناریوی واقعی Payment System، کد C#، Dependency Injection و ساختار پروژه." name="description"/>
+<title>17.4 — Cohesion چیست؟ در C# و .NET | مسیر حرفه‌ای .NET</title>
+<script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+<link href="../../microservices/course.css" rel="stylesheet"/>
+<script defer="" src="../course-navigation.js"></script>
+<script defer="" src="../course.js"></script>
 </head>
-
 <body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
-  </header>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<a href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+<button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+<button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره" type="button">تم</button>
+</header>
+<div class="course-shell">
+<aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-17-lesson-4" id="course-sidebar">
+<h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+<p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+</aside>
+<main class="lesson-content" id="lesson-content">
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+<div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+<div class="lesson-body">
+<div class="article-header">
+<div class="article-tag">🧩 Coupling و Cohesion</div>
+<h1>17.4 — Cohesion چیست؟</h1>
+<div class="article-meta">
+<div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+<div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+<div class="meta-item">👤 تیم فنی</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="content">
+<p><strong>Cohesion</strong> نشان می‌دهد Responsibilityها و اعضای داخل یک Class یا Module چقدر با یکدیگر مرتبط هستند.</p>
+<div class="callout callout-info"><span class="callout-icon">💡</span><div class="callout-content">اگر Methodها و Dataهای یک Class همگی برای یک هدف مشخص کار کنند، آن Class Cohesion بالایی دارد.</div></div>
+<h2>مثال ساده</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentFeeCalculator
+{
+    public decimal CalculatePurchaseFee(decimal amount)
+        =&gt; amount * 0.01m;
 
-  <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-17-lesson-4">
-      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
-      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
-    </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 17 — Coupling و Cohesion</nav>
-      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
-      <div class="lesson-body">
-        <div class="article-header">
-          <h1>Cohesion چیست؟</h1>
-        </div>
-        <div class="divider"></div>
-        <div class="content"></div>
-      </div>
-    </main>
-  </div>
+    public decimal CalculateRefundFee(decimal amount)
+        =&gt; amount * 0.005m;
+}</code></pre></div>
+<p>هر دو Method حول یک مفهوم یعنی Fee Calculation قرار دارند.</p>
+<h2>مثال Low Cohesion</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentHelper
+{
+    public decimal CalculateFee(decimal amount) =&gt; amount * 0.01m;
+    public void SendEmail() { }
+    public void SaveToDatabase() { }
+    public void GeneratePdf() { }
+}</code></pre></div>
+<p>Fee، Email، Persistence و PDF مسئولیت‌های متفاوتی هستند.</p>
+<h2>Cohesion و SRP</h2>
+<p>SRP درباره <strong>Reason to Change</strong> است و Cohesion درباره میزان ارتباط رفتارهای داخل Component. این دو مرتبط‌اند، اما یکی نیستند.</p>
+<h2>Coupling و Cohesion</h2>
+<table><thead><tr><th>Coupling</th><th>Cohesion</th></tr></thead><tbody><tr><td>Dependency بین Componentها</td><td>ارتباط اعضای داخل Component</td></tr><tr><td>معمولاً کمتر بهتر</td><td>معمولاً بیشتر بهتر</td></tr></tbody></table>
+<div class="callout callout-info"><span class="callout-icon">🎯</span><div class="callout-content"><strong>High Cohesion + Low Coupling</strong> یک مدل ذهنی مهم در طراحی نرم‌افزار است.</div></div>
+<h2>مثال Payment System</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">Text</span></div><pre><code>PaymentValidator      → Validation Rules
+PaymentFeeCalculator  → Fee Rules
+PaymentRepository     → Persistence
+PaymentNotifier       → Notification</code></pre></div>
+<h2>نکته مصاحبه‌ای</h2>
+<div class="callout callout-info"><span class="callout-icon">🎤</span><div class="callout-content"><strong>Cohesion describes how closely related the responsibilities inside a class or module are.</strong></div></div>
+<h2>جمع‌بندی</h2><p>Cohesion یعنی میزان ارتباط داخلی Responsibilityهای یک Component. رفتارهایی که برای یک هدف مشترک کار می‌کنند بهتر است کنار هم باشند.</p>
+</div>
+</div>
+</main>
+</div>
 </body>
-
 </html>

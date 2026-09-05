@@ -1,44 +1,74 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
 
+<html dir="rtl" lang="fa">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Low Cohesion از مسیر حرفه‌ای .NET.">
-  <title>Low Cohesion | مسیر حرفه‌ای .NET</title>
-  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="مثال کامل SOLID در یک پروژه .NET شامل SRP، OCP، LSP، ISP و DIP با سناریوی واقعی Payment System، کد C#، Dependency Injection و ساختار پروژه." name="description"/>
+<title>17.6 — Low Cohesion در C# و .NET | مسیر حرفه‌ای .NET</title>
+<script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+<link href="../../microservices/course.css" rel="stylesheet"/>
+<script defer="" src="../course-navigation.js"></script>
+<script defer="" src="../course.js"></script>
 </head>
-
 <body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
-  </header>
-
-  <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-17-lesson-6">
-      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
-      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
-    </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 17 — Coupling و Cohesion</nav>
-      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
-      <div class="lesson-body">
-        <div class="article-header">
-          <h1>Low Cohesion</h1>
-        </div>
-        <div class="divider"></div>
-        <div class="content"></div>
-      </div>
-    </main>
-  </div>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<a href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+<button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+<button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره" type="button">تم</button>
+</header>
+<div class="course-shell">
+<aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-17-lesson-6" id="course-sidebar">
+<h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+<p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+</aside>
+<main class="lesson-content" id="lesson-content">
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+<div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+<div class="lesson-body">
+<div class="article-header">
+<div class="article-tag">🧩 Coupling و Cohesion</div>
+<h1>17.6 — Low Cohesion</h1>
+<div class="article-meta">
+<div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+<div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+<div class="meta-item">👤 تیم فنی</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="content">
+<p><strong>Low Cohesion</strong> یعنی یک Class یا Module مجموعه‌ای از Responsibilityهای کم‌ارتباط یا نامرتبط داشته باشد.</p>
+<h2>مثال اشتباه</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentManager
+{
+    public decimal CalculateFee(decimal amount) =&gt; amount * 0.01m;
+    public void SaveToDatabase() { }
+    public void SendEmail() { }
+    public void ExportExcel() { }
+    public void WriteLog() { }
+}</code></pre></div>
+<p>Fee، Persistence، Email، Excel و Logging دلایل تغییر متفاوتی دارند.</p>
+<h2>مشکلات</h2><ul><li>چند Reason to Change</li><li>Test پیچیده‌تر</li><li>Dependencyهای نامرتبط</li><li>Readability پایین‌تر</li><li>احتمال God Class</li></ul>
+<h2>Refactoring</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">Text</span></div><pre><code>PaymentManager
+      ↓
+PaymentFeeCalculator
+PaymentRepository
+PaymentNotifier
+PaymentExporter
+ApplicationLogger</code></pre></div>
+<h2>چطور تشخیص دهیم؟</h2><ul><li>Class را با چند «و همچنین» توصیف می‌کنیم.</li><li>Methodها Fieldهای کاملاً متفاوتی مصرف می‌کنند.</li><li>Dependencyها به Domainهای مختلف مربوط‌اند.</li><li>تیم‌ها به دلایل مستقل همان Class را تغییر می‌دهند.</li></ul>
+<h2>آیا Class بزرگ همیشه Low Cohesion است؟</h2>
+<div class="callout callout-info"><span class="callout-icon">🎯</span><div class="callout-content">خیر. معیار اصلی <strong>ارتباط مفهومی Responsibilityها</strong> است، نه تعداد Line یا Method.</div></div>
+<h2>نکته مصاحبه‌ای</h2><div class="callout callout-info"><span class="callout-icon">🎤</span><div class="callout-content"><strong>Low cohesion means a class contains weakly related or unrelated responsibilities.</strong></div></div>
+<h2>جمع‌بندی</h2><p>Low Cohesion معمولاً با چند Reason to Change و God Class همراه می‌شود و با تفکیک Responsibilityهای نامرتبط Refactor می‌شود.</p>
+</div>
+</div>
+</main>
+</div>
 </body>
-
 </html>

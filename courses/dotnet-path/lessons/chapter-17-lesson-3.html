@@ -1,44 +1,148 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
 
+<html dir="rtl" lang="fa">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Loose Coupling از مسیر حرفه‌ای .NET.">
-  <title>Loose Coupling | مسیر حرفه‌ای .NET</title>
-  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="مثال کامل SOLID در یک پروژه .NET شامل SRP، OCP، LSP، ISP و DIP با سناریوی واقعی Payment System، کد C#، Dependency Injection و ساختار پروژه." name="description"/>
+<title>17.3 — Loose Coupling | مسیر حرفه‌ای .NET</title>
+<script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+<link href="../../microservices/course.css" rel="stylesheet"/>
+<script defer="" src="../course-navigation.js"></script>
+<script defer="" src="../course.js"></script>
 </head>
-
 <body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
-  </header>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<a href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+<button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+<button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره" type="button">تم</button>
+</header>
+<div class="course-shell">
+<aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-17-lesson-3" id="course-sidebar">
+<h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+<p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+</aside>
+<main class="lesson-content" id="lesson-content">
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+<div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+<div class="lesson-body">
+<div class="article-header">
+<div class="article-tag">🔗 Coupling در طراحی نرم‌افزار</div>
+<h1>17.3 — Loose Coupling</h1>
+<div class="article-meta">
+<div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+<div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+<div class="meta-item">👤 تیم فنی</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="content"><p><strong>Loose Coupling</strong> یعنی Componentها با کمترین knowledge لازم از جزئیات یکدیگر همکاری کنند. Dependency حذف نمی‌شود؛ بلکه از طریق Contractهای مشخص کنترل می‌شود.</p>
+<div class="callout callout-info"><span class="callout-icon">💡</span><div class="callout-content"><strong>Loose Coupling = Controlled Dependency, not Zero Dependency.</strong></div></div>
+<h2>Refactoring</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public interface IPaymentRepository
+{
+    Task SaveAsync(
+        Payment payment,
+        CancellationToken cancellationToken);
+}
 
-  <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-17-lesson-3">
-      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
-      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
-    </aside>
+public class PaymentService
+{
+    private readonly IPaymentRepository _repository;
 
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 17 — Coupling و Cohesion</nav>
-      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
-      <div class="lesson-body">
-        <div class="article-header">
-          <h1>Loose Coupling</h1>
-        </div>
-        <div class="divider"></div>
-        <div class="content"></div>
-      </div>
-    </main>
-  </div>
+    public PaymentService(IPaymentRepository repository)
+    {
+        _repository = repository;
+    }
+}</code></pre></div>
+<p>Service فقط Contract را می‌شناسد.</p>
+<h2>Infrastructure Implementation</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class SqlPaymentRepository
+    : IPaymentRepository
+{
+    public Task SaveAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        // SQL Server
+        return Task.CompletedTask;
+    }
+}</code></pre></div>
+<h2>Dependency Injection در ASP.NET Core</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>builder.Services.AddScoped
+    &lt;IPaymentRepository,
+     SqlPaymentRepository&gt;();
+
+builder.Services.AddScoped
+    &lt;PaymentService&gt;();</code></pre></div>
+<h2>جایگزینی Implementation</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class InMemoryPaymentRepository
+    : IPaymentRepository
+{
+    public Task SaveAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        // In-memory implementation
+        return Task.CompletedTask;
+    }
+}</code></pre></div>
+<p>PaymentService بدون تغییر می‌تواند Implementation دیگری دریافت کند.</p>
+<h2>مزایا</h2>
+<ul><li>Change Impact محدودتر</li><li>Unit Test ساده‌تر</li><li>جایگزینی Infrastructure آسان‌تر</li><li>Extension بهتر</li><li>مرزهای معماری واضح‌تر</li></ul>
+<h2>مثال Payment Gateway</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public interface IPaymentGateway
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}
+
+public class BankAGateway : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        // Bank A
+        return Task.FromResult(
+            PaymentResult.Success());
+    }
+}</code></pre></div>
+<p>Business Service فقط <code>IPaymentGateway</code> را می‌شناسد و به API بانک خاص گره نمی‌خورد.</p>
+<h2>Loose Coupling در Microservices</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">Text</span></div><pre><code>Payment Service
+      │
+      ▼
+PaymentCompleted
+      ├──► Notification Service
+      ├──► Reporting Service
+      └──► Loyalty Service</code></pre></div>
+<p>Event-driven communication در بعضی سناریوها می‌تواند Direct/Temporal Coupling را کاهش دهد.</p>
+<div class="callout callout-warning"><span class="callout-icon">⚠️</span><div class="callout-content">Event-Driven معماری Coupling را صفر نمی‌کند. Event Schema، Semantic Contract و Broker همچنان Dependency هستند.</div></div>
+<h2>ارتباط با SOLID</h2>
+<ul><li><strong>DIP:</strong> وابستگی High-Level به Abstraction</li><li><strong>OCP:</strong> افزودن Implementation جدید بدون تغییر Consumer</li><li><strong>ISP:</strong> Contractهای کوچک و Client-focused</li><li><strong>LSP:</strong> Implementationهای قابل جایگزینی</li></ul>
+<h2>Tight vs Loose Coupling</h2>
+<table><thead><tr><th>Tight Coupling</th><th>Loose Coupling</th></tr></thead><tbody>
+<tr><td>Concrete Detail</td><td>Stable Contract</td></tr>
+<tr><td>Change Impact بیشتر</td><td>Change Impact محدودتر</td></tr>
+<tr><td>Test سخت‌تر</td><td>Test ساده‌تر</td></tr>
+<tr><td>جایگزینی سخت</td><td>جایگزینی آسان‌تر</td></tr></tbody></table>
+<h2>آیا Interface همیشه Loose Coupling می‌سازد؟</h2>
+<p>خیر. اگر Interface جزئیات Provider خاص را Leak کند یا Consumer به رفتار خاص Implementation وابسته باشد، Coupling همچنان بالا می‌ماند.</p>
+<div class="callout callout-info"><span class="callout-icon">🎯</span><div class="callout-content">Loose Coupling بیشتر از اینکه درباره Keywordهای C# باشد، درباره <strong>طراحی Dependency و Contract</strong> است.</div></div>
+<h2>آیا Loose Coupling همیشه بهتر است؟</h2>
+<p>نه به هر قیمتی. Abstraction غیرضروری و Interfaceهای بی‌معنی می‌توانند Over-Engineering ایجاد کنند. در Boundaryها و نقاط واقعی Change/Variation از آن استفاده کنید.</p>
+<h2>نکته مصاحبه‌ای</h2>
+<div class="callout callout-info"><span class="callout-icon">🎤</span><div class="callout-content"><strong>Loose coupling means components depend on stable contracts rather than unnecessary implementation details.</strong> In .NET, abstractions and Dependency Injection are common techniques for achieving it.</div></div>
+<h2>جمع‌بندی</h2><p>Loose Coupling باعث می‌شود اجزای سیستم با knowledge کمتری از جزئیات یکدیگر همکاری کنند و تغییر، تست و جایگزینی Dependencyها ساده‌تر شود.</p>
+<div class="callout callout-info"><span class="callout-icon">✅</span><div class="callout-content"><strong>Depend on what a component does, not unnecessarily on how it does it.</strong></div></div></div>
+</div>
+</main>
+</div>
 </body>
-
 </html>

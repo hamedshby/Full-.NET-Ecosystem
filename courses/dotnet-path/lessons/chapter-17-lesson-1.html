@@ -1,44 +1,96 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
 
+<html dir="rtl" lang="fa">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Coupling چیست؟ از مسیر حرفه‌ای .NET.">
-  <title>Coupling چیست؟ | مسیر حرفه‌ای .NET</title>
-  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="مثال کامل SOLID در یک پروژه .NET شامل SRP، OCP، LSP، ISP و DIP با سناریوی واقعی Payment System، کد C#، Dependency Injection و ساختار پروژه." name="description"/>
+<title>17.1 — Coupling چیست؟ | مسیر حرفه‌ای .NET</title>
+<script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+<link href="../../microservices/course.css" rel="stylesheet"/>
+<script defer="" src="../course-navigation.js"></script>
+<script defer="" src="../course.js"></script>
 </head>
-
 <body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
-  </header>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<a href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+<button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+<button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره" type="button">تم</button>
+</header>
+<div class="course-shell">
+<aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-17-lesson-1" id="course-sidebar">
+<h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+<p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+</aside>
+<main class="lesson-content" id="lesson-content">
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+<div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+<div class="lesson-body">
+<div class="article-header">
+<div class="article-tag">🔗 Coupling در طراحی نرم‌افزار</div>
+<h1>17.1 — Coupling چیست؟</h1>
+<div class="article-meta">
+<div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+<div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+<div class="meta-item">👤 تیم فنی</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="content"><p><strong>Coupling</strong> میزان وابستگی بین اجزای یک سیستم نرم‌افزاری است؛ یعنی یک Class یا Module چقدر برای کار کردن به Component دیگر و جزئیات آن وابسته است.</p>
+<div class="callout callout-info"><span class="callout-icon">💡</span><div class="callout-content">هدف طراحی خوب حذف کامل Dependency نیست؛ هدف <strong>کنترل Dependencyها</strong> و جلوگیری از سرایت غیرضروری تغییرات است.</div></div>
+<h2>مثال ساده</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentService
+{
+    private readonly PaymentRepository _repository;
 
-  <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-17-lesson-1">
-      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
-      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
-    </aside>
+    public PaymentService(PaymentRepository repository)
+    {
+        _repository = repository;
+    }
 
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 17 — Coupling و Cohesion</nav>
-      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
-      <div class="lesson-body">
-        <div class="article-header">
-          <h1>Coupling چیست؟</h1>
-        </div>
-        <div class="divider"></div>
-        <div class="content"></div>
-      </div>
-    </main>
-  </div>
+    public Task PayAsync(Payment payment)
+    {
+        return _repository.SaveAsync(payment);
+    }
+}</code></pre></div>
+<p>بین <code>PaymentService</code> و <code>PaymentRepository</code> یک Dependency وجود دارد؛ بنابراین این دو Component Coupled هستند.</p>
+<h2>آیا Coupling همیشه بد است؟</h2>
+<p>خیر. سیستم واقعی بدون ارتباط بین اجزا ساخته نمی‌شود. مسئله این است که وابستگی چقدر شدید و شکننده باشد.</p>
+<h2>Coupling بالا چه مشکلاتی دارد؟</h2>
+<ul><li>Change Impact بیشتر</li><li>Unit Test سخت‌تر</li><li>جایگزینی Infrastructure دشوارتر</li><li>Reuse کمتر</li><li>شکنندگی بیشتر سیستم</li></ul>
+<h2>مثال در Payment System</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentService
+{
+    private readonly SqlPaymentRepository _repository;
+    private readonly RabbitMqPublisher _publisher;
+    private readonly SmtpEmailSender _emailSender;
+}</code></pre></div>
+<p>Business Service مستقیماً سه Detail فنی را می‌شناسد. تغییر SQL Server، RabbitMQ یا Email Provider می‌تواند روی آن اثر بگذارد.</p>
+<h2>مدل Change برای تشخیص Coupling</h2>
+<div class="callout callout-info"><span class="callout-icon">🎯</span><div class="callout-content">اگر Component A تغییر کند، آیا Component B هم مرتب مجبور به تغییر می‌شود؟ اگر بله، Coupling را بررسی کنید.</div></div>
+<h2>Coupling در سطوح مختلف</h2>
+<table><thead><tr><th>سطح</th><th>مثال</th></tr></thead><tbody>
+<tr><td>Class</td><td>PaymentService → Repository</td></tr>
+<tr><td>Layer</td><td>Application → Infrastructure</td></tr>
+<tr><td>Module</td><td>Payment → Customer</td></tr>
+<tr><td>Microservice</td><td>Payment Service → Order Service</td></tr>
+<tr><td>Database</td><td>چند Service با Schema مشترک</td></tr></tbody></table>
+<h2>Coupling و Cohesion</h2>
+<table><thead><tr><th>Coupling</th><th>Cohesion</th></tr></thead><tbody>
+<tr><td>ارتباط بین Componentها</td><td>ارتباط Responsibilityهای داخل Component</td></tr>
+<tr><td>معمولاً کمتر بهتر است</td><td>معمولاً بیشتر بهتر است</td></tr></tbody></table>
+<div class="callout callout-info"><span class="callout-icon">🧠</span><div class="callout-content"><strong>High Cohesion + Low Coupling</strong> یکی از مدل‌های ذهنی مهم در طراحی نرم‌افزار است.</div></div>
+<h2>ارتباط با SOLID</h2>
+<ul><li>SRP مسئولیت‌ها را متمرکز می‌کند.</li><li>OCP دامنه تغییر را محدود می‌کند.</li><li>ISP Dependencyهای غیرضروری را کم می‌کند.</li><li>DIP وابستگی به Concrete Detail را کاهش می‌دهد.</li></ul>
+<h2>نکته مصاحبه‌ای</h2>
+<div class="callout callout-info"><span class="callout-icon">🎤</span><div class="callout-content"><strong>Coupling describes the degree of dependency between software components.</strong> Good design aims for lower and controlled coupling, not zero dependency.</div></div>
+<h2>جمع‌بندی</h2><p>Coupling یعنی میزان وابستگی اجزای سیستم. Dependency طبیعی است؛ مهم این است که تغییرات غیرمرتبط به بخش‌های دیگر سرایت نکنند.</p></div>
+</div>
+</main>
+</div>
 </body>
-
 </html>

@@ -1,44 +1,77 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
 
+<html dir="rtl" lang="fa">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس High Cohesion از مسیر حرفه‌ای .NET.">
-  <title>High Cohesion | مسیر حرفه‌ای .NET</title>
-  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="مثال کامل SOLID در یک پروژه .NET شامل SRP، OCP، LSP، ISP و DIP با سناریوی واقعی Payment System، کد C#، Dependency Injection و ساختار پروژه." name="description"/>
+<title>17.5 — High Cohesion در C# و .NET | مسیر حرفه‌ای .NET</title>
+<script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+<link href="../../microservices/course.css" rel="stylesheet"/>
+<script defer="" src="../course-navigation.js"></script>
+<script defer="" src="../course.js"></script>
 </head>
-
 <body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
-  </header>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<a href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
+<button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+<button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره" type="button">تم</button>
+</header>
+<div class="course-shell">
+<aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-17-lesson-5" id="course-sidebar">
+<h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+<p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+</aside>
+<main class="lesson-content" id="lesson-content">
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 1 — مقدمه‌ای بر <bdi>Object-Oriented
+          Programming</bdi></nav>
+<div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+<div class="lesson-body">
+<div class="article-header">
+<div class="article-tag">🧩 Coupling و Cohesion</div>
+<h1>17.5 — High Cohesion</h1>
+<div class="article-meta">
+<div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۵/۲۳</div>
+<div class="meta-item">⏱️ زمان مطالعه: ۱۸ دقیقه</div>
+<div class="meta-item">👤 تیم فنی</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="content">
+<p><strong>High Cohesion</strong> یعنی اعضای یک Class یا Module حول یک هدف مشخص و منسجم کار کنند.</p>
+<div class="callout callout-info"><span class="callout-icon">💡</span><div class="callout-content">یک Component با High Cohesion را معمولاً می‌توان با یک Responsibility روشن توضیح داد.</div></div>
+<h2>مثال</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentValidator
+{
+    public void ValidateAmount(decimal amount) { /* ... */ }
+    public void ValidateMerchant(string merchantId) { /* ... */ }
+    public void ValidateReference(string reference) { /* ... */ }
+}</code></pre></div>
+<p>تمام Methodها درباره Payment Validation هستند.</p>
+<h2>مزایا</h2><ul><li>Readability بهتر</li><li>Unit Test ساده‌تر</li><li>تغییرات متمرکزتر</li><li>نام‌گذاری واضح‌تر</li><li>Reuse بهتر</li></ul>
+<h2>High Cohesion یعنی یک Method؟</h2>
+<div class="callout callout-warning"><span class="callout-icon">⚠️</span><div class="callout-content">خیر. یک Class می‌تواند چند Method داشته باشد، اگر همه آن‌ها به یک Responsibility منسجم مربوط باشند.</div></div>
+<h2>مثال واقعی Fee</h2>
+<div class="code-block"><div class="code-header"><span class="code-lang">C#</span></div><pre><code>public class PaymentFeeCalculator
+{
+    public decimal CalculatePurchaseFee(decimal amount)
+        =&gt; amount * 0.01m;
 
-  <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-17-lesson-5">
-      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
-      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
-    </aside>
+    public decimal CalculateRefundFee(decimal amount)
+        =&gt; amount * 0.005m;
 
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 17 — Coupling و Cohesion</nav>
-      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
-      <div class="lesson-body">
-        <div class="article-header">
-          <h1>High Cohesion</h1>
-        </div>
-        <div class="divider"></div>
-        <div class="content"></div>
-      </div>
-    </main>
-  </div>
+    public decimal CalculateSettlementFee(decimal amount)
+        =&gt; amount * 0.002m;
+}</code></pre></div>
+<h2>نشانه‌های High Cohesion</h2><ul><li>Methodها روی یک مفهوم مشترک کار می‌کنند.</li><li>Class نام دقیق دارد.</li><li>Dependencyهای آن با Responsibility اصلی مرتبط‌اند.</li><li>تغییرات یک نوع Rule در همان Component متمرکز می‌شوند.</li></ul>
+<h2>نکته مصاحبه‌ای</h2><div class="callout callout-info"><span class="callout-icon">🎤</span><div class="callout-content"><strong>High cohesion means a class contains closely related responsibilities that work toward a focused purpose.</strong></div></div>
+<h2>جمع‌بندی</h2><p>High Cohesion یعنی رفتارهای مرتبط را کنار هم نگه داریم؛ نه اینکه Class را صرفاً کوچک کنیم.</p>
+</div>
+</div>
+</main>
+</div>
 </body>
-
 </html>
