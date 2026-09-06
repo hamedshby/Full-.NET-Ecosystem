@@ -1,41 +1,381 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Factory Method از مسیر حرفه‌ای .NET.">
-  <title>Factory Method | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش Factory Method در C# و .NET با مثال واقعی Payment Gateway، OCP، DIP و Dependency Injection."
+    name="description" />
+  <title>Factory Method در C# و .NET | مثال Payment</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-20-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-20-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 20 — Design Patterns و OOP</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 20 — Design Patterns</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Factory Method</h1>
+          <div class="article-tag">🏭 Creational Design Patterns</div>
+          <h1><bdi>Factory Method</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Factory Method</strong> یکی از Creational Design Patternهاست. هدف آن جدا کردن منطق ساخت Object از
+            کدی است که آن Object را مصرف می‌کند.</p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">در Payment System، Factory Method زمانی مفید است که چند Payment Gateway داشته
+              باشیم و نخواهیم Business Logic مستقیماً Concrete Gatewayها را بشناسد.</div>
+          </div>
+          <h2>مسئله در Payment System</h2>
+          <p>فرض کنید سیستم ما با Bank A، Bank B و Wallet Provider کار می‌کند. نسخه ساده ممکن است این‌طور باشد:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    public async Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        IPaymentGateway gateway;
+
+        if (request.Provider == "BankA")
+            gateway = new BankAPaymentGateway();
+        else if (request.Provider == "BankB")
+            gateway = new BankBPaymentGateway();
+        else
+            gateway = new WalletPaymentGateway();
+
+        return await gateway.PayAsync(
+            request,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <h2>مشکلات طراحی بالا</h2>
+          <ul>
+            <li>PaymentService همه Concrete Gatewayها را می‌شناسد.</li>
+            <li>Creation Logic با Business Logic ترکیب شده است.</li>
+            <li>اضافه شدن Provider جدید نیازمند تغییر PaymentService است.</li>
+            <li>Coupling بالا می‌رود.</li>
+          </ul>
+          <h2>Product Contract</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <h2>Concrete Productها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAPaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            PaymentResult.Success("BANK-A-123"));
+    }
+}
+
+public class BankBPaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            PaymentResult.Success("BANK-B-456"));
+    }
+}</code></pre>
+          </div>
+          <h2>تعریف Factory Method</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class PaymentGatewayFactory
+{
+    public abstract IPaymentGateway
+        CreateGateway();
+}</code></pre>
+          </div>
+          <p>متد <code>CreateGateway</code> همان Factory Method است.</p>
+          <h2>Concrete Creator برای Bank A</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAPaymentGatewayFactory
+    : PaymentGatewayFactory
+{
+    public override IPaymentGateway CreateGateway()
+    {
+        return new BankAPaymentGateway();
+    }
+}</code></pre>
+          </div>
+          <h2>Concrete Creator برای Bank B</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankBPaymentGatewayFactory
+    : PaymentGatewayFactory
+{
+    public override IPaymentGateway CreateGateway()
+    {
+        return new BankBPaymentGateway();
+    }
+}</code></pre>
+          </div>
+          <h2>ساختار Pattern</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>PaymentGatewayFactory
+        |
+        | CreateGateway()
+        v
+   IPaymentGateway
+      /        \
+     /          \
+BankAGateway   BankBGateway
+
+Concrete Creators:
+BankAPaymentGatewayFactory
+BankBPaymentGatewayFactory</code></pre>
+          </div>
+          <h2>استفاده در PaymentService</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly PaymentGatewayFactory
+        _factory;
+
+    public PaymentService(
+        PaymentGatewayFactory factory)
+    {
+        _factory = factory;
+    }
+
+    public async Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var gateway =
+            _factory.CreateGateway();
+
+        return await gateway.PayAsync(
+            request,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-info"><span class="callout-icon">🎯</span>
+            <div class="callout-content"><strong>Factory Method = Encapsulate Object Creation</strong>. Business Logic
+              باید روی استفاده از Object تمرکز کند، نه روی نحوه ساخت آن.</div>
+          </div>
+          <h2>Factory Method و OCP</h2>
+          <p>اگر Bank C اضافه شود، Product و Creator جدید اضافه می‌کنیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankCPaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class BankCPaymentGatewayFactory
+    : PaymentGatewayFactory
+{
+    public override IPaymentGateway CreateGateway()
+    {
+        return new BankCPaymentGateway();
+    }
+}</code></pre>
+          </div>
+          <p>Business Flow اصلی نیاز به تغییر ندارد.</p>
+          <h2>Factory Method و Polymorphism</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>PaymentGatewayFactory factory =
+    new BankAPaymentGatewayFactory();
+
+IPaymentGateway gateway =
+    factory.CreateGateway();</code></pre>
+          </div>
+          <p>Consumer با Typeهای انتزاعی کار می‌کند، ولی Object واقعی در Runtime می‌تواند متفاوت باشد.</p>
+          <h2>Factory Method و Dependency Injection</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;PaymentGatewayFactory,
+     BankAPaymentGatewayFactory&gt;();
+
+builder.Services.AddScoped
+    &lt;PaymentService&gt;();</code></pre>
+          </div>
+          <p>در این حالت Composition Root مشخص می‌کند چه Concrete Factoryای تزریق شود.</p>
+          <h2>Runtime Factory در پروژه‌های واقعی .NET</h2>
+          <p>گاهی Provider در Runtime از روی Request انتخاب می‌شود:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public enum PaymentProvider
+{
+    BankA,
+    BankB,
+    Wallet
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGatewayFactory
+{
+    IPaymentGateway Create(
+        PaymentProvider provider);
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentGatewayFactory
+    : IPaymentGatewayFactory
+{
+    private readonly IReadOnlyDictionary
+        &lt;PaymentProvider, IPaymentGateway&gt;
+        _gateways;
+
+    public PaymentGatewayFactory(
+        IEnumerable&lt;IPaymentGateway&gt; gateways)
+    {
+        _gateways =
+            gateways.ToDictionary(
+                x =&gt; x.Provider);
+    }
+
+    public IPaymentGateway Create(
+        PaymentProvider provider)
+    {
+        if (!_gateways.TryGetValue(
+            provider,
+            out var gateway))
+        {
+            throw new NotSupportedException();
+        }
+
+        return gateway;
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">این Runtime Factory در پروژه‌های .NET بسیار رایج است، اما با تعریف کلاسیک GoF
+              Factory Method کاملاً یکسان نیست. Factory Method کلاسیک معمولاً بر Override شدن Creation Method توسط
+              Subclass تکیه دارد.</div>
+          </div>
+          <h2>مزایا</h2>
+          <ul>
+            <li>جدا شدن Creation Logic از Business Logic</li>
+            <li>کاهش Coupling به Concrete Typeها</li>
+            <li>افزایش Extensibility</li>
+            <li>هماهنگی خوب با OCP و Polymorphism</li>
+            <li>تست‌پذیری بهتر</li>
+          </ul>
+          <h2>معایب</h2>
+          <ul>
+            <li>افزایش تعداد Classها</li>
+            <li>احتمال Overengineering در سناریوی ساده</li>
+            <li>Hierarchy بیشتر برای Creatorها</li>
+          </ul>
+          <h2>چه زمانی استفاده کنیم؟</h2>
+          <ul>
+            <li>نوع Concrete Object از قبل ثابت نیست.</li>
+            <li>Creation Logic پیچیده است.</li>
+            <li>چند Provider یا Product داریم.</li>
+            <li>می‌خواهیم Consumer Concrete Product را نشناسد.</li>
+          </ul>
+          <h2>چه زمانی استفاده نکنیم؟</h2>
+          <p>اگر فقط یک Object ساده و ثابت داریم و Creation هیچ Variation واقعی ندارد، Factory معمولاً ارزش خاصی ایجاد
+            نمی‌کند.</p>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">Factory را فقط برای حذف keywordِ <code>new</code> نسازید. Factory باید یک مشکل
+              واقعی در Creation یا Coupling را حل کند.</div>
+          </div>
+          <h2>Factory Method vs Simple Factory</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Factory Method</th>
+                <th>Simple Factory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GoF Pattern</td>
+                <td>یک Idiom رایج</td>
+              </tr>
+              <tr>
+                <td>معمولاً با Inheritance و Override</td>
+                <td>معمولاً یک Factory Class با if/switch</td>
+              </tr>
+              <tr>
+                <td>Subclass نوع Product را تعیین می‌کند</td>
+                <td>Factory مرکزی Product را انتخاب می‌کند</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>Factory Method vs Abstract Factory</h2>
+          <p>Factory Method معمولاً یک Product ایجاد می‌کند؛ Abstract Factory یک Family از Productهای مرتبط می‌سازد.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>BankAFactory
+    ├── CreatePaymentGateway()
+    ├── CreateRefundGateway()
+    └── CreateSettlementGateway()</code></pre>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>Factory Method defines a creation method that allows specialized
+                creators to decide which concrete product should be instantiated. In a payment system, it can create
+                different payment gateways without coupling the payment use case to specific bank
+                implementations.</strong></div>
+          </div>
+          <h2>جمع‌بندی 20.1</h2>
+          <p>Factory Method یک Creational Pattern برای Encapsulate کردن Object Creation است. در Payment System می‌توان
+            ساخت Bank Gatewayها را از PaymentService جدا کرد تا Business Logic به Concrete Providerها وابسته نباشد.</p>
+          <div class="callout callout-info"><span class="callout-icon">✅</span>
+            <div class="callout-content"><strong>نکته کلیدی:</strong> Business Logic باید بداند Object چه کاری انجام
+              می‌دهد، نه اینکه دقیقاً چگونه ساخته می‌شود.</div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
