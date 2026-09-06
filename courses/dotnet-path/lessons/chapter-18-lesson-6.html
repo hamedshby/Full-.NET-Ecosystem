@@ -1,41 +1,113 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Encapsulate What Changes از مسیر حرفه‌ای .NET.">
-  <title>Encapsulate What Changes | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش 18.6 — Encapsulate What Changes از فصل اصول طراحی Object-Oriented همراه با مثال‌های C#، .NET و Payment System."
+    name="description" />
+  <title>18.6 — Encapsulate What Changes در C# و .NET | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-18-lesson-6">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-18-lesson-6"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Encapsulate What Changes</h1>
+          <div class="article-tag">🏗️ اصول طراحی Object-Oriented</div>
+          <h1>18.6 — Encapsulate What Changes</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Encapsulate What Changes</strong> یعنی بخش‌هایی را که احتمال تغییر دارند شناسایی کنیم و آن‌ها را
+            پشت یک Boundary پایدار قرار دهیم تا تغییرشان به کل سیستم سرایت نکند.</p>
+          <h2>مثال: Fee Rule متغیر</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public decimal CalculateFee(
+    Payment payment)
+{
+    if (payment.Type == PaymentType.Card)
+        return payment.Amount * 0.01m;
+
+    if (payment.Type == PaymentType.Wallet)
+        return payment.Amount * 0.005m;
+
+    return 0;
+}</code></pre>
+          </div>
+          <p>با اضافه شدن روش‌های پرداخت، این Method دائماً تغییر می‌کند.</p>
+          <h2>Encapsulate Variation</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IFeePolicy
+{
+    decimal Calculate(decimal amount);
+}
+
+public class CardFeePolicy : IFeePolicy
+{
+    public decimal Calculate(decimal amount)
+        =&gt; amount * 0.01m;
+}
+
+public class WalletFeePolicy : IFeePolicy
+{
+    public decimal Calculate(decimal amount)
+        =&gt; amount * 0.005m;
+}</code></pre>
+          </div>
+          <p>Variation مربوط به Fee داخل Policyهای مستقل قرار گرفته است.</p>
+          <h2>چه چیزهایی معمولاً تغییر می‌کنند؟</h2>
+          <ul>
+            <li>Business Ruleها</li>
+            <li>External Providerها</li>
+            <li>Persistence</li>
+            <li>Pricing و Fee Policy</li>
+            <li>Serialization/Protocol</li>
+            <li>Notification Channelها</li>
+          </ul>
+          <h2>ارتباط با OCP و Strategy</h2>
+          <p>این اصل پایهٔ بسیاری از Patternهاست. Strategy Pattern نمونه‌ای از Encapsulate کردن Algorithmهای متغیر است و
+            OCP کمک می‌کند Variation جدید با تغییر کمتر در Consumer اضافه شود.</p>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">هر چیزی که «ممکن است روزی تغییر کند» را Abstract نکنید. Variation باید واقعی،
+              محتمل یا از نظر معماری پرهزینه باشد؛ وگرنه YAGNI را نقض می‌کنید.</div>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>Encapsulate what changes means isolating volatile behavior behind
+                stable boundaries so changes remain local instead of propagating through the system.</strong></div>
+          </div>
+          <h2>جمع‌بندی</h2>
+          <p>نقاط تغییر سیستم را پیدا کنید و Variation واقعی را پشت Contract یا Component مناسب قرار دهید؛ نه اینکه کل
+            سیستم را از قبل Abstract کنید.</p>
+        </div>
       </div>
     </main>
   </div>

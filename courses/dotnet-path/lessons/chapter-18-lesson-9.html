@@ -1,41 +1,95 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس KISS از مسیر حرفه‌ای .NET.">
-  <title>KISS | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش 18.9 — KISS از فصل اصول طراحی Object-Oriented همراه با مثال‌های C#، .NET و Payment System."
+    name="description" />
+  <title>18.9 — KISS در C# و .NET | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-18-lesson-9">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-18-lesson-9"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>KISS</h1>
+          <div class="article-tag">🏗️ اصول طراحی Object-Oriented</div>
+          <h1>18.9 — KISS</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>KISS — Keep It Simple</strong> می‌گوید ساده‌ترین طراحی‌ای را انتخاب کنید که نیاز واقعی را به‌درستی
+            حل می‌کند.</p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">Simple به معنی Primitive یا غیرحرفه‌ای نیست. طراحی ساده یعنی Complexity فقط
+              جایی وجود داشته باشد که مسئله واقعاً آن را لازم دارد.</div>
+          </div>
+          <h2>مثال Overengineering</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>IPaymentFeeProvider
+    -&gt; PaymentFeeProvider
+        -&gt; PaymentFeeStrategyFactory
+            -&gt; PaymentFeeStrategyResolver
+                -&gt; DefaultPaymentFeeStrategy</code></pre>
+          </div>
+          <p>اگر سیستم فقط یک Fee ثابت دارد، این تعداد Abstraction احتمالاً ارزش ایجاد نمی‌کند.</p>
+          <h2>نسخه ساده</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentFeeCalculator
+{
+    public decimal Calculate(decimal amount)
+        =&gt; amount * 0.01m;
+}</code></pre>
+          </div>
+          <h2>اما Simple با Simplistic فرق دارد</h2>
+          <p>اگر واقعاً چند Fee Policy، Rule پیچیده و Variation مستقل داریم، Strategy Pattern ممکن است طراحی را ساده‌تر
+            کند. KISS نمی‌گوید Complexity واقعی را پنهان کنیم.</p>
+          <h2>KISS در .NET</h2>
+          <ul>
+            <li>از قابلیت Built-in فریم‌ورک قبل از ساخت Framework داخلی استفاده کنید.</li>
+            <li>برای Query ساده، Pipeline چندلایهٔ غیرضروری نسازید.</li>
+            <li>Pattern را برای حل Problem استفاده کنید، نه برای نمایش Pattern.</li>
+            <li>نام‌گذاری و Control Flow را واضح نگه دارید.</li>
+          </ul>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">سادگی را با کوتاه‌ترین کد اشتباه نگیرید. یک One-Liner پیچیده ممکن است از چند خط
+              کد واضح سخت‌تر فهمیده شود.</div>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>KISS means choosing the simplest design that correctly satisfies
+                current requirements while keeping the code understandable and maintainable.</strong></div>
+          </div>
+          <h2>جمع‌بندی</h2>
+          <p>Complexity بودجه دارد. آن را فقط برای Requirement یا Constraint واقعی خرج کنید.</p>
+        </div>
       </div>
     </main>
   </div>

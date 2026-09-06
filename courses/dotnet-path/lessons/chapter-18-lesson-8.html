@@ -1,41 +1,98 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس DRY از مسیر حرفه‌ای .NET.">
-  <title>DRY | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش 18.8 — DRY از فصل اصول طراحی Object-Oriented همراه با مثال‌های C#، .NET و Payment System."
+    name="description" />
+  <title>18.8 — DRY در C# و .NET | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-18-lesson-8">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-18-lesson-8"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>DRY</h1>
+          <div class="article-tag">🏗️ اصول طراحی Object-Oriented</div>
+          <h1>18.8 — DRY</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>DRY — Don't Repeat Yourself</strong> می‌گوید هر دانش یا Rule مهم سیستم بهتر است یک Source of Truth
+            مشخص داشته باشد.</p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">DRY عمیق‌تر از حذف Code Duplication ظاهری است؛ مسئلهٔ اصلی جلوگیری از تکرار یک
+              <strong>Knowledge</strong> یا Business Rule در چند محل است.</div>
+          </div>
+          <h2>تکرار Business Rule</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>// API
+var fee = amount * 0.01m;
+
+// Background Worker
+var fee = amount * 0.01m;
+
+// Settlement Job
+var fee = amount * 0.01m;</code></pre>
+          </div>
+          <p>اگر Fee به 1.5% تغییر کند باید چند محل را پیدا و اصلاح کنیم.</p>
+          <h2>یک Source of Truth</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentFeeCalculator
+{
+    public decimal Calculate(decimal amount)
+        =&gt; amount * 0.01m;
+}</code></pre>
+          </div>
+          <h2>DRY و Abstraction اشتباه</h2>
+          <p>دو قطعه کد ممکن است امروز شبیه باشند ولی به دلایل متفاوت تغییر کنند. ادغام زودهنگام آن‌ها می‌تواند Coupling
+            ایجاد کند.</p>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content"><strong>Duplication is sometimes cheaper than the wrong abstraction.</strong>
+              قبل از Extract کردن، بررسی کنید آیا دو بخش واقعاً یک مفهوم مشترک دارند یا فقط شکل کدشان مشابه است.</div>
+          </div>
+          <h2>مثال Validation</h2>
+          <p>اگر MerchantReferenceCode در چند Use Case دقیقاً یک Rule مشترک دارد، Rule می‌تواند در Value Object یا
+            Validator مشترکِ معنادار متمرکز شود. اما Validationهای متفاوت را صرفاً به خاطر شباهت ظاهری یکی نکنید.</p>
+          <h2>DRY در سطح داده و Contract</h2>
+          <p>تکرار Configuration، Business Constant، Schema Definition و Mapping Rule نیز می‌تواند نوعی Duplication دانش
+            باشد.</p>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>DRY is about avoiding duplicated knowledge, not blindly removing every
+                repeated line of code.</strong></div>
+          </div>
+          <h2>جمع‌بندی</h2>
+          <p>دانشی که باید همیشه با هم تغییر کند بهتر است یک محل معتبر داشته باشد؛ اما Similarity به‌تنهایی دلیل ساخت
+            Abstraction نیست.</p>
+        </div>
       </div>
     </main>
   </div>

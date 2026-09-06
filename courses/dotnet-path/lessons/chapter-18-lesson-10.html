@@ -1,41 +1,127 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس YAGNI از مسیر حرفه‌ای .NET.">
-  <title>YAGNI | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش 18.10 — YAGNI از فصل اصول طراحی Object-Oriented همراه با مثال‌های C#، .NET و Payment System."
+    name="description" />
+  <title>18.10 — YAGNI در C# و .NET | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-18-lesson-10">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-18-lesson-10"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>YAGNI</h1>
+          <div class="article-tag">🏗️ اصول طراحی Object-Oriented</div>
+          <h1>18.10 — YAGNI</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>YAGNI — You Aren't Gonna Need It</strong> می‌گوید Feature، Abstraction یا Infrastructure را تا
+            زمانی که Requirement واقعی برای آن نداریم، صرفاً برای آیندهٔ فرضی نسازیم.</p>
+          <h2>مثال</h2>
+          <p>فرض کنید Payment System فعلاً فقط SQL Server دارد، اما از روز اول برای احتمال مهاجرت آینده به پنج Database
+            مختلف یک Framework پیچیده می‌سازیم.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>IDatabaseProvider
+    -&gt; SqlServerProvider
+    -&gt; PostgreSqlProvider
+    -&gt; MongoProvider
+    -&gt; OracleProvider
+    -&gt; ProviderFactory
+    -&gt; ProviderResolver</code></pre>
+          </div>
+          <p>اگر چنین Requirementی وجود ندارد، هزینهٔ Design، Test و Maintenance را امروز پرداخت کرده‌ایم برای چیزی که
+            شاید هیچ‌وقت استفاده نشود.</p>
+          <h2>نسخه متناسب با نیاز امروز</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddDbContext&lt;PaymentDbContext&gt;(
+    options =&gt;
+        options.UseSqlServer(connectionString));</code></pre>
+          </div>
+          <h2>YAGNI چه چیزی را کاهش می‌دهد؟</h2>
+          <ul>
+            <li>Speculative Generality</li>
+            <li>Unused Features</li>
+            <li>Abstractionهای بدون Consumer واقعی</li>
+            <li>Configurationهای غیرضروری</li>
+            <li>هزینهٔ Test و Maintenance</li>
+          </ul>
+          <h2>YAGNI و طراحی آینده‌پذیر</h2>
+          <p>YAGNI نمی‌گوید Architecture را بدون فکر طراحی کنیم. می‌توان Boundaryهای تمیز، Naming خوب، Tests و
+            Encapsulation مناسب داشت بدون اینکه Feature آینده را از قبل پیاده‌سازی کنیم.</p>
+          <h2>مثال Microservices</h2>
+          <p>اگر یک Domain کوچک، یک تیم و Deployment ساده داریم، تبدیل فوری آن به ده Microservice فقط به دلیل «شاید
+            بعداً Scale کنیم» می‌تواند نقض YAGNI و KISS باشد.</p>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">YAGNI نباید بهانه‌ای برای نادیده گرفتن Requirementهای قطعی، Security،
+              Observability، Capacity Planning یا Technical Constraintهای شناخته‌شده باشد.</div>
+          </div>
+          <h2>ارتباط DRY، KISS و YAGNI</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>اصل</th>
+                <th>سؤال کلیدی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DRY</td>
+                <td>آیا یک Knowledge واقعی را چند بار تعریف کرده‌ایم؟</td>
+              </tr>
+              <tr>
+                <td>KISS</td>
+                <td>آیا راه ساده‌تری برای Requirement فعلی وجود دارد؟</td>
+              </tr>
+              <tr>
+                <td>YAGNI</td>
+                <td>آیا واقعاً امروز به این Feature/Abstraction نیاز داریم؟</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>YAGNI means avoiding speculative features and abstractions until there
+                is a real requirement for them.</strong></div>
+          </div>
+          <h2>جمع‌بندی فصل 18</h2>
+          <p>اصول این فصل یک هدف مشترک دارند: Objectها و Componentهایی بسازیم که مسئولیت روشن، Dependency کنترل‌شده و
+            Complexity متناسب با نیاز واقعی داشته باشند.</p>
+          <div class="callout callout-info"><span class="callout-icon">✅</span>
+            <div class="callout-content"><strong>Composition، Contracts، Immutability، Encapsulation، Low Coupling، High
+                Cohesion، DRY، KISS و YAGNI ابزارهای فکری هستند؛ نه قوانین مکانیکی.</strong> طراحی خوب یعنی تشخیص
+              Trade-off مناسب برای مسئلهٔ واقعی.</div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

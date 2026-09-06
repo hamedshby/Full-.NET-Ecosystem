@@ -1,41 +1,111 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Separation of Concerns از مسیر حرفه‌ای .NET.">
-  <title>Separation of Concerns | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش 18.7 — Separation of Concerns از فصل اصول طراحی Object-Oriented همراه با مثال‌های C#، .NET و Payment System."
+    name="description" />
+  <title>18.7 — Separation of Concerns در C# و .NET | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-18-lesson-7">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-18-lesson-7"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Separation of Concerns</h1>
+          <div class="article-tag">🏗️ اصول طراحی Object-Oriented</div>
+          <h1>18.7 — Separation of Concerns</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Separation of Concerns (SoC)</strong> یعنی سیستم را به بخش‌هایی تقسیم کنیم که هر بخش روی یک Concern
+            مشخص تمرکز داشته باشد.</p>
+          <h2>همه‌چیز در Controller</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>[HttpPost]
+public async Task&lt;IActionResult&gt; Pay(
+    PaymentRequest request)
+{
+    // Validate request
+    // Calculate fee
+    // Execute SQL
+    // Call bank API
+    // Publish RabbitMQ message
+    // Send email
+    // Build HTTP response
+
+    return Ok();
+}</code></pre>
+          </div>
+          <p>HTTP، Business Logic، Persistence، Integration و Messaging همگی در یک محل جمع شده‌اند.</p>
+          <h2>تفکیک Concernها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>PaymentController
+      |
+      v
+ProcessPaymentHandler
+      |
+      +--&gt; Payment Domain
+      +--&gt; IPaymentRepository
+      +--&gt; IPaymentGateway
+      +--&gt; IEventPublisher</code></pre>
+          </div>
+          <h2>نمونه در ASP.NET Core</h2>
+          <ul>
+            <li>Controller: HTTP concerns</li>
+            <li>Application Handler: Use Case orchestration</li>
+            <li>Domain: Business rules</li>
+            <li>Repository: Persistence concern</li>
+            <li>Gateway: External integration</li>
+            <li>Middleware: Cross-cutting HTTP behavior</li>
+          </ul>
+          <h2>SoC و Layering</h2>
+          <p>Layering یکی از روش‌های اعمال Separation of Concerns است، اما SoC محدود به Layer نیست. حتی داخل یک Layer
+            نیز می‌توان Concernهای متفاوت داشت.</p>
+          <h2>Cross-Cutting Concerns</h2>
+          <p>Logging، Authentication، Metrics و Exception Handling معمولاً در چند Use Case حضور دارند. Middleware،
+            Decorator یا Pipeline Behavior می‌توانند آن‌ها را از Business Logic جدا کنند.</p>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">Separation بیش از حد نیز هزینه دارد. شکستن یک رفتار ساده به تعداد زیادی Class
+              کوچک و رفت‌وآمد زیاد بین Layerها می‌تواند خوانایی را کاهش دهد.</div>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>Separation of Concerns keeps different responsibilities such as
+                business rules, persistence, transport, and infrastructure in appropriate boundaries.</strong></div>
+          </div>
+          <h2>جمع‌بندی</h2>
+          <p>هدف SoC این است که تغییر یک Concern، کمترین اثر ممکن را بر Concernهای دیگر داشته باشد و محل هر نوع Logic
+            برای توسعه‌دهنده قابل پیش‌بینی باشد.</p>
+        </div>
       </div>
     </main>
   </div>

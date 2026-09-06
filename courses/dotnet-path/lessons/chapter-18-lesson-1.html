@@ -1,41 +1,172 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Composition over Inheritance از مسیر حرفه‌ای .NET.">
-  <title>Composition over Inheritance | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش 18.1 — Composition over Inheritance از فصل اصول طراحی Object-Oriented همراه با مثال‌های C#، .NET و Payment System."
+    name="description" />
+  <title>18.1 — Composition over Inheritance در C# و .NET | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-18-lesson-1">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-18-lesson-1"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Composition over Inheritance</h1>
+          <div class="article-tag">🏗️ اصول طراحی Object-Oriented</div>
+          <h1>18.1 — Composition over Inheritance</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Composition over Inheritance</strong> یک اصل طراحی است که می‌گوید برای استفادهٔ مجدد و ترکیب
+            رفتارها، در بسیاری از سناریوها بهتر است ابتدا <strong>Composition</strong> را بررسی کنیم و فقط زمانی از
+            Inheritance استفاده کنیم که یک رابطهٔ واقعی و پایدار <code>is-a</code> وجود داشته باشد.</p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">این اصل نمی‌گوید Inheritance بد است؛ می‌گوید برای اشتراک رفتار، Composition
+              معمولاً انعطاف‌پذیری بیشتری ایجاد می‌کند.</div>
+          </div>
+          <h2>مشکل Inheritance برای اشتراک رفتار</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public abstract class PaymentProcessor
+{
+    public void WriteLog() { }
+    public abstract Task PayAsync();
+}
+
+public class CardPaymentProcessor
+    : PaymentProcessor
+{
+    public override Task PayAsync()
+    {
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>در این طراحی، Logging بخشی از Hierarchy شده است. اگر بعداً Logging تغییر کند یا بعضی Processorها رفتار
+            دیگری بخواهند، Base Class می‌تواند به محل تجمع Responsibilityها تبدیل شود.</p>
+          <h2>راه‌حل با Composition</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentLogger
+{
+    void Log(string message);
+}
+
+public class CardPaymentProcessor
+{
+    private readonly IPaymentLogger _logger;
+
+    public CardPaymentProcessor(
+        IPaymentLogger logger)
+    {
+        _logger = logger;
+    }
+
+    public Task PayAsync()
+    {
+        _logger.Log("Processing payment");
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>اکنون Payment Processor رفتار Logging را <strong>دریافت</strong> می‌کند، نه اینکه برای به‌دست‌آوردن آن
+            مجبور باشد از یک Base Class ارث‌بری کند.</p>
+          <h2>Inheritance vs Composition</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Inheritance</th>
+                <th>Composition</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>رابطهٔ is-a</td>
+                <td>رابطهٔ has-a / uses-a</td>
+              </tr>
+              <tr>
+                <td>وابستگی به Hierarchy</td>
+                <td>ترکیب Objectهای مستقل</td>
+              </tr>
+              <tr>
+                <td>رفتار معمولاً در Compile Time تثبیت می‌شود</td>
+                <td>Dependency می‌تواند قابل جایگزینی باشد</td>
+              </tr>
+              <tr>
+                <td>برای Subtyping واقعی مناسب است</td>
+                <td>برای ترکیب Capabilityها مناسب است</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>مثال Payment System</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentService
+{
+    private readonly IPaymentGateway _gateway;
+    private readonly IFraudChecker _fraudChecker;
+    private readonly IEventPublisher _publisher;
+
+    public PaymentService(
+        IPaymentGateway gateway,
+        IFraudChecker fraudChecker,
+        IEventPublisher publisher)
+    {
+        _gateway = gateway;
+        _fraudChecker = fraudChecker;
+        _publisher = publisher;
+    }
+}</code></pre>
+          </div>
+          <p><code>PaymentService</code> قابلیت‌های مورد نیازش را از چند Object مستقل Compose می‌کند.</p>
+          <h2>چه زمانی Inheritance مناسب است؟</h2>
+          <ul>
+            <li>رابطهٔ is-a واقعی و پایدار است.</li>
+            <li>Substitution معنی‌دار است.</li>
+            <li>Base Type یک Contract مفهومی واقعی ارائه می‌دهد.</li>
+            <li>Subclass واقعاً نوع خاصی از Base Type است، نه صرفاً مصرف‌کنندهٔ چند Method مشترک.</li>
+          </ul>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">اگر فقط برای Reuse چند خط کد از Inheritance استفاده می‌کنید، Composition را هم
+              بررسی کنید. Hierarchy عمیق معمولاً Change Impact را افزایش می‌دهد.</div>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>Favor composition over inheritance means composing objects from smaller
+                behaviors instead of building deep inheritance hierarchies when inheritance is not a true is-a
+                relationship.</strong></div>
+          </div>
+          <h2>جمع‌بندی</h2>
+          <p>Composition کمک می‌کند رفتارها را از Objectهای مستقل بسازیم و Dependencyها را قابل جایگزینی نگه داریم.
+            Inheritance همچنان ابزار مفیدی است، اما باید برای Subtyping واقعی استفاده شود.</p>
+        </div>
       </div>
     </main>
   </div>

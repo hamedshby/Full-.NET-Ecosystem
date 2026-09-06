@@ -1,41 +1,134 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Favor Immutability از مسیر حرفه‌ای .NET.">
-  <title>Favor Immutability | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش 18.3 — Favor Immutability از فصل اصول طراحی Object-Oriented همراه با مثال‌های C#، .NET و Payment System."
+    name="description" />
+  <title>18.3 — Favor Immutability در C# و .NET | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-18-lesson-3">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-18-lesson-3"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 18 — اصول طراحی Object-Oriented</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Favor Immutability</h1>
+          <div class="article-tag">🏗️ اصول طراحی Object-Oriented</div>
+          <h1>18.3 — Favor Immutability</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Favor Immutability</strong> یعنی وقتی Object بعد از ساخته‌شدن نیازی به تغییر ندارد، ترجیح بدهیم
+            State آن ثابت بماند.</p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">Immutable Object بعد از ایجاد، State قابل مشاهدهٔ خود را تغییر نمی‌دهد. این
+              موضوع Reasoning دربارهٔ کد را ساده‌تر می‌کند.</div>
+          </div>
+          <h2>Mutable Object</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Money
+{
+    public decimal Amount { get; set; }
+    public string Currency { get; set; } = string.Empty;
+}</code></pre>
+          </div>
+          <p>هر بخش از برنامه که Reference این Object را داشته باشد می‌تواند State آن را تغییر دهد.</p>
+          <h2>نسخه Immutable با Record</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed record Money(
+    decimal Amount,
+    string Currency);</code></pre>
+          </div>
+          <h2>ایجاد مقدار جدید به‌جای تغییر مقدار قبلی</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var price =
+    new Money(100_000, "IRR");
+
+var discountedPrice =
+    price with
+    {
+        Amount = 90_000
+    };</code></pre>
+          </div>
+          <p><code>price</code> تغییر نمی‌کند؛ یک Value جدید ساخته می‌شود.</p>
+          <h2>مزایا</h2>
+          <ul>
+            <li>کاهش Side Effect</li>
+            <li>Reasoning ساده‌تر</li>
+            <li>اشتراک امن‌تر داده بین بخش‌ها</li>
+            <li>مناسب برای Value Objectها</li>
+            <li>کاهش برخی مشکلات Concurrency</li>
+          </ul>
+          <h2>مثال Payment Request</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed record PaymentRequest(
+    Guid TransactionId,
+    decimal Amount,
+    string MerchantId);</code></pre>
+          </div>
+          <p>Request پس از ساخته‌شدن نباید در میانهٔ Pipeline توسط Componentهای مختلف تغییر کند.</p>
+          <h2>Immutability همیشه مطلق نیست</h2>
+          <p>Entityهای Domain معمولاً State دارند و رفتارشان State را تغییر می‌دهد؛ مثلاً Payment می‌تواند از Pending به
+            Succeeded برود. در چنین مواردی Encapsulation تغییر State مهم‌تر از Immutable کردن اجباری Entity است.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    public PaymentStatus Status { get; private set; }
+
+    public void MarkAsSucceeded()
+    {
+        if (Status != PaymentStatus.Pending)
+            throw new InvalidOperationException();
+
+        Status = PaymentStatus.Succeeded;
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">Favor Immutability به معنی «همه چیز را record کن» نیست. Value Object، Message،
+              Configuration و Snapshotها معمولاً کاندیدای بهتری هستند؛ Entityهای Stateful ممکن است Mutation کنترل‌شده
+              داشته باشند.</div>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>Immutability reduces uncontrolled state changes and side effects, which
+                makes code easier to reason about and safer in many concurrent scenarios.</strong></div>
+          </div>
+          <h2>جمع‌بندی</h2>
+          <p>اگر State نیازی به تغییر ندارد، آن را قابل تغییر نکنید. اگر تغییر لازم است، Mutation را از طریق Behaviorهای
+            کنترل‌شده انجام دهید.</p>
+        </div>
       </div>
     </main>
   </div>
