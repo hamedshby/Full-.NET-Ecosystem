@@ -1,44 +1,111 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Domain Model از مسیر حرفه‌ای .NET.">
-  <title>Domain Model | مسیر حرفه‌ای .NET</title>
-  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="آموزش 21.1 — Domain Model در Domain-Driven Design با مثال Payment System در C# و .NET."
+        name="description" />
+    <title>Domain Model در C# و .NET | DDD Payment</title>
+    <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+    <link href="../../microservices/course.css" rel="stylesheet" />
+    <script defer="" src="../course-navigation.js"></script>
+    <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
-  </header>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+    <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+            <bdi>.NET</bdi></span>
+        <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+            فصل‌ها</button>
+        <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+            type="button">تم</button>
+    </header>
+    <div class="course-shell">
+        <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-21-lesson-1"
+            id="course-sidebar">
+            <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
+            <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+        </aside>
+        <main class="lesson-content" id="lesson-content">
+            <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+                    href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 21 — OOP در Domain-Driven Design
+            </nav>
+            <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+            <div class="lesson-body">
+                <div class="article-header">
+                    <div class="article-tag">🧠 Domain-Driven Design</div>
+                    <h1>Domain Model</h1>
+                    <div class="article-meta">
+                        <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+                        <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+                        <div class="meta-item">👤 تیم فنی</div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="content">
+                    <p><strong>Domain Model</strong> نمایش مفاهیم، Ruleها، رفتارها و رابطه‌های اصلی Business در کد است.
+                        در DDD هدف فقط ساخت Classهایی شبیه Tableهای Database نیست؛ هدف این است که زبان واقعی Business در
+                        مدل دیده شود.</p>
+                    <div class="callout callout-info"><span class="callout-icon">💡</span>
+                        <div class="callout-content">در Payment Domain، مفاهیمی مثل Payment، Money، Merchant، Refund،
+                            Settlement و PaymentStatus اجزای طبیعی Domain Model هستند.</div>
+                    </div>
+                    <h2>مدل ضعیف</h2>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">C#</span></div>
+                        <pre><code>public class Payment
+{
+    public Guid Id { get; set; }
+    public decimal Amount { get; set; }
+    public string Status { get; set; }
+}</code></pre>
+                    </div>
+                    <p>این Class فقط Data حمل می‌کند و Business Rule را نشان نمی‌دهد.</p>
+                    <h2>مدل غنی‌تر</h2>
+                    <div class="code-block">
+                        <div class="code-header"><span class="code-lang">C#</span></div>
+                        <pre><code>public class Payment
+{
+    public Guid Id { get; }
+    public Money Amount { get; }
+    public PaymentStatus Status { get; private set; }
 
-  <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-21-lesson-1">
-      <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
-      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
-    </aside>
+    public void MarkAsPaid()
+    {
+        if (Status != PaymentStatus.Pending)
+            throw new InvalidOperationException();
 
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 21 — OOP در Domain-Driven Design</nav>
-      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
-      <div class="lesson-body">
-        <div class="article-header">
-          <h1>Domain Model</h1>
-        </div>
-        <div class="divider"></div>
-        <div class="content"></div>
-      </div>
-    </main>
-  </div>
+        Status = PaymentStatus.Paid;
+    }
+}</code></pre>
+                    </div>
+                    <h2>Domain Model چه چیزی را شامل می‌شود؟</h2>
+                    <ul>
+                        <li>Entity</li>
+                        <li>Value Object</li>
+                        <li>Aggregate</li>
+                        <li>Domain Service</li>
+                        <li>Domain Event</li>
+                        <li>Invariant</li>
+                    </ul>
+                    <h2>Domain Model و Database Model</h2>
+                    <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+                        <div class="callout-content">DDD نمی‌گوید هر Table الزاماً یک Entity و هر Column الزاماً یک
+                            Property در Domain باشد.</div>
+                    </div>
+                    <h2>نکته مصاحبه‌ای</h2>
+                    <div class="callout callout-info"><span class="callout-icon">🎤</span>
+                        <div class="callout-content"><strong>A domain model represents business concepts, rules, and
+                                behaviors rather than merely mirroring database tables.</strong></div>
+                    </div>
+                    <h2>جمع‌بندی</h2>
+                    <p>Domain Model باید زبان Business را در Code بیان کند و محل اصلی Business Ruleهای پیچیده باشد.</p>
+                </div>
+            </div>
+        </main>
+    </div>
 </body>
 
 </html>

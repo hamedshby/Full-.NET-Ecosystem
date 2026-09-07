@@ -1,41 +1,335 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس مثال واقعی Domain Model از مسیر حرفه‌ای .NET.">
-  <title>مثال واقعی Domain Model | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش 21.12 — مثال واقعی Domain Model در Domain-Driven Design با مثال Payment System در C# و .NET."
+    name="description" />
+  <title>21.12 — مثال واقعی Domain Model در C# و .NET | DDD Payment</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-21-lesson-12">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-21-lesson-12"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 21 — OOP در Domain-Driven Design</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 21 — OOP در Domain-Driven Design</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>مثال واقعی Domain Model</h1>
+          <div class="article-tag">🧠 Domain-Driven Design</div>
+          <h1>21.12 — مثال واقعی Domain Model</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>در این بخش همه مفاهیم فصل را در یک Payment Domain Model کنار هم می‌گذاریم.</p>
+          <h2>Value Object: Money</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed record Money
+{
+    public decimal Amount { get; }
+    public string Currency { get; }
+
+    public Money(
+        decimal amount,
+        string currency)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(amount));
+
+        if (string.IsNullOrWhiteSpace(currency))
+            throw new ArgumentException(
+                "Currency is required.");
+
+        Amount = amount;
+        Currency = currency;
+    }
+}</code></pre>
+          </div>
+          <h2>Entity داخلی: Refund</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Refund
+{
+    public Guid Id { get; }
+    public Money Amount { get; }
+
+    private Refund(
+        Guid id,
+        Money amount)
+    {
+        Id = id;
+        Amount = amount;
+    }
+
+    public static Refund Create(
+        Guid id,
+        Money amount)
+        =&gt; new(id, amount);
+}</code></pre>
+          </div>
+          <h2>Domain Event</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed record PaymentCaptured(
+    Guid PaymentId,
+    Money Amount,
+    DateTime OccurredAt);</code></pre>
+          </div>
+          <h2>Aggregate Root: Payment</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    private readonly List&lt;Refund&gt;
+        _refunds = new();
+
+    private readonly List&lt;object&gt;
+        _domainEvents = new();
+
+    public Guid Id { get; }
+    public Money Amount { get; }
+
+    public PaymentStatus Status
+    {
+        get;
+        private set;
+    }
+
+    public IReadOnlyCollection&lt;Refund&gt;
+        Refunds =&gt; _refunds.AsReadOnly();
+
+    public IReadOnlyCollection&lt;object&gt;
+        DomainEvents =&gt; _domainEvents.AsReadOnly();
+
+    public Payment(
+        Guid id,
+        Money amount)
+    {
+        Id = id;
+        Amount = amount;
+        Status = PaymentStatus.Pending;
+    }
+
+    public void Authorize()
+    {
+        if (Status != PaymentStatus.Pending)
+            throw new InvalidOperationException();
+
+        Status = PaymentStatus.Authorized;
+    }
+
+    public void Capture()
+    {
+        if (Status != PaymentStatus.Authorized)
+            throw new InvalidOperationException();
+
+        Status = PaymentStatus.Paid;
+
+        _domainEvents.Add(
+            new PaymentCaptured(
+                Id,
+                Amount,
+                DateTime.UtcNow));
+    }
+
+    public void RequestRefund(
+        Money refundAmount)
+    {
+        if (Status != PaymentStatus.Paid)
+            throw new InvalidOperationException(
+                "Only paid payment can be refunded.");
+
+        if (refundAmount.Currency
+            != Amount.Currency)
+            throw new InvalidOperationException(
+                "Currency mismatch.");
+
+        var totalRefunded =
+            _refunds.Sum(
+                x =&gt; x.Amount.Amount);
+
+        if (totalRefunded
+            + refundAmount.Amount
+            &gt; Amount.Amount)
+            throw new InvalidOperationException(
+                "Refund exceeds payment amount.");
+
+        _refunds.Add(
+            Refund.Create(
+                Guid.NewGuid(),
+                refundAmount));
+    }
+}</code></pre>
+          </div>
+          <h2>Domain Service</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentFeeService
+{
+    public Money Calculate(
+        Merchant merchant,
+        Money amount)
+    {
+        var rate =
+            merchant.IsVip
+                ? 0.005m
+                : 0.01m;
+
+        return new Money(
+            amount.Amount * rate,
+            amount.Currency);
+    }
+}</code></pre>
+          </div>
+          <h2>Repository Contract</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentRepository
+{
+    Task&lt;Payment?&gt; GetAsync(
+        Guid paymentId,
+        CancellationToken cancellationToken);
+
+    Task SaveAsync(
+        Payment payment,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <h2>Application Use Case</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class CapturePaymentHandler
+{
+    private readonly IPaymentRepository
+        _repository;
+
+    public CapturePaymentHandler(
+        IPaymentRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task HandleAsync(
+        Guid paymentId,
+        CancellationToken cancellationToken)
+    {
+        var payment =
+            await _repository.GetAsync(
+                paymentId,
+                cancellationToken)
+            ?? throw new InvalidOperationException(
+                "Payment not found.");
+
+        payment.Capture();
+
+        await _repository.SaveAsync(
+            payment,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <h2>هر مفهوم کجاست؟</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>مفهوم</th>
+                <th>مثال</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Entity</td>
+                <td>Payment, Refund</td>
+              </tr>
+              <tr>
+                <td>Value Object</td>
+                <td>Money</td>
+              </tr>
+              <tr>
+                <td>Aggregate</td>
+                <td>Payment + Refunds</td>
+              </tr>
+              <tr>
+                <td>Aggregate Root</td>
+                <td>Payment</td>
+              </tr>
+              <tr>
+                <td>Domain Service</td>
+                <td>PaymentFeeService</td>
+              </tr>
+              <tr>
+                <td>Domain Event</td>
+                <td>PaymentCaptured</td>
+              </tr>
+              <tr>
+                <td>Invariant</td>
+                <td>Refund ≤ Amount</td>
+              </tr>
+              <tr>
+                <td>Encapsulation</td>
+                <td>Private setter + private collections</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>ساختار پروژه</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Payment.Domain
+    ├── Payments
+    │   ├── Payment.cs
+    │   ├── Refund.cs
+    │   ├── PaymentStatus.cs
+    │   └── Events
+    │       └── PaymentCaptured.cs
+    ├── ValueObjects
+    │   └── Money.cs
+    └── Services
+        └── PaymentFeeService.cs
+
+Payment.Application
+    └── CapturePaymentHandler.cs
+
+Payment.Infrastructure
+    └── PaymentRepository.cs</code></pre>
+          </div>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">DDD زمانی ارزشمند است که Complexity اصلی سیستم در Business Ruleها باشد. برای
+              CRUD ساده، این سطح از Modeling ممکن است Overengineering باشد.</div>
+          </div>
+          <h2>جمع‌بندی فصل 21</h2>
+          <p>در DDD، OOP برای مدل‌کردن Business استفاده می‌شود: Entity هویت دارد، Value Object با مقدار تعریف می‌شود،
+            Aggregate مرز Consistency است، Aggregate Root از Invariantها محافظت می‌کند و Domain Event اتفاق مهم Business
+            را بیان می‌کند.</p>
+          <div class="callout callout-info"><span class="callout-icon">✅</span>
+            <div class="callout-content"><strong>نکته کلیدی:</strong> هدف DDD ساخت Class بیشتر نیست؛ هدف مدل‌کردن درست
+              Complexity واقعی Business است.</div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
