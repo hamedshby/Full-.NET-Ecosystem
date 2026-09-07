@@ -1,41 +1,578 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Builder از مسیر حرفه‌ای .NET.">
-  <title>Builder | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Builder Pattern در C# و .NET با مثال PaymentRequest، Fluent Builder، Validation، Director، Immutability و مقایسه با Factory."
+    name="description" />
+  <title>Builder در C# و .NET | مثال Payment</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-20-lesson-3">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-20-lesson-3"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 20 — Design Patterns و OOP</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 20 — Design Patterns</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Builder</h1>
+          <div class="article-tag">🏭 Creational Design Patterns</div>
+          <h1><bdi>Builder</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Builder</strong> یکی از Creational Design Patternهای کلاسیک GoF است. این Pattern زمانی استفاده
+            می‌شود که ساخت یک Object پیچیده شامل چند مرحله، تعداد زیادی Parameter، مقادیر Optional یا Validation باشد.
+          </p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">Builder فرآیند ساخت Object را مرحله‌به‌مرحله می‌کند و باعث می‌شود Creation Code
+              خواناتر و قابل کنترل‌تر باشد.</div>
+          </div>
+          <h2>مسئله در Payment System</h2>
+          <p>فرض کنید برای ارسال درخواست پرداخت باید اطلاعات زیادی آماده کنیم:</p>
+          <ul>
+            <li>Amount</li>
+            <li>MerchantId</li>
+            <li>OrderId</li>
+            <li>CallbackUrl</li>
+            <li>MobileNumber</li>
+            <li>Description</li>
+            <li>Metadata</li>
+            <li>RetryCount</li>
+          </ul>
+          <h2>Constructor طولانی</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var request =
+    new PaymentRequest(
+        500_000,
+        "MERCHANT-1001",
+        "ORDER-9001",
+        "https://shop.example/callback",
+        "09121234567",
+        "Purchase order",
+        metadata,
+        3);</code></pre>
+          </div>
+          <p>مشخص نیست هر مقدار دقیقاً چه مفهومی دارد و جابه‌جایی Parameterها می‌تواند Bug ایجاد کند.</p>
+          <h2>Telescoping Constructor</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public PaymentRequest(
+    decimal amount,
+    string merchantId)
+{
+}
+
+public PaymentRequest(
+    decimal amount,
+    string merchantId,
+    string orderId)
+{
+}
+
+public PaymentRequest(
+    decimal amount,
+    string merchantId,
+    string orderId,
+    string callbackUrl)
+{
+}</code></pre>
+          </div>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">اگر Object ساده است، Builder لازم نیست. Constructor کوتاه یا Object Initializer
+              معمولاً انتخاب بهتری است.</div>
+          </div>
+          <h2>Product نهایی</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed class PaymentRequest
+{
+    public decimal Amount { get; init; }
+
+    public string MerchantId { get; init; }
+        = string.Empty;
+
+    public string OrderId { get; init; }
+        = string.Empty;
+
+    public string? CallbackUrl { get; init; }
+
+    public string? MobileNumber { get; init; }
+
+    public string? Description { get; init; }
+
+    public IReadOnlyDictionary&lt;string, string&gt;
+        Metadata { get; init; }
+            = new Dictionary&lt;string, string&gt;();
+
+    public int RetryCount { get; init; }
+}</code></pre>
+          </div>
+          <h2>ساخت Builder</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentRequestBuilder
+{
+    private decimal _amount;
+    private string _merchantId = string.Empty;
+    private string _orderId = string.Empty;
+    private string? _callbackUrl;
+    private string? _mobileNumber;
+    private string? _description;
+    private readonly Dictionary&lt;string, string&gt;
+        _metadata = new();
+    private int _retryCount;
+
+    public PaymentRequestBuilder
+        WithAmount(decimal amount)
+    {
+        _amount = amount;
+        return this;
+    }
+
+    public PaymentRequestBuilder
+        ForMerchant(string merchantId)
+    {
+        _merchantId = merchantId;
+        return this;
+    }
+
+    public PaymentRequestBuilder
+        WithOrderId(string orderId)
+    {
+        _orderId = orderId;
+        return this;
+    }
+
+    public PaymentRequestBuilder
+        WithCallbackUrl(string callbackUrl)
+    {
+        _callbackUrl = callbackUrl;
+        return this;
+    }
+
+    public PaymentRequestBuilder
+        WithMobileNumber(string mobileNumber)
+    {
+        _mobileNumber = mobileNumber;
+        return this;
+    }
+
+    public PaymentRequestBuilder
+        WithDescription(string description)
+    {
+        _description = description;
+        return this;
+    }
+
+    public PaymentRequestBuilder
+        AddMetadata(string key, string value)
+    {
+        _metadata[key] = value;
+        return this;
+    }
+
+    public PaymentRequestBuilder
+        WithRetryCount(int retryCount)
+    {
+        _retryCount = retryCount;
+        return this;
+    }
+
+    public PaymentRequest Build()
+    {
+        return new PaymentRequest
+        {
+            Amount = _amount,
+            MerchantId = _merchantId,
+            OrderId = _orderId,
+            CallbackUrl = _callbackUrl,
+            MobileNumber = _mobileNumber,
+            Description = _description,
+            Metadata =
+                new Dictionary&lt;string, string&gt;(
+                    _metadata),
+            RetryCount = _retryCount
+        };
+    }
+}</code></pre>
+          </div>
+          <h2>استفاده از Fluent Builder</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var request =
+    new PaymentRequestBuilder()
+        .WithAmount(500_000)
+        .ForMerchant("MERCHANT-1001")
+        .WithOrderId("ORDER-9001")
+        .WithCallbackUrl(
+            "https://shop.example/callback")
+        .WithMobileNumber("09121234567")
+        .WithDescription("Purchase order")
+        .AddMetadata(
+            "customerSegment",
+            "VIP")
+        .WithRetryCount(3)
+        .Build();</code></pre>
+          </div>
+          <div class="callout callout-info"><span class="callout-icon">🎯</span>
+            <div class="callout-content"><strong>Builder = Step-by-step construction of a complex object.</strong></div>
+          </div>
+          <h2>Validation در Build</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public PaymentRequest Build()
+{
+    if (_amount &lt;= 0)
+        throw new InvalidOperationException(
+            "Amount must be greater than zero.");
+
+    if (string.IsNullOrWhiteSpace(
+        _merchantId))
+        throw new InvalidOperationException(
+            "MerchantId is required.");
+
+    if (string.IsNullOrWhiteSpace(
+        _orderId))
+        throw new InvalidOperationException(
+            "OrderId is required.");
+
+    return new PaymentRequest
+    {
+        Amount = _amount,
+        MerchantId = _merchantId,
+        OrderId = _orderId,
+        CallbackUrl = _callbackUrl,
+        MobileNumber = _mobileNumber,
+        Description = _description,
+        Metadata =
+            new Dictionary&lt;string, string&gt;(
+                _metadata),
+        RetryCount = _retryCount
+    };
+}</code></pre>
+          </div>
+          <h2>Builder و Immutability</h2>
+          <p>Builder خودش می‌تواند Mutable باشد، ولی Product نهایی Immutable ساخته شود.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed record PaymentCommand(
+    decimal Amount,
+    string MerchantId,
+    string OrderId,
+    string? CallbackUrl,
+    string? MobileNumber);</code></pre>
+          </div>
+          <p>Builder مقادیر را جمع می‌کند و در پایان یک Object نهایی و ثابت تولید می‌کند.</p>
+          <h2>Builder کلاسیک و Concrete Builderها</h2>
+          <p>در نسخه کلاسیک GoF، می‌توان یک فرآیند ساخت مشترک داشت اما Representation نهایی برای Providerهای مختلف
+            متفاوت باشد.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentRequestBuilder
+{
+    void Reset();
+
+    void SetAmount(decimal amount);
+
+    void SetMerchant(string merchantId);
+
+    void SetOrder(string orderId);
+
+    ProviderPaymentRequest Build();
+}</code></pre>
+          </div>
+          <h2>Bank A Builder</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAPaymentRequestBuilder
+    : IPaymentRequestBuilder
+{
+    private BankAPaymentRequest _request =
+        new();
+
+    public void Reset()
+    {
+        _request =
+            new BankAPaymentRequest();
+    }
+
+    public void SetAmount(decimal amount)
+    {
+        _request.Amount = amount;
+    }
+
+    public void SetMerchant(
+        string merchantId)
+    {
+        _request.TerminalId = merchantId;
+    }
+
+    public void SetOrder(string orderId)
+    {
+        _request.InvoiceNumber = orderId;
+    }
+
+    public ProviderPaymentRequest Build()
+    {
+        return _request;
+    }
+}</code></pre>
+          </div>
+          <h2>Bank B Builder</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankBPaymentRequestBuilder
+    : IPaymentRequestBuilder
+{
+    private BankBPaymentRequest _request =
+        new();
+
+    public void Reset()
+    {
+        _request =
+            new BankBPaymentRequest();
+    }
+
+    public void SetAmount(decimal amount)
+    {
+        _request.TotalAmount = amount;
+    }
+
+    public void SetMerchant(
+        string merchantId)
+    {
+        _request.MerchantCode = merchantId;
+    }
+
+    public void SetOrder(string orderId)
+    {
+        _request.OrderReference = orderId;
+    }
+
+    public ProviderPaymentRequest Build()
+    {
+        return _request;
+    }
+}</code></pre>
+          </div>
+          <h2>Director چیست؟</h2>
+          <p>در Builder کلاسیک، Director ترتیب مراحل ساخت را مدیریت می‌کند.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentRequestDirector
+{
+    public ProviderPaymentRequest
+        BuildStandardPayment(
+            IPaymentRequestBuilder builder,
+            decimal amount,
+            string merchantId,
+            string orderId)
+    {
+        builder.Reset();
+        builder.SetAmount(amount);
+        builder.SetMerchant(merchantId);
+        builder.SetOrder(orderId);
+
+        return builder.Build();
+    }
+}</code></pre>
+          </div>
+          <h2>استفاده از Director</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var director =
+    new PaymentRequestDirector();
+
+var request =
+    director.BuildStandardPayment(
+        new BankAPaymentRequestBuilder(),
+        500_000,
+        "M-100",
+        "ORDER-900");</code></pre>
+          </div>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">در پروژه‌های مدرن .NET معمولاً Fluent Builder بدون Director رایج‌تر است.
+              Director زمانی مفید است که چند Recipe استاندارد و تکرارشونده برای Construction داشته باشیم.</div>
+          </div>
+          <h2>Builder در Unit Test</h2>
+          <p>یکی از کاربردهای بسیار خوب Builder ساخت Test Data است.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentBuilder
+{
+    private decimal _amount = 100_000;
+    private PaymentStatus _status =
+        PaymentStatus.Pending;
+
+    public PaymentBuilder
+        WithAmount(decimal amount)
+    {
+        _amount = amount;
+        return this;
+    }
+
+    public PaymentBuilder
+        WithStatus(PaymentStatus status)
+    {
+        _status = status;
+        return this;
+    }
+
+    public Payment Build()
+    {
+        return Payment.CreateForTest(
+            _amount,
+            _status);
+    }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var payment =
+    new PaymentBuilder()
+        .WithAmount(1_000_000)
+        .WithStatus(
+            PaymentStatus.Pending)
+        .Build();</code></pre>
+          </div>
+          <h2>Builder vs Factory</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Builder</th>
+                <th>Factory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ساخت مرحله‌به‌مرحله</td>
+                <td>معمولاً ساخت در یک Call</td>
+              </tr>
+              <tr>
+                <td>تمرکز بر How to build</td>
+                <td>تمرکز بر What to create</td>
+              </tr>
+              <tr>
+                <td>مناسب Object پیچیده</td>
+                <td>مناسب انتخاب Product/Implementation</td>
+              </tr>
+              <tr>
+                <td>Optional stepهای متعدد</td>
+                <td>Creation متمرکز</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>Builder vs Factory Method</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Factory Method:
+    Which concrete object
+    should be created?
+
+Builder:
+    How should this complex
+    object be built step by step?</code></pre>
+          </div>
+          <h2>Builder vs Abstract Factory</h2>
+          <p>Abstract Factory یک Family از Productهای مرتبط می‌سازد؛ Builder روی فرآیند ساخت یک Product پیچیده تمرکز
+            دارد.</p>
+          <h2>مزایای Builder</h2>
+          <ul>
+            <li>خوانایی بهتر Creation Code</li>
+            <li>حذف Constructorهای بسیار طولانی</li>
+            <li>مدیریت Parameterهای Optional</li>
+            <li>Validation قبل از Build</li>
+            <li>ساخت Objectهای Immutable</li>
+            <li>مناسب برای Test Data</li>
+          </ul>
+          <h2>معایب Builder</h2>
+          <ul>
+            <li>افزایش Boilerplate</li>
+            <li>برای Object ساده Overengineering است</li>
+            <li>ممکن است Validation بین Builder و Domain پخش شود</li>
+          </ul>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">Business Invariantهای اصلی فقط نباید داخل Builder باشند. اگر Amount پرداخت
+              همیشه باید مثبت باشد، خود Domain Object نیز باید از این Rule محافظت کند.</div>
+          </div>
+          <h2>چه زمانی استفاده کنیم؟</h2>
+          <ul>
+            <li>Constructor Parameterهای زیاد</li>
+            <li>Optional Parameterهای متعدد</li>
+            <li>Construction چندمرحله‌ای</li>
+            <li>Representationهای مختلف</li>
+            <li>Product نهایی Immutable</li>
+            <li>Test Data پیچیده</li>
+          </ul>
+          <h2>چه زمانی استفاده نکنیم؟</h2>
+          <ul>
+            <li>Object ساده است.</li>
+            <li>Constructor کوتاه و واضح است.</li>
+            <li>Object Initializer کافی است.</li>
+            <li>Creation Complexity واقعی نداریم.</li>
+          </ul>
+          <h2>مثال نهایی Payment</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var paymentRequest =
+    new PaymentRequestBuilder()
+        .WithAmount(2_500_000)
+        .ForMerchant("M-500")
+        .WithOrderId("ORDER-2026-100")
+        .WithMobileNumber("09121234567")
+        .WithCallbackUrl(
+            "https://merchant.example/callback")
+        .AddMetadata("channel", "mobile")
+        .AddMetadata("customerType", "VIP")
+        .WithRetryCount(2)
+        .Build();
+
+var result =
+    await paymentGateway.PayAsync(
+        paymentRequest,
+        cancellationToken);</code></pre>
+          </div>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>Builder separates the construction of a complex object from its final
+                representation. In a payment system, it is useful for building complex payment requests step by step,
+                especially when there are many optional parameters, validations, or provider-specific
+                representations.</strong></div>
+          </div>
+          <h2>جمع‌بندی 20.3</h2>
+          <p>Builder زمانی مناسب است که Creation یک Object پیچیده، چندمرحله‌ای یا دارای Optionهای متعدد باشد. در Payment
+            System می‌توان از آن برای ساخت PaymentRequest، Provider-specific Request و Test Data استفاده کرد.</p>
+          <div class="callout callout-info"><span class="callout-icon">✅</span>
+            <div class="callout-content"><strong>نکته کلیدی:</strong> Factory بیشتر می‌پرسد «چه Objectی بسازم؟»؛ Builder
+              بیشتر می‌پرسد «این Object پیچیده را چگونه مرحله‌به‌مرحله بسازم؟».</div>
+          </div>
+        </div>
       </div>
     </main>
   </div>

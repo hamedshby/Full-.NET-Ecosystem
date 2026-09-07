@@ -1,41 +1,524 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Abstract Factory از مسیر حرفه‌ای .NET.">
-  <title>Abstract Factory | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta
+    content="آموزش Abstract Factory در C# و .NET با مثال Payment شامل Payment Gateway، Refund Gateway، Settlement Gateway، خانواده Productها، تفاوت با Factory Method و DI."
+    name="description" />
+  <title>Abstract Factory در C# و .NET | مثال Payment</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-20-lesson-2">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-20-lesson-2"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 20 — Design Patterns و OOP</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 20 — Design Patterns</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Abstract Factory</h1>
+          <div class="article-tag">🏭 Creational Design Patterns</div>
+          <h1><bdi>Abstract Factory</bdi></h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Abstract Factory</strong> یکی از Creational Design Patternهای کلاسیک GoF است. این Pattern برای ساخت
+            یک <strong>خانواده از Objectهای مرتبط</strong> استفاده می‌شود، بدون اینکه Consumer Concrete Classهای آن
+            خانواده را بشناسد.</p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">Factory Method معمولاً روی ساخت یک Product تمرکز دارد؛ Abstract Factory برای
+              ساخت چند Product مرتبط و سازگار با هم استفاده می‌شود.</div>
+          </div>
+          <h2>سناریوی Payment System</h2>
+          <p>فرض کنید سیستم پرداخت با دو Provider کار می‌کند: Bank A و Bank B. هر Provider سه قابلیت مرتبط دارد:</p>
+          <ul>
+            <li>Payment Gateway</li>
+            <li>Refund Gateway</li>
+            <li>Settlement Gateway</li>
+          </ul>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Bank A Family
+    ├── BankAPaymentGateway
+    ├── BankARefundGateway
+    └── BankASettlementGateway
+
+Bank B Family
+    ├── BankBPaymentGateway
+    ├── BankBRefundGateway
+    └── BankBSettlementGateway</code></pre>
+          </div>
+          <h2>مشکل بدون Abstract Factory</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentOperationService
+{
+    public async Task ExecuteAsync()
+    {
+        var paymentGateway =
+            new BankAPaymentGateway();
+
+        var refundGateway =
+            new BankARefundGateway();
+
+        var settlementGateway =
+            new BankASettlementGateway();
+
+        // ...
+    }
+}</code></pre>
+          </div>
+          <p>Consumer حالا همه Concrete Productهای Bank A را می‌شناسد.</p>
+          <h2>ترکیب اشتباه Familyها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var paymentGateway =
+    new BankAPaymentGateway();
+
+var refundGateway =
+    new BankBRefundGateway();
+
+var settlementGateway =
+    new BankASettlementGateway();</code></pre>
+          </div>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">Abstract Factory کمک می‌کند Productهای متعلق به یک Provider به‌صورت یک Family
+              سازگار ساخته شوند و احتمال ترکیب ناسازگار کاهش پیدا کند.</div>
+          </div>
+          <h2>Abstract Productها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentGateway
+{
+    Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken);
+}
+
+public interface IRefundGateway
+{
+    Task&lt;RefundResult&gt; RefundAsync(
+        RefundRequest request,
+        CancellationToken cancellationToken);
+}
+
+public interface ISettlementGateway
+{
+    Task&lt;SettlementResult&gt; SettleAsync(
+        SettlementRequest request,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+          <h2>Concrete Productهای Bank A</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAPaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            PaymentResult.Success(
+                "BANK-A-PAYMENT"));
+    }
+}
+
+public class BankARefundGateway
+    : IRefundGateway
+{
+    public Task&lt;RefundResult&gt; RefundAsync(
+        RefundRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            RefundResult.Success(
+                "BANK-A-REFUND"));
+    }
+}
+
+public class BankASettlementGateway
+    : ISettlementGateway
+{
+    public Task&lt;SettlementResult&gt; SettleAsync(
+        SettlementRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            SettlementResult.Success(
+                "BANK-A-SETTLEMENT"));
+    }
+}</code></pre>
+          </div>
+          <h2>Concrete Productهای Bank B</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankBPaymentGateway
+    : IPaymentGateway
+{
+    public Task&lt;PaymentResult&gt; PayAsync(
+        PaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            PaymentResult.Success(
+                "BANK-B-PAYMENT"));
+    }
+}
+
+public class BankBRefundGateway
+    : IRefundGateway
+{
+    public Task&lt;RefundResult&gt; RefundAsync(
+        RefundRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            RefundResult.Success(
+                "BANK-B-REFUND"));
+    }
+}
+
+public class BankBSettlementGateway
+    : ISettlementGateway
+{
+    public Task&lt;SettlementResult&gt; SettleAsync(
+        SettlementRequest request,
+        CancellationToken cancellationToken)
+    {
+        return Task.FromResult(
+            SettlementResult.Success(
+                "BANK-B-SETTLEMENT"));
+    }
+}</code></pre>
+          </div>
+          <h2>تعریف Abstract Factory</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProviderFactory
+{
+    IPaymentGateway CreatePaymentGateway();
+
+    IRefundGateway CreateRefundGateway();
+
+    ISettlementGateway CreateSettlementGateway();
+}</code></pre>
+          </div>
+          <p>این Interface همان Abstract Factory است. هر Method یک Product از همان Family می‌سازد.</p>
+          <h2>Concrete Factory برای Bank A</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAProviderFactory
+    : IPaymentProviderFactory
+{
+    public IPaymentGateway CreatePaymentGateway()
+        =&gt; new BankAPaymentGateway();
+
+    public IRefundGateway CreateRefundGateway()
+        =&gt; new BankARefundGateway();
+
+    public ISettlementGateway CreateSettlementGateway()
+        =&gt; new BankASettlementGateway();
+}</code></pre>
+          </div>
+          <h2>Concrete Factory برای Bank B</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankBProviderFactory
+    : IPaymentProviderFactory
+{
+    public IPaymentGateway CreatePaymentGateway()
+        =&gt; new BankBPaymentGateway();
+
+    public IRefundGateway CreateRefundGateway()
+        =&gt; new BankBRefundGateway();
+
+    public ISettlementGateway CreateSettlementGateway()
+        =&gt; new BankBSettlementGateway();
+}</code></pre>
+          </div>
+          <h2>ساختار Pattern</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>                IPaymentProviderFactory
+                  /                 \
+                 /                   \
+     BankAProviderFactory     BankBProviderFactory
+            |                       |
+    +-------+-------+       +-------+-------+
+    |       |       |       |       |       |
+    v       v       v       v       v       v
+Payment  Refund Settlement Payment Refund Settlement
+Gateway  Gateway  Gateway  Gateway Gateway  Gateway
+
+Each factory creates one compatible family.</code></pre>
+          </div>
+          <h2>استفاده در Application Service</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class PaymentOperationService
+{
+    private readonly IPaymentProviderFactory
+        _factory;
+
+    public PaymentOperationService(
+        IPaymentProviderFactory factory)
+    {
+        _factory = factory;
+    }
+
+    public async Task ExecuteAsync(
+        PaymentRequest paymentRequest,
+        RefundRequest refundRequest,
+        SettlementRequest settlementRequest,
+        CancellationToken cancellationToken)
+    {
+        var paymentGateway =
+            _factory.CreatePaymentGateway();
+
+        var refundGateway =
+            _factory.CreateRefundGateway();
+
+        var settlementGateway =
+            _factory.CreateSettlementGateway();
+
+        await paymentGateway.PayAsync(
+            paymentRequest,
+            cancellationToken);
+
+        await refundGateway.RefundAsync(
+            refundRequest,
+            cancellationToken);
+
+        await settlementGateway.SettleAsync(
+            settlementRequest,
+            cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <div class="callout callout-info"><span class="callout-icon">🎯</span>
+            <div class="callout-content"><strong>Abstract Factory = Create a family of related products without exposing
+                their concrete classes.</strong></div>
+          </div>
+          <h2>چرا Family در Payment مهم است؟</h2>
+          <p>Productهای یک Provider معمولاً Configuration و Integration Contractهای مشترک دارند:</p>
+          <ul>
+            <li>Base URL</li>
+            <li>Authentication</li>
+            <li>Certificate / API Key</li>
+            <li>Timeout و Retry Policy</li>
+            <li>Error Mapping</li>
+            <li>Serialization Format</li>
+          </ul>
+          <h2>مثال Configuration مشترک</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public sealed class BankAOptions
+{
+    public required string BaseUrl { get; init; }
+
+    public required string ApiKey { get; init; }
+}</code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class BankAProviderFactory
+    : IPaymentProviderFactory
+{
+    private readonly BankAOptions _options;
+
+    public BankAProviderFactory(
+        BankAOptions options)
+    {
+        _options = options;
+    }
+
+    public IPaymentGateway CreatePaymentGateway()
+        =&gt; new BankAPaymentGateway(_options);
+
+    public IRefundGateway CreateRefundGateway()
+        =&gt; new BankARefundGateway(_options);
+
+    public ISettlementGateway CreateSettlementGateway()
+        =&gt; new BankASettlementGateway(_options);
+}</code></pre>
+          </div>
+          <h2>Abstract Factory و DI</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentProviderFactory,
+     BankAProviderFactory&gt;();
+
+builder.Services.AddScoped
+    &lt;PaymentOperationService&gt;();</code></pre>
+          </div>
+          <p>برای Provider دیگر فقط Registration را عوض می‌کنیم:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>builder.Services.AddScoped
+    &lt;IPaymentProviderFactory,
+     BankBProviderFactory&gt;();</code></pre>
+          </div>
+          <h2>ارتباط با OCP و DIP</h2>
+          <p>Application Layer فقط Contract را می‌شناسد و Concrete Factoryها در Infrastructure قرار می‌گیرند.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Application Layer
+       |
+       v
+IPaymentProviderFactory
+       ^
+       |
+Infrastructure
+   BankAProviderFactory
+   BankBProviderFactory</code></pre>
+          </div>
+          <h2>Factory Method vs Abstract Factory</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Factory Method</th>
+                <th>Abstract Factory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>معمولاً یک Product</td>
+                <td>یک Family از Productهای مرتبط</td>
+              </tr>
+              <tr>
+                <td>اغلب با Inheritance/Override</td>
+                <td>اغلب با Composition و چند Creation Method</td>
+              </tr>
+              <tr>
+                <td>تمرکز بر اینکه چه Productی ساخته شود</td>
+                <td>تمرکز بر سازگاری Productهای یک Family</td>
+              </tr>
+              <tr>
+                <td>CreatePaymentGateway()</td>
+                <td>Payment + Refund + Settlement</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نکته مهم</h2>
+          <p>خود Abstract Factory معمولاً شامل چند Factory Method است:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProviderFactory
+{
+    IPaymentGateway CreatePaymentGateway();
+
+    IRefundGateway CreateRefundGateway();
+
+    ISettlementGateway CreateSettlementGateway();
+}</code></pre>
+          </div>
+          <h2>سناریوی Multi-Tenant</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Merchant A
+   |
+   v
+BankAProviderFactory
+   ├── Payment
+   ├── Refund
+   └── Settlement
+
+Merchant B
+   |
+   v
+BankBProviderFactory
+   ├── Payment
+   ├── Refund
+   └── Settlement</code></pre>
+          </div>
+          <p>هر Merchant می‌تواند یک Family کامل از Integrationهای Provider خودش داشته باشد.</p>
+          <h2>مزایا</h2>
+          <ul>
+            <li>کاهش Coupling به Concrete Productها</li>
+            <li>حفظ Consistency بین Productهای Family</li>
+            <li>تعویض کل Family با Factory دیگر</li>
+            <li>هماهنگی با OCP و DIP</li>
+            <li>متمرکز شدن Creation و Configuration هر Provider</li>
+          </ul>
+          <h2>معایب</h2>
+          <ul>
+            <li>افزایش تعداد Interface و Class</li>
+            <li>Complexity بیشتر نسبت به Factory ساده</li>
+            <li>اضافه کردن Product Type جدید به تمام Familyها پرهزینه است</li>
+          </ul>
+          <h2>Trade-off مهم</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public interface IPaymentProviderFactory
+{
+    IPaymentGateway CreatePaymentGateway();
+    IRefundGateway CreateRefundGateway();
+    ISettlementGateway CreateSettlementGateway();
+
+    // New product type
+    IChargebackGateway CreateChargebackGateway();
+}</code></pre>
+          </div>
+          <p>با اضافه شدن Chargeback، همه Concrete Factoryها باید تغییر کنند.</p>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">Abstract Factory اضافه کردن Family جدید را آسان می‌کند، اما اضافه کردن Product
+              Type جدید به همه Familyها معمولاً هزینه‌بر است.</div>
+          </div>
+          <h2>چه زمانی استفاده کنیم؟</h2>
+          <ul>
+            <li>چند Provider داریم.</li>
+            <li>هر Provider چند Product مرتبط دارد.</li>
+            <li>Productهای هر Provider باید با هم سازگار باشند.</li>
+            <li>می‌خواهیم کل Family قابل تعویض باشد.</li>
+          </ul>
+          <h2>چه زمانی استفاده نکنیم؟</h2>
+          <ul>
+            <li>فقط یک Product داریم.</li>
+            <li>فقط یک Implementation ثابت داریم.</li>
+            <li>Productها Family واقعی تشکیل نمی‌دهند.</li>
+            <li>DI ساده مسئله را حل می‌کند.</li>
+          </ul>
+          <h2>پاسخ کوتاه مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>Abstract Factory provides an interface for creating families of related
+                objects without exposing their concrete classes. In a payment system, one factory can create the
+                payment, refund, and settlement gateways for Bank A, while another factory creates the compatible family
+                for Bank B.</strong></div>
+          </div>
+          <h2>جمع‌بندی 20.2</h2>
+          <p>Abstract Factory زمانی مناسب است که چند Family از Productهای مرتبط داریم. در Payment System، هر Bank
+            می‌تواند Family مخصوص خودش شامل Payment، Refund و Settlement Gateway داشته باشد.</p>
+          <div class="callout callout-info"><span class="callout-icon">✅</span>
+            <div class="callout-content"><strong>نکته کلیدی:</strong> Factory Method روی ساخت یک Product تمرکز دارد؛
+              Abstract Factory روی ساخت یک <strong>Family of Related Products</strong>.</div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
