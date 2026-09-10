@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش تعریف Quality Attributeهای قابل اندازه‌گیری در معماری نرم‌افزار با مثال واقعی از سیستم Payment.">
+  <title>تعریف Quality Attributeهای قابل اندازه‌گیری | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>AI-Driven Software Architecture</bdi></span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل چهارم</span>
+        <span aria-hidden="true">/</span>
+        <span>درس ۳</span>
+      </nav>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل چهارم — انتخاب معماری و Trade-offs</p>
+          <h1>تعریف <bdi>Quality Attribute</bdi>های قابل اندازه‌گیری</h1>
+          <p class="lesson-lead">
+            یک Quality Attribute زمانی برای تصمیم‌گیری معماری مفید است که بتوان آن را اندازه‌گیری و آزمایش کرد.
+            عباراتی مثل «سیستم سریع باشد» یا «خیلی پایدار باشد» برای طراحی معماری کافی نیستند.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="why-title">
+          <h2 id="why-title">چرا باید قابل اندازه‌گیری باشد؟</h2>
+
+          <p>
+            اگر Quality Attribute دقیق نباشد، تیم نمی‌تواند تشخیص دهد معماری انتخاب‌شده واقعاً نیاز پروژه را برآورده
+            کرده است یا نه.
+          </p>
+
+          <div class="lesson-example">
+            <p><strong>مبهم:</strong> سیستم باید سریع باشد.</p>
+            <p><strong>قابل اندازه‌گیری:</strong> 95٪ درخواست‌های پرداخت باید در کمتر از 200ms پاسخ داده شوند.</p>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong>
+            چیزی که قابل اندازه‌گیری نباشد، به‌سختی قابل ارزیابی و مقایسه است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="structure-title">
+          <h2 id="structure-title">ساختار یک Quality Attribute خوب</h2>
+
+          <p>برای دقیق‌کردن یک Quality Attribute می‌توان این سؤال‌ها را پاسخ داد:</p>
+
+          <ul>
+            <li><strong>چه چیزی؟</strong> کدام رفتار یا بخش سیستم را اندازه می‌گیریم؟</li>
+            <li><strong>در چه شرایطی؟</strong> بار عادی، Peak Load یا هنگام Failure؟</li>
+            <li><strong>با چه معیاری؟</strong> Latency، Throughput، Error Rate یا Availability؟</li>
+            <li><strong>هدف چقدر است؟</strong> عدد یا محدودهٔ قابل قبول چیست؟</li>
+          </ul>
+
+          <div class="architecture-flow" aria-label="ساختار تعریف Quality Attribute قابل اندازه‌گیری">
+            <div>Scenario</div><span aria-hidden="true">←</span>
+            <div>Condition</div><span aria-hidden="true">←</span>
+            <div>Metric</div><span aria-hidden="true">←</span>
+            <div>Target</div>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="examples-title">
+          <h2 id="examples-title">نمونه‌های مبهم و قابل اندازه‌گیری</h2>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه Quality Attribute مبهم و قابل اندازه‌گیری"
+            tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>تعریف مبهم</th>
+                  <th>تعریف قابل اندازه‌گیری</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><bdi>Performance</bdi></td>
+                  <td>سیستم سریع باشد.</td>
+                  <td>95٪ درخواست‌ها کمتر از 200ms پاسخ داده شوند.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Availability</bdi></td>
+                  <td>سیستم همیشه در دسترس باشد.</td>
+                  <td>Availability ماهانه حداقل 99.99٪ باشد.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Scalability</bdi></td>
+                  <td>سیستم Load بالا را تحمل کند.</td>
+                  <td>سیستم بتواند 10,000 Request در ثانیه را بدون عبور Latency از 300ms پردازش کند.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Reliability</bdi></td>
+                  <td>تراکنش‌ها مطمئن باشند.</td>
+                  <td>هیچ Retry مجازی نباید باعث ثبت بیش از یک Payment موفق شود.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Recovery</bdi></td>
+                  <td>سیستم سریع Recover شود.</td>
+                  <td>پس از Failure سرویس، بازیابی کامل حداکثر در 2 دقیقه انجام شود.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال واقعی: Payment Service</h2>
+
+          <p>
+            فرض کنید یک سرویس پرداخت داریم. به‌جای نوشتن «سیستم باید Performance بالایی داشته باشد»،
+            می‌توان چند معیار مشخص تعریف کرد:
+          </p>
+
+          <ul>
+            <li><strong>Latency:</strong> 95٪ درخواست‌های پرداخت کمتر از 200ms پاسخ داده شوند.</li>
+            <li><strong>Throughput:</strong> سرویس حداقل 5,000 تراکنش در ثانیه را پردازش کند.</li>
+            <li><strong>Availability:</strong> دسترس‌پذیری ماهانه حداقل 99.99٪ باشد.</li>
+            <li><strong>Error Rate:</strong> خطاهای داخلی سرویس کمتر از 0.1٪ درخواست‌ها باشند.</li>
+            <li><strong>Recovery:</strong> در صورت Crash شدن Instance، ترافیک حداکثر طی 30 ثانیه به Instance سالم منتقل
+              شود.</li>
+          </ul>
+
+          <p>
+            حالا تیم می‌تواند Architecture را طراحی، Load Test اجرا و نتیجه را با این اهداف مقایسه کند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="percentile-title">
+          <h2 id="percentile-title">فقط Average کافی نیست</h2>
+
+          <p>
+            در سیستم‌های پرترافیک، Average Latency ممکن است تصویر اشتباهی بدهد.
+            معمولاً بهتر است از Percentileهایی مثل <bdi>P95</bdi> و <bdi>P99</bdi> استفاده شود.
+          </p>
+
+          <div class="lesson-example">
+            <p><strong>Average:</strong> میانگین پاسخ 100ms است.</p>
+            <p><strong>P95:</strong> 95٪ درخواست‌ها حداکثر در 180ms پاسخ می‌گیرند.</p>
+            <p><strong>P99:</strong> 99٪ درخواست‌ها حداکثر در 350ms پاسخ می‌گیرند.</p>
+          </div>
+
+          <p>
+            این معیارها نشان می‌دهند کاربران در بدترین بخش‌های واقعی ترافیک چه تجربه‌ای دارند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="verification-title">
+          <h2 id="verification-title">معیار باید قابل Verification باشد</h2>
+
+          <p>
+            برای هر Quality Attribute باید مشخص باشد چگونه صحت آن بررسی می‌شود.
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="روش بررسی Quality Attributeها" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>روش بررسی</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Performance</td>
+                  <td>Load Test و APM Metrics</td>
+                </tr>
+                <tr>
+                  <td>Availability</td>
+                  <td>Uptime Monitoring و SLI</td>
+                </tr>
+                <tr>
+                  <td>Scalability</td>
+                  <td>Stress Test و افزایش تدریجی Load</td>
+                </tr>
+                <tr>
+                  <td>Resilience</td>
+                  <td>Failure Test یا Chaos Test</td>
+                </tr>
+                <tr>
+                  <td>Security</td>
+                  <td>Security Test و Vulnerability Assessment</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="ai-title">
+          <h2 id="ai-title">استفاده از AI برای دقیق‌کردن Quality Attributeها</h2>
+
+          <p>
+            AI می‌تواند Requirementهای مبهم را شناسایی کند و آن‌ها را به Candidate Metricهای قابل‌اندازه‌گیری تبدیل کند.
+          </p>
+
+          <div class="lesson-example">
+            <h3>نمونه Prompt</h3>
+            <p>
+              «این Requirementها را بررسی کن. Quality Attributeهای مبهم را پیدا کن و برای هرکدام
+              Scenario، Metric و Target قابل‌اندازه‌گیری پیشنهاد بده. عددهایی که اطلاعات واقعی برایشان نداریم
+              به‌عنوان Assumption مشخص کن.»
+            </p>
+          </div>
+
+          <p>
+            AI نباید عددهای مهم Business را بدون دادهٔ واقعی تعیین کند.
+            اعداد پیشنهادی باید با Product Owner، تیم فنی، SLA و داده‌های Production اعتبارسنجی شوند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+
+          <ul>
+            <li>استفاده از عباراتی مثل Fast، Highly Available یا Scalable بدون عدد.</li>
+            <li>تعریف عدد بدون مشخص‌کردن شرایط Load و Scenario.</li>
+            <li>استفادهٔ صرف از Average به‌جای P95 و P99 در سیستم‌های پرترافیک.</li>
+            <li>تعیین Targetهای غیرواقعی بدون توجه به Cost و محدودیت‌های زیرساخت.</li>
+            <li>تعریف معیار بدون مشخص‌کردن روش Test و Verification.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li>Quality Attribute باید تا حد امکان دقیق و قابل‌اندازه‌گیری باشد.</li>
+            <li>یک تعریف خوب شامل Scenario، Condition، Metric و Target است.</li>
+            <li>به‌جای «سیستم سریع باشد» باید هدفی مثل P95 &lt; 200ms تعریف شود.</li>
+            <li>معیار باید با Test یا Monitoring قابل Verification باشد.</li>
+            <li>AI می‌تواند معیار پیشنهاد دهد، اما اعداد نهایی باید با Context واقعی پروژه اعتبارسنجی شوند.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="quality-attributes.html">درس قبلی: Quality Attributes چیست؟</a>
+          <a href="architectural-trade-offs.html">درس بعدی: Architectural Trade-off چیست؟</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+
+</html>

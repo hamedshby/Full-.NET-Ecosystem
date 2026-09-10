@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش خلاصه و کاربردی Modular Monolith با تمرکز ویژه بر ارتباط بین ماژول‌ها و مثال واقعی در .NET و سیستم Payment.">
+  <title>Modular Monolith | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>AI-Driven Software Architecture</bdi></span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل پنجم</span>
+        <span aria-hidden="true">/</span>
+        <span>Modular Monolith</span>
+      </nav>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل پنجم — Architecture Patterns</p>
+          <h1><bdi>Modular Monolith</bdi></h1>
+          <p class="lesson-lead">
+            Modular Monolith یک برنامهٔ واحد برای Build و Deployment است،
+            اما داخل آن سیستم به ماژول‌های مستقل با مرزهای مشخص تقسیم می‌شود.
+            مهم‌ترین اصل آن این است که ماژول‌ها آزادانه وارد جزئیات داخلی یکدیگر نشوند.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title"><bdi>Modular Monolith</bdi> چیست؟</h2>
+          <p>
+            در Monolith معمولی، بخش‌های مختلف سیستم ممکن است به‌مرور به هم وابسته شوند.
+            Modular Monolith تلاش می‌کند همان سادگی Deployment یک Monolith را نگه دارد،
+            ولی ساختار داخلی سیستم را به Moduleهای مستقل تقسیم کند.
+          </p>
+
+          <div class="architecture-flow" aria-label="نمای ساده Modular Monolith">
+            <div>Order Module</div><span aria-hidden="true">↔</span>
+            <div>Payment Module</div><span aria-hidden="true">↔</span>
+            <div>Notification Module</div>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            یک ساختمان واحد با چند واحد مستقل؛ همه زیر یک سقف هستند،
+            اما هر واحد مرز، مسئولیت و ورودی مشخص خودش را دارد.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="module-title">
+          <h2 id="module-title">هر Module چه چیزی دارد؟</h2>
+          <ul>
+            <li>Business Logic خودش</li>
+            <li>Entity و Domain Model خودش</li>
+            <li>Application Serviceهای خودش</li>
+            <li>Contract یا API عمومی برای ارتباط با سایر Moduleها</li>
+            <li>Data Access و Schema مربوط به خودش</li>
+          </ul>
+          <p>
+            سایر Moduleها نباید مستقیماً به Entity، Repository یا Table داخلی آن دسترسی داشته باشند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="communication-title">
+          <h2 id="communication-title">ارتباط بین Moduleها چگونه انجام می‌شود؟</h2>
+          <p>
+            ارتباط Moduleها معمولاً به دو شکل اصلی انجام می‌شود:
+            <strong>Synchronous</strong> و <strong>Asynchronous</strong>.
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه روش‌های ارتباط بین ماژول‌ها" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>روش</th>
+                  <th>زمان استفاده</th>
+                  <th>مثال</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><bdi>Synchronous Call</bdi></td>
+                  <td>وقتی نتیجه فوراً لازم است.</td>
+                  <td>Order از Payment می‌پرسد آیا پرداخت موفق شده است یا نه.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Domain / Integration Event</bdi></td>
+                  <td>وقتی Module فقط می‌خواهد وقوع یک اتفاق را اعلام کند.</td>
+                  <td>PaymentCompleted منتشر می‌شود و Notification واکنش نشان می‌دهد.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="sync-title">
+          <h2 id="sync-title">روش اول: ارتباط مستقیم از طریق Contract</h2>
+          <p>
+            یک Module نباید مستقیماً Classهای داخلی Module دیگر را صدا بزند.
+            بهتر است هر Module یک Contract عمومی محدود داشته باشد.
+          </p>
+
+          <div class="lesson-example">
+            <h3>مثال در .NET</h3>
+            <pre><code>public interface IPaymentModule
+{
+    Task&lt;PaymentResult&gt; GetPaymentStatusAsync(
+        Guid transactionId,
+        CancellationToken cancellationToken);
+}</code></pre>
+          </div>
+
+          <p>
+            Order Module فقط <code>IPaymentModule</code> را می‌شناسد.
+            این Interface مرز ارتباطی Payment Module است و جزئیات داخلی آن را مخفی می‌کند.
+          </p>
+
+          <div class="architecture-flow" aria-label="ارتباط مستقیم بین Order و Payment">
+            <div>Order Module</div><span aria-hidden="true">→</span>
+            <div>IPaymentModule</div><span aria-hidden="true">→</span>
+            <div>Payment Module</div>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="event-title">
+          <h2 id="event-title">روش دوم: ارتباط Event-Based</h2>
+          <p>
+            گاهی Module مبدا نباید بداند چه Moduleهایی به نتیجهٔ عملیات آن نیاز دارند.
+            در این شرایط Event ارتباط را Loose Coupledتر می‌کند.
+          </p>
+
+          <div class="lesson-example">
+            <h3>مثال Payment</h3>
+            <pre><code>public sealed record PaymentCompleted(
+    Guid TransactionId,
+    decimal Amount);</code></pre>
+          </div>
+
+          <p>Payment Module بعد از پرداخت موفق Event را منتشر می‌کند:</p>
+
+          <div class="architecture-flow" aria-label="انتشار Event بین Moduleها">
+            <div>Payment Module</div><span aria-hidden="true">→</span>
+            <div>PaymentCompleted</div><span aria-hidden="true">→</span>
+            <div>Order Module</div>
+            <span aria-hidden="true">+</span>
+            <div>Notification Module</div>
+          </div>
+
+          <p>
+            Payment لازم نیست بداند Notification یا Reporting وجود دارند.
+            هر Module به Event موردنیاز خودش Subscribe می‌کند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="inprocess-title">
+          <h2 id="inprocess-title">آیا داخل Modular Monolith به RabbitMQ نیاز داریم؟</h2>
+          <p>
+            لزوماً نه. چون همهٔ Moduleها داخل یک Process هستند،
+            Eventها می‌توانند ابتدا به شکل <bdi>In-Process</bdi> منتشر شوند؛
+            مثلاً با Mediator یا Event Dispatcher داخلی.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>await eventDispatcher.PublishAsync(
+    new PaymentCompleted(transaction.Id, transaction.Amount));</code></pre>
+          </div>
+
+          <p>
+            اگر بعدها یک Module به Microservice مستقل تبدیل شود،
+            همان Event می‌تواند از طریق RabbitMQ، Kafka یا Broker دیگری منتشر شود.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            Modular Monolith به معنی شبیه‌سازی اجباری Microservices نیست.
+            تا وقتی نیاز واقعی نداریم، ارتباط In-Process ساده‌تر و کم‌هزینه‌تر است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="database-title">
+          <h2 id="database-title">مهم‌ترین قانون: Moduleها Database همدیگر را دور نزنند</h2>
+          <p>
+            یکی از خطرناک‌ترین نوع وابستگی این است که یک Module مستقیماً Tableهای Module دیگر را Query یا Update کند.
+          </p>
+
+          <div class="lesson-example">
+            <p><strong>اشتباه:</strong> Order Module مستقیماً جدول <code>Payment.Transactions</code> را Query کند.</p>
+            <p><strong>درست:</strong> Order از Contract عمومی Payment Module استفاده کند.</p>
+          </div>
+
+          <p>
+            حتی اگر همهٔ Moduleها در یک SQL Server و حتی یک Database باشند،
+            مالکیت داده باید مشخص باشد.
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="روش‌های جداسازی داده بین ماژول‌ها" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>روش</th>
+                  <th>توضیح</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Schema per Module</td>
+                  <td>مثلاً <code>payment.Transactions</code> و <code>orders.Orders</code>.</td>
+                </tr>
+                <tr>
+                  <td>DbContext per Module</td>
+                  <td>هر Module DbContext و Migrationهای خودش را دارد.</td>
+                </tr>
+                <tr>
+                  <td>Database per Module</td>
+                  <td>جداسازی بیشتر؛ در صورت نیاز و پیچیدگی بالاتر.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="transaction-title">
+          <h2 id="transaction-title">Transaction بین Moduleها چه می‌شود؟</h2>
+          <p>
+            چون Moduleها در یک Monolith هستند، از نظر فنی ممکن است بتوان یک Transaction مشترک بین چند Module ایجاد کرد؛
+            اما استفادهٔ زیاد از آن Coupling را بالا می‌برد.
+          </p>
+
+          <div class="lesson-example">
+            <p>
+              اگر Order برای ثبت سفارش مجبور باشد هم‌زمان چند Table داخلی Payment را Update کند،
+              مرز Module عملاً شکسته شده است.
+            </p>
+          </div>
+
+          <p>
+            بهتر است هر Module Business Transaction خودش را مدیریت کند
+            و برای تغییرات جانبی از Event استفاده شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-flow-title">
+          <h2 id="payment-flow-title">مثال کامل ارتباط Moduleها در Payment System</h2>
+          <p>فرض کنید سه Module داریم:</p>
+
+          <ul>
+            <li><strong>Payment:</strong> مسئول انجام تراکنش</li>
+            <li><strong>Settlement:</strong> مسئول تسویه</li>
+            <li><strong>Notification:</strong> مسئول ارسال پیام</li>
+          </ul>
+
+          <div class="architecture-flow" aria-label="جریان یک پرداخت بین ماژول‌ها">
+            <div>Payment</div><span aria-hidden="true">→</span>
+            <div>PaymentCompleted</div><span aria-hidden="true">→</span>
+            <div>Settlement</div>
+            <span aria-hidden="true">+</span>
+            <div>Notification</div>
+          </div>
+
+          <p>
+            Payment فقط Event را منتشر می‌کند.
+            Settlement بر اساس آن رکورد تسویه ایجاد می‌کند و Notification پیام موفقیت می‌فرستد.
+            هیچ‌کدام نباید مستقیماً Repository داخلی Payment را استفاده کنند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="rules-title">
+          <h2 id="rules-title">قواعد خوب برای ارتباط بین Moduleها</h2>
+
+          <ul>
+            <li>هر Module یک Public API یا Contract محدود داشته باشد.</li>
+            <li>Moduleها به Internal Classهای یکدیگر Reference مستقیم نداشته باشند.</li>
+            <li>دسترسی مستقیم به Table یا DbContext Module دیگر ممنوع باشد.</li>
+            <li>برای Query فوری از Synchronous Contract استفاده شود.</li>
+            <li>برای اعلام رخداد از Event استفاده شود.</li>
+            <li>Dependencyها ترجیحاً یک‌طرفه و کنترل‌شده باشند.</li>
+            <li>از Shared Model بزرگ بین Moduleها جلوگیری شود.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="structure-dotnet-title">
+          <h2 id="structure-dotnet-title">ساختار پیشنهادی در .NET</h2>
+
+          <div class="lesson-example">
+            <pre><code>Modules/
+ ├── Payments/
+ │    ├── Payments.Domain
+ │    ├── Payments.Application
+ │    ├── Payments.Infrastructure
+ │    └── Payments.Contracts
+ │
+ ├── Orders/
+ │    ├── Orders.Domain
+ │    ├── Orders.Application
+ │    ├── Orders.Infrastructure
+ │    └── Orders.Contracts
+ │
+ └── Notifications/
+      ├── Notifications.Application
+      └── Notifications.Contracts</code></pre>
+          </div>
+
+          <p>
+            پروژهٔ <code>Contracts</code> فقط چیزهایی را نگه می‌دارد که سایر Moduleها اجازه دارند ببینند؛
+            نه Entity، Repository یا جزئیات داخلی.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="microservices-title">
+          <h2 id="microservices-title">تفاوت ارتباط Moduleها با Microservices</h2>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه ارتباط در Modular Monolith و Microservices"
+            tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>موضوع</th>
+                  <th>Modular Monolith</th>
+                  <th>Microservices</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Process</td>
+                  <td>مشترک</td>
+                  <td>جدا</td>
+                </tr>
+                <tr>
+                  <td>Call مستقیم</td>
+                  <td>In-Process</td>
+                  <td>Network Call</td>
+                </tr>
+                <tr>
+                  <td>Event</td>
+                  <td>می‌تواند In-Process باشد</td>
+                  <td>معمولاً Message Broker</td>
+                </tr>
+                <tr>
+                  <td>Deployment</td>
+                  <td>یک Deployment</td>
+                  <td>مستقل برای هر Service</td>
+                </tr>
+                <tr>
+                  <td>پیچیدگی Operational</td>
+                  <td>کمتر</td>
+                  <td>بیشتر</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="ai-title">
+          <h2 id="ai-title">استفاده از AI برای بررسی مرز Moduleها</h2>
+          <p>
+            AI می‌تواند Dependencyهای بین Moduleها را بررسی کند و وابستگی‌هایی را که مرزها را می‌شکنند پیدا کند.
+          </p>
+
+          <div class="lesson-example">
+            <h3>نمونه Prompt</h3>
+            <p>
+              «این ساختار Modular Monolith را بررسی کن. Dependency بین Moduleها،
+              دسترسی مستقیم به Data Model سایر Moduleها و Cyclic Dependencyها را شناسایی کن
+              و برای هر مورد راه‌حل مبتنی بر Contract یا Event پیشنهاد بده.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+
+          <ul>
+            <li>تقسیم پروژه به Folderهای مختلف بدون مرز واقعی.</li>
+            <li>Reference مستقیم Domain یک Module از Module دیگر.</li>
+            <li>استفاده از یک DbContext بزرگ برای کل سیستم.</li>
+            <li>Query مستقیم Tableهای Module دیگر.</li>
+            <li>ایجاد Shared Library بزرگ شامل تمام Entityها.</li>
+            <li>استفاده از Event برای هر Call ساده و ایجاد پیچیدگی غیرضروری.</li>
+            <li>ایجاد Dependency دوطرفه بین Moduleها.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+
+          <ul>
+            <li>Modular Monolith یک Deployment دارد ولی از Moduleهای مستقل تشکیل شده است.</li>
+            <li>مهم‌ترین اصل، حفظ مرز و مالکیت هر Module است.</li>
+            <li>ارتباط فوری می‌تواند از طریق Contract و Call مستقیم In-Process انجام شود.</li>
+            <li>برای اعلام رخداد و کاهش Coupling می‌توان از Event استفاده کرد.</li>
+            <li>Moduleها نباید مستقیماً Database، Entity یا Repository یکدیگر را استفاده کنند.</li>
+            <li>مرزهای خوب باعث می‌شوند در آینده جداکردن یک Module و تبدیل آن به Microservice بسیار ساده‌تر شود.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="clean-hexagonal-architecture.html">درس قبلی: Clean / Hexagonal Architecture</a>
+          <a href="microservices-architecture.html">درس بعدی: Microservices Architecture</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+
+</html>

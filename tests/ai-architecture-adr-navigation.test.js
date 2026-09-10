@@ -9,19 +9,19 @@ const courseRoot = path.join(root, 'courses', 'ai-driven-software-architecture')
 test('ADR lesson is reachable in sequence from the first chapter', () => {
   const index = fs.readFileSync(path.join(courseRoot, 'index.html'), 'utf8');
   const decisions = fs.readFileSync(
-    path.join(courseRoot, 'lessons', 'architecture-as-decisions.html'),
+    path.join(courseRoot, 'lessons', 'ch1-3.html'),
     'utf8',
   );
-  const adr = fs.readFileSync(path.join(courseRoot, 'lessons', 'adr.html'), 'utf8');
+  const adr = fs.readFileSync(path.join(courseRoot, 'lessons', 'ch1-4.html'), 'utf8');
 
-  assert.match(index, /href="lessons\/adr\.html"[^>]*>[^<]*<bdi>ADR<\/bdi> چیست\؟<\/a>/);
-  assert.match(decisions, /href="adr\.html"[^>]*>درس بعدی: <bdi>ADR<\/bdi> چیست\؟<\/a>/);
-  assert.match(adr, /href="architecture-as-decisions\.html"[^>]*>درس قبلی:/);
+  assert.match(index, /href="lessons\/ch1-4\.html"[^>]*>[^<]*<bdi>ADR<\/bdi> چیست\؟<\/a>/);
+  assert.match(decisions, /href="ch1-4\.html"[^>]*>درس بعدی: <bdi>ADR<\/bdi> چیست\؟<\/a>/);
+  assert.match(adr, /href="ch1-3\.html"[^>]*>درس قبلی:/);
   assert.match(adr, /درس بعدی: <bdi>AI-Driven Software Architecture<\/bdi> چیست\؟/);
 });
 
 test('ADR lesson exposes accessible article landmarks and navigation', () => {
-  const adr = fs.readFileSync(path.join(courseRoot, 'lessons', 'adr.html'), 'utf8');
+  const adr = fs.readFileSync(path.join(courseRoot, 'lessons', 'ch1-4.html'), 'utf8');
 
   assert.match(adr, /<html lang="fa" dir="rtl">/);
   assert.match(adr, /<main id="lesson-content"/);
