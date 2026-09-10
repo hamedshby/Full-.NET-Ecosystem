@@ -1,41 +1,125 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس Entity از مسیر حرفه‌ای .NET.">
-  <title>Entity | مسیر حرفه‌ای .NET</title>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta content="آموزش 21.2 — Entity در Domain-Driven Design با مثال Payment System در C# و .NET." name="description" />
+  <title>Entity در C# و .NET | DDD Payment</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
-  <link rel="stylesheet" href="../../microservices/course.css">
-  <script defer src="../course-navigation.js"></script>
-  <script defer src="../course.js"></script>
+  <link href="../../microservices/course.css" rel="stylesheet" />
+  <script defer="" src="../course-navigation.js"></script>
+  <script defer="" src="../course.js"></script>
 </head>
 
-<body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
-  <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
-    <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+<body><a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header"><a href="../../../index.html">آکادمی دات‌نت</a><span class="course-name">مسیر حرفه‌ای
+      <bdi>.NET</bdi></span>
+    <button aria-controls="course-sidebar" aria-expanded="false" id="course-menu-toggle" type="button">فهرست
+      فصل‌ها</button>
+    <button aria-label="فعال‌کردن تم تیره" aria-pressed="false" id="theme-toggle" title="فعال‌کردن تم تیره"
+      type="button">تم</button>
   </header>
-
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="سرفصل‌های آموزش دات‌نت" data-current-lesson="chapter-21-lesson-2">
+    <aside aria-label="سرفصل‌های آموزش دات‌نت" class="course-sidebar" data-current-lesson="chapter-21-lesson-2"
+      id="course-sidebar">
       <h2>سرفصل‌های آموزش <bdi>.NET</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
-
-    <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 21 — OOP در Domain-Driven Design</nav>
+    <main class="lesson-content" id="lesson-content">
+      <nav aria-label="مسیر راهنما" class="breadcrumb"><a
+          href="../../../index.html#courses">دوره‌ها</a><span>/</span>فصل 21 — OOP در Domain-Driven Design</nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
-          <h1>Entity</h1>
+          <div class="article-tag">🧠 Domain-Driven Design</div>
+          <h1>21.2 — Entity</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۱۵</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۱۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p><strong>Entity</strong> Objectای است که Identity مستقل دارد و Business می‌خواهد آن را در طول زمان دنبال
+            کند.</p>
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content">دو Payment با Amount یکسان هنوز دو Entity متفاوت‌اند، چون PaymentId متفاوت
+              دارند.</div>
+          </div>
+          <h2>مثال Payment Entity</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>public class Payment
+{
+    public Guid Id { get; }
+    public Money Amount { get; }
+    public PaymentStatus Status { get; private set; }
+
+    public Payment(Guid id, Money amount)
+    {
+        Id = id;
+        Amount = amount;
+        Status = PaymentStatus.Pending;
+    }
+}</code></pre>
+          </div>
+          <h2>Identity مهم‌تر از Attribute</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>var p1 = new Payment(
+    Guid.NewGuid(),
+    new Money(100_000, "IRR"));
+
+var p2 = new Payment(
+    Guid.NewGuid(),
+    new Money(100_000, "IRR"));</code></pre>
+          </div>
+          <p>مقدارها مشابه‌اند، اما Entityها متفاوت‌اند.</p>
+          <h2>Lifecycle</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Pending
+   ↓
+Authorized
+   ↓
+Paid
+   ↓
+Settled</code></pre>
+          </div>
+          <h2>Entity vs Value Object</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Entity</th>
+                <th>Value Object</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Identity دارد</td>
+                <td>Identity مستقل ندارد</td>
+              </tr>
+              <tr>
+                <td>Lifecycle دارد</td>
+                <td>معمولاً Immutable است</td>
+              </tr>
+              <tr>
+                <td>با Id شناخته می‌شود</td>
+                <td>با Value شناخته می‌شود</td>
+              </tr>
+            </tbody>
+          </table>
+          <h2>نکته مصاحبه‌ای</h2>
+          <div class="callout callout-info"><span class="callout-icon">🎤</span>
+            <div class="callout-content"><strong>An entity is defined by its identity and lifecycle, not only by its
+                attributes.</strong></div>
+          </div>
+          <h2>جمع‌بندی</h2>
+          <p>Entity چیزی است که حتی با تغییر State، هویت آن ثابت باقی می‌ماند.</p>
+        </div>
       </div>
     </main>
   </div>
