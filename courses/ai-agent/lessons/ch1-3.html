@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش Token و Tokenizer در LLM، تفاوت Token با واژه و کاراکتر، Token ID، Context Window، Token Budget و شمارش Token در AI Agent.">
+  <title>Token چیست؟ | AI Agent</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>AI Agent</bdi></span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI Agent</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل 1، درس 3</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow"><bdi>PART 1 — LLM Fundamentals</bdi></p>
+          <p class="lesson-chapter"><bdi>AI &amp; LLM Fundamentals</bdi></p>
+          <h1><bdi>Token</bdi> چیست؟</h1>
+          <p class="lesson-lead"><bdi>Token</bdi> واحدی است که Model هنگام پردازش Language با آن کار می‌کند. Token الزاماً یک واژه یا یک کاراکتر نیست؛ ممکن است یک واژهٔ کامل، بخشی از واژه، عدد، نشانه یا حتی بخشی از نمایش یک نویسه باشد.</p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="observable-example-title">
+          <h2 id="observable-example-title">یک جمله، چند روش برای شکستن</h2>
+          <p>جملهٔ زیر را در نظر بگیرید:</p>
+          <div class="lesson-example">
+            <p><bdi>«پرداخت ناموفق بود!»</bdi></p>
+          </div>
+          <p>یک انسان احتمالاً سه واژه و یک علامت می‌بیند. اما Model مستقیماً با «واژه» کار نمی‌کند. یک جزء به نام <bdi>Tokenizer</bdi> می‌تواند Text را به قطعه‌هایی شبیه نمونهٔ زیر تبدیل کند:</p>
+          <div class="architecture-flow" aria-label="نمونهٔ آموزشی تقسیم متن به Token">
+            <div>پرداخت</div><span aria-hidden="true">+</span>
+            <div>ناموفق</div><span aria-hidden="true">+</span>
+            <div>بود</div><span aria-hidden="true">+</span>
+            <div>!</div>
+          </div>
+          <p>این فقط یک نمایش آموزشی است. Tokenizer یک Model واقعی ممکن است همین Text را به قطعه‌های کمتر یا بیشتری تقسیم کند. بنابراین بدون اجرای Tokenizer دقیق همان Model نمی‌توان شمارش قطعی ارائه داد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title">تعریف <bdi>Token</bdi> و <bdi>Tokenizer</bdi></h2>
+          <p><bdi>Token</bdi> یکی از واحدهای موجود در <bdi>Vocabulary</bdi> یک Model است. <bdi>Vocabulary</bdi> فهرست قطعه‌هایی است که Tokenizer می‌تواند آن‌ها را به شناسه‌های عددی نگاشت کند.</p>
+          <p><bdi>Tokenizer</bdi> ابزاری است که دو عملیات اصلی انجام می‌دهد:</p>
+          <ul>
+            <li><strong><bdi>Encode</bdi>:</strong> Text را به دنباله‌ای از <bdi>Token ID</bdi>ها تبدیل می‌کند.</li>
+            <li><strong><bdi>Decode</bdi>:</strong> Token IDها را دوباره به Text قابل‌خواندن تبدیل می‌کند.</li>
+          </ul>
+          <p><bdi>Token ID</bdi> یک عدد است که به یک Token در Vocabulary اشاره می‌کند. Model به‌جای نگهداری رشتهٔ «پرداخت»، شناسهٔ عددی آن را دریافت می‌کند و سپس آن شناسه را به نمایش عددی مناسب برای محاسبات داخلی تبدیل می‌کند.</p>
+          <div class="architecture-flow" aria-label="جریان Encode و Decode">
+            <div>Text</div><span aria-hidden="true">← Encode ←</span>
+            <div>Token IDs</div><span aria-hidden="true">← LLM ←</span>
+            <div>Output IDs</div><span aria-hidden="true">← Decode ←</span>
+            <div>Answer</div>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="not-word-title">
+          <h2 id="not-word-title">Token با واژه یا کاراکتر یکسان نیست</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسهٔ Token با واژه، کاراکتر و Byte" tabindex="0">
+            <table>
+              <thead>
+                <tr><th>واحد</th><th>معنا</th><th>نمونه</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>واژه</td><td>واحدی که انسان در Language تشخیص می‌دهد.</td><td><bdi>پرداخت‌ها</bdi> ممکن است یک واژه دیده شود.</td></tr>
+                <tr><td><bdi>Character</bdi></td><td>یک نویسه در Text است.</td><td>«پ» یک Character است.</td></tr>
+                <tr><td><bdi>Byte</bdi></td><td>واحد ذخیره‌سازی داده است.</td><td>یک Character در UTF-8 ممکن است چند Byte داشته باشد.</td></tr>
+                <tr><td><bdi>Token</bdi></td><td>قطعه‌ای وابسته به Vocabulary و Tokenizer است.</td><td>ممکن است واژه، بخشی از آن یا یک نشانه باشد.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>در نتیجه، فرمول عمومی و دقیقی مانند «هر واژه برابر یک Token است» وجود ندارد. حتی دو Text با تعداد کاراکتر یکسان می‌توانند Token Count متفاوتی داشته باشند.</p>
+          <aside class="lesson-note">
+            <strong>قانون عملی:</strong>
+            برای Estimate اولیه می‌توان از اندازهٔ Text کمک گرفت، اما برای محدودیت واقعی Context یا محاسبهٔ دقیق، Tokenizer همان Model را اجرا کنید.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="subword-title">
+          <h2 id="subword-title">چرا از <bdi>Subword</bdi> استفاده می‌شود؟</h2>
+          <p>اگر Vocabulary فقط شامل واژه‌های کامل باشد، باید فهرست بسیار بزرگی از شکل‌های مختلف واژه‌ها نگهداری شود و واژه‌های جدید نیز مشکل‌ساز می‌شوند. بسیاری از Tokenizerها از قطعه‌های کوچک‌تر از واژه، یعنی <bdi>Subword</bdi>، استفاده می‌کنند.</p>
+          <p>برای نمونه، یک Tokenizer ممکن است واژهٔ انگلیسی <code>unhelpful</code> را به قطعه‌هایی مانند <code>un</code>، <code>help</code> و <code>ful</code> تبدیل کند. این تقسیم صرفاً نمونه است و برای همهٔ Modelها یکسان نیست.</p>
+          <p>Subwordها چند مزیت دارند:</p>
+          <ul>
+            <li>ریشه‌ها و پسوندهای مشترک می‌توانند دوباره استفاده شوند.</li>
+            <li>واژهٔ تازه را می‌توان از قطعه‌های شناخته‌شده ساخت.</li>
+            <li>Vocabulary لازم نیست تمام واژه‌های ممکن را جداگانه نگه دارد.</li>
+          </ul>
+          <p>نقطهٔ مقابل این است که یک واژهٔ ساده برای انسان ممکن است به چند Token تبدیل شود و Token Count افزایش پیدا کند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="model-specific-title">
+          <h2 id="model-specific-title">Tokenization به Model وابسته است</h2>
+          <p>هر Model با Tokenizer و Vocabulary مشخصی آموزش دیده است. تغییر Tokenizer بعد از Training ساده نیست، زیرا Token IDها و Parameterهای Model با همان Vocabulary یاد گرفته شده‌اند.</p>
+          <p>بنابراین ممکن است دو Model برای Text یکسان:</p>
+          <ul>
+            <li>تعداد Token متفاوتی تولید کنند؛</li>
+            <li>مرز Tokenها را در جای متفاوت قرار دهند؛</li>
+            <li>برای قطعه‌های مشابه Token IDهای متفاوت داشته باشند.</li>
+          </ul>
+          <p>Token ID عددی هیچ معنای عمومی میان Modelها ندارد. برای مثال، ID فرضی <code>1842</code> ممکن است در یک Vocabulary به یک قطعه اشاره کند و در Vocabulary دیگر معنای کاملاً متفاوتی داشته باشد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="persian-title">
+          <h2 id="persian-title">نکات مهم Tokenization در Text فارسی</h2>
+          <p>ظاهر یکسان یا نزدیک دو Text فارسی تضمین نمی‌کند نمایش Unicode و Tokenization آن‌ها یکسان باشد. چند عامل مهم‌اند:</p>
+          <ul>
+            <li><strong>فاصله و نیم‌فاصله:</strong> <bdi>«می شود»</bdi>، <bdi>«می‌شود»</bdi> و <bdi>«میشود»</bdi> رشته‌های یکسانی نیستند.</li>
+            <li><strong>نویسه‌های عربی و فارسی:</strong> شکل‌های مختلف «ی» و «ک» ممکن است Code Point متفاوت داشته باشند.</li>
+            <li><strong>اعراب و علامت‌ها:</strong> افزودن یا حذف نشانه‌های ترکیبی می‌تواند ورودی Tokenizer را تغییر دهد.</li>
+            <li><strong>ترکیب Languageها:</strong> Text فارسی همراه با نام API، Code و عدد ممکن است الگوی Tokenization متفاوتی ایجاد کند.</li>
+          </ul>
+          <p><bdi>Unicode Normalization</bdi> یعنی تبدیل نمایش‌های معادل یا نزدیک Unicode به یک شکل استاندارد. Normalization می‌تواند برای پاک‌سازی داده مفید باشد، اما نباید بدون شناخت نیاز Business انجام شود؛ زیرا برخی تفاوت‌ها ممکن است در دامنهٔ شما معنی‌دار باشند.</p>
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            مقدار Token Count زبان‌های مختلف را با یک نسبت ثابت مقایسه نکنید. شمارش واقعی به Model، Tokenizer و خود Text وابسته است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="special-token-title">
+          <h2 id="special-token-title"><bdi>Special Token</bdi> چیست؟</h2>
+          <p>برخی Tokenها برای نمایش محتوای عادی نیستند و نقش کنترلی دارند. به چنین واحدهایی <bdi>Special Token</bdi> گفته می‌شود.</p>
+          <p>بسته به Model و قالب مکالمه، Special Tokenها می‌توانند مرز Messageها، پایان دنباله یا بخش‌های ساختاری ورودی را مشخص کنند. این Tokenها همیشه در Text قابل‌مشاهده نیستند، اما ممکن است بخشی از ورودی واقعی Model باشند.</p>
+          <p>به همین دلیل، جمع Tokenهای Text خام همیشه دقیقاً با Usage گزارش‌شده توسط Provider برابر نیست. قالب‌سازی Messageها و داده‌های کنترلی نیز می‌توانند در شمارش اثر داشته باشند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="code-title">
+          <h2 id="code-title">یک Tokenizer آموزشی با <bdi>C#</bdi></h2>
+          <p>مثال زیر Text را به واژه‌ها و نشانه‌ها تقسیم و سپس هر قطعه را به یک ID فرضی نگاشت می‌کند. این کد الگوریتم Tokenizer واقعی یک LLM نیست؛ هدف آن فقط نمایش جریان <bdi>Encode</bdi> است.</p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">using System.Text.RegularExpressions;
+
+var text = "پرداخت ناموفق بود!";
+
+var pieces = Regex.Matches(
+        text,
+        @"[\p{L}\p{N}]+|[^\s\p{L}\p{N}]")
+    .Select(match =&gt; match.Value)
+    .ToArray();
+
+var vocabulary = new Dictionary&lt;string, int&gt;
+{
+    ["پرداخت"] = 104,
+    ["ناموفق"] = 287,
+    ["بود"] = 63,
+    ["!"] = 9
+};
+
+var tokenIds = pieces
+    .Select(piece =&gt; vocabulary[piece])
+    .ToArray();
+
+Console.WriteLine(string.Join(" | ", pieces));
+Console.WriteLine(string.Join(", ", tokenIds));</code></pre>
+
+          <div class="lesson-example">
+            <h3>خروجی</h3>
+            <pre class="code-block code-output" data-language="Output"><code>پرداخت | ناموفق | بود | !
+104, 287, 63, 9</code></pre>
+          </div>
+
+          <p><code>Regex.Matches</code> در این مثال Letter و Numberهای پشت‌سرهم را یک قطعه و هر نشانهٔ دیگر را قطعه‌ای جدا در نظر می‌گیرد. سپس <code>Dictionary</code> نقش یک Vocabulary کوچک و فرضی را دارد.</p>
+          <p>Tokenizer واقعی معمولاً قواعد و Vocabulary بزرگ‌تری دارد، واژه را ممکن است به Subword تقسیم کند و برای ورودی ناشناخته رفتار مشخصی دارد. بنابراین از این کد برای محاسبهٔ Token Count یک Model واقعی استفاده نکنید.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="generation-title">
+          <h2 id="generation-title">Token چگونه پاسخ LLM را می‌سازد؟</h2>
+          <p>در درس قبل دیدیم که LLM پاسخ را گام‌به‌گام می‌سازد. در هر گام، Model برای Tokenهای ممکن Score تولید می‌کند. سپس براساس روش انتخاب، Token بعدی مشخص می‌شود.</p>
+          <ol>
+            <li>Prompt به Input Tokenها تبدیل می‌شود.</li>
+            <li>Model توزیع Score مربوط به Token بعدی را محاسبه می‌کند.</li>
+            <li>یک Token انتخاب و به خروجی افزوده می‌شود.</li>
+            <li>Input قبلی به‌علاوهٔ Token تازه، Context گام بعد را می‌سازد.</li>
+            <li>فرایند تا تولید Stop Token یا رسیدن به محدودیت خروجی ادامه پیدا می‌کند.</li>
+          </ol>
+          <p>وقتی Application پاسخ را به‌صورت <bdi>Streaming</bdi> نمایش می‌دهد، ممکن است داده در قطعه‌هایی دریافت شود که دقیقاً با واژه‌های قابل‌مشاهده برابر نیستند. UI باید Text دریافتی را پیوسته کنار هم قرار دهد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="context-title">
+          <h2 id="context-title">رابطهٔ Token با <bdi>Context Window</bdi></h2>
+          <p><bdi>Context Window</bdi> ظرفیت Tokenهایی است که Model در یک اجرا می‌تواند در محدودهٔ پردازش خود داشته باشد. این ظرفیت معمولاً فقط مربوط به سؤال کاربر نیست.</p>
+          <p>در یک AI Agent، اجزای زیر می‌توانند Token مصرف کنند:</p>
+          <ul>
+            <li>System و Developer Instructions</li>
+            <li>Messageهای قبلی Conversation</li>
+            <li>درخواست فعلی کاربر</li>
+            <li>Tool Description و Schemaها</li>
+            <li>Tool Resultها</li>
+            <li>Documentهای بازیابی‌شده برای RAG</li>
+            <li>Tokenهای پاسخ Model</li>
+          </ul>
+          <p>اگر مجموع ورودی و فضای لازم برای خروجی از ظرفیت مجاز عبور کند، Application باید بخشی از Context را حذف، خلاصه یا فشرده کند. جزئیات این موضوع در درس بعدی، <a href="ch1-4.html"><bdi>Context Window</bdi></a>، بررسی می‌شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="budget-title">
+          <h2 id="budget-title"><bdi>Token Budget</bdi> یعنی چه؟</h2>
+          <p><bdi>Token Budget</bdi> برنامه‌ای برای تقسیم ظرفیت Token میان اجزای درخواست است. هدف این است که اطلاعات مهم جا بگیرند و برای پاسخ نیز فضای کافی باقی بماند.</p>
+          <div class="comparison-table" role="region" aria-label="نمونهٔ فرضی Token Budget" tabindex="0">
+            <table>
+              <thead>
+                <tr><th>بخش</th><th>Token فرضی</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Instructions</td><td>۷۰۰</td></tr>
+                <tr><td>Conversation History</td><td>۲٬۴۰۰</td></tr>
+                <tr><td>Tool Schema و Result</td><td>۱٬۲۰۰</td></tr>
+                <tr><td>RAG Documents</td><td>۲٬۰۰۰</td></tr>
+                <tr><td>درخواست کاربر</td><td>۲۰۰</td></tr>
+                <tr><td>فضای رزروشده برای پاسخ</td><td>۱٬۵۰۰</td></tr>
+                <tr><td><strong>مجموع</strong></td><td><strong>۸٬۰۰۰</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>عددهای جدول فقط برای آموزش‌اند و ظرفیت Model خاصی را بیان نمی‌کنند. نکتهٔ مهم این است که Output نیز باید از ابتدا در Budget دیده شود؛ پرکردن تمام ظرفیت با Input می‌تواند فضای پاسخ را از بین ببرد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="cost-title">
+          <h2 id="cost-title">اثر Token بر Cost و Performance</h2>
+          <p>Providerها معمولاً Usage ورودی و خروجی را برحسب Token گزارش می‌کنند. قرارداد قیمت‌گذاری و نام فیلدها ممکن است میان Providerها متفاوت باشد، اما Token Count یکی از ورودی‌های اصلی محاسبهٔ Cost است.</p>
+          <ul>
+            <li><strong>Input Token:</strong> Tokenهایی که برای پردازش به Model ارسال می‌شوند.</li>
+            <li><strong>Output Token:</strong> Tokenهایی که Model در پاسخ تولید می‌کند.</li>
+            <li><strong>Cached Token:</strong> در برخی سرویس‌ها بخشی از Input تکراری می‌تواند با سازوکار Cache جداگانه محاسبه شود.</li>
+          </ul>
+          <p>Token بیشتر معمولاً محاسبات، زمان یا Cost بیشتری ایجاد می‌کند، اما رابطهٔ دقیق به Model، Provider، Cache، Batch و زیرساخت وابسته است. برای تصمیم Production باید Usage واقعی اندازه‌گیری شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="agent-title">
+          <h2 id="agent-title">مدیریت Token در <bdi>AI Agent</bdi></h2>
+          <p>Agent معمولاً نسبت به یک Chat ساده Context بیشتری دارد، چون Toolها، Memory و نتیجهٔ چند گام را همراه خود حمل می‌کند. بدون مدیریت Token، Agent ممکن است کند، پرهزینه یا دچار حذف اطلاعات مهم شود.</p>
+          <p>چند راهکار عملی:</p>
+          <ul>
+            <li>فقط Toolهای مرتبط با Goal فعلی را در اختیار Model قرار دهید.</li>
+            <li>Tool Resultهای بزرگ را Filter یا خلاصه کنید و دادهٔ غیرضروری را نفرستید.</li>
+            <li>Conversation History قدیمی را با سیاست مشخص Compact کنید.</li>
+            <li>در RAG به‌جای سند کامل، Chunkهای مرتبط را بازیابی کنید.</li>
+            <li>برای Output سقف و Format روشن تعریف کنید.</li>
+            <li>Input، Output و Cost را در Observability ثبت کنید.</li>
+          </ul>
+          <p>کم‌کردن Token نباید کورکورانه باشد. حذف جزئیات ضروری ممکن است کیفیت تصمیم را کاهش دهد. هدف، بیشترین Context نیست؛ هدف، مرتبط‌ترین Context کافی است.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+          <ul>
+            <li><strong>هر Token را یک واژه دانستن:</strong> Token ممکن است کوچک‌تر یا بزرگ‌تر از یک واژه باشد.</li>
+            <li><strong>استفاده از Tokenizer اشتباه:</strong> شمارش یک Model لزوماً برای Model دیگر معتبر نیست.</li>
+            <li><strong>شمردن فقط پیام کاربر:</strong> Instructions، History، Toolها و Output نیز در Budget نقش دارند.</li>
+            <li><strong>حذف Text براساس Character Count:</strong> Character Count معادل Token Count نیست و بریدن Text می‌تواند بخش مهمی را ناقص کند.</li>
+            <li><strong>پرکردن کامل Context:</strong> باید فضای کافی برای Output و مراحل احتمالی Agent باقی بماند.</li>
+            <li><strong>نادیده‌گرفتن Unicode فارسی:</strong> نیم‌فاصله و شکل نویسه‌ها می‌توانند Tokenization را تغییر دهند.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+          <p>چهار ورودی زیر را بررسی کنید:</p>
+          <ol>
+            <li><code>پرداخت موفق بود</code></li>
+            <li><code>پرداخت موفق بود!</code></li>
+            <li><code>پرداخت‌ها موفق بودند</code></li>
+            <li><code>Payment موفق بود</code></li>
+          </ol>
+          <p>آیا بدون دانستن Model می‌توان Token Count دقیق هر مورد را گفت؟ چه عامل‌هایی ممکن است شمارش را تغییر دهند؟</p>
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+            <p>خیر. برای پاسخ دقیق باید Tokenizer همان Model اجرا شود. علامت تعجب، نیم‌فاصله، پسوند، ترکیب فارسی و انگلیسی، Vocabulary و الگوریتم Tokenizer می‌توانند مرز و تعداد Tokenها را تغییر دهند.</p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li>Token واحد پردازش Language در Model است و الزاماً با واژه یا Character برابر نیست.</li>
+            <li>Tokenizer با Encode، Text را به Token ID تبدیل می‌کند و با Decode خروجی را به Text برمی‌گرداند.</li>
+            <li>Tokenization به Vocabulary و Tokenizer همان Model وابسته است.</li>
+            <li>Subword اجازه می‌دهد واژه‌های متنوع از قطعه‌های مشترک ساخته شوند.</li>
+            <li>نیم‌فاصله، Unicode، نشانه‌ها و ترکیب Languageها می‌توانند Token Count را تغییر دهند.</li>
+            <li>Instructions، History، Toolها، RAG و Output همگی بخشی از Token Budget یک Agent هستند.</li>
+            <li>برای شمارش قطعی باید ابزار رسمی یا Tokenizer سازگار با Model هدف استفاده شود.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="ch1-2.html">درس قبلی: <bdi>LLM چیست؟</bdi></a>
+          <a href="ch1-4.html">درس بعدی: <bdi>Context Window</bdi></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

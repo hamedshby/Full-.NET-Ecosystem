@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="سرفصل‌های دورهٔ AI Agent؛ ساخت Agentهای حرفه‌ای و Production-Grade با C# و .NET.">
+  <title>AI Agent | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="course.css">
+  <script src="../../script.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#course-content">پرش به محتوای دوره</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری دوره">
+      <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>AI Agent</bdi></span>
+      <a class="back-link" href="../../index.html#courses">بازگشت به دوره‌ها</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+  <main id="course-content">
+    <section class="course-hero" aria-labelledby="course-title">
+      <div class="course-badge" aria-hidden="true">AI·AG</div>
+      <p class="eyebrow">مسیر جامع ساخت AI Agent با .NET</p>
+      <h1 id="course-title"><bdi>AI Agent</bdi></h1>
+      <p class="course-lead">از مبانی LLM و اتصال آن به .NET شروع می‌کنید و گام‌به‌گام به Tool Calling، Memory، RAG،
+        MCP، Orchestration، Security، Evals و معماری Production می‌رسید.</p>
+      <ul class="course-facts" aria-label="مشخصات دوره">
+        <li><strong>6</strong><span>بخش</span></li>
+        <li><strong>21</strong><span>فصل</span></li>
+        <li><strong>376</strong><span>درس و پروژه</span></li>
+      </ul>
+    </section>
+    <section class="learning-path" aria-label="فهرست مطالب دوره">
+
+      <section class="course-part" aria-labelledby="part-3">
+        <div class="part-heading">
+          <h3 id="part-3"><bdi>LLM Fundamentals</bdi></h3>
+        </div>
+        <div class="chapters">
+          <details class="chapter" open>
+            <summary>
+              <span class="chapter-number">01</span>
+              <span class="chapter-title"><bdi>AI &amp; LLM Fundamentals</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch1-1.html"><bdi>AI، Machine Learning و Generative AI</bdi></a></li>
+              <li><a href="lessons/ch1-2.html"><bdi>LLM چیست؟</bdi></a></li>
+              <li><a href="lessons/ch1-3.html"><bdi>Token چیست؟</bdi></a></li>
+              <li><a href="lessons/ch1-4.html"><bdi>Context Window</bdi></a></li>
+              <li><a href="lessons/ch1-5.html"><bdi>System / User / Assistant Messages</bdi></a></li>
+              <li><a href="lessons/ch1-6.html"><bdi>Temperature و Sampling</bdi></a></li>
+              <li><a href="lessons/ch1-7.html"><bdi>Hallucination</bdi></a></li>
+              <li><a href="lessons/ch1-8.html"><bdi>Reasoning Models</bdi></a></li>
+              <li><a href="lessons/ch1-9.html"><bdi>Hosted Models vs Local Models</bdi></a></li>
+              <li><a href="lessons/ch1-10.html"><bdi>OpenAI / Azure OpenAI / OpenRouter / Ollama</bdi></a></li>
+              <li><a href="lessons/ch1-11.html"><bdi>اولین فراخوانی LLM از C#</bdi></a></li>
+              <li><a href="lessons/ch1-12.html"><bdi>پروژه: Console Chatbot با .NET</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">02</span>
+              <span class="chapter-title"><bdi>LLM Integration in .NET</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch2-1.html"><bdi>HTTP API vs SDK</bdi></a></li>
+              <li><a href="lessons/ch2-2.html"><bdi>OpenAI .NET SDK</bdi></a></li>
+              <li><a href="lessons/ch2-3.html"><bdi>Microsoft.Extensions.AI</bdi></a></li>
+              <li><a href="lessons/ch2-4.html"><bdi>IChatClient</bdi></a></li>
+              <li><a href="lessons/ch2-5.html"><bdi>Dependency Injection</bdi></a></li>
+              <li><a href="lessons/ch2-6.html"><bdi>Streaming Response</bdi></a></li>
+              <li><a href="lessons/ch2-7.html"><bdi>CancellationToken</bdi></a></li>
+              <li><a href="lessons/ch2-8.html"><bdi>Structured Output</bdi></a></li>
+              <li><a href="lessons/ch2-9.html"><bdi>JSON Schema</bdi></a></li>
+              <li><a href="lessons/ch2-10.html"><bdi>Configuration و API Key Management</bdi></a></li>
+              <li><a href="lessons/ch2-11.html"><bdi>Provider Abstraction</bdi></a></li>
+              <li><a href="lessons/ch2-12.html"><bdi>پروژه: ASP.NET Core AI API</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">03</span>
+              <span class="chapter-title"><bdi>Prompt Engineering for Agents</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch3-1.html"><bdi>Prompt Anatomy</bdi></a></li>
+              <li><a href="lessons/ch3-2.html"><bdi>System Instructions</bdi></a></li>
+              <li><a href="lessons/ch3-3.html"><bdi>Developer Instructions</bdi></a></li>
+              <li><a href="lessons/ch3-4.html"><bdi>User Input</bdi></a></li>
+              <li><a href="lessons/ch3-5.html"><bdi>Context</bdi></a></li>
+              <li><a href="lessons/ch3-6.html"><bdi>Few-shot Prompting</bdi></a></li>
+              <li><a href="lessons/ch3-7.html"><bdi>Prompt Templates</bdi></a></li>
+              <li><a href="lessons/ch3-8.html"><bdi>Role Prompting</bdi></a></li>
+              <li><a href="lessons/ch3-9.html"><bdi>Constraints</bdi></a></li>
+              <li><a href="lessons/ch3-10.html"><bdi>Output Contract</bdi></a></li>
+              <li><a href="lessons/ch3-11.html"><bdi>Structured Prompt</bdi></a></li>
+              <li><a href="lessons/ch3-12.html"><bdi>Prompt vs Context</bdi></a></li>
+              <li><a href="lessons/ch3-13.html"><bdi>Prompt vs Memory</bdi></a></li>
+              <li><a href="lessons/ch3-14.html"><bdi>Prompt vs Tool Description</bdi></a></li>
+              <li><a href="lessons/ch3-15.html"><bdi>Prompt Injection</bdi></a></li>
+              <li><a href="lessons/ch3-16.html"><bdi>Prompt Versioning</bdi></a></li>
+              <li><a href="lessons/ch3-17.html"><bdi>محدود کردن رفتار مدل</bdi></a></li>
+              <li><a href="lessons/ch3-18.html"><bdi>پروژه: Payment Rules Agent</bdi></a></li>
+            </ol>
+          </details>
+        </div>
+      </section>
+      <section class="course-part" aria-labelledby="part-7">
+        <div class="part-heading">
+          <h3 id="part-7"><bdi>Building Agents</bdi></h3>
+        </div>
+        <div class="chapters">
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">04</span>
+              <span class="chapter-title"><bdi>Agent Architecture Fundamentals</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch4-1.html"><bdi>Agent چیست؟</bdi></a></li>
+              <li><a href="lessons/ch4-2.html"><bdi>Chatbot vs Agent</bdi></a></li>
+              <li><a href="lessons/ch4-3.html"><bdi>Model</bdi></a></li>
+              <li><a href="lessons/ch4-4.html"><bdi>Instructions</bdi></a></li>
+              <li><a href="lessons/ch4-5.html"><bdi>Context</bdi></a></li>
+              <li><a href="lessons/ch4-6.html"><bdi>Memory</bdi></a></li>
+              <li><a href="lessons/ch4-7.html"><bdi>Tools</bdi></a></li>
+              <li><a href="lessons/ch4-8.html"><bdi>State</bdi></a></li>
+              <li><a href="lessons/ch4-9.html"><bdi>Runtime</bdi></a></li>
+              <li><a href="lessons/ch4-10.html"><bdi>Agent Lifecycle</bdi></a></li>
+              <li><a href="lessons/ch4-11.html"><bdi>Agent Components</bdi></a></li>
+              <li><a href="lessons/ch4-12.html"><bdi>Agent Execution Flow</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">05</span>
+              <span class="chapter-title"><bdi>Function &amp; Tool Calling</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch5-1.html"><bdi>Function Calling چیست؟</bdi></a></li>
+              <li><a href="lessons/ch5-2.html"><bdi>Tool چیست؟</bdi></a></li>
+              <li><a href="lessons/ch5-3.html"><bdi>Tool Schema</bdi></a></li>
+              <li><a href="lessons/ch5-4.html"><bdi>Tool Description Design</bdi></a></li>
+              <li><a href="lessons/ch5-5.html"><bdi>Tool Selection</bdi></a></li>
+              <li><a href="lessons/ch5-6.html"><bdi>Automatic Tool Calling</bdi></a></li>
+              <li><a href="lessons/ch5-7.html"><bdi>Tool Result</bdi></a></li>
+              <li><a href="lessons/ch5-8.html"><bdi>Multiple Tools</bdi></a></li>
+              <li><a href="lessons/ch5-9.html"><bdi>Parallel Tool Calling</bdi></a></li>
+              <li><a href="lessons/ch5-10.html"><bdi>Tool Discovery</bdi></a></li>
+              <li><a href="lessons/ch5-11.html"><bdi>Tool Registry</bdi></a></li>
+              <li><a href="lessons/ch5-12.html"><bdi>Tool Argument Validation</bdi></a></li>
+              <li><a href="lessons/ch5-13.html"><bdi>Tool Result Validation</bdi></a></li>
+              <li><a href="lessons/ch5-14.html"><bdi>Tool Error Handling</bdi></a></li>
+              <li><a href="lessons/ch5-15.html"><bdi>Timeout</bdi></a></li>
+              <li><a href="lessons/ch5-16.html"><bdi>Retry</bdi></a></li>
+              <li><a href="lessons/ch5-17.html"><bdi>Cancellation</bdi></a></li>
+              <li><a href="lessons/ch5-18.html"><bdi>Authorization</bdi></a></li>
+              <li><a href="lessons/ch5-19.html"><bdi>Side Effects</bdi></a></li>
+              <li><a href="lessons/ch5-20.html"><bdi>Idempotency</bdi></a></li>
+              <li><a href="lessons/ch5-21.html"><bdi>Read-only Tools</bdi></a></li>
+              <li><a href="lessons/ch5-22.html"><bdi>Write Tools</bdi></a></li>
+              <li><a href="lessons/ch5-23.html"><bdi>Sensitive / Destructive Tools</bdi></a></li>
+              <li><a href="lessons/ch5-24.html"><bdi>Tool Execution Policy</bdi></a></li>
+              <li><a href="lessons/ch5-25.html"><bdi>Tool Calling vs API Calling</bdi></a></li>
+              <li><a href="lessons/ch5-26.html"><bdi>پروژه: Payment Support Agent</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">06</span>
+              <span class="chapter-title"><bdi>Agent Loop</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch6-1.html"><bdi>Goal</bdi></a></li>
+              <li><a href="lessons/ch6-2.html"><bdi>Reasoning / Decision</bdi></a></li>
+              <li><a href="lessons/ch6-3.html"><bdi>Action</bdi></a></li>
+              <li><a href="lessons/ch6-4.html"><bdi>Observation</bdi></a></li>
+              <li><a href="lessons/ch6-5.html"><bdi>State Update</bdi></a></li>
+              <li><a href="lessons/ch6-6.html"><bdi>Planning</bdi></a></li>
+              <li><a href="lessons/ch6-7.html"><bdi>ReAct Pattern</bdi></a></li>
+              <li><a href="lessons/ch6-8.html"><bdi>Iterations</bdi></a></li>
+              <li><a href="lessons/ch6-9.html"><bdi>Max Iterations</bdi></a></li>
+              <li><a href="lessons/ch6-10.html"><bdi>Stop Conditions</bdi></a></li>
+              <li><a href="lessons/ch6-11.html"><bdi>Error Recovery</bdi></a></li>
+              <li><a href="lessons/ch6-12.html"><bdi>Tool Loop</bdi></a></li>
+              <li><a href="lessons/ch6-13.html"><bdi>Final Response</bdi></a></li>
+              <li><a href="lessons/ch6-14.html"><bdi>Agent Loop بدون Framework</bdi></a></li>
+              <li><a href="lessons/ch6-15.html"><bdi>پروژه: Agent Engine با C#</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">07</span>
+              <span class="chapter-title"><bdi>Context &amp; Memory</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch7-1.html"><bdi>Stateless vs Stateful Agent</bdi></a></li>
+              <li><a href="lessons/ch7-2.html"><bdi>Context چیست؟</bdi></a></li>
+              <li><a href="lessons/ch7-3.html"><bdi>Memory چیست؟</bdi></a></li>
+              <li><a href="lessons/ch7-4.html"><bdi>Context vs Memory</bdi></a></li>
+              <li><a href="lessons/ch7-5.html"><bdi>Conversation History</bdi></a></li>
+              <li><a href="lessons/ch7-6.html"><bdi>Short-Term Memory</bdi></a></li>
+              <li><a href="lessons/ch7-7.html"><bdi>Long-Term Memory</bdi></a></li>
+              <li><a href="lessons/ch7-8.html"><bdi>Working Memory</bdi></a></li>
+              <li><a href="lessons/ch7-9.html"><bdi>Semantic Memory</bdi></a></li>
+              <li><a href="lessons/ch7-10.html"><bdi>Episodic Memory</bdi></a></li>
+              <li><a href="lessons/ch7-11.html"><bdi>Session</bdi></a></li>
+              <li><a href="lessons/ch7-12.html"><bdi>Conversation State</bdi></a></li>
+              <li><a href="lessons/ch7-13.html"><bdi>Memory Architecture</bdi></a></li>
+              <li><a href="lessons/ch7-14.html"><bdi>Persist کردن Session</bdi></a></li>
+              <li><a href="lessons/ch7-15.html"><bdi>Redis</bdi></a></li>
+              <li><a href="lessons/ch7-16.html"><bdi>SQL Server</bdi></a></li>
+              <li><a href="lessons/ch7-17.html"><bdi>Context Compaction</bdi></a></li>
+              <li><a href="lessons/ch7-18.html"><bdi>Summarization</bdi></a></li>
+              <li><a href="lessons/ch7-19.html"><bdi>Token Budget</bdi></a></li>
+              <li><a href="lessons/ch7-20.html"><bdi>Memory Retrieval</bdi></a></li>
+              <li><a href="lessons/ch7-21.html"><bdi>پروژه: Customer Support Agent</bdi></a></li>
+            </ol>
+          </details>
+        </div>
+      </section>
+      <section class="course-part" aria-labelledby="part-10">
+        <div class="part-heading">
+          <h3 id="part-10"><bdi>Knowledge &amp; External Systems</bdi></h3>
+        </div>
+        <div class="chapters">
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">08</span>
+              <span class="chapter-title"><bdi>Embeddings &amp; Semantic Search</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch8-1.html"><bdi>Embedding چیست؟</bdi></a></li>
+              <li><a href="lessons/ch8-2.html"><bdi>Vector چیست؟</bdi></a></li>
+              <li><a href="lessons/ch8-3.html"><bdi>Embedding Model</bdi></a></li>
+              <li><a href="lessons/ch8-4.html"><bdi>Semantic Similarity</bdi></a></li>
+              <li><a href="lessons/ch8-5.html"><bdi>Cosine Similarity</bdi></a></li>
+              <li><a href="lessons/ch8-6.html"><bdi>Chunking</bdi></a></li>
+              <li><a href="lessons/ch8-7.html"><bdi>Chunk Size</bdi></a></li>
+              <li><a href="lessons/ch8-8.html"><bdi>Chunk Overlap</bdi></a></li>
+              <li><a href="lessons/ch8-9.html"><bdi>Metadata</bdi></a></li>
+              <li><a href="lessons/ch8-10.html"><bdi>Vector Store</bdi></a></li>
+              <li><a href="lessons/ch8-11.html"><bdi>Vector Database</bdi></a></li>
+              <li><a href="lessons/ch8-12.html"><bdi>Semantic Search</bdi></a></li>
+              <li><a href="lessons/ch8-13.html"><bdi>Metadata Filtering</bdi></a></li>
+              <li><a href="lessons/ch8-14.html"><bdi>Hybrid Search</bdi></a></li>
+              <li><a href="lessons/ch8-15.html"><bdi>Qdrant</bdi></a></li>
+              <li><a href="lessons/ch8-16.html"><bdi>pgvector</bdi></a></li>
+              <li><a href="lessons/ch8-17.html"><bdi>Azure AI Search</bdi></a></li>
+              <li><a href="lessons/ch8-18.html"><bdi>Redis Vector Search</bdi></a></li>
+              <li><a href="lessons/ch8-19.html"><bdi>Microsoft.Extensions.VectorData</bdi></a></li>
+              <li><a href="lessons/ch8-20.html"><bdi>پروژه: Semantic Search روی مستندات</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">09</span>
+              <span class="chapter-title"><bdi>RAG</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch9-1.html"><bdi>RAG چیست؟</bdi></a></li>
+              <li><a href="lessons/ch9-2.html"><bdi>Retrieval</bdi></a></li>
+              <li><a href="lessons/ch9-3.html"><bdi>Augmentation</bdi></a></li>
+              <li><a href="lessons/ch9-4.html"><bdi>Generation</bdi></a></li>
+              <li><a href="lessons/ch9-5.html"><bdi>Ingestion Pipeline</bdi></a></li>
+              <li><a href="lessons/ch9-6.html"><bdi>Document Loading</bdi></a></li>
+              <li><a href="lessons/ch9-7.html"><bdi>Chunking Strategy</bdi></a></li>
+              <li><a href="lessons/ch9-8.html"><bdi>Embedding</bdi></a></li>
+              <li><a href="lessons/ch9-9.html"><bdi>Indexing</bdi></a></li>
+              <li><a href="lessons/ch9-10.html"><bdi>Retrieval</bdi></a></li>
+              <li><a href="lessons/ch9-11.html"><bdi>Top-K</bdi></a></li>
+              <li><a href="lessons/ch9-12.html"><bdi>Re-ranking</bdi></a></li>
+              <li><a href="lessons/ch9-13.html"><bdi>Grounding</bdi></a></li>
+              <li><a href="lessons/ch9-14.html"><bdi>Citation</bdi></a></li>
+              <li><a href="lessons/ch9-15.html"><bdi>Query Transformation</bdi></a></li>
+              <li><a href="lessons/ch9-16.html"><bdi>Query Expansion</bdi></a></li>
+              <li><a href="lessons/ch9-17.html"><bdi>Hybrid Retrieval</bdi></a></li>
+              <li><a href="lessons/ch9-18.html"><bdi>Agentic RAG</bdi></a></li>
+              <li><a href="lessons/ch9-19.html"><bdi>RAG Evaluation</bdi></a></li>
+              <li><a href="lessons/ch9-20.html"><bdi>پروژه: Documentation Agent</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">10</span>
+              <span class="chapter-title"><bdi>MCP</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch10-1.html"><bdi>Model Context Protocol چیست؟</bdi></a></li>
+              <li><a href="lessons/ch10-2.html"><bdi>مشکل Tool Integration</bdi></a></li>
+              <li><a href="lessons/ch10-3.html"><bdi>MCP Architecture</bdi></a></li>
+              <li><a href="lessons/ch10-4.html"><bdi>MCP Client</bdi></a></li>
+              <li><a href="lessons/ch10-5.html"><bdi>MCP Server</bdi></a></li>
+              <li><a href="lessons/ch10-6.html"><bdi>Tools</bdi></a></li>
+              <li><a href="lessons/ch10-7.html"><bdi>Resources</bdi></a></li>
+              <li><a href="lessons/ch10-8.html"><bdi>Prompts</bdi></a></li>
+              <li><a href="lessons/ch10-9.html"><bdi>Transport</bdi></a></li>
+              <li><a href="lessons/ch10-10.html"><bdi>stdio</bdi></a></li>
+              <li><a href="lessons/ch10-11.html"><bdi>HTTP Transport</bdi></a></li>
+              <li><a href="lessons/ch10-12.html"><bdi>Authentication</bdi></a></li>
+              <li><a href="lessons/ch10-13.html"><bdi>Authorization</bdi></a></li>
+              <li><a href="lessons/ch10-14.html"><bdi>MCP Security</bdi></a></li>
+              <li><a href="lessons/ch10-15.html"><bdi>ساخت MCP Server با .NET</bdi></a></li>
+              <li><a href="lessons/ch10-16.html"><bdi>اتصال Agent به MCP Server</bdi></a></li>
+              <li><a href="lessons/ch10-17.html"><bdi>REST API vs Tool Calling vs MCP</bdi></a></li>
+              <li><a href="lessons/ch10-18.html"><bdi>MCP برای Microservices</bdi></a></li>
+              <li><a href="lessons/ch10-19.html"><bdi>پروژه: PaymentMcpServer</bdi></a></li>
+            </ol>
+          </details>
+        </div>
+      </section>
+      <section class="course-part" aria-labelledby="part-15">
+        <div class="part-heading">
+          <h3 id="part-15"><bdi>Agent Framework &amp; Orchestration</bdi></h3>
+        </div>
+        <div class="chapters">
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">11</span>
+              <span class="chapter-title"><bdi>Microsoft Agent Framework</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch11-1.html"><bdi>Agent Framework چیست؟</bdi></a></li>
+              <li><a href="lessons/ch11-2.html"><bdi>AIAgent</bdi></a></li>
+              <li><a href="lessons/ch11-3.html"><bdi>ChatClientAgent</bdi></a></li>
+              <li><a href="lessons/ch11-4.html"><bdi>Instructions</bdi></a></li>
+              <li><a href="lessons/ch11-5.html"><bdi>Tools</bdi></a></li>
+              <li><a href="lessons/ch11-6.html"><bdi>Sessions</bdi></a></li>
+              <li><a href="lessons/ch11-7.html"><bdi>Memory</bdi></a></li>
+              <li><a href="lessons/ch11-8.html"><bdi>Context Providers</bdi></a></li>
+              <li><a href="lessons/ch11-9.html"><bdi>Middleware</bdi></a></li>
+              <li><a href="lessons/ch11-10.html"><bdi>Agent Runtime</bdi></a></li>
+              <li><a href="lessons/ch11-11.html"><bdi>Structured Output</bdi></a></li>
+              <li><a href="lessons/ch11-12.html"><bdi>Streaming</bdi></a></li>
+              <li><a href="lessons/ch11-13.html"><bdi>Provider Abstraction</bdi></a></li>
+              <li><a href="lessons/ch11-14.html"><bdi>Agent Hosting</bdi></a></li>
+              <li><a href="lessons/ch11-15.html"><bdi>پروژه: بازنویسی Agent قبلی با Agent Framework</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">12</span>
+              <span class="chapter-title"><bdi>Workflows</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch12-1.html"><bdi>Agent vs Workflow</bdi></a></li>
+              <li><a href="lessons/ch12-2.html"><bdi>Deterministic Workflow</bdi></a></li>
+              <li><a href="lessons/ch12-3.html"><bdi>Agentic Workflow</bdi></a></li>
+              <li><a href="lessons/ch12-4.html"><bdi>Sequential Workflow</bdi></a></li>
+              <li><a href="lessons/ch12-5.html"><bdi>Parallel Workflow</bdi></a></li>
+              <li><a href="lessons/ch12-6.html"><bdi>Concurrent Workflow</bdi></a></li>
+              <li><a href="lessons/ch12-7.html"><bdi>Routing</bdi></a></li>
+              <li><a href="lessons/ch12-8.html"><bdi>Conditional Branching</bdi></a></li>
+              <li><a href="lessons/ch12-9.html"><bdi>Retry</bdi></a></li>
+              <li><a href="lessons/ch12-10.html"><bdi>State</bdi></a></li>
+              <li><a href="lessons/ch12-11.html"><bdi>Checkpoint</bdi></a></li>
+              <li><a href="lessons/ch12-12.html"><bdi>Resume</bdi></a></li>
+              <li><a href="lessons/ch12-13.html"><bdi>Long-running Workflow</bdi></a></li>
+              <li><a href="lessons/ch12-14.html"><bdi>Human-in-the-loop</bdi></a></li>
+              <li><a href="lessons/ch12-15.html"><bdi>Handoff</bdi></a></li>
+              <li><a href="lessons/ch12-16.html"><bdi>Workflow Orchestration</bdi></a></li>
+              <li><a href="lessons/ch12-17.html"><bdi>پروژه: Payment Dispute Workflow</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">13</span>
+              <span class="chapter-title"><bdi>Multi-Agent Systems</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch13-1.html"><bdi>Multi-Agent چیست؟</bdi></a></li>
+              <li><a href="lessons/ch13-2.html"><bdi>چه زمانی Multi-Agent نیاز داریم؟</bdi></a></li>
+              <li><a href="lessons/ch13-3.html"><bdi>Specialized Agents</bdi></a></li>
+              <li><a href="lessons/ch13-4.html"><bdi>Coordinator Agent</bdi></a></li>
+              <li><a href="lessons/ch13-5.html"><bdi>Supervisor Agent</bdi></a></li>
+              <li><a href="lessons/ch13-6.html"><bdi>Agents as Tools</bdi></a></li>
+              <li><a href="lessons/ch13-7.html"><bdi>Delegation</bdi></a></li>
+              <li><a href="lessons/ch13-8.html"><bdi>Handoff</bdi></a></li>
+              <li><a href="lessons/ch13-9.html"><bdi>Routing</bdi></a></li>
+              <li><a href="lessons/ch13-10.html"><bdi>Parallel Agents</bdi></a></li>
+              <li><a href="lessons/ch13-11.html"><bdi>Group Chat</bdi></a></li>
+              <li><a href="lessons/ch13-12.html"><bdi>Shared Context</bdi></a></li>
+              <li><a href="lessons/ch13-13.html"><bdi>Shared State</bdi></a></li>
+              <li><a href="lessons/ch13-14.html"><bdi>Agent Communication</bdi></a></li>
+              <li><a href="lessons/ch13-15.html"><bdi>Conflict Resolution</bdi></a></li>
+              <li><a href="lessons/ch13-16.html"><bdi>Multi-Agent Orchestration</bdi></a></li>
+              <li><a href="lessons/ch13-17.html"><bdi>پروژه: Payment Operations Multi-Agent System</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">14</span>
+              <span class="chapter-title"><bdi>Advanced Agent Patterns</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch14-1.html"><bdi>Task Decomposition</bdi></a></li>
+              <li><a href="lessons/ch14-2.html"><bdi>Dynamic Planning</bdi></a></li>
+              <li><a href="lessons/ch14-3.html"><bdi>Plan-and-Execute</bdi></a></li>
+              <li><a href="lessons/ch14-4.html"><bdi>ReAct</bdi></a></li>
+              <li><a href="lessons/ch14-5.html"><bdi>Reflection</bdi></a></li>
+              <li><a href="lessons/ch14-6.html"><bdi>Critic Pattern</bdi></a></li>
+              <li><a href="lessons/ch14-7.html"><bdi>Self-Correction</bdi></a></li>
+              <li><a href="lessons/ch14-8.html"><bdi>Tool-Using Agent</bdi></a></li>
+              <li><a href="lessons/ch14-9.html"><bdi>Router Agent</bdi></a></li>
+              <li><a href="lessons/ch14-10.html"><bdi>Agent-as-a-Tool</bdi></a></li>
+              <li><a href="lessons/ch14-11.html"><bdi>Supervisor Pattern</bdi></a></li>
+              <li><a href="lessons/ch14-12.html"><bdi>Generator / Critic</bdi></a></li>
+              <li><a href="lessons/ch14-13.html"><bdi>Evaluator / Optimizer</bdi></a></li>
+              <li><a href="lessons/ch14-14.html"><bdi>Orchestrator / Workers</bdi></a></li>
+              <li><a href="lessons/ch14-15.html"><bdi>Sequential Agent</bdi></a></li>
+              <li><a href="lessons/ch14-16.html"><bdi>Parallel Agent</bdi></a></li>
+              <li><a href="lessons/ch14-17.html"><bdi>Handoff Pattern</bdi></a></li>
+              <li><a href="lessons/ch14-18.html"><bdi>Map-Reduce Agents</bdi></a></li>
+              <li><a href="lessons/ch14-19.html"><bdi>Agent Harness</bdi></a></li>
+              <li><a href="lessons/ch14-20.html"><bdi>Skill-Based Agents</bdi></a></li>
+              <li><a href="lessons/ch14-21.html"><bdi>پروژه: Coding Agent</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">15</span>
+              <span class="chapter-title"><bdi>Human-in-the-Loop</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch15-1.html"><bdi>Approval</bdi></a></li>
+              <li><a href="lessons/ch15-2.html"><bdi>Confirmation</bdi></a></li>
+              <li><a href="lessons/ch15-3.html"><bdi>Escalation</bdi></a></li>
+              <li><a href="lessons/ch15-4.html"><bdi>Risk-Based Approval</bdi></a></li>
+              <li><a href="lessons/ch15-5.html"><bdi>Pause</bdi></a></li>
+              <li><a href="lessons/ch15-6.html"><bdi>Resume</bdi></a></li>
+              <li><a href="lessons/ch15-7.html"><bdi>Checkpoint</bdi></a></li>
+              <li><a href="lessons/ch15-8.html"><bdi>Sensitive Actions</bdi></a></li>
+              <li><a href="lessons/ch15-9.html"><bdi>Financial Actions</bdi></a></li>
+              <li><a href="lessons/ch15-10.html"><bdi>Manual Review</bdi></a></li>
+              <li><a href="lessons/ch15-11.html"><bdi>Approval Policies</bdi></a></li>
+              <li><a href="lessons/ch15-12.html"><bdi>پروژه: Refund Approval Agent</bdi></a></li>
+            </ol>
+          </details>
+        </div>
+      </section>
+      <section class="course-part" aria-labelledby="part-20">
+        <div class="part-heading">
+          <h3 id="part-20"><bdi>Production-Grade Agents</bdi></h3>
+        </div>
+        <div class="chapters">
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">16</span>
+              <span class="chapter-title"><bdi>Agent Security</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch16-1.html"><bdi>Prompt Injection</bdi></a></li>
+              <li><a href="lessons/ch16-2.html"><bdi>Indirect Prompt Injection</bdi></a></li>
+              <li><a href="lessons/ch16-3.html"><bdi>Tool Injection</bdi></a></li>
+              <li><a href="lessons/ch16-4.html"><bdi>Data Exfiltration</bdi></a></li>
+              <li><a href="lessons/ch16-5.html"><bdi>Agent Threat Modeling</bdi></a></li>
+              <li><a href="lessons/ch16-6.html"><bdi>Least Privilege</bdi></a></li>
+              <li><a href="lessons/ch16-7.html"><bdi>Allow List</bdi></a></li>
+              <li><a href="lessons/ch16-8.html"><bdi>Authentication</bdi></a></li>
+              <li><a href="lessons/ch16-9.html"><bdi>Authorization</bdi></a></li>
+              <li><a href="lessons/ch16-10.html"><bdi>Tool Permissions</bdi></a></li>
+              <li><a href="lessons/ch16-11.html"><bdi>Sandboxing</bdi></a></li>
+              <li><a href="lessons/ch16-12.html"><bdi>Secret Management</bdi></a></li>
+              <li><a href="lessons/ch16-13.html"><bdi>Input Validation</bdi></a></li>
+              <li><a href="lessons/ch16-14.html"><bdi>Output Validation</bdi></a></li>
+              <li><a href="lessons/ch16-15.html"><bdi>PII Protection</bdi></a></li>
+              <li><a href="lessons/ch16-16.html"><bdi>Audit Logging</bdi></a></li>
+              <li><a href="lessons/ch16-17.html"><bdi>Sensitive Tool Protection</bdi></a></li>
+              <li><a href="lessons/ch16-18.html"><bdi>Security Boundaries</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">17</span>
+              <span class="chapter-title"><bdi>Agent Evaluations</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch17-1.html"><bdi>Eval چیست؟</bdi></a></li>
+              <li><a href="lessons/ch17-2.html"><bdi>Test Dataset</bdi></a></li>
+              <li><a href="lessons/ch17-3.html"><bdi>Golden Dataset</bdi></a></li>
+              <li><a href="lessons/ch17-4.html"><bdi>Exact Match</bdi></a></li>
+              <li><a href="lessons/ch17-5.html"><bdi>Semantic Evaluation</bdi></a></li>
+              <li><a href="lessons/ch17-6.html"><bdi>LLM-as-a-Judge</bdi></a></li>
+              <li><a href="lessons/ch17-7.html"><bdi>Tool Selection Accuracy</bdi></a></li>
+              <li><a href="lessons/ch17-8.html"><bdi>Tool Argument Accuracy</bdi></a></li>
+              <li><a href="lessons/ch17-9.html"><bdi>Task Completion Rate</bdi></a></li>
+              <li><a href="lessons/ch17-10.html"><bdi>Hallucination Rate</bdi></a></li>
+              <li><a href="lessons/ch17-11.html"><bdi>RAG Evaluation</bdi></a></li>
+              <li><a href="lessons/ch17-12.html"><bdi>Agent Trajectory Evaluation</bdi></a></li>
+              <li><a href="lessons/ch17-13.html"><bdi>Regression Testing</bdi></a></li>
+              <li><a href="lessons/ch17-14.html"><bdi>Safety Evaluation</bdi></a></li>
+              <li><a href="lessons/ch17-15.html"><bdi>Cost Evaluation</bdi></a></li>
+              <li><a href="lessons/ch17-16.html"><bdi>Latency Evaluation</bdi></a></li>
+              <li><a href="lessons/ch17-17.html"><bdi>پروژه: Agent Evals با xUnit</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">18</span>
+              <span class="chapter-title"><bdi>Observability</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch18-1.html"><bdi>Logging</bdi></a></li>
+              <li><a href="lessons/ch18-2.html"><bdi>Metrics</bdi></a></li>
+              <li><a href="lessons/ch18-3.html"><bdi>Tracing</bdi></a></li>
+              <li><a href="lessons/ch18-4.html"><bdi>OpenTelemetry</bdi></a></li>
+              <li><a href="lessons/ch18-5.html"><bdi>Agent Trace</bdi></a></li>
+              <li><a href="lessons/ch18-6.html"><bdi>LLM Request Trace</bdi></a></li>
+              <li><a href="lessons/ch18-7.html"><bdi>Tool Trace</bdi></a></li>
+              <li><a href="lessons/ch18-8.html"><bdi>Agent Step Trace</bdi></a></li>
+              <li><a href="lessons/ch18-9.html"><bdi>Token Usage</bdi></a></li>
+              <li><a href="lessons/ch18-10.html"><bdi>Cost Tracking</bdi></a></li>
+              <li><a href="lessons/ch18-11.html"><bdi>Latency</bdi></a></li>
+              <li><a href="lessons/ch18-12.html"><bdi>Failure Analysis</bdi></a></li>
+              <li><a href="lessons/ch18-13.html"><bdi>CorrelationId</bdi></a></li>
+              <li><a href="lessons/ch18-14.html"><bdi>Distributed Tracing</bdi></a></li>
+              <li><a href="lessons/ch18-15.html"><bdi>Dashboard</bdi></a></li>
+              <li><a href="lessons/ch18-16.html"><bdi>Alerts</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">19</span>
+              <span class="chapter-title"><bdi>Production Architecture</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch19-1.html"><bdi>ASP.NET Core Hosting</bdi></a></li>
+              <li><a href="lessons/ch19-2.html"><bdi>Agent Service</bdi></a></li>
+              <li><a href="lessons/ch19-3.html"><bdi>Background Services</bdi></a></li>
+              <li><a href="lessons/ch19-4.html"><bdi>Queue-Based Agents</bdi></a></li>
+              <li><a href="lessons/ch19-5.html"><bdi>RabbitMQ</bdi></a></li>
+              <li><a href="lessons/ch19-6.html"><bdi>Kafka</bdi></a></li>
+              <li><a href="lessons/ch19-7.html"><bdi>Redis</bdi></a></li>
+              <li><a href="lessons/ch19-8.html"><bdi>SQL Server</bdi></a></li>
+              <li><a href="lessons/ch19-9.html"><bdi>Distributed Lock</bdi></a></li>
+              <li><a href="lessons/ch19-10.html"><bdi>Idempotency</bdi></a></li>
+              <li><a href="lessons/ch19-11.html"><bdi>Retry</bdi></a></li>
+              <li><a href="lessons/ch19-12.html"><bdi>Circuit Breaker</bdi></a></li>
+              <li><a href="lessons/ch19-13.html"><bdi>Rate Limiting</bdi></a></li>
+              <li><a href="lessons/ch19-14.html"><bdi>Timeout</bdi></a></li>
+              <li><a href="lessons/ch19-15.html"><bdi>Cancellation</bdi></a></li>
+              <li><a href="lessons/ch19-16.html"><bdi>Horizontal Scaling</bdi></a></li>
+              <li><a href="lessons/ch19-17.html"><bdi>Stateless Agent Workers</bdi></a></li>
+              <li><a href="lessons/ch19-18.html"><bdi>Persistent State</bdi></a></li>
+              <li><a href="lessons/ch19-19.html"><bdi>Distributed Agents</bdi></a></li>
+              <li><a href="lessons/ch19-20.html"><bdi>Resilience</bdi></a></li>
+              <li><a href="lessons/ch19-21.html"><bdi>Docker</bdi></a></li>
+              <li><a href="lessons/ch19-22.html"><bdi>Kubernetes</bdi></a></li>
+              <li><a href="lessons/ch19-23.html"><bdi>.NET Aspire</bdi></a></li>
+              <li><a href="lessons/ch19-24.html"><bdi>OpenTelemetry</bdi></a></li>
+              <li><a href="lessons/ch19-25.html"><bdi>Deployment Strategies</bdi></a></li>
+            </ol>
+          </details>
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">20</span>
+              <span class="chapter-title"><bdi>Cost &amp; Performance Engineering</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch20-1.html"><bdi>Token Optimization</bdi></a></li>
+              <li><a href="lessons/ch20-2.html"><bdi>Token Budget</bdi></a></li>
+              <li><a href="lessons/ch20-3.html"><bdi>Context Reduction</bdi></a></li>
+              <li><a href="lessons/ch20-4.html"><bdi>Context Compression</bdi></a></li>
+              <li><a href="lessons/ch20-5.html"><bdi>Prompt Caching</bdi></a></li>
+              <li><a href="lessons/ch20-6.html"><bdi>Semantic Cache</bdi></a></li>
+              <li><a href="lessons/ch20-7.html"><bdi>Model Routing</bdi></a></li>
+              <li><a href="lessons/ch20-8.html"><bdi>Small Model vs Large Model</bdi></a></li>
+              <li><a href="lessons/ch20-9.html"><bdi>Model Fallback</bdi></a></li>
+              <li><a href="lessons/ch20-10.html"><bdi>Parallel Tool Calling</bdi></a></li>
+              <li><a href="lessons/ch20-11.html"><bdi>Streaming</bdi></a></li>
+              <li><a href="lessons/ch20-12.html"><bdi>Batch Processing</bdi></a></li>
+              <li><a href="lessons/ch20-13.html"><bdi>Timeout</bdi></a></li>
+              <li><a href="lessons/ch20-14.html"><bdi>Agent Step Limit</bdi></a></li>
+              <li><a href="lessons/ch20-15.html"><bdi>Cost Budget</bdi></a></li>
+              <li><a href="lessons/ch20-16.html"><bdi>Latency Optimization</bdi></a></li>
+              <li><a href="lessons/ch20-17.html"><bdi>Cost Monitoring</bdi></a></li>
+              <li><a href="lessons/ch20-18.html"><bdi>Performance Benchmarking</bdi></a></li>
+            </ol>
+          </details>
+        </div>
+      </section>
+      <section class="course-part" aria-labelledby="part-21">
+        <div class="part-heading">
+          <h3 id="part-21"><bdi>Final Project</bdi></h3>
+        </div>
+        <div class="chapters">
+          <details class="chapter">
+            <summary>
+              <span class="chapter-number">21</span>
+              <span class="chapter-title"><bdi>AI Payment Operations Agent</bdi></span>
+            </summary>
+            <ol>
+              <li><a href="lessons/ch21-1.html"><bdi>Solution Architecture</bdi></a></li>
+              <li><a href="lessons/ch21-2.html"><bdi>ASP.NET Core</bdi></a></li>
+              <li><a href="lessons/ch21-3.html"><bdi>Microsoft.Extensions.AI</bdi></a></li>
+              <li><a href="lessons/ch21-4.html"><bdi>Microsoft Agent Framework</bdi></a></li>
+              <li><a href="lessons/ch21-5.html"><bdi>LLM Provider</bdi></a></li>
+              <li><a href="lessons/ch21-6.html"><bdi>Tool Calling</bdi></a></li>
+              <li><a href="lessons/ch21-7.html"><bdi>Agent Loop</bdi></a></li>
+              <li><a href="lessons/ch21-8.html"><bdi>Context &amp; Memory</bdi></a></li>
+              <li><a href="lessons/ch21-9.html"><bdi>Redis</bdi></a></li>
+              <li><a href="lessons/ch21-10.html"><bdi>SQL Server</bdi></a></li>
+              <li><a href="lessons/ch21-11.html"><bdi>Embeddings</bdi></a></li>
+              <li><a href="lessons/ch21-12.html"><bdi>RAG</bdi></a></li>
+              <li><a href="lessons/ch21-13.html"><bdi>MCP</bdi></a></li>
+              <li><a href="lessons/ch21-14.html"><bdi>Workflow</bdi></a></li>
+              <li><a href="lessons/ch21-15.html"><bdi>Multi-Agent</bdi></a></li>
+              <li><a href="lessons/ch21-16.html"><bdi>Human Approval</bdi></a></li>
+              <li><a href="lessons/ch21-17.html"><bdi>Security</bdi></a></li>
+              <li><a href="lessons/ch21-18.html"><bdi>Evals</bdi></a></li>
+              <li><a href="lessons/ch21-19.html"><bdi>Observability</bdi></a></li>
+              <li><a href="lessons/ch21-20.html"><bdi>RabbitMQ</bdi></a></li>
+              <li><a href="lessons/ch21-21.html"><bdi>OpenTelemetry</bdi></a></li>
+              <li><a href="lessons/ch21-22.html"><bdi>Docker</bdi></a></li>
+              <li><a href="lessons/ch21-23.html"><bdi>Kubernetes</bdi></a></li>
+              <li><a href="lessons/ch21-24.html"><bdi>Cost Management</bdi></a></li>
+              <li><a href="lessons/ch21-25.html"><bdi>Production Deployment</bdi></a></li>
+            </ol>
+          </details>
+        </div>
+      </section>
+    </section>
+    <section class="course-outcomes" aria-labelledby="outcomes-title">
+      <div>
+        <p class="eyebrow">پروژهٔ نهایی</p>
+        <h2 id="outcomes-title"><bdi>AI Payment Operations Agent</bdi></h2>
+        <p>در پایان، یک Agent عملیاتی و Production-Grade می‌سازید که با Toolها، Memory، RAG، MCP و Workflow مسئله‌های
+          واقعی Payment را مدیریت می‌کند.</p>
+      </div>
+      <ul>
+        <li>ASP.NET Core، Microsoft.Extensions.AI و Microsoft Agent Framework</li>
+        <li>Tool Calling، Agent Loop، Context و Memory</li>
+        <li>Embeddings، RAG، MCP و Multi-Agent Workflow</li>
+        <li>Human Approval، Security و Agent Evals</li>
+        <li>OpenTelemetry، RabbitMQ، Docker و Kubernetes</li>
+        <li>Cost Management و Production Deployment</li>
+      </ul>
+    </section>
+  </main>
+
+</body>
+
+</html>
