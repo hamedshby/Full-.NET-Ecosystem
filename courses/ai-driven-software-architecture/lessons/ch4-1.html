@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش خلاصه و کاربردی Architectural Drivers و نقش آن‌ها در تصمیم‌گیری معماری نرم‌افزار با مثال سیستم Payment.">
+  <title>Architectural Drivers | AI-Driven Software Architecture</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>AI-Driven Software Architecture</bdi></span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI-Driven Software Architecture</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل چهارم</span>
+        <span aria-hidden="true">/</span>
+        <span>درس ۱</span>
+      </nav>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل چهارم — انتخاب معماری و Trade-offs</p>
+          <h1><bdi>Architectural Drivers</bdi></h1>
+          <p class="lesson-lead">
+            Architectural Drivers مهم‌ترین نیازها، محدودیت‌ها و اهدافی هستند که بیشترین تأثیر را روی تصمیم‌های معماری
+            دارند.
+            معماری خوب از Technology شروع نمی‌شود؛ از Driverهای واقعی پروژه شروع می‌شود.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title"><bdi>Architectural Driver</bdi> چیست؟</h2>
+          <p>
+            همهٔ Requirementها به یک اندازه روی معماری اثر ندارند. بعضی نیازها مستقیماً تعیین می‌کنند سیستم چگونه تقسیم
+            شود،
+            چه تکنولوژی‌هایی انتخاب شوند، داده چگونه نگهداری شود و ارتباط اجزا چگونه انجام شود.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            Driverها ورودی‌های اصلی تصمیم‌گیری معماری هستند؛ Architecture نتیجهٔ پاسخ‌دادن به آن‌هاست.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="types-title">
+          <h2 id="types-title">مهم‌ترین انواع Driverها</h2>
+
+          <div class="comparison-table" role="region" aria-label="انواع Architectural Driver" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>نوع Driver</th>
+                  <th>مثال</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><bdi>Business Goals</bdi></td>
+                  <td>سیستم باید بتواند سریع وارد بازار شود یا در چند کشور توسعه پیدا کند.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Critical Functional Requirements</bdi></td>
+                  <td>پرداخت، Refund و Settlement باید پشتیبانی شوند.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Quality Attributes</bdi></td>
+                  <td>Latency کمتر از 200ms، Availability برابر 99.99٪.</td>
+                </tr>
+                <tr>
+                  <td><bdi>Constraints</bdi></td>
+                  <td>استفاده اجباری از SQL Server، Kubernetes یا زیرساخت موجود سازمان.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال واقعی: سیستم Payment</h2>
+
+          <p>فرض کنید قرار است یک Payment Service طراحی کنیم. چند Driver مهم پروژه:</p>
+
+          <ul>
+            <li>سیستم باید روزانه میلیون‌ها تراکنش را پردازش کند.</li>
+            <li>زمان پاسخ تراکنش باید کمتر از <bdi>200ms</bdi> باشد.</li>
+            <li>درخواست تکراری نباید باعث Double Payment شود.</li>
+            <li>قطع موقت سرویس‌های جانبی نباید پردازش اصلی پرداخت را متوقف کند.</li>
+            <li>تمام تراکنش‌ها باید قابل Audit باشند.</li>
+          </ul>
+
+          <p>این Driverها می‌توانند مستقیماً تصمیم‌های معماری را شکل دهند:</p>
+
+          <div class="comparison-table" role="region" aria-label="ارتباط Driver و تصمیم معماری" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Driver</th>
+                  <th>تصمیم احتمالی معماری</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Throughput بالا</td>
+                  <td>Horizontal Scaling و Stateless Service</td>
+                </tr>
+                <tr>
+                  <td>Latency پایین</td>
+                  <td>کاهش Callهای شبکه و استفادهٔ هدفمند از Cache</td>
+                </tr>
+                <tr>
+                  <td>جلوگیری از Duplicate Payment</td>
+                  <td>Idempotency Key و Unique Constraint</td>
+                </tr>
+                <tr>
+                  <td>تحمل خطای سرویس‌های جانبی</td>
+                  <td>Async Messaging، Retry و Circuit Breaker</td>
+                </tr>
+                <tr>
+                  <td>Auditability</td>
+                  <td>ثبت History و Correlation ID</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="process-title">
+          <h2 id="process-title">از Driver تا Architecture</h2>
+
+          <div class="architecture-flow" aria-label="فرآیند تبدیل Driver به تصمیم معماری">
+            <div>Requirements</div><span aria-hidden="true">←</span>
+            <div>Architectural Drivers</div><span aria-hidden="true">←</span>
+            <div>Architecture Options</div><span aria-hidden="true">←</span>
+            <div>Trade-offs</div><span aria-hidden="true">←</span>
+            <div>Decision</div>
+          </div>
+
+          <p>
+            معمار ابتدا Driverهای مهم را مشخص می‌کند، سپس چند گزینهٔ معماری را در برابر آن‌ها مقایسه می‌کند.
+            انتخاب نهایی باید بر اساس نیاز واقعی پروژه باشد، نه محبوبیت یک Pattern یا Technology.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="ai-title">
+          <h2 id="ai-title">نقش AI در شناسایی Driverها</h2>
+          <p>
+            AI می‌تواند Requirementها را تحلیل کند و مواردی را که احتمالاً روی Architecture اثر جدی دارند استخراج کند؛
+            مثلاً Performance، Availability، Security، Constraints و حجم مورد انتظار سیستم.
+          </p>
+
+          <div class="lesson-example">
+            <h3>نمونه Prompt</h3>
+            <p>
+              «این Requirements را تحلیل کن و Architectural Driverهای سیستم را در چهار گروه
+              Business Goals، Critical Requirements، Quality Attributes و Constraints استخراج کن.»
+            </p>
+          </div>
+
+          <p>
+            AI می‌تواند Candidate Driver پیشنهاد دهد، اما اولویت و اهمیت نهایی آن‌ها باید با Context واقعی پروژه بررسی
+            شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباه رایج</h2>
+          <p>
+            یکی از رایج‌ترین اشتباهات این است که تیم ابتدا Technology را انتخاب کند و بعد Architecture را با آن تطبیق
+            دهد:
+          </p>
+
+          <div class="lesson-example">
+            <p><strong>روش اشتباه:</strong> «Kafka و Microservices استفاده کنیم؛ حالا ببینیم کجا به درد می‌خورند.»</p>
+            <p><strong>روش درست:</strong> «Driverهای ما چیست و چه معماری‌ای بهترین پاسخ را به آن‌ها می‌دهد؟»</p>
+          </div>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li><bdi>Architectural Drivers</bdi> مهم‌ترین ورودی‌های تصمیم‌گیری معماری هستند.</li>
+            <li>Driverها معمولاً از Business Goals، Requirements، Quality Attributes و Constraints می‌آیند.</li>
+            <li>هر Requirement الزاماً Driver معماری نیست؛ فقط مواردی که اثر قابل‌توجه روی Architecture دارند.</li>
+            <li>Pattern و Technology باید در پاسخ به Driverها انتخاب شوند، نه برعکس.</li>
+            <li>AI می‌تواند به استخراج و تحلیل Driverها کمک کند، اما تصمیم نهایی نیازمند قضاوت معماری است.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="../index.html">بازگشت به فهرست</a>
+          <a href="quality-attributes.html">درس بعدی: Quality Attributes چیست؟</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+
+</html>

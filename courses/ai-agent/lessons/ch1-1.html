@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="درس AI، Machine Learning و Generative AI از دورهٔ AI Agent در آکادمی دات‌نت.">
+  <title>AI، Machine Learning و Generative AI | AI Agent</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>AI Agent</bdi></span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI Agent</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل 1، درس 1</span>
+      </nav>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow"><bdi>PART 1 — LLM Fundamentals</bdi></p>
+          <p class="lesson-chapter"><bdi>AI &amp; LLM Fundamentals</bdi></p>
+          <h1><bdi>AI، Machine Learning و Generative AI</bdi></h1>
+          <p class="lesson-lead">پیش از ساختن یک <bdi>AI Agent</bdi> باید سه مفهوم را از هم جدا کنیم: <bdi>AI</bdi> نام یک حوزهٔ گسترده است، <bdi>Machine Learning</bdi> روشی برای یادگیری الگو از داده است و <bdi>Generative AI</bdi> خانواده‌ای از مدل‌ها است که محتوای تازه تولید می‌کنند.</p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="observable-example-title">
+          <h2 id="observable-example-title">از یک رفتار قابل‌مشاهده شروع کنیم</h2>
+          <p>فرض کنید در یک سیستم پرداخت، تراکنشی با مبلغ زیاد از دستگاهی ناشناس ثبت می‌شود. سه قابلیت متفاوت می‌توانند روی همین تراکنش کار کنند:</p>
+          <ol>
+            <li>یک سیستم قانون‌محور بررسی می‌کند: «اگر مبلغ از حد مشخص بیشتر بود و دستگاه جدید بود، تراکنش را برای بررسی نگه دار.»</li>
+            <li>یک <bdi>Machine Learning Model</bdi> با توجه به الگوهای تراکنش‌های گذشته، احتمال تقلب را برابر ۸۷٪ پیش‌بینی می‌کند.</li>
+            <li>یک <bdi>Generative AI Model</bdi> برای اپراتور توضیحی قابل‌خواندن تولید می‌کند: «این تراکنش به‌دلیل مبلغ غیرمعمول و دستگاه جدید پرریسک تشخیص داده شد.»</li>
+          </ol>
+          <p>هر سه قابلیت می‌توانند زیر چتر <bdi>AI</bdi> قرار بگیرند، اما مسئله و خروجی آن‌ها یکسان نیست: اولی قانون را اجرا می‌کند، دومی پیش‌بینی می‌کند و سومی محتوا می‌سازد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="ai-title">
+          <h2 id="ai-title"><bdi>AI</bdi> چیست؟</h2>
+          <p><bdi>Artificial Intelligence</bdi> یا <bdi>AI</bdi> حوزه‌ای از علوم کامپیوتر است که هدف آن ساخت سیستم‌هایی است که کارهای نیازمند توانایی‌های شناختی را انجام دهند؛ کارهایی مانند تشخیص الگو، تصمیم‌گیری، درک زبان، برنامه‌ریزی یا حل مسئله.</p>
+          <p>این تعریف نمی‌گوید ماشین «آگاهی» یا «فهم انسانی» دارد. ما دربارهٔ رفتار قابل‌مشاهدهٔ سیستم صحبت می‌کنیم: سیستم چه ورودی‌ای می‌گیرد، چه پردازشی انجام می‌دهد و چه خروجی‌ای می‌دهد.</p>
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            <bdi>AI</bdi> را یک چتر بزرگ در نظر بگیرید. زیر این چتر، روش‌های مختلفی مانند سیستم‌های قانون‌محور، جست‌وجو، برنامه‌ریزی و <bdi>Machine Learning</bdi> قرار می‌گیرند.
+          </aside>
+          <p>برای مثال، یک موتور شطرنج می‌تواند با جست‌وجوی حالت‌های ممکن و ارزیابی حرکت‌ها تصمیم بگیرد. چنین سیستمی الزاماً از داده آموزش ندیده است، اما رفتاری را انجام می‌دهد که در حوزهٔ <bdi>AI</bdi> مطالعه می‌شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="ml-title">
+          <h2 id="ml-title"><bdi>Machine Learning</bdi> چیست؟</h2>
+          <p><bdi>Machine Learning</bdi> زیرمجموعه‌ای از <bdi>AI</bdi> است. در این روش به‌جای نوشتن تمام قانون‌ها به‌صورت دستی، الگوریتم از نمونه‌های داده الگو یاد می‌گیرد و یک <bdi>Model</bdi> می‌سازد.</p>
+          <p><bdi>Model</bdi> نتیجهٔ فرایند یادگیری است؛ یعنی ساختاری که رابطه‌های آموخته‌شده را نگه می‌دارد و می‌تواند برای دادهٔ جدید خروجی تولید کند.</p>
+
+          <div class="architecture-flow" aria-label="جریان سادهٔ Machine Learning">
+            <div>Historical Data</div><span aria-hidden="true">←</span>
+            <div>Training</div><span aria-hidden="true">←</span>
+            <div>Model</div><span aria-hidden="true">←</span>
+            <div>Prediction</div>
+          </div>
+
+          <h3>دو مرحلهٔ مهم: <bdi>Training</bdi> و <bdi>Inference</bdi></h3>
+          <ul>
+            <li><strong><bdi>Training</bdi>:</strong> الگوریتم داده‌های گذشته را بررسی می‌کند و پارامترهای Model را تنظیم می‌کند. مثلاً تراکنش‌های «سالم» و «متقلبانه» را می‌بیند.</li>
+            <li><strong><bdi>Inference</bdi>:</strong> Model آموزش‌دیده یک ورودی جدید می‌گیرد و برای آن پیش‌بینی تولید می‌کند. مثلاً احتمال تقلب تراکنش تازه را محاسبه می‌کند.</li>
+          </ul>
+          <p>این دو مرحله را یکی ندانید. برنامهٔ Production معمولاً بارها <bdi>Inference</bdi> انجام می‌دهد، درحالی‌که <bdi>Training</bdi> در یک فرایند جدا و کنترل‌شده انجام می‌شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="ml-code-title">
+          <h2 id="ml-code-title">یک نمونهٔ ساده از <bdi>Inference</bdi> در <bdi>C#</bdi></h2>
+          <p>کد زیر یک Model واقعی را آموزش نمی‌دهد. ضرایب از قبل ثابت شده‌اند تا فقط رفتار مرحلهٔ <bdi>Inference</bdi> را ببینیم. در یک پروژهٔ واقعی، این ضرایب طی <bdi>Training</bdi> از داده یاد گرفته می‌شوند.</p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">public sealed record Transaction(
+    decimal Amount,
+    bool IsNewDevice,
+    int FailedAttempts);
+
+public static double PredictRisk(Transaction transaction)
+{
+    var amountSignal = Math.Min((double)(transaction.Amount / 10_000_000m), 1);
+    var deviceSignal = transaction.IsNewDevice ? 0.35 : 0;
+    var attemptsSignal = Math.Min(transaction.FailedAttempts * 0.12, 0.36);
+
+    return Math.Min(amountSignal * 0.45 + deviceSignal + attemptsSignal, 1);
+}
+
+var transaction = new Transaction(
+    Amount: 8_000_000m,
+    IsNewDevice: true,
+    FailedAttempts: 2);
+
+var risk = PredictRisk(transaction);
+
+Console.WriteLine($"Risk: {risk:P0}");
+Console.WriteLine(risk &gt;= 0.70 ? "Manual review" : "Continue");</code></pre>
+
+          <div class="lesson-example">
+            <h3>خروجی</h3>
+            <pre class="code-block code-output" data-language="Output"><code>Risk: 95%
+Manual review</code></pre>
+          </div>
+          <p>متد <code>PredictRisk</code> سه Signal را به یک Score تبدیل می‌کند. مقدار نهایی از یک بیشتر نمی‌شود و اگر حداقل ۷۰٪ باشد، تراکنش برای بررسی دستی ارسال می‌شود.</p>
+          <p>این مثال عمداً ساده است. Model واقعی باید با دادهٔ معتبر آموزش ببیند، روی داده‌ای مستقل ارزیابی شود و دلیل انتخاب Threshold آن با هزینهٔ خطاهای کسب‌وکار سنجیده شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="generative-ai-title">
+          <h2 id="generative-ai-title"><bdi>Generative AI</bdi> چیست؟</h2>
+          <p><bdi>Generative AI</bdi> به مدل‌هایی گفته می‌شود که بر اساس الگوهای آموخته‌شده، محتوای تازه تولید می‌کنند. این محتوا می‌تواند Text، Image، Audio، Video یا Code باشد.</p>
+          <p>عبارت «تازه» به این معنا نیست که Model مانند انسان قصد یا تجربهٔ شخصی دارد. خروجی از رابطه‌های آماری آموخته‌شده ساخته می‌شود. برای نمونه، یک مدل زبانی با توجه به Context موجود، ادامهٔ مناسب Text را پیش‌بینی و تولید می‌کند.</p>
+          <p>تفاوت اصلی با بسیاری از کاربردهای کلاسیک <bdi>Machine Learning</bdi> در نوع خروجی دیده می‌شود:</p>
+          <ul>
+            <li>یک Model طبقه‌بندی ممکن است فقط برچسب <code>Fraud</code> یا <code>Legitimate</code> برگرداند.</li>
+            <li>یک Model رگرسیون ممکن است مقدار فروش ماه بعد را پیش‌بینی کند.</li>
+            <li>یک <bdi>Generative Model</bdi> می‌تواند گزارش، پاسخ، تصویر یا Code جدید تولید کند.</li>
+          </ul>
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            بیشتر سیستم‌های <bdi>Generative AI</bdi> مدرن با روش‌های <bdi>Machine Learning</bdi> ساخته می‌شوند. پس <bdi>Generative AI</bdi> جدا از <bdi>Machine Learning</bdi> نیست؛ یک خانوادهٔ تخصصی درون آن است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="comparison-title">
+          <h2 id="comparison-title">مقایسهٔ سه مفهوم</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسهٔ AI، Machine Learning و Generative AI" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>مفهوم</th>
+                  <th>سؤال اصلی</th>
+                  <th>نمونهٔ خروجی</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><bdi>AI</bdi></td>
+                  <td>چگونه رفتاری هوشمندانه برای حل مسئله بسازیم؟</td>
+                  <td>انتخاب حرکت شطرنج یا برنامه‌ریزی مسیر</td>
+                </tr>
+                <tr>
+                  <td><bdi>Machine Learning</bdi></td>
+                  <td>چگونه الگو را از داده یاد بگیریم؟</td>
+                  <td>پیش‌بینی احتمال تقلب یا قیمت</td>
+                </tr>
+                <tr>
+                  <td><bdi>Generative AI</bdi></td>
+                  <td>چگونه محتوای تازه تولید کنیم؟</td>
+                  <td>پاسخ متنی، تصویر، Audio یا Code</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="architecture-flow" aria-label="رابطهٔ AI، Machine Learning و Generative AI">
+            <div>AI</div><span aria-hidden="true">←</span>
+            <div>Machine Learning</div><span aria-hidden="true">←</span>
+            <div>Generative AI</div>
+          </div>
+          <p>پیکان‌ها رابطهٔ زیرمجموعه را نشان می‌دهند: هر <bdi>Generative AI System</bdi> مبتنی بر Machine Learning در حوزهٔ AI قرار می‌گیرد، اما هر AI الزاماً Machine Learning نیست و هر Machine Learning Model نیز Generative نیست.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="selection-title">
+          <h2 id="selection-title">برای هر مسئله کدام رویکرد مناسب است؟</h2>
+          <p>انتخاب Technology باید از شکل مسئله شروع شود، نه از محبوبیت ابزار.</p>
+          <ul>
+            <li><strong>قانون‌ها دقیق و پایدارند:</strong> یک Rule Engine یا Code معمولی معمولاً ساده‌تر، ارزان‌تر و قابل‌پیش‌بینی‌تر است. محاسبهٔ مالیات نمونهٔ خوبی است.</li>
+            <li><strong>الگو پیچیده است و دادهٔ تاریخی دارید:</strong> <bdi>Machine Learning</bdi> می‌تواند برای Classification، Forecasting یا Recommendation مناسب باشد.</li>
+            <li><strong>ورودی یا خروجی ساختار ثابتی ندارد:</strong> <bdi>Generative AI</bdi> برای خلاصه‌سازی، پاسخ‌گویی، استخراج مفهوم و تولید محتوا مفید است.</li>
+            <li><strong>مسئله چند نوع نیاز دارد:</strong> یک سیستم Hybrid می‌تواند قانون قطعی، Model پیش‌بینی و Model مولد را کنار هم قرار دهد.</li>
+          </ul>
+          <div class="lesson-example">
+            <h3>نمونهٔ Hybrid در Payment</h3>
+            <p>قانون قطعی بررسی می‌کند کارت مسدود نباشد؛ Model احتمال Fraud را پیش‌بینی می‌کند؛ Model مولد نتیجه را برای اپراتور توضیح می‌دهد. هر جزء یک مسئولیت مشخص دارد.</p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="agent-title">
+          <h2 id="agent-title">این مفاهیم چه ارتباطی با <bdi>AI Agent</bdi> دارند؟</h2>
+          <p>یک Model به‌تنهایی Agent نیست. Model ورودی می‌گیرد و خروجی تولید می‌کند؛ اما Agent برای رسیدن به Goal، اجرای چندمرحله‌ای را مدیریت می‌کند.</p>
+          <p>یک <bdi>AI Agent</bdi> معمولاً این اجزا را کنار هم قرار می‌دهد:</p>
+          <ul>
+            <li><strong>Model:</strong> زبان یا داده را تحلیل می‌کند و برای گام بعدی پیشنهاد می‌دهد.</li>
+            <li><strong>Instructions:</strong> هدف، نقش و محدودیت رفتار را مشخص می‌کنند.</li>
+            <li><strong>Tools:</strong> امکان خواندن داده یا انجام Action در سیستم‌های واقعی را می‌دهند.</li>
+            <li><strong>Context و Memory:</strong> اطلاعات لازم برای تصمیم فعلی و سابقهٔ مرتبط را فراهم می‌کنند.</li>
+            <li><strong>Runtime Loop:</strong> تصمیم، اجرای Tool، مشاهدهٔ نتیجه و توقف را هماهنگ می‌کند.</li>
+            <li><strong>Guardrails:</strong> دسترسی، Validation، Approval و محدودیت‌های امنیتی را اعمال می‌کنند.</li>
+          </ul>
+          <p>در نتیجه، <bdi>Generative AI Model</bdi> می‌تواند موتور استدلال زبانی Agent باشد، اما قابلیت Agentic از ترکیب Model با ابزارها، State، چرخهٔ اجرا و کنترل‌ها به وجود می‌آید.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="limitations-title">
+          <h2 id="limitations-title">محدودیت‌هایی که باید از ابتدا بشناسیم</h2>
+          <ul>
+            <li><strong>دادهٔ ضعیف، نتیجهٔ ضعیف:</strong> دادهٔ ناقص، قدیمی یا جانبدارانه روی Model اثر می‌گذارد.</li>
+            <li><strong>پیش‌بینی، حقیقت قطعی نیست:</strong> Score برابر ۹۵٪ همچنان احتمال است و باید معنای Business آن مشخص باشد.</li>
+            <li><strong>خروجی مولد می‌تواند نادرست باشد:</strong> متن روان تضمین نمی‌کند واقعیت درست باشد؛ خروجی مهم باید Ground، Validate یا Review شود.</li>
+            <li><strong>Privacy و Security مهم‌اند:</strong> دادهٔ حساس نباید بدون Policy روشن وارد Model یا Provider خارجی شود.</li>
+            <li><strong>هزینه و Latency واقعی‌اند:</strong> فراخوانی Model منابع مصرف می‌کند و ممکن است از Code قطعی کندتر باشد.</li>
+            <li><strong>Evaluation ضروری است:</strong> کیفیت باید با Dataset و معیار متناسب با مسئله اندازه‌گیری شود، نه با چند نمونهٔ نمایشی.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+          <ul>
+            <li><strong>یکسان دانستن AI و Chatbot:</strong> Chatbot فقط یکی از Interfaceهای ممکن برای یک سیستم AI است.</li>
+            <li><strong>استفاده از Generative AI برای قانون قطعی:</strong> اگر پاسخ باید همیشه دقیق و قابل‌ممیزی باشد، Code یا Rule Engine انتخاب مطمئن‌تری است.</li>
+            <li><strong>یکی دانستن Training و Prompting:</strong> Prompt ورودی زمان اجرا را هدایت می‌کند؛ Training پارامترهای Model را با داده تغییر می‌دهد.</li>
+            <li><strong>فرض فهم انسانی:</strong> Model می‌تواند پاسخ قانع‌کننده بسازد، اما این رفتار اثبات آگاهی یا درک انسانی نیست.</li>
+            <li><strong>نادیده‌گرفتن خطا:</strong> هر سیستم AI باید مسیر Failure، Fallback و Human Review داشته باشد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+          <p>برای هر مسئله مشخص کنید راه‌حل مناسب‌تر Rule-Based، Machine Learning، Generative AI یا Hybrid است و دلیل خود را بنویسید:</p>
+          <ol>
+            <li>محاسبهٔ کارمزد تراکنش بر اساس جدول رسمی بانک.</li>
+            <li>پیش‌بینی احتمال لغو اشتراک مشتری در ماه آینده.</li>
+            <li>خلاصه‌کردن مکالمهٔ طولانی پشتیبانی.</li>
+            <li>بررسی تراکنش، پیش‌بینی Fraud و تولید توضیح برای اپراتور.</li>
+          </ol>
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+            <ol>
+              <li>Rule-Based، چون قانون رسمی و قطعی است.</li>
+              <li>Machine Learning، چون هدف پیش‌بینی یک الگو از دادهٔ تاریخی است.</li>
+              <li>Generative AI، چون خروجی Text جدید و بدون قالب ثابت است.</li>
+              <li>Hybrid، چون قانون‌های قطعی، پیش‌بینی و تولید توضیح کنار هم لازم‌اند.</li>
+            </ol>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li><bdi>AI</bdi> حوزهٔ گستردهٔ ساخت سیستم‌هایی با رفتار هوشمندانه است.</li>
+            <li><bdi>Machine Learning</bdi> زیرمجموعهٔ AI است و الگو را از داده یاد می‌گیرد.</li>
+            <li><bdi>Generative AI</bdi> محتوای تازه مانند Text، Image، Audio یا Code تولید می‌کند.</li>
+            <li><bdi>Training</bdi> Model را می‌سازد و <bdi>Inference</bdi> از آن برای ورودی جدید خروجی می‌گیرد.</li>
+            <li>Model به‌تنهایی Agent نیست؛ Agent به Instructions، Tools، Context، Runtime Loop و Guardrails نیاز دارد.</li>
+            <li>راه‌حل خوب ممکن است Rule-Based، Machine Learning، Generative AI یا ترکیبی از آن‌ها باشد.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="../index.html">بازگشت به فهرست دوره</a>
+          <a href="ch1-2.html">درس بعدی: <bdi>LLM چیست؟</bdi></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش ساده و کاربردی LLM، نحوهٔ تولید پاسخ Token به Token، Training، Inference، Transformer و جایگاه مدل زبانی در AI Agent.">
+  <title>LLM چیست؟ | AI Agent</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>AI Agent</bdi></span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">AI Agent</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل 1، درس 2</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow"><bdi>PART 1 — LLM Fundamentals</bdi></p>
+          <p class="lesson-chapter"><bdi>AI &amp; LLM Fundamentals</bdi></p>
+          <h1><bdi>LLM</bdi> چیست؟</h1>
+          <p class="lesson-lead"><bdi>Large Language Model</bdi> یا <bdi>LLM</bdi> مدلی است که الگوهای زبان را از حجم زیادی Text و Code یاد می‌گیرد و با پیش‌بینی گام‌به‌گام Token بعدی، پاسخ تولید می‌کند. خروجی روان آن می‌تواند بسیار مفید باشد، اما روان‌بودن با درست‌بودن یکسان نیست.</p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="observable-example-title">
+          <h2 id="observable-example-title">از یک رفتار ساده شروع کنیم</h2>
+          <p>فرض کنید این جمله را می‌بینید:</p>
+          <div class="lesson-example">
+            <p><bdi>«کاربر رمز عبور خود را فراموش کرده است، بنابراین باید ...»</bdi></p>
+          </div>
+          <p>احتمالاً ادامه‌هایی مانند «رمز را بازیابی کند» یا «درخواست بازنشانی بدهد» به ذهن شما می‌رسد. دلیلش این است که در تجربه‌های قبلی، میان این واژه‌ها و مفهوم‌ها رابطه دیده‌اید.</p>
+          <p>یک <bdi>LLM</bdi> نیز هنگام تولید Text، با توجه به ورودی و بخش تولیدشده تا آن لحظه، برای ادامهٔ ممکن امتیاز محاسبه می‌کند. سپس یک Token انتخاب می‌شود، به Context اضافه می‌شود و همین فرایند دوباره تکرار می‌شود.</p>
+          <div class="architecture-flow" aria-label="چرخهٔ سادهٔ تولید پاسخ در LLM">
+            <div>Prompt</div><span aria-hidden="true">←</span>
+            <div>Next-Token Scores</div><span aria-hidden="true">←</span>
+            <div>Selected Token</div><span aria-hidden="true">←</span>
+            <div>Repeat</div>
+          </div>
+          <p>این توضیح، هستهٔ رفتار تولیدی را نشان می‌دهد؛ اما LLM فقط یک جدول ساده از واژه‌ها نیست. میلیاردها رابطهٔ عددی می‌توانند الگوهای پیچیدهٔ زبان، Code و ارتباط میان مفهوم‌ها را نمایش دهند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title">معنای دقیق <bdi>Large Language Model</bdi></h2>
+          <p>نام این مفهوم از سه بخش ساخته شده است:</p>
+          <ul>
+            <li><strong><bdi>Large</bdi>:</strong> Model از نظر تعداد <bdi>Parameter</bdi>ها، دادهٔ آموزشی و توان محاسباتی در مقیاس بزرگی ساخته می‌شود. Large بودن دربارهٔ طول پاسخ نیست.</li>
+            <li><strong><bdi>Language</bdi>:</strong> Model رابطه‌های آماری موجود در Language را یاد می‌گیرد. Language می‌تواند Text طبیعی، Code یا داده‌ای باشد که به شکل Token نمایش داده می‌شود.</li>
+            <li><strong><bdi>Model</bdi>:</strong> مجموعه‌ای از محاسبات و Parameterهای یادگرفته‌شده است که برای ورودی جدید خروجی تولید می‌کند.</li>
+          </ul>
+          <p><bdi>Parameter</bdi> یک مقدار عددی قابل‌یادگیری در Model است. در مرحلهٔ <bdi>Training</bdi> این مقدارها تنظیم می‌شوند تا Model بتواند الگوهای داده را بهتر بازنمایی و ادامهٔ مناسب‌تری پیش‌بینی کند.</p>
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            LLM را یک Database از جمله‌های آماده تصور نکنید. آن را یک تابع عددی بسیار بزرگ در نظر بگیرید که از ورودی فعلی، احتمال ادامه‌های مختلف را محاسبه می‌کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="token-title">
+          <h2 id="token-title"><bdi>Token</bdi> چه نقشی دارد؟</h2>
+          <p>کامپیوتر Text را مستقیماً مانند انسان نمی‌بیند. ابتدا یک <bdi>Tokenizer</bdi>، Text را به واحدهای کوچک‌تری به نام <bdi>Token</bdi> تقسیم می‌کند. Token ممکن است یک واژه، بخشی از واژه، نشانه یا فاصله باشد.</p>
+          <p>سپس هر Token به یک شناسهٔ عددی تبدیل می‌شود. Model با این نمایش عددی کار می‌کند و در خروجی نیز ابتدا Token تولید می‌کند. Tokenهای خروجی در پایان دوباره به Text قابل‌خواندن تبدیل می‌شوند.</p>
+          <div class="architecture-flow" aria-label="تبدیل متن به Token و بازگشت به متن">
+            <div>Text</div><span aria-hidden="true">←</span>
+            <div>Token IDs</div><span aria-hidden="true">←</span>
+            <div>LLM</div><span aria-hidden="true">←</span>
+            <div>Output Text</div>
+          </div>
+          <p>تعداد Tokenها لزوماً با تعداد واژه‌ها برابر نیست. جزئیات این فرایند در درس بعدی، <a href="ch1-3.html"><bdi>Token چیست؟</bdi></a>، بررسی می‌شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="transformer-title">
+          <h2 id="transformer-title"><bdi>Transformer</bdi> و <bdi>Attention</bdi> به زبان ساده</h2>
+          <p>بسیاری از LLMهای امروزی بر پایهٔ معماری <bdi>Transformer</bdi> ساخته می‌شوند. <bdi>Architecture</bdi> در اینجا یعنی ساختار کلی محاسبات Model و نحوهٔ عبور اطلاعات میان بخش‌های آن.</p>
+          <p>یکی از ایده‌های مهم Transformer، سازوکار <bdi>Attention</bdi> است. Attention به Model کمک می‌کند هنگام پردازش هر Token، بخش‌های مرتبط Context را با وزن متفاوت در نظر بگیرد.</p>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>در جملهٔ «سارا لپ‌تاپ را خرید چون <strong>او</strong> به آن نیاز داشت»، برای تفسیر «او» باید ارتباط آن با «سارا» بررسی شود. Attention برای مدل‌کردن چنین وابستگی‌هایی مفید است.</p>
+          </div>
+          <p>Attention به این معنا نیست که Model مانند انسان توجه یا آگاهی دارد؛ این نام یک عملیات ریاضی است که میزان ارتباط نمایش‌های عددی Tokenها را محاسبه می‌کند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="training-title">
+          <h2 id="training-title">LLM چگونه آموزش می‌بیند؟</h2>
+          <p>آماده‌کردن یک LLM معمولاً چند مرحله دارد. جزئیات هر Model ممکن است متفاوت باشد، اما این تفکیک برای ساخت مدل ذهنی اولیه مفید است:</p>
+          <ol>
+            <li><strong><bdi>Pre-training</bdi>:</strong> Model روی حجم بزرگی از داده آموزش می‌بیند تا الگوهای عمومی Language و رابطه‌های موجود در داده را یاد بگیرد. یکی از هدف‌های رایج، پیش‌بینی Token بعدی است.</li>
+            <li><strong><bdi>Instruction Tuning</bdi>:</strong> نمونه‌های Instruction و پاسخ به Model کمک می‌کنند ساختار درخواست را بهتر دنبال کند و پاسخ مناسب‌تری ارائه دهد.</li>
+            <li><strong><bdi>Alignment</bdi>:</strong> با داده و بازخورد، رفتار Model به سمت پاسخ‌های مفیدتر و رعایت محدودیت‌های موردنظر هدایت می‌شود.</li>
+          </ol>
+          <p><bdi>Training</bdi> با پرسیدن سؤال از Model یکسان نیست. Training، Parameterهای Model را تغییر می‌دهد؛ اما یک Prompt معمولی فقط ورودی همان اجرای فعلی است و Parameterها را آموزش نمی‌دهد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="inference-title">
+          <h2 id="inference-title">هنگام ارسال Prompt چه اتفاقی می‌افتد؟</h2>
+          <p>استفاده از Model آموزش‌دیده برای تولید خروجی <bdi>Inference</bdi> نام دارد. یک جریان سادهٔ Inference به این شکل است:</p>
+          <ol>
+            <li>Messageها و دادهٔ همراه درخواست به یک ورودی تبدیل می‌شوند.</li>
+            <li>Tokenizer ورودی را به Token IDها تبدیل می‌کند.</li>
+            <li>Model برای Token بعدی مجموعه‌ای از Scoreها تولید می‌کند.</li>
+            <li>روش انتخاب مانند <bdi>Sampling</bdi> یا انتخاب محتمل‌ترین گزینه، Token بعدی را مشخص می‌کند.</li>
+            <li>Token انتخاب‌شده به Context افزوده می‌شود.</li>
+            <li>فرایند تا رسیدن به شرط توقف تکرار می‌شود.</li>
+          </ol>
+          <p>به همین دلیل پاسخ به‌صورت تدریجی قابل‌نمایش است: Application می‌تواند Tokenهای تولیدشده را با <bdi>Streaming</bdi> دریافت کند، به‌جای اینکه تا پایان کل پاسخ منتظر بماند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="code-title">
+          <h2 id="code-title">یک شبیه‌سازی کوچک با <bdi>C#</bdi></h2>
+          <p>کد زیر LLM نیست. فقط چرخهٔ «انتخاب ادامه، افزودن به Context و تکرار» را با یک جدول کوچک نمایش می‌دهد. یک LLM واقعی به‌جای این جدول، از Parameterهای یادگرفته‌شده و محاسبات شبکهٔ عصبی استفاده می‌کند.</p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">var nextTokenScores = new Dictionary&lt;string, (string Token, double Score)[]&gt;
+{
+    ["تراکنش"] = [("موفق", 0.72), ("ناموفق", 0.28)],
+    ["موفق"] = [("بود", 0.81), ("شد", 0.19)],
+    ["بود"] = [(".", 0.96), ("اما", 0.04)]
+};
+
+var generatedTokens = new List&lt;string&gt; { "تراکنش" };
+
+for (var step = 0; step &lt; 3; step++)
+{
+    var currentToken = generatedTokens[^1];
+    var candidates = nextTokenScores[currentToken];
+    var nextToken = candidates.MaxBy(candidate =&gt; candidate.Score).Token;
+
+    generatedTokens.Add(nextToken);
+}
+
+Console.WriteLine(string.Join(" ", generatedTokens));</code></pre>
+
+          <div class="lesson-example">
+            <h3>خروجی</h3>
+            <pre class="code-block code-output" data-language="Output"><code>تراکنش موفق بود .</code></pre>
+          </div>
+
+          <p>در هر تکرار، برنامه آخرین Token را می‌گیرد، Candidateها را پیدا می‌کند و Token دارای بیشترین Score را انتخاب می‌کند. Token تازه به فهرست افزوده می‌شود و مبنای گام بعدی قرار می‌گیرد.</p>
+          <p>تفاوت مهم این مثال با LLM واقعی آن است که مثال فقط آخرین Token و چند ادامهٔ ازپیش‌نوشته‌شده را می‌بیند. LLM نمایش عددی Context بزرگ‌تری را پردازش می‌کند و Scoreها را با Model آموزش‌دیده محاسبه می‌کند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="capabilities-title">
+          <h2 id="capabilities-title">LLM چه کارهایی می‌تواند انجام دهد؟</h2>
+          <p>چون بسیاری از مسئله‌ها را می‌توان با Language بیان کرد، یک LLM می‌تواند برای کارهای متنوعی استفاده شود:</p>
+          <ul>
+            <li>پاسخ‌گویی و توضیح یک مفهوم با سطح جزئیات متفاوت</li>
+            <li>خلاصه‌سازی سند یا مکالمه</li>
+            <li>ترجمه و بازنویسی Text</li>
+            <li>استخراج دادهٔ ساختاریافته از ورودی بدون قالب ثابت</li>
+            <li>تولید، توضیح و Review کردن Code</li>
+            <li>طبقه‌بندی متن و تشخیص Intent</li>
+            <li>انتخاب Tool و ساخت Argumentهای آن در یک AI Agent</li>
+          </ul>
+          <p>این توانایی‌ها تضمین کیفیت نیستند. برای هر Use Case باید نمونه‌های واقعی، معیار موفقیت و مسیر مدیریت خطا تعریف شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="comparison-title">
+          <h2 id="comparison-title">LLM با چه چیزهایی یکسان نیست؟</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسهٔ LLM با Database، Search Engine، Chatbot و Agent" tabindex="0">
+            <table>
+              <thead>
+                <tr><th>مفهوم</th><th>مسئولیت اصلی</th><th>تفاوت با LLM</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><bdi>Database</bdi></td><td>ذخیره و بازیابی دادهٔ مشخص</td><td>LLM منبع قطعی رکوردهای Business نیست.</td></tr>
+                <tr><td><bdi>Search Engine</bdi></td><td>پیداکردن سند مرتبط</td><td>LLM خروجی تولید می‌کند؛ Search نتیجه را بازیابی می‌کند.</td></tr>
+                <tr><td><bdi>Chatbot</bdi></td><td>رابط مکالمه با کاربر</td><td>Chatbot ممکن است LLM داشته باشد یا کاملاً Rule-Based باشد.</td></tr>
+                <tr><td><bdi>AI Agent</bdi></td><td>پیگیری Goal و اجرای Action</td><td>LLM می‌تواند بخشی از Agent باشد، نه تمام آن.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>در معماری واقعی این اجزا معمولاً مکمل یکدیگرند. برای مثال، Agent از Search برای یافتن سند، از Database برای خواندن وضعیت تراکنش و از LLM برای تحلیل درخواست و ساخت پاسخ استفاده می‌کند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="limitations-title">
+          <h2 id="limitations-title">محدودیت‌های مهم LLM</h2>
+          <ul>
+            <li><strong>تولید محتمل با بازیابی حقیقت یکسان نیست:</strong> Model می‌تواند پاسخ روان اما نادرست تولید کند. این رفتار در درس <a href="ch1-7.html"><bdi>Hallucination</bdi></a> دقیق‌تر بررسی می‌شود.</li>
+            <li><strong><bdi>Context Window</bdi> محدود است:</strong> Model فقط Tokenهایی را می‌بیند که در درخواست فعلی و محدودهٔ قابل‌پذیرش آن قرار گرفته‌اند. این موضوع در <a href="ch1-4.html">درس Context Window</a> بررسی می‌شود.</li>
+            <li><strong>دانش ممکن است ناقص یا قدیمی باشد:</strong> Parameterهای Model جای منبع دادهٔ زنده و قابل‌اعتماد را نمی‌گیرند.</li>
+            <li><strong>همان ورودی همیشه الزاماً همان خروجی را نمی‌دهد:</strong> روش Sampling و تنظیمات تولید می‌توانند پاسخ را تغییر دهند.</li>
+            <li><strong>دادهٔ ورودی می‌تواند رفتار را منحرف کند:</strong> Instruction ناسازگار یا محتوای مخرب باید با Policy و Validation مدیریت شود.</li>
+            <li><strong>هزینه و Latency وجود دارد:</strong> Tokenهای ورودی و خروجی، اندازهٔ Model و زیرساخت بر زمان و هزینه اثر می‌گذارند.</li>
+          </ul>
+          <aside class="lesson-note">
+            <strong>قانون عملی:</strong>
+            هرجا پاسخ باید قطعی، قابل‌ممیزی یا دارای اثر مالی باشد، نتیجهٔ LLM را مستقیماً معادل حقیقت یا مجوز اجرای Action ندانید.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="agent-title">
+          <h2 id="agent-title">جایگاه LLM در <bdi>AI Agent</bdi></h2>
+          <p>در یک Agent، LLM معمولاً نقش تحلیل Language و پیشنهاد گام بعدی را دارد. اجزای دیگر محدودیت و قابلیت عملیاتی سیستم را فراهم می‌کنند:</p>
+          <div class="architecture-flow" aria-label="جایگاه LLM در AI Agent">
+            <div>User Goal</div><span aria-hidden="true">←</span>
+            <div>Agent Runtime</div><span aria-hidden="true">←</span>
+            <div>LLM</div><span aria-hidden="true">↔</span>
+            <div>Tools / Memory</div>
+          </div>
+          <ul>
+            <li><bdi>Instructions</bdi> هدف و محدودیت رفتار را تعیین می‌کنند.</li>
+            <li><bdi>Tools</bdi> اجازه می‌دهند Agent اطلاعات واقعی بخواند یا Action انجام دهد.</li>
+            <li><bdi>Memory</bdi> اطلاعات لازم از تعامل‌های قبلی را در اختیار جریان فعلی می‌گذارد.</li>
+            <li><bdi>Runtime</bdi> چرخهٔ اجرا، Timeout، Retry، Stop Condition و Approval را مدیریت می‌کند.</li>
+          </ul>
+          <p>پس جملهٔ «یک LLM می‌سازیم تا تراکنش را Refund کند» معماری دقیقی نیست. LLM می‌تواند پیشنهاد Refund و Argumentهای Tool را تولید کند، اما Authorization، Validation و اجرای واقعی باید در Code کنترل‌شده انجام شوند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+          <ul>
+            <li><strong>LLM را Database دانستن:</strong> Model برای نگهداری رکورد دقیق مشتری یا موجودی حساب طراحی نشده است.</li>
+            <li><strong>پاسخ روان را دلیل فهم کامل دانستن:</strong> کیفیت نگارش دربارهٔ صحت استدلال یا داده تضمین ایجاد نمی‌کند.</li>
+            <li><strong>قرار دادن همهٔ داده‌ها در Prompt:</strong> Context زیاد می‌تواند هزینه و Latency را بالا ببرد و اطلاعات نامرتبط وارد تصمیم کند.</li>
+            <li><strong>واگذاری Business Rule قطعی به Model:</strong> قانون‌هایی مانند سقف Refund باید در Code و Policy enforce شوند.</li>
+            <li><strong>نداشتن Evaluation:</strong> چند Demo موفق نشان نمی‌دهد سیستم روی درخواست‌های واقعی قابل‌اعتماد است.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+          <p>فرض کنید یک Payment Support Agent باید به سؤال «چرا تراکنش ۸۴۵۲۱ ناموفق شد؟» پاسخ دهد. مسئولیت هر بخش را مشخص کنید:</p>
+          <ol>
+            <li>تشخیص Intent کاربر</li>
+            <li>خواندن وضعیت واقعی تراکنش</li>
+            <li>توضیح Error Code به زبان ساده</li>
+            <li>بررسی مجازبودن Refund</li>
+            <li>اجرای Refund</li>
+          </ol>
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+            <ul>
+              <li>LLM می‌تواند Intent را تشخیص دهد و توضیح قابل‌خواندن تولید کند.</li>
+              <li>Tool متصل به Payment API باید وضعیت واقعی را بخواند.</li>
+              <li>Policy و Code قطعی باید مجازبودن Refund را بررسی کنند.</li>
+              <li>یک Write Tool کنترل‌شده، پس از Authorization و Approval لازم، Refund را اجرا می‌کند.</li>
+            </ul>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li><bdi>LLM</bdi> یک Large Language Model با Parameterهای یادگرفته‌شده است.</li>
+            <li>Text ابتدا به Token تبدیل می‌شود و پاسخ با تولید گام‌به‌گام Tokenها شکل می‌گیرد.</li>
+            <li><bdi>Training</bdi> Parameterها را تغییر می‌دهد؛ <bdi>Inference</bdi> از Model آموزش‌دیده خروجی می‌گیرد.</li>
+            <li><bdi>Transformer</bdi> ساختار رایج LLMها و <bdi>Attention</bdi> یک سازوکار عددی برای مدل‌کردن ارتباط Tokenها است.</li>
+            <li>LLM می‌تواند Text و Code را تحلیل یا تولید کند، اما Database، Search Engine یا منبع حقیقت نیست.</li>
+            <li>در AI Agent، LLM در کنار Instructions، Tools، Memory، Runtime و Guardrails قرار می‌گیرد.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="ch1-1.html">درس قبلی: <bdi>AI، Machine Learning و Generative AI</bdi></a>
+          <a href="ch1-3.html">درس بعدی: <bdi>Token چیست؟</bdi></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>
