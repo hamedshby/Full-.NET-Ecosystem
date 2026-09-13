@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس OOP و Clean Architecture از مسیر حرفه‌ای .NET.">
+  <meta name="description" content="آموزش OOP و Clean Architecture در C# و .NET با تمرکز بر Dependency Rule، Use Case، Interface Adapter، Dependency Inversion و تست‌پذیری.">
   <title>OOP و Clean Architecture | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
   <link rel="stylesheet" href="../../microservices/course.css">
@@ -32,10 +32,504 @@
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
+          <div class="article-tag">🎯 معماری نرم‌افزار و OOP</div>
           <h1>OOP و Clean Architecture</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۲۲</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۲۲ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>فرض کنید یک Payment API ساخته‌ایم. در نسخهٔ اول، <code>Controller</code> مستقیماً از
+            <code>AppDbContext</code> و SDK یک Payment Provider استفاده می‌کند. برنامه امروز کار می‌کند؛ اما برای آزمودن
+            Ruleهای پرداخت به Database و Provider واقعی نیاز داریم و تعویض هرکدام، Code مربوط به Use Case را نیز تغییر
+            می‌دهد.</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — طراحی وابسته به جزئیات</span></div>
+            <pre><code>[HttpPost]
+public async Task&lt;IActionResult&gt; Pay(PayRequest request)
+{
+    var payment = new PaymentRow
+    {
+        Id = Guid.NewGuid(),
+        Amount = request.Amount,
+        Status = "Pending"
+    };
+
+    _dbContext.Payments.Add(payment);
+    var gatewayResult = await _providerSdk.ChargeAsync(request.Amount);
+    payment.Status = gatewayResult.IsSuccessful ? "Succeeded" : "Failed";
+    await _dbContext.SaveChangesAsync();
+
+    return Ok(new { payment.Id, payment.Status });
+}</code></pre>
+          </div>
+          <p>در این Method، قرارداد HTTP، Business Rule، EF Core و SDK خارجی به هم چسبیده‌اند. تغییر Provider، روش
+            Persistence یا حتی شیوهٔ نمایش Status می‌تواند یک فایل را از چند جهت تغییر دهد. Clean Architecture برای
+            کنترل همین Dependencyها یک قاعدهٔ محوری ارائه می‌کند.</p>
+
+          <h2>Clean Architecture چیست؟</h2>
+          <p><strong>Clean Architecture</strong> یک سبک معماری است که Business Ruleها و Use Caseهای برنامه را در مرکز
+            قرار می‌دهد و جزئیات قابل‌تعویض مانند Web Framework، Database، Message Broker و سرویس‌های خارجی را در مرزهای
+            بیرونی نگه می‌دارد.</p>
+          <p><strong>Use Case</strong> یک هدف مشخص کاربر یا Actor از سیستم است؛ مانند «شروع پرداخت»، «لغو سفارش» یا
+            «تأیید برداشت». هدف این معماری آن نیست که Business از همه‌چیز جدا و بدون ارتباط بماند؛ هدف این است که ارتباط
+            از طریق قراردادهای کنترل‌شده انجام شود.</p>
+
+          <div class="callout callout-info"><span class="callout-icon">🧭</span>
+            <div class="callout-content"><strong>مدل ذهنی:</strong> Business Ruleها Policyهای اصلی سیستم‌اند؛ EF Core،
+              ASP.NET Core و Payment Provider جزئیات اجرای آن Policyها هستند. Detail باید خود را با نیاز Policy تطبیق
+              دهد، نه اینکه Policy را به شکل API خود وابسته کند.</div>
+          </div>
+
+          <h2>لایه‌های مفهومی Clean Architecture</h2>
+          <p>نمودارهای Clean Architecture معمولاً چند حلقهٔ هم‌مرکز دارند. تعداد Projectها می‌تواند متفاوت باشد، اما
+            مسئولیت‌های مفهومی زیر باید قابل‌تشخیص باشند:</p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>حلقه</th>
+                  <th>مسئولیت</th>
+                  <th>نمونه در .NET</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Entities</td>
+                  <td>Business Ruleهای مستقل و State معتبر Domain</td>
+                  <td><code>Payment</code>، <code>Order</code>، Value Object</td>
+                </tr>
+                <tr>
+                  <td>Use Cases</td>
+                  <td>جریان‌های کاربردی و هماهنگی عملیات سیستم</td>
+                  <td><code>StartPaymentHandler</code>، Command، Output Model</td>
+                </tr>
+                <tr>
+                  <td>Interface Adapters</td>
+                  <td>تبدیل داده میان شکل داخلی و شکل موردنیاز ابزارهای بیرونی</td>
+                  <td>Controller، Presenter، Repository Adapter، Mapper</td>
+                </tr>
+                <tr>
+                  <td>Frameworks &amp; Drivers</td>
+                  <td>جزئیات فنی و ابزارهای قابل‌تعویض</td>
+                  <td>ASP.NET Core، EF Core، SQL Server، Provider SDK</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>در Solutionهای .NET، معمولاً Entities در Projectی به نام <code>Domain</code>، Use Caseها در
+            <code>Application</code> و Adapterهای فنی در <code>Infrastructure</code> و <code>WebApi</code> قرار می‌گیرند.
+            این نام‌ها قرارداد رایج‌اند، نه الزام معماری.</p>
+
+          <h2>Dependency Rule: مهم‌ترین قانون</h2>
+          <p><strong>Dependency Rule</strong> می‌گوید Dependency مربوط به Source Code باید به سمت داخل، یعنی به سمت
+            Policyهای سطح بالاتر، حرکت کند. Code یک حلقهٔ داخلی نباید دربارهٔ Typeها و جزئیات حلقهٔ بیرونی اطلاعات داشته
+            باشد.</p>
+          <ul>
+            <li><code>Domain</code> نباید به EF Core، ASP.NET Core یا Infrastructure Reference داشته باشد.</li>
+            <li><code>Application</code> می‌تواند Domain را بشناسد، اما نباید به Provider SDK وابسته شود.</li>
+            <li><code>Infrastructure</code> می‌تواند Interface تعریف‌شده برای Use Case را پیاده‌سازی کند.</li>
+            <li><code>WebApi</code> می‌تواند ورودی HTTP را به مدل ورودی Application تبدیل کند.</li>
+          </ul>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">«به سمت داخل» به معنی فراخوانی نشدن Code بیرونی نیست. Application در زمان اجرا
+              Gateway را فراخوانی می‌کند، اما در زمان Compile فقط Interface خود را می‌شناسد؛ Object واقعی در Composition
+              Root به آن تزریق می‌شود.</div>
+          </div>
+
+          <h2>OOP چگونه Dependency Rule را ممکن می‌کند؟</h2>
+          <p>Clean Architecture به OOP محدود نیست، اما چند ابزار OOP اجرای مرزها را در C# ساده می‌کنند:</p>
+          <ul>
+            <li><strong>Encapsulation:</strong> Entity تغییر State خود را از طریق Methodهای معتبر کنترل می‌کند.</li>
+            <li><strong>Abstraction:</strong> Interface نیاز Use Case به دنیای بیرون را بیان می‌کند.</li>
+            <li><strong>Polymorphism:</strong> Adapter واقعی و Fake آزمایشی هر دو می‌توانند همان Interface را اجرا کنند.</li>
+            <li><strong>Dependency Inversion:</strong> Policy سطح بالا به Detail سطح پایین وابسته نیست؛ هر دو به قراردادی
+              وابسته‌اند که بر اساس نیاز Policy طراحی شده است.</li>
+            <li><strong>Composition:</strong> در مرز بیرونی، Objectهای مستقل به یک Object Graph اجرایی متصل می‌شوند.</li>
+          </ul>
+
+          <h2>مثال کامل: Use Case شروع پرداخت</h2>
+          <h3>گام اول: Entity از Ruleهای پرداخت محافظت می‌کند</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Domain</span></div>
+            <pre><code>public enum PaymentStatus
+{
+    Pending,
+    Succeeded,
+    Failed
+}
+
+public sealed class Payment
+{
+    public Guid Id { get; }
+    public decimal Amount { get; }
+    public PaymentStatus Status { get; private set; }
+    public string? FailureReason { get; private set; }
+
+    public Payment(Guid id, decimal amount)
+    {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Payment id is required.", nameof(id));
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        Id = id;
+        Amount = amount;
+        Status = PaymentStatus.Pending;
+    }
+
+    public void MarkAsSucceeded()
+    {
+        EnsurePending();
+        Status = PaymentStatus.Succeeded;
+    }
+
+    public void MarkAsFailed(string reason)
+    {
+        EnsurePending();
+
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new ArgumentException("Failure reason is required.", nameof(reason));
+
+        Status = PaymentStatus.Failed;
+        FailureReason = reason;
+    }
+
+    private void EnsurePending()
+    {
+        if (Status != PaymentStatus.Pending)
+            throw new InvalidOperationException("Only a pending payment can change.");
+    }
+}</code></pre>
+          </div>
+          <p>Entity هیچ شناختی از HTTP، EF Core یا Provider ندارد. رفتار قابل‌مشاهدهٔ آن روشن است: Payment با مبلغ مثبت
+            در حالت <code>Pending</code> ساخته می‌شود و فقط یک‌بار می‌تواند به <code>Succeeded</code> یا
+            <code>Failed</code> تغییر کند. Setter عمومی نیز نمی‌تواند این Rule را دور بزند.</p>
+
+          <h3>گام دوم: Application قراردادهای موردنیاز خود را تعریف می‌کند</h3>
+          <p>قرارداد خروجی به سیستم خارجی را معمولاً <strong>Output Port</strong> می‌نامند. این قرارداد باید با زبان Use
+            Case طراحی شود، نه با Typeهای SDK بیرونی.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Application Ports</span></div>
+            <pre><code>public sealed record ChargeResult(bool IsSuccessful, string? Error)
+{
+    public static ChargeResult Success() =&gt; new(true, null);
+    public static ChargeResult Failure(string error) =&gt; new(false, error);
+}
+
+public interface IPaymentGateway
+{
+    Task&lt;ChargeResult&gt; ChargeAsync(
+        Guid paymentId,
+        decimal amount,
+        CancellationToken cancellationToken);
+}
+
+public interface IPaymentRepository
+{
+    Task AddAsync(Payment payment, CancellationToken cancellationToken);
+}
+
+public sealed record StartPaymentCommand(decimal Amount);
+public sealed record StartPaymentResult(Guid PaymentId, PaymentStatus Status);</code></pre>
+          </div>
+          <p><code>ChargeResult</code> مدل داخلی Application است. اگر SDK یک Type مانند
+            <code>ProviderChargeResponse</code> برگرداند، آن Type نباید از Infrastructure عبور کند؛ Adapter آن را به
+            <code>ChargeResult</code> تبدیل می‌کند.</p>
+
+          <h3>گام سوم: Use Case فقط Policy و Portها را می‌شناسد</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Application Use Case</span></div>
+            <pre><code>public sealed class StartPaymentHandler(
+    IPaymentGateway gateway,
+    IPaymentRepository payments)
+{
+    public async Task&lt;StartPaymentResult&gt; HandleAsync(
+        StartPaymentCommand command,
+        CancellationToken cancellationToken)
+    {
+        var payment = new Payment(Guid.NewGuid(), command.Amount);
+
+        var charge = await gateway.ChargeAsync(
+            payment.Id,
+            payment.Amount,
+            cancellationToken);
+
+        if (charge.IsSuccessful)
+            payment.MarkAsSucceeded();
+        else
+            payment.MarkAsFailed(charge.Error ?? "Payment provider rejected the charge.");
+
+        await payments.AddAsync(payment, cancellationToken);
+
+        return new StartPaymentResult(payment.Id, payment.Status);
+    }
+}</code></pre>
+          </div>
+          <p>Handler ترتیب اجرای Use Case را مشخص می‌کند: ساخت Payment، درخواست Charge، اعمال نتیجه بر Entity، ذخیره و
+            تولید Output. هیچ Type مربوط به ASP.NET Core، EF Core یا Provider در این Class دیده نمی‌شود.</p>
+
+          <h3>گام چهارم: Infrastructure قراردادها را با جزئیات واقعی تطبیق می‌دهد</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Infrastructure Adapter</span></div>
+            <pre><code>public sealed class ProviderPaymentGateway(ProviderClient client)
+    : IPaymentGateway
+{
+    public async Task&lt;ChargeResult&gt; ChargeAsync(
+        Guid paymentId,
+        decimal amount,
+        CancellationToken cancellationToken)
+    {
+        var response = await client.CreateChargeAsync(
+            reference: paymentId.ToString(),
+            amount: amount,
+            cancellationToken: cancellationToken);
+
+        return response.Approved
+            ? ChargeResult.Success()
+            : ChargeResult.Failure(response.ErrorMessage);
+    }
+}
+
+public sealed class EfPaymentRepository(AppDbContext dbContext)
+    : IPaymentRepository
+{
+    public async Task AddAsync(
+        Payment payment,
+        CancellationToken cancellationToken)
+    {
+        dbContext.Payments.Add(payment);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p>این دو Class نقش Adapter دارند. یکی زبان Provider را به زبان Application ترجمه می‌کند و دیگری Object
+            Domain را با سازوکار Persistence ذخیره می‌کند. تغییر SDK فقط Adapter مربوط به همان SDK را تحت‌تأثیر قرار
+            می‌دهد.</p>
+
+          <h3>گام پنجم: Presentation قرارداد HTTP را تطبیق می‌دهد</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — ASP.NET Core</span></div>
+            <pre><code>public sealed record StartPaymentRequest(decimal Amount);
+public sealed record StartPaymentResponse(Guid Id, string Status);
+
+[ApiController]
+[Route("api/payments")]
+public sealed class PaymentsController(StartPaymentHandler handler)
+    : ControllerBase
+{
+    [HttpPost]
+    public async Task&lt;ActionResult&lt;StartPaymentResponse&gt;&gt; Start(
+        StartPaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.HandleAsync(
+            new StartPaymentCommand(request.Amount),
+            cancellationToken);
+
+        var response = new StartPaymentResponse(
+            result.PaymentId,
+            result.Status.ToString());
+
+        return Ok(response);
+    }
+}</code></pre>
+          </div>
+          <p>Controller یک Input Adapter است: JSON و HTTP را به Input Model مربوط به Use Case تبدیل می‌کند و Output
+            داخلی را به قرارداد API برمی‌گرداند. اگر ورودی برنامه بعداً از Message Broker بیاید، Consumer تازه می‌تواند
+            همان Handler را بدون انتقال HTTP به Application صدا بزند.</p>
+
+          <h3>گام ششم: Composition Root پیاده‌سازی‌ها را انتخاب می‌کند</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Program.cs</span></div>
+            <pre><code>builder.Services.AddScoped&lt;StartPaymentHandler&gt;();
+builder.Services.AddScoped&lt;IPaymentGateway, ProviderPaymentGateway&gt;();
+builder.Services.AddScoped&lt;IPaymentRepository, EfPaymentRepository&gt;();</code></pre>
+          </div>
+          <p><strong>Composition Root</strong> بیرونی‌ترین نقطه‌ای است که Concrete Typeها را می‌شناسد و Object Graph را
+            می‌سازد. Dependency Injection Container ابزار اتصال است؛ خود Container معماری را Clean نمی‌کند. پاکی مرزها
+            از جهت Referenceها و مسئولیت Classها می‌آید.</p>
+
+          <h2>جهت Source Code و جریان Runtime</h2>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>نوع رابطه</th>
+                  <th>مسیر مثال پرداخت</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>جریان Runtime</td>
+                  <td><bdi>Controller → Handler → IPaymentGateway → ProviderPaymentGateway → Provider</bdi></td>
+                </tr>
+                <tr>
+                  <td>Dependency در Source Code</td>
+                  <td><bdi>WebApi → Application ← Infrastructure</bdi></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>علامت برگشتی در ردیف دوم نکتهٔ اصلی است: Infrastructure برای پیاده‌سازی
+            <code>IPaymentGateway</code> به قرارداد Application وابسته می‌شود. Handler هیچ Reference مستقیمی به
+            Infrastructure ندارد، هرچند در Runtime Method همان Adapter اجرا می‌شود.</p>
+
+          <h2>ساختار پیشنهادی Solution و Project Referenceها</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Payments.sln
+├── Payments.Domain
+│   └── Payments/Payment.cs
+├── Payments.Application             → Payments.Domain
+│   └── Payments/StartPayment/
+│       ├── StartPaymentHandler.cs
+│       ├── IPaymentGateway.cs
+│       └── IPaymentRepository.cs
+├── Payments.Infrastructure          → Payments.Application + Payments.Domain
+│   ├── Gateways/ProviderPaymentGateway.cs
+│   └── Persistence/EfPaymentRepository.cs
+└── Payments.WebApi                  → Payments.Application + Payments.Infrastructure
+    ├── Controllers/PaymentsController.cs
+    └── Program.cs</code></pre>
+          </div>
+          <p>Reference از WebApi به Infrastructure معمولاً برای Registration و Composition لازم می‌شود. می‌توان ثبت
+            سرویس‌ها را در یک Extension Method داخل Infrastructure پنهان کرد، اما Dependency واقعی همچنان وجود دارد و
+            در بیرونی‌ترین حلقه مجاز است.</p>
+
+          <h2>مرزها و Data Modelها</h2>
+          <p>یک Object را بدون فکر از Database تا HTTP عبور ندهید. هر مرز ممکن است مدل متناسب با مسئولیت خود را داشته
+            باشد:</p>
+          <ul>
+            <li><code>StartPaymentRequest</code> قرارداد عمومی HTTP است.</li>
+            <li><code>StartPaymentCommand</code> ورودی پایدار Use Case است.</li>
+            <li><code>Payment</code> رفتار و State معتبر Domain را نگه می‌دارد.</li>
+            <li><code>ProviderChargeResponse</code> فقط به SDK خارجی تعلق دارد.</li>
+          </ul>
+          <p>این جداسازی به معنی ساخت DTO برای تک‌تک Classها نیست. وقتی دو مدل معنا، چرخهٔ تغییر و مخاطب یکسان دارند،
+            Mapping اضافی فقط هزینه می‌سازد. مرز را جایی ایجاد کنید که از نشت یک Detail یا قرارداد مستقل جلوگیری کند.</p>
+
+          <h2>تست Use Case بدون Framework و Database</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — xUnit</span></div>
+            <pre><code>[Fact]
+public async Task HandleAsync_Marks_payment_as_succeeded_when_charge_is_approved()
+{
+    var gateway = new ApprovedGateway();
+    var repository = new InMemoryPaymentRepository();
+    var handler = new StartPaymentHandler(gateway, repository);
+
+    var result = await handler.HandleAsync(
+        new StartPaymentCommand(250_000m),
+        CancellationToken.None);
+
+    Assert.Equal(PaymentStatus.Succeeded, result.Status);
+    Assert.Equal(result.PaymentId, repository.SavedPayment?.Id);
+}
+
+private sealed class ApprovedGateway : IPaymentGateway
+{
+    public Task&lt;ChargeResult&gt; ChargeAsync(
+        Guid paymentId,
+        decimal amount,
+        CancellationToken cancellationToken)
+        =&gt; Task.FromResult(ChargeResult.Success());
+}
+
+private sealed class InMemoryPaymentRepository : IPaymentRepository
+{
+    public Payment? SavedPayment { get; private set; }
+
+    public Task AddAsync(Payment payment, CancellationToken cancellationToken)
+    {
+        SavedPayment = payment;
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>این Test بدون Web Server، Database و Provider اجرا می‌شود و Policy موردنظر را بررسی می‌کند: وقتی Charge
+            موفق است، Payment با Status موفق ذخیره می‌شود. برای اطمینان از Mappingهای EF Core و ارتباط واقعی Provider،
+            Testهای Integration جداگانه لازم‌اند.</p>
+
+          <h2>Clean Architecture با Layered Architecture چه تفاوتی دارد؟</h2>
+          <p>هر دو سبک مسئولیت‌ها را جدا می‌کنند. تفاوت برجسته در کنترل Dependency است. در Layered Architecture سنتی،
+            Business Layer ممکن است مستقیماً Data Access Layer را Reference کند. در Clean Architecture، قرارداد موردنیاز
+            Business در سمت داخلی قرار می‌گیرد و Adapter بیرونی آن را پیاده‌سازی می‌کند.</p>
+          <div class="callout callout-info"><span class="callout-icon">🔍</span>
+            <div class="callout-content">Clean Architecture را با تعداد Projectها تشخیص ندهید. پرسش بهتر این است:
+              «آیا می‌توان Business Rule و Use Case را بدون وابستگی مستقیم به Framework، Database و سرویس خارجی فهمید و
+              Test کرد؟»</div>
+          </div>
+
+          <h2>اشتباهات رایج</h2>
+          <h3>۱. تبدیل Architecture به Folder Structure</h3>
+          <p>ساختن Projectهای <code>Domain</code> و <code>Application</code> کافی نیست. اگر Domain به EF Core و Handler به
+            SDK خارجی Reference داشته باشند، Dependency Rule نقض شده است.</p>
+
+          <h3>۲. ایجاد Interface برای تمام Classها</h3>
+          <p>Interface باید یک مرز واقعی را بیان کند. Entity و Use Case معمولاً فقط برای هماهنگ‌شدن با یک Template به
+            Interface هم‌نام نیاز ندارند. Abstraction بی‌دلیل، تعداد فایل‌ها و مسیر دنبال‌کردن Code را افزایش می‌دهد.</p>
+
+          <h3>۳. مدل Domain بدون Behavior</h3>
+          <p>اگر Entityها فقط Getter و Setter داشته باشند و تمام Ruleها در Handlerها نوشته شوند، Encapsulation ضعیف
+            می‌شود. Rule وابسته به State یک Entity، مانند انتقال Status پرداخت، معمولاً باید توسط همان Entity محافظت شود.</p>
+
+          <h3>۴. نشت Typeهای بیرونی به Application</h3>
+          <p>استفاده از <code>DbSet</code>، <code>HttpContext</code> یا Response اختصاصی Provider در Use Case، حلقهٔ داخلی
+            را به Detail بیرونی وابسته می‌کند. Adapter باید این Typeها را در مرز ترجمه کند.</p>
+
+          <h3>۵. Business Rule در Controller یا Repository</h3>
+          <p>Controller و Repository Adapter هستند. تصمیم‌هایی مانند امکان تغییر Status یا حداقل مبلغ پرداخت باید در
+            Domain یا Application قرار گیرند تا از هر ورودی و با هر Persistence یکسان اجرا شوند.</p>
+
+          <h3>۶. وابستگی به DI Container در Domain</h3>
+          <p>فراخوانی <code>IServiceProvider.GetService</code> در Entity یا Use Case، Dependencyهای واقعی را پنهان می‌کند.
+            Dependency لازم را صریحاً از Constructor دریافت کنید و Container را در Composition Root نگه دارید.</p>
+
+          <h3>۷. پیچیدگی زودهنگام</h3>
+          <p>برای یک CRUD کوچک، تعداد زیاد Project، Command، Handler، Mapper و Interface ممکن است ارزش اقتصادی نداشته
+            باشد. استقلال باید در برابر هزینهٔ Navigation، Mapping و نگهداری سنجیده شود.</p>
+
+          <h2>چه زمانی Clean Architecture مناسب است؟</h2>
+          <ul>
+            <li>Business Ruleها پیچیده‌اند و عمرشان از Framework یا Database بیشتر است.</li>
+            <li>چند ورودی مانند HTTP، Worker و Message Consumer از Use Caseهای مشترک استفاده می‌کنند.</li>
+            <li>Integrationهای بیرونی قابل‌تعویض یا پرریسک‌اند.</li>
+            <li>تست سریع و مستقل Use Caseها برای تیم ارزش بالایی دارد.</li>
+            <li>چند تیم یا ماژول به مرزهای روشن و قابل‌کنترل نیاز دارند.</li>
+          </ul>
+          <p>برای Prototype کوتاه‌عمر یا برنامه‌ای با Ruleهای بسیار کم، یک Modular Monolith ساده یا Layered Architecture
+            سبک می‌تواند انتخاب بهتری باشد. Clean Architecture مقصد اجباری هر پروژه نیست؛ پاسخی به نیاز استقلال و کنترل
+            Dependency است.</p>
+
+          <h2>چک‌لیست بررسی یک Use Case</h2>
+          <ol>
+            <li>آیا نام Use Case هدف Actor را روشن بیان می‌کند؟</li>
+            <li>آیا Domain بدون اجرای Web Server و Database قابل‌فهم و قابل‌آزمون است؟</li>
+            <li>آیا Application فقط Interfaceهای متناسب با نیاز خود را می‌شناسد؟</li>
+            <li>آیا Typeهای EF Core، ASP.NET Core و SDK خارجی پشت Adapter مانده‌اند؟</li>
+            <li>آیا Controller فقط تبدیل ورودی، فراخوانی Use Case و تبدیل خروجی را انجام می‌دهد؟</li>
+            <li>آیا Concrete Typeها فقط در Composition Root به هم متصل می‌شوند؟</li>
+            <li>آیا هر Mapping از یک مرز واقعی محافظت می‌کند یا صرفاً Code اضافی است؟</li>
+          </ol>
+
+          <h2>تمرین</h2>
+          <p>به مثال پرداخت یک Provider دوم اضافه کنید. Class جدید باید <code>IPaymentGateway</code> را پیاده‌سازی و پاسخ
+            SDK خود را به <code>ChargeResult</code> تبدیل کند. سپس فقط Registration موجود در Composition Root را تغییر
+            دهید. اگر برای تعویض Provider مجبور به تغییر <code>StartPaymentHandler</code> شدید، مرز Abstraction را دوباره
+            بررسی کنید.</p>
+
+          <h2>جمع‌بندی</h2>
+          <p>Clean Architecture، Business Ruleها و Use Caseها را مرکز طراحی قرار می‌دهد. Dependency Rule از وابسته‌شدن
+            این Policyها به Web Framework، Database و سرویس‌های خارجی جلوگیری می‌کند. OOP با Encapsulation، Abstraction،
+            Polymorphism، Dependency Inversion و Composition ابزار اجرای این مرزها را فراهم می‌کند. خروجی مطلوب، شکل
+            ظاهری خاص یا تعداد بیشتری Project نیست؛ هدف سیستمی است که Core آن مستقل‌تر، تغییرات Detail در آن محلی‌تر و
+            رفتارهای مهم آن ساده‌تر قابل‌آزمون باشند.</p>
+        </div>
       </div>
     </main>
   </div>

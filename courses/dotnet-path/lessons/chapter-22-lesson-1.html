@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحه درس OOP و Layered Architecture از مسیر حرفه‌ای .NET.">
+  <meta name="description" content="آموزش OOP و Layered Architecture در C# و .NET با مثال ثبت سفارش، مسئولیت Layerها، جهت Dependency، ساختار Solution و تست‌پذیری.">
   <title>OOP و Layered Architecture | مسیر حرفه‌ای .NET</title>
   <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
   <link rel="stylesheet" href="../../microservices/course.css">
@@ -32,10 +32,415 @@
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
         <div class="article-header">
+          <div class="article-tag">🏗️ معماری نرم‌افزار و OOP</div>
           <h1>OOP و Layered Architecture</h1>
+          <div class="article-meta">
+            <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۲۲</div>
+            <div class="meta-item">⏱️ زمان مطالعه: ۲۰ دقیقه</div>
+            <div class="meta-item">👤 تیم فنی</div>
+          </div>
         </div>
         <div class="divider"></div>
-        <div class="content"></div>
+        <div class="content">
+          <p>فرض کنید در یک فروشگاه اینترنتی، کاربر روی دکمهٔ «ثبت سفارش» کلیک می‌کند. برنامه باید ورودی را
+            اعتبارسنجی کند، مجموع مبلغ را به دست آورد، سفارش را ثبت کند و یک پاسخ مناسب برگرداند. اگر همهٔ این کارها
+            داخل یک <code>Controller</code> نوشته شوند، قابلیت کار می‌کند؛ اما با اضافه‌شدن تخفیف، انبار، پرداخت و ارسال،
+            همان <code>Controller</code> به بخشی بزرگ و شکننده تبدیل می‌شود.</p>
+
+          <div class="callout callout-info"><span class="callout-icon">💡</span>
+            <div class="callout-content"><strong>Layered Architecture</strong> سیستم را بر اساس نوع مسئولیت به چند
+              Layer تقسیم می‌کند. <strong>OOP</strong> نیز داخل هر Layer کمک می‌کند مسئولیت‌ها را میان Objectهای
+              همکار توزیع کنیم و جزئیات را پشت Interfaceها پنهان نگه داریم.</div>
+          </div>
+
+          <h2>ابتدا مشکل را ببینیم: همه‌چیز در یک Class</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C#</span></div>
+            <pre><code>[HttpPost]
+public IActionResult PlaceOrder(PlaceOrderRequest request)
+{
+    if (request.Items.Count == 0)
+        return BadRequest("Order must contain an item.");
+
+    decimal total = request.Items.Sum(item =&gt; item.Price * item.Quantity);
+
+    using var connection = new SqlConnection(_connectionString);
+    connection.Execute(
+        "INSERT INTO Orders (Id, CustomerId, Total) VALUES (@Id, @CustomerId, @Total)",
+        new { Id = Guid.NewGuid(), request.CustomerId, Total = total });
+
+    return Ok();
+}</code></pre>
+          </div>
+          <p>رفتار این کد ساده است: درخواست HTTP را می‌گیرد، Business Rule را اجرا می‌کند و مستقیم در Database
+            می‌نویسد. مشکل این است که سه دلیل متفاوت برای تغییر در یک Method جمع شده‌اند:</p>
+          <ul>
+            <li>تغییر قرارداد HTTP یا شکل پاسخ؛</li>
+            <li>تغییر Ruleهای ثبت سفارش و محاسبهٔ مبلغ؛</li>
+            <li>تغییر روش ذخیره‌سازی یا Database.</li>
+          </ul>
+          <p>این ترکیب، آزمودن Ruleها را نیز دشوار می‌کند؛ چون برای بررسی محاسبهٔ مبلغ باید HTTP و Database را هم وارد
+            Test کنیم. هدف Layering جداکردن همین دلایل تغییر است.</p>
+
+          <h2>Layer چیست؟</h2>
+          <p><strong>Layer</strong> یک مرز منطقی است که مجموعه‌ای از Classها با مسئولیت مشابه را کنار هم قرار می‌دهد.
+            برای نمونه، Classهایی که ورودی HTTP را مدیریت می‌کنند در Presentation Layer و Classهایی که با Database
+            ارتباط دارند در Data Access یا Infrastructure Layer قرار می‌گیرند.</p>
+          <p>Layer با <strong>Tier</strong> یکسان نیست. Layer مرز منطقی در Code است؛ Tier مرز فیزیکی اجرای برنامه است.
+            یک برنامه می‌تواند چهار Layer داشته باشد، اما همهٔ آن‌ها در یک Process و روی یک Server اجرا شوند. بنابراین
+            ساختن چند Class Library به‌تنهایی برنامه را چند Tier نمی‌کند.</p>
+
+          <h2>Layerهای رایج در یک برنامهٔ .NET</h2>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Layer</th>
+                  <th>مسئولیت اصلی</th>
+                  <th>نمونه اجزا</th>
+                  <th>چه چیزی نباید بداند؟</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Presentation</td>
+                  <td>دریافت ورودی و ساخت خروجی برای کاربر یا Client</td>
+                  <td><code>Controller</code>، Endpoint، View Model</td>
+                  <td>جزئیات SQL و Ruleهای اصلی Business</td>
+                </tr>
+                <tr>
+                  <td>Application یا Business</td>
+                  <td>هماهنگ‌کردن Use Case و اجرای جریان برنامه</td>
+                  <td><code>PlaceOrderService</code>، Command، DTO</td>
+                  <td>جزئیات HTTP و پیاده‌سازی Database</td>
+                </tr>
+                <tr>
+                  <td>Domain</td>
+                  <td>نگهداری State و Ruleهای اصلی Business</td>
+                  <td><code>Order</code>، <code>OrderItem</code>، Value Object</td>
+                  <td>Framework، UI و Database</td>
+                </tr>
+                <tr>
+                  <td>Data Access یا Infrastructure</td>
+                  <td>ارتباط با منابع بیرونی و جزئیات فنی</td>
+                  <td>EF Core، Repository، Email Gateway</td>
+                  <td>نحوهٔ نمایش پاسخ به کاربر</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout callout-warning"><span class="callout-icon">⚠️</span>
+            <div class="callout-content">نام و تعداد Layerها قانون ثابت نیست. در یک برنامهٔ ساده ممکن است Business و
+              Domain یک Layer باشند. مهم‌تر از نام Projectها، روشن‌بودن مسئولیت و کنترل Dependencyها است.</div>
+          </div>
+
+          <h2>OOP در این معماری چه نقشی دارد؟</h2>
+          <p>Layered Architecture دربارهٔ سازمان‌دهی اجزای بزرگ سیستم است؛ OOP دربارهٔ طراحی Objectها و همکاری میان
+            آن‌ها. این دو در سطح‌های متفاوت عمل می‌کنند و مکمل یکدیگرند:</p>
+          <ul>
+            <li><strong>Encapsulation:</strong> هر Object از State معتبر خود محافظت می‌کند؛ مثلاً <code>Order</code>
+              اجازه نمی‌دهد Item با تعداد صفر اضافه شود.</li>
+            <li><strong>Abstraction:</strong> یک Interface مانند <code>IOrderRepository</code> نیاز Application Layer را
+              بیان می‌کند، بدون آنکه SQL یا EF Core را آشکار کند.</li>
+            <li><strong>Polymorphism:</strong> Application Service می‌تواند با پیاده‌سازی واقعی Repository یا یک Fake
+              در Test کار کند.</li>
+            <li><strong>Composition:</strong> در Composition Root، Objectهای لازم ساخته و به یکدیگر متصل می‌شوند.</li>
+          </ul>
+          <p>وجود <code>class</code> و <code>interface</code> به‌تنهایی نشانهٔ طراحی خوب نیست. اگر Controller تمام Ruleها را
+            اجرا کند و فقط برای ذخیره‌سازی یک Repository صدا بزند، سیستم هنوز رفتار Business را درست مدل نکرده است.</p>
+
+          <h2>مثال مرحله‌به‌مرحله: ثبت سفارش</h2>
+          <h3>گام اول: Domain از اعتبار State محافظت می‌کند</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Domain</span></div>
+            <pre><code>public sealed class Order
+{
+    private readonly List&lt;OrderItem&gt; _items = [];
+
+    public Guid Id { get; } = Guid.NewGuid();
+    public Guid CustomerId { get; }
+    public IReadOnlyCollection&lt;OrderItem&gt; Items =&gt; _items.AsReadOnly();
+    public decimal Total =&gt; _items.Sum(item =&gt; item.Subtotal);
+
+    public Order(Guid customerId)
+    {
+        if (customerId == Guid.Empty)
+            throw new ArgumentException("Customer is required.", nameof(customerId));
+
+        CustomerId = customerId;
+    }
+
+    public void AddItem(Guid productId, decimal unitPrice, int quantity)
+    {
+        if (productId == Guid.Empty)
+            throw new ArgumentException("Product is required.", nameof(productId));
+        if (unitPrice &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(unitPrice));
+        if (quantity &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(quantity));
+
+        _items.Add(new OrderItem(productId, unitPrice, quantity));
+    }
+}
+
+public sealed record OrderItem(Guid ProductId, decimal UnitPrice, int Quantity)
+{
+    public decimal Subtotal =&gt; UnitPrice * Quantity;
+}</code></pre>
+          </div>
+          <p><code>Order</code> یک Data Container منفعل نیست. Collection داخلی قابل‌تغییر را بیرون نمی‌دهد و افزودن
+            Item فقط از مسیر <code>AddItem</code> انجام می‌شود. در نتیجه Ruleهای قیمت و تعداد در هر ورودی برنامه یکسان
+            اجرا می‌شوند. برای دو Item با قیمت ۱۰۰ و تعداد ۲، مقدار <code>Total</code> برابر ۲۰۰ خواهد بود.</p>
+
+          <h3>گام دوم: Application Layer جریان Use Case را هماهنگ می‌کند</h3>
+          <p><strong>Use Case</strong> یک هدف مشخص کاربر از سیستم است؛ مانند «ثبت سفارش». Application Service ورودی این
+            Use Case را می‌گیرد، Objectهای Domain را به کار می‌اندازد و ذخیره‌سازی را درخواست می‌کند.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Application</span></div>
+            <pre><code>public sealed record PlaceOrderItem(
+    Guid ProductId,
+    decimal UnitPrice,
+    int Quantity);
+
+public sealed record PlaceOrderCommand(
+    Guid CustomerId,
+    IReadOnlyCollection&lt;PlaceOrderItem&gt; Items);
+
+public interface IOrderRepository
+{
+    Task AddAsync(Order order, CancellationToken cancellationToken);
+}
+
+public sealed class PlaceOrderService(IOrderRepository orders)
+{
+    public async Task&lt;Guid&gt; HandleAsync(
+        PlaceOrderCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (command.Items.Count == 0)
+            throw new InvalidOperationException("Order must contain an item.");
+
+        var order = new Order(command.CustomerId);
+
+        foreach (var item in command.Items)
+            order.AddItem(item.ProductId, item.UnitPrice, item.Quantity);
+
+        await orders.AddAsync(order, cancellationToken);
+        return order.Id;
+    }
+}</code></pre>
+          </div>
+          <p>این Service نمی‌داند درخواست از HTTP آمده یا یک Background Job؛ همچنین نمی‌داند داده با EF Core ذخیره
+            می‌شود یا روش دیگری. Interface فقط قابلیتی را بیان می‌کند که Use Case نیاز دارد: افزودن یک سفارش.</p>
+
+          <h3>گام سوم: Infrastructure جزئیات ذخیره‌سازی را پیاده‌سازی می‌کند</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Infrastructure</span></div>
+            <pre><code>public sealed class EfOrderRepository(AppDbContext dbContext)
+    : IOrderRepository
+{
+    public async Task AddAsync(
+        Order order,
+        CancellationToken cancellationToken)
+    {
+        await dbContext.Orders.AddAsync(order, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+}</code></pre>
+          </div>
+          <p>EF Core یک جزئیات فنی است و در این طراحی داخل Infrastructure باقی می‌ماند. تغییر این Class نباید Rule
+            محاسبهٔ مبلغ یا قرارداد HTTP را تغییر دهد.</p>
+
+          <h3>گام چهارم: Presentation ورودی و خروجی HTTP را مدیریت می‌کند</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Presentation</span></div>
+            <pre><code>[ApiController]
+[Route("api/orders")]
+public sealed class OrdersController(PlaceOrderService service) : ControllerBase
+{
+    [HttpPost]
+    public async Task&lt;IActionResult&gt; PlaceOrder(
+        PlaceOrderRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new PlaceOrderCommand(
+            request.CustomerId,
+            request.Items
+                .Select(item =&gt; new PlaceOrderItem(
+                    item.ProductId,
+                    item.UnitPrice,
+                    item.Quantity))
+                .ToArray());
+
+        var orderId = await service.HandleAsync(command, cancellationToken);
+
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = orderId },
+            new { id = orderId });
+    }
+
+    [HttpGet("{id:guid}")]
+    public IActionResult GetById(Guid id) =&gt; Ok();
+}</code></pre>
+          </div>
+          <p>Controller اکنون نقش مترجم مرز HTTP را دارد: Request را به Command تبدیل می‌کند و نتیجه را با Status Code
+            مناسب برمی‌گرداند. Business Rule و Code مربوط به Database در آن وجود ندارد.</p>
+
+          <h2>جریان اجرا و جهت Dependency را اشتباه نگیریم</h2>
+          <p>هنگام اجرا، درخواست معمولاً این مسیر را طی می‌کند:</p>
+          <div class="callout callout-info"><span class="callout-icon">➡️</span>
+            <div class="callout-content"><bdi>HTTP Request → Controller → Application Service → Domain Object →
+                Repository Implementation → Database</bdi></div>
+          </div>
+          <p>اما <strong>جهت اجرای Methodها</strong> الزاماً با <strong>Dependency زمان Compile</strong> یکسان نیست.
+            <code>PlaceOrderService</code> به <code>IOrderRepository</code> وابسته است، نه به
+            <code>EfOrderRepository</code>. پیاده‌سازی Infrastructure این Interface را اجرا می‌کند و در نقطهٔ شروع
+            برنامه به Service تزریق می‌شود:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — Composition Root</span></div>
+            <pre><code>builder.Services.AddScoped&lt;IOrderRepository, EfOrderRepository&gt;();
+builder.Services.AddScoped&lt;PlaceOrderService&gt;();</code></pre>
+          </div>
+          <p><strong>Composition Root</strong> محل ساخت و اتصال Dependencyهای اصلی برنامه است؛ در ASP.NET Core معمولاً
+            این اتصال در <code>Program.cs</code> انجام می‌شود. Container فقط Object Graph را می‌سازد و نباید Business
+            Rule را در خود جای دهد.</p>
+
+          <h2>یک ساختار پیشنهادی برای Solution</h2>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Text</span></div>
+            <pre><code>Store.sln
+├── Store.Domain
+│   ├── Orders/Order.cs
+│   └── Orders/OrderItem.cs
+├── Store.Application
+│   └── Orders/PlaceOrder/
+│       ├── PlaceOrderCommand.cs
+│       ├── PlaceOrderService.cs
+│       └── IOrderRepository.cs
+├── Store.Infrastructure
+│   ├── Persistence/AppDbContext.cs
+│   └── Orders/EfOrderRepository.cs
+└── Store.WebApi
+    ├── Controllers/OrdersController.cs
+    └── Program.cs</code></pre>
+          </div>
+          <p>Folderها و Projectها ابزار نمایش مرزها هستند، نه خود معماری. اگر <code>Store.Domain</code> به WebApi یا EF
+            Core Reference بدهد، نام Domain روی Project نمی‌تواند آن Dependency اشتباه را جبران کند.</p>
+
+          <h2>Dependencyهای مجاز را چگونه کنترل کنیم؟</h2>
+          <p>در شکل کلاسیک Layered Architecture، هر Layer معمولاً فقط Layer پایین‌تر را صدا می‌زند. در طراحی‌های جدیدتر
+            می‌توان با Dependency Inversion، Interface را در Layer نیازمند قرار داد تا جزئیات به Policy وابسته شوند.
+            برای مثال بالا یک قاعدهٔ عملی چنین است:</p>
+          <ul>
+            <li><code>Domain</code> به Projectهای دیگر وابسته نیست.</li>
+            <li><code>Application</code> به <code>Domain</code> وابسته است.</li>
+            <li><code>Infrastructure</code> برای پیاده‌سازی Interfaceها به <code>Application</code> و
+              <code>Domain</code> وابسته است.</li>
+            <li><code>WebApi</code> ورودی برنامه و Composition Root است و اجزا را به هم متصل می‌کند.</li>
+          </ul>
+          <p>این قاعده زمینه را برای درس بعدی، یعنی Clean Architecture، فراهم می‌کند؛ اما هر Layered Architecture لزوماً
+            Clean Architecture نیست. در مدل سنتی ممکن است Business Layer مستقیماً به Data Access Layer وابسته باشد.</p>
+
+          <h2>تست‌پذیری حاصل از جداسازی</h2>
+          <p>چون Application Service به Abstraction وابسته است، می‌توان Use Case را بدون Database واقعی آزمود:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">C# — xUnit</span></div>
+            <pre><code>[Fact]
+public async Task HandleAsync_Saves_order_and_returns_its_id()
+{
+    var repository = new FakeOrderRepository();
+    var service = new PlaceOrderService(repository);
+    var command = new PlaceOrderCommand(
+        Guid.NewGuid(),
+        [new PlaceOrderItem(Guid.NewGuid(), 100_000m, 2)]);
+
+    var orderId = await service.HandleAsync(command, CancellationToken.None);
+
+    Assert.NotNull(repository.SavedOrder);
+    Assert.Equal(orderId, repository.SavedOrder.Id);
+    Assert.Equal(200_000m, repository.SavedOrder.Total);
+}
+
+private sealed class FakeOrderRepository : IOrderRepository
+{
+    public Order? SavedOrder { get; private set; }
+
+    public Task AddAsync(Order order, CancellationToken cancellationToken)
+    {
+        SavedOrder = order;
+        return Task.CompletedTask;
+    }
+}</code></pre>
+          </div>
+          <p>این Test سه رفتار قابل‌مشاهده را بررسی می‌کند: سفارش به Repository تحویل داده شده، شناسهٔ برگشتی همان
+            شناسهٔ سفارش است و مجموع مبلغ درست محاسبه شده است. چون SQL و HTTP وارد Test نشده‌اند، Test سریع و متمرکز
+            باقی می‌ماند. خود <code>EfOrderRepository</code> را باید جداگانه با Integration Test بررسی کرد.</p>
+
+          <h2>اشتباهات رایج</h2>
+          <h3>۱. عبور مستقیم Presentation از روی Business Layer</h3>
+          <p>اگر Controller مستقیماً <code>DbContext</code> را صدا بزند، هر Endpoint می‌تواند Ruleها را به شکل متفاوتی
+            اجرا کند. Controller باید Use Case را فراخوانی کند، نه اینکه خودش Use Case باشد.</p>
+
+          <h3>۲. ساختن Classهای عبوری بدون مسئولیت</h3>
+          <p>گاهی Controller، Service و Repository فقط همان DTO را بدون تصمیم یا تبدیل به Layer بعدی می‌فرستند. این
+            حالت Layerهای بیشتری می‌سازد، اما جداسازی مفیدی ایجاد نمی‌کند. هر مرز باید دلیل تغییر مشخصی داشته باشد.</p>
+
+          <h3>۳. نشت Entity مربوط به Persistence به همهٔ Layerها</h3>
+          <p>برگرداندن مستقیم Entityهای EF Core از API باعث می‌شود تغییر Mapping یا رابطه‌های Database روی قرارداد API
+            اثر بگذارد. DTO مرزی را زمانی استفاده کنید که قرارداد بیرونی با مدل داخلی تفاوت دارد؛ نه صرفاً برای کپی
+            مکانیکی همهٔ Propertyها.</p>
+
+          <h3>۴. Interface برای هر Class</h3>
+          <p>Interface زمانی ارزش دارد که یک مرز، چند رفتار جایگزین یا نیاز واقعی به جداسازی وجود داشته باشد. ساختن
+            <code>IOrderService</code> فقط چون Classی به نام <code>OrderService</code> داریم، بدون این نیازها Abstraction
+            مفیدی ایجاد نمی‌کند.</p>
+
+          <h3>۵. قرار دادن Business Rule در Repository</h3>
+          <p>Repository مسئول Persistence است. Ruleهایی مانند «سفارش خالی مجاز نیست» یا «تعداد باید مثبت باشد» به
+            Domain یا Use Case تعلق دارند و نباید فقط هنگام ذخیره‌سازی اجرا شوند.</p>
+
+          <h3>۶. وابستگی چرخه‌ای میان Projectها</h3>
+          <p>اگر Application به Infrastructure و Infrastructure نیز به Application وابسته شود، مرزها مبهم می‌شوند و
+            Build نیز ممکن است با Circular Reference روبه‌رو شود. Interfaceها را در سمت نیاز قرار دهید و اتصال را در
+            Composition Root انجام دهید.</p>
+
+          <h2>چه زمانی Layered Architecture انتخاب مناسبی است؟</h2>
+          <p>این سبک برای Business Applicationهای معمول، APIهای سازمانی و سیستم‌هایی که UI، Rule و Persistence
+            قابل‌تفکیک دارند، نقطهٔ شروع قابل‌فهمی است. اعضای تیم به‌سادگی می‌توانند محل هر نوع Code را پیدا کنند و
+            بخش‌های اصلی را مستقل‌تر Test کنند.</p>
+          <p>برای یک ابزار بسیار کوچک یا CRUD ساده، چهار Project و تعداد زیادی Mapping ممکن است هزینه‌ای بیشتر از منفعت
+            ایجاد کند. در سوی دیگر، اگر سیستم Domain پیچیده، چند روش ورودی یا Integrationهای متعدد دارد، مرزهای دقیق‌تر
+            مانند Clean Architecture یا سازمان‌دهی Feature-based می‌توانند مناسب‌تر باشند. معماری باید متناسب با مسئله
+            رشد کند.</p>
+
+          <h2>چک‌لیست طراحی یک Feature</h2>
+          <ol>
+            <li>Use Case را با یک فعل روشن نام‌گذاری کنید؛ مانند <code>PlaceOrder</code>.</li>
+            <li>Business Ruleها و State معتبر را در Domain Objectهای مناسب قرار دهید.</li>
+            <li>هماهنگی مراحل Use Case را به Application Service بسپارید.</li>
+            <li>جزئیات HTTP را در Presentation و جزئیات فنی را در Infrastructure نگه دارید.</li>
+            <li>برای Dependency بیرونی، نیاز Layer مصرف‌کننده را با یک Interface کوچک بیان کنید.</li>
+            <li>Dependencyها را در Composition Root متصل کنید.</li>
+            <li>Ruleهای Domain را با Unit Test و Adapterهای فنی را با Integration Test بررسی کنید.</li>
+          </ol>
+
+          <h2>تمرین</h2>
+          <p>به مثال ثبت سفارش، قابلیت بررسی موجودی را اضافه کنید. یک <code>IInventoryGateway</code> با عملیاتی کوچک مانند
+            <code>IsAvailableAsync</code> تعریف کنید، آن را به Application Service تزریق کنید و در صورت نبود موجودی، از
+            ثبت سفارش جلوگیری کنید. سپس با یک Fake دو حالت «موجود» و «ناموجود» را Test کنید.</p>
+          <div class="callout callout-info"><span class="callout-icon">🎯</span>
+            <div class="callout-content">پیش از نوشتن Code تصمیم بگیرید Interface باید در کدام Layer قرار گیرد. معیار
+              پاسخ این است: کدام Layer برای اجرای Use Case به این قابلیت نیاز دارد؟</div>
+          </div>
+
+          <h2>جمع‌بندی</h2>
+          <p>Layered Architecture سیستم را با مرزهای مسئولیتی سازمان می‌دهد و OOP رفتار هر بخش و قرارداد همکاری میان
+            بخش‌ها را شکل می‌دهد. Presentation با ورودی و خروجی سروکار دارد، Application جریان Use Case را هماهنگ
+            می‌کند، Domain از Ruleها و State معتبر محافظت می‌کند و Infrastructure جزئیات فنی را در خود نگه می‌دارد.
+            نتیجهٔ مطلوب فقط Projectهای بیشتر نیست؛ نتیجه باید تغییرات محلی‌تر، Dependencyهای روشن‌تر و Testهای
+            ساده‌تر باشد.</p>
+        </div>
       </div>
     </main>
   </div>
