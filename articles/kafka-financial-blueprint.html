@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="راهنمای گام‌به‌گام استفاده از Apache Kafka برای پایداری تراکنش‌های مالی؛ شامل Idempotency، Manual Commit، CQRS، Event Sourcing، Transactional Outbox و DLQ.">
+  <meta property="og:title" content="The Kafka Financial Blueprint | آکادمی دات‌نت">
+  <meta property="og:description" content="چگونه جریان تراکنش مالی را در مقیاس بالا پایدار، قابل ردگیری و مقاوم در برابر خطا طراحی کنیم؟">
+  <title>پایداری تراکنش‌های مالی با Kafka | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="article.css">
+  <script src="../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#article-content">پرش به متن مقاله</a>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="ناوبری اصلی">
+      <a class="brand" href="../index.html">آکادمی دات‌نت</a>
+      <div class="nav-links articles-nav-links">
+        <a href="../index.html#courses">دوره‌ها</a>
+        <a href="../index.html#books">کتاب‌ها</a>
+        <a href="index.html" aria-current="page">مقالات</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="article-content">
+    <article class="article-shell">
+      <header class="article-hero">
+        <nav class="breadcrumbs" aria-label="مسیر صفحه"><a href="../index.html">خانه</a><span aria-hidden="true">/</span><a href="index.html">مقالات</a></nav>
+        <p class="eyebrow">The Kafka Financial Blueprint</p>
+        <h1>چگونه سیستم‌های مالی و بانکی، پایداری تراکنش‌ها را در مقیاس بالا تضمین می‌کنند؟</h1>
+        <p class="article-lead">در یک سامانهٔ انتقال وجه، «درخواست را دریافت کردیم» با «پول را دقیقاً یک‌بار جابه‌جا کردیم» یک معنی ندارد. این مقاله از همین فاصله شروع می‌کند و نشان می‌دهد <bdi>Apache Kafka</bdi> همراه با الگوهای درست چگونه یک جریان مالی قابل‌بازیابی، قابل‌ردگیری و مقاوم می‌سازد.</p>
+        <div class="article-byline"><span>سطح: متوسط</span><span>حدود ۲۵ دقیقه مطالعه</span><span>به‌روزرسانی: شهریور ۱۴۰۵</span></div>
+        <div class="hero-pipeline" aria-label="نمای سادهٔ جریان تراکنش از درخواست تا ثبت نهایی">
+          <span>درخواست انتقال</span><i aria-hidden="true">←</i><span>Outbox</span><i aria-hidden="true">←</i><strong>Kafka</strong><i aria-hidden="true">←</i><span>پردازش امن</span><i aria-hidden="true">←</i><span>ثبت نهایی</span>
+        </div>
+      </header>
+
+      <div class="article-layout">
+        <aside class="article-toc" aria-labelledby="toc-title">
+          <h2 id="toc-title">در این مقاله</h2>
+          <ol>
+            <li><a href="#problem">مسئلهٔ واقعی چیست؟</a></li>
+            <li><a href="#log">Kafka به‌عنوان Immutable Log</a></li>
+            <li><a href="#anatomy">Topic، Partition و Offset</a></li>
+            <li><a href="#delivery">تحویل پیام و Idempotency</a></li>
+            <li><a href="#money">نمایش دقیق مبلغ</a></li>
+            <li><a href="#commit">Manual Commit بدون توهم</a></li>
+            <li><a href="#outbox">حل Dual Write با Outbox</a></li>
+            <li><a href="#cqrs">Event Sourcing و CQRS</a></li>
+            <li><a href="#dlq">Poison Pill و DLQ</a></li>
+            <li><a href="#blueprint">Blueprint نهایی</a></li>
+          </ol>
+          <a class="source-link" href="../docs/1788862848657.pdf" target="_blank" rel="noopener">مشاهدهٔ فایل ارائه (PDF)</a>
+        </aside>
+
+        <div class="article-body">
+          <section id="problem">
+            <p class="section-kicker">مدل ذهنی</p>
+            <h2>اول مسئله را با یک انتقال وجه ببینیم</h2>
+            <p>فرض کنید کاربر می‌خواهد یک میلیون تومان از حساب A به حساب B منتقل کند. سرویس تراکنش درخواست را می‌گیرد، موجودی را تغییر می‌دهد و برای سرویس‌های حسابداری، تشخیص تقلب و گزارش‌گیری رویداد می‌فرستد. در حالت عادی همه‌چیز ساده است؛ پیچیدگی وقتی آغاز می‌شود که شبکه در بدترین لحظه قطع شود.</p>
+            <div class="scenario-grid">
+              <article><span>۱</span><h3>پیام گم شود</h3><p>بانک مبلغ را کم کرده اما سرویس حسابداری هرگز رویداد را نمی‌بیند؛ داده‌ها با هم ناسازگار می‌شوند.</p></article>
+              <article><span>۲</span><h3>پیام دوباره برسد</h3><p>Consumer همان انتقال را دوباره ثبت می‌کند و یک اثر مالی تکراری به وجود می‌آید.</p></article>
+              <article><span>۳</span><h3>پاسخ گم شود</h3><p>عملیات موفق بوده اما فرستنده مطمئن نیست؛ Retry بدون طراحی درست می‌تواند Duplicate بسازد.</p></article>
+            </div>
+            <p>پس هدف فقط «ارسال پیام» نیست. یک سیستم مالی باید بتواند منشأ هر تغییر را پیدا کند، پس از خرابی ادامه دهد و اجرای دوبارهٔ یک درخواست را بی‌اثر کند. Kafka ستون فقرات این جریان است، اما خودش به‌تنهایی تمام این تضمین‌ها را ایجاد نمی‌کند.</p>
+            <aside class="callout callout-warning"><strong>اصل مهم:</strong> در سیستم توزیع‌شده، ادعای سراسری <bdi>Exactly Once</bdi> بسیار پرهزینه و وابسته به مرز تراکنش است. طراحی عملی معمولاً بر <bdi>At-Least-Once Delivery</bdi> به‌علاوهٔ پردازش <bdi>Idempotent</bdi> تکیه می‌کند.</aside>
+          </section>
+
+          <section id="log">
+            <p class="section-kicker">زیرساخت داده</p>
+            <h2>Kafka صفی نیست که پیام را بعد از مصرف پاک کند</h2>
+            <p>در یک صف سنتی، Consumer پیام را برمی‌دارد و معمولاً پیام پس از تأیید حذف می‌شود. در Kafka رویدادها برای مدت تعیین‌شده در یک <bdi>Append-Only Log</bdi> باقی می‌مانند. «Append-Only» یعنی دادهٔ جدید به انتهای لاگ افزوده می‌شود و رکورد قبلی در محل خود بازنویسی نمی‌شود. این ویژگی برای <bdi>Audit</bdi> مالی ارزشمند است: می‌توانیم بفهمیم چه رویدادی، با چه شناسه‌ای و در چه ترتیبی ثبت شده است.</p>
+            <p>Kafka برای نوشتن سریع از <bdi>Sequential I/O</bdi> استفاده می‌کند. دیسک در نوشتن پشت‌سرهم بسیار کارآمدتر از پرش‌های تصادفی میان فایل‌هاست. سیستم‌عامل نیز داده‌های پرتکرار را در <bdi>Page Cache</bdi> نگه می‌دارد و Kafka به‌جای ساختن یک لایهٔ Cache اختصاصی بزرگ، از همین قابلیت استفاده می‌کند. نتیجه، <bdi>Throughput</bdi> بالا با هزینهٔ حافظهٔ قابل‌کنترل است.</p>
+            <div class="definition"><strong>Immutable دقیقاً یعنی چه؟</strong><p>یعنی رکورد ثبت‌شده در جای خود ویرایش نمی‌شود؛ نه اینکه داده تا ابد نگهداری شود. سیاست <bdi>Retention</bdi> می‌تواند رکوردهای قدیمی را حذف کند و <bdi>Log Compaction</bdi> نیز بر اساس Key نسخه‌های قدیمی را کنار بگذارد. نیازهای Audit باید جداگانه با این سیاست‌ها هماهنگ شوند.</p></div>
+          </section>
+
+          <section id="anatomy">
+            <p class="section-kicker">آناتومی توزیع</p>
+            <h2>Topic، Partition و Offset چه نقشی دارند؟</h2>
+            <dl class="concept-list">
+              <div><dt>Topic</dt><dd>نام یک جریان منطقی از رویدادهاست؛ مثلاً <code dir="ltr">transfer-requests</code>. Producer در آن می‌نویسد و یک یا چند Consumer آن را می‌خوانند.</dd></div>
+              <div><dt>Partition</dt><dd>بخش فیزیکی و مرتب‌شدهٔ یک Topic است. Partitionها امکان پردازش موازی و توزیع بار روی Brokerها را ایجاد می‌کنند.</dd></div>
+              <div><dt>Offset</dt><dd>شمارهٔ ترتیبی هر رکورد درون یک Partition است. Offset سراسری نیست و فقط همراه نام Topic و شمارهٔ Partition معنا دارد.</dd></div>
+            </dl>
+            <p>Kafka ترتیب را فقط <strong>داخل یک Partition</strong> تضمین می‌کند. بنابراین انتخاب <bdi>Message Key</bdi> یک تصمیم کسب‌وکاری است. اگر همهٔ رویدادهای یک حساب باید مرتب پردازش شوند، می‌توان <code dir="ltr">accountId</code> را Key قرار داد تا رکوردهای آن حساب به یک Partition بروند. البته یک انتقال دو حساب دارد؛ انتخاب حساب مبدأ، شناسهٔ انتقال یا یک مدل Ledger مرکزی به قواعد دامنه وابسته است و با اضافه‌کردن Kafka خودکار حل نمی‌شود.</p>
+            <p><bdi>Consumer Group</bdi> نیز مجموعه‌ای از Consumerها با یک <code dir="ltr">group.id</code> مشترک است. در هر لحظه هر Partition فقط به یک عضو گروه تخصیص داده می‌شود؛ پس کار میان Instanceها تقسیم می‌شود. اگر عضوی اضافه یا حذف شود، Kafka فرآیند <bdi>Rebalance</bdi> را اجرا می‌کند.</p>
+            <aside class="callout"><strong>نکتهٔ ظرفیت:</strong> اگر Topic چهار Partition و گروه شش Consumer داشته باشد، حداکثر چهار Consumer هم‌زمان کار می‌کنند و دو Consumer بیکار می‌مانند. تعداد Partition سقف Parallelism همان گروه است.</aside>
+          </section>
+
+          <section id="delivery">
+            <p class="section-kicker">تضمین تحویل</p>
+            <h2>Idempotency؛ اجرای دوباره بدون اثر دوباره</h2>
+            <p>یک عملیات <bdi>Idempotent</bdi> است اگر اجرای چندبارهٔ آن، پس از اجرای اول نتیجهٔ کسب‌وکاری تازه‌ای نسازد. برای مثال، «وضعیت انتقال ۹۲۱ را به تأییدشده تغییر بده» می‌تواند Idempotent باشد؛ اما «یک میلیون تومان به موجودی اضافه کن» ذاتاً Idempotent نیست.</p>
+            <h3>سمت Producer</h3>
+            <p>هنگام قطع شبکه ممکن است Broker پیام را ذخیره کرده باشد اما Producer پاسخ را نگرفته باشد. Producer دوباره می‌فرستد و بدون کنترل، Duplicate تولید می‌شود. <bdi>Idempotent Producer</bdi> با شناسه و Sequence Number، Retry تکراری را در همان نشست Producer و Partition تشخیص می‌دهد.</p>
+            <pre><code class="language-csharp" dir="ltr">var producerConfig = new ProducerConfig
+{
+    BootstrapServers = "kafka-1:9092,kafka-2:9092",
+    EnableIdempotence = true,
+    Acks = Acks.All
+};</code></pre>
+            <p><code dir="ltr">Acks.All</code> یعنی Leader پس از تأیید Replicaهای همگام پاسخ می‌دهد. برای تاب‌آوری واقعی باید تنظیم Broker مانند <code dir="ltr">min.insync.replicas</code> و <bdi>Replication Factor</bdi> نیز متناسب باشد. روشن‌کردن یک Flag جای پیکربندی Cluster را نمی‌گیرد.</p>
+            <h3>سمت Consumer</h3>
+            <p><bdi>Idempotent Producer</bdi> فقط Duplicate ناشی از Retry ارسال را در محدودهٔ Kafka کاهش می‌دهد. اگر Consumer بعد از ثبت دیتابیس و پیش از Commit کردن Offset Crash کند، همان رکورد دوباره تحویل می‌شود. بنابراین Consumer باید شناسهٔ یکتای رویداد را در جدولی با <bdi>Unique Constraint</bdi> ثبت کند و تغییر کسب‌وکاری را در همان DB Transaction انجام دهد.</p>
+            <pre><code class="language-sql" dir="ltr">CREATE TABLE processed_messages (
+    consumer_name varchar(100) NOT NULL,
+    event_id uuid NOT NULL,
+    processed_at timestamptz NOT NULL,
+    PRIMARY KEY (consumer_name, event_id)
+);</code></pre>
+            <p>اگر درج کلید تکراری بود، Consumer می‌فهمد اثر این رویداد قبلاً ثبت شده و می‌تواند بدون اجرای دوبارهٔ منطق مالی، پیام را تأیید کند.</p>
+          </section>
+
+          <section id="money">
+            <p class="section-kicker">دقت محاسباتی</p>
+            <h2>مبلغ پول را با Floating-Point جابه‌جا نکنید</h2>
+            <p>انواعی مانند <code dir="ltr">double</code> همهٔ کسرهای ده‌دهی را دقیق در مبنای دو نمایش نمی‌دهند. خطای کوچک در میلیون‌ها محاسبه می‌تواند به اختلاف مالی تبدیل شود. در Java از <code dir="ltr">BigDecimal</code> و در .NET معمولاً از <code dir="ltr">decimal</code> استفاده می‌شود.</p>
+            <pre><code class="language-json" dir="ltr">{
+  "eventId": "98f7c27d-2a3f-4b8d-a1af-c21bb98d1451",
+  "transferId": "tx-9921",
+  "currency": "IRR",
+  "amount": "10500.50"
+}</code></pre>
+            <p>ارسال مبلغ به‌شکل String مانع تفسیر آن به‌عنوان Binary Floating-Point در مسیرهای ناهمگون می‌شود. Consumer .NET باید آن را با <code dir="ltr">decimal.Parse(value, CultureInfo.InvariantCulture)</code> و قواعد دقیق Scale و Currency اعتبارسنجی کند.</p>
+            <aside class="callout callout-neutral"><strong>گزینهٔ جایگزین:</strong> می‌توان مبلغ را با کوچک‌ترین واحد پول به‌صورت Integer فرستاد؛ مثلاً ریال. این روش ساده است، اما باید Currency و تعداد رقم اعشار هر ارز در Contract مشخص باشد. مهم‌تر از انتخاب فرمت، ثابت‌بودن قرارداد و اعتبارسنجی آن است.</aside>
+          </section>
+
+          <section id="commit">
+            <p class="section-kicker">مرز موفقیت</p>
+            <h2>Manual Commit؛ Offset را چه زمانی جلو ببریم؟</h2>
+            <p>Offset ذخیره‌شده می‌گوید Consumer تا کجای Partition را با موفقیت پردازش کرده است. در <bdi>Auto Commit</bdi> ممکن است Offset پیش از پایان منطق کسب‌وکار جلو برود. اگر بعد از آن ذخیرهٔ دیتابیس شکست بخورد، Consumer در اجرای بعدی از روی پیام عبور می‌کند و داده از نظر کسب‌وکار گم می‌شود.</p>
+            <p>قاعدهٔ امن این است: ابتدا DB Transaction را Commit کنید و فقط بعد از موفقیت آن، Offset را Store یا Commit کنید.</p>
+            <pre><code class="language-csharp" dir="ltr">consumer.Subscribe("transfer-requests");
+
+while (!stoppingToken.IsCancellationRequested)
+{
+    var result = consumer.Consume(stoppingToken);
+
+    await transactionHandler.ProcessIdempotently(
+        result.Message.Value,
+        stoppingToken);
+
+    consumer.Commit(result);
+}</code></pre>
+            <div class="failure-window">
+              <h3>اما یک پنجرهٔ خرابی باقی می‌ماند</h3>
+              <ol>
+                <li>تغییر در دیتابیس Commit می‌شود.</li>
+                <li>برنامه قبل از <code dir="ltr">consumer.Commit(result)</code> از کار می‌افتد.</li>
+                <li>Kafka پیام را دوباره تحویل می‌دهد.</li>
+              </ol>
+              <p>این‌جا پیام گم نمی‌شود، اما Duplicate محتمل است. همان جدول <code dir="ltr">processed_messages</code> اثر تکراری را خنثی می‌کند. پس ترکیب درست، <bdi>Manual Commit + Idempotent Consumer</bdi> است.</p>
+            </div>
+          </section>
+
+          <section id="outbox">
+            <p class="section-kicker">یکپارچگی بین Database و Kafka</p>
+            <h2>Transactional Outbox مشکل Dual Write را حل می‌کند</h2>
+            <p>سرویس بانکی باید هم رکورد تراکنش را در دیتابیس بنویسد و هم رویداد را به Kafka بفرستد. این دو سیستم Transaction مشترک ندارند. اگر اول Database موفق و سپس Kafka ناموفق شود، وضعیت مالی تغییر کرده ولی رویدادی وجود ندارد. اگر ترتیب را برعکس کنیم، ممکن است رویدادی منتشر شود که تغییر مالی متناظر آن ثبت نشده است. این همان مشکل <bdi>Dual Write</bdi> است.</p>
+            <div class="outbox-flow" aria-label="سه مرحلهٔ الگوی Transactional Outbox">
+              <div><span>۱</span><strong>DB Transaction</strong><p>تغییر Business Table و درج Outbox Event با هم Commit می‌شوند.</p></div>
+              <i aria-hidden="true">←</i>
+              <div><span>۲</span><strong>Relay / CDC</strong><p>پردازش جدا یا ابزاری مثل Debezium رکورد Outbox را می‌خواند.</p></div>
+              <i aria-hidden="true">←</i>
+              <div><span>۳</span><strong>Kafka</strong><p>رویداد منتشر می‌شود و وضعیت انتشار قابل Retry و پایش است.</p></div>
+            </div>
+            <pre><code class="language-csharp" dir="ltr">await using var dbTransaction = await db.Database.BeginTransactionAsync(ct);
+
+db.Transfers.Add(transfer);
+db.OutboxMessages.Add(new OutboxMessage
+{
+    Id = eventId,
+    Type = "TransferRequested",
+    Payload = serializedEvent,
+    OccurredAtUtc = DateTime.UtcNow
+});
+
+await db.SaveChangesAsync(ct);
+await dbTransaction.CommitAsync(ct);</code></pre>
+            <p>Outbox «ارسال دقیقاً یک‌بار» را جادویی نمی‌کند. Relay نیز ممکن است رویداد را بیش از یک‌بار منتشر کند؛ بنابراین Event ID یکتا و Idempotent Consumer همچنان لازم‌اند. مزیت اصلی این است که دیگر حالتی نداریم که تغییر Business ثبت شود ولی هیچ رکورد قابل‌بازیابی برای انتشار وجود نداشته باشد.</p>
+          </section>
+
+          <section id="cqrs">
+            <p class="section-kicker">مدل‌های پیشرفته</p>
+            <h2>Event Sourcing و CQRS چه زمانی وارد می‌شوند؟</h2>
+            <p>در مدل معمول، موجودی حساب یک عدد در جدول است و با هر عملیات به‌روزرسانی می‌شود. در <bdi>Event Sourcing</bdi>، منبع حقیقت مجموعهٔ رویدادهای تاریخی است: <code dir="ltr">MoneyDeposited(+100)</code>، <code dir="ltr">MoneyWithdrawn(-20)</code> و <code dir="ltr">FeeCharged(-5)</code>. موجودی ۷۵ از بازپخش این رویدادها به دست می‌آید.</p>
+            <p>برای جلوگیری از بازپخش هزاران رویداد در هر بار خواندن، سیستم در فاصله‌های مشخص <bdi>Snapshot</bdi> می‌سازد. سپس فقط رویدادهای بعد از Snapshot اعمال می‌شوند.</p>
+            <p><bdi>CQRS</bdi> یا <bdi>Command Query Responsibility Segregation</bdi> یعنی مسیر تغییر وضعیت از مسیر خواندن جدا باشد. Commandها قواعد مالی را اجرا و رویداد تولید می‌کنند؛ Consumerها رویدادها را به <bdi>Materialized View</bdi>هایی تبدیل می‌کنند که برای Query سریع بهینه‌اند، مثلاً Redis یا جدول گزارش‌گیری.</p>
+            <aside class="callout callout-warning"><strong>تصمیم معماری:</strong> Event Sourcing و CQRS هزینهٔ مدل‌سازی، Versioning رویدادها، Eventual Consistency و عملیات Production را بالا می‌برند. برای هر سرویس مالی لازم نیستند؛ وقتی Audit کامل، بازسازی State یا چند مدل خواندن واقعاً ارزش کسب‌وکاری دارد سراغشان بروید.</aside>
+          </section>
+
+          <section id="dlq">
+            <p class="section-kicker">تاب‌آوری پردازش</p>
+            <h2>Poison Pill نباید کل Partition را متوقف کند</h2>
+            <p><bdi>Poison Pill</bdi> پیامی است که Consumer به‌طور پایدار نمی‌تواند پردازش کند؛ مثلاً JSON خراب، Schema ناشناخته یا مقدار نامعتبر. Retry فوری و بی‌نهایت روی چنین پیامی فقط CPU مصرف می‌کند و چون ترتیب Partition حفظ می‌شود، پیام‌های سالم بعدی نیز پشت آن گیر می‌کنند.</p>
+            <ol class="retry-steps">
+              <li><strong>خطای موقت را تشخیص دهید.</strong> Timeout دیتابیس ممکن است با Retry حل شود؛ Schema نامعتبر معمولاً نمی‌شود.</li>
+              <li><strong>Retry محدود با Backoff انجام دهید.</strong> فاصلهٔ تلاش‌ها را افزایش دهید و Jitter اضافه کنید تا فشار هم‌زمان ساخته نشود.</li>
+              <li><strong>پیام دائماً ناموفق را به DLQ بفرستید.</strong> Payload اصلی، Topic، Partition، Offset، Exception، Stack Trace و Correlation ID را همراهش ذخیره کنید.</li>
+              <li><strong>Offset پیام اصلی را بعد از ثبت موفق در DLQ جلو ببرید.</strong> اگر انتشار DLQ شکست خورد، پیام اصلی نباید بی‌صدا گم شود.</li>
+              <li><strong>برای Replay فرآیند عملیاتی داشته باشید.</strong> DLQ قبرستان پیام نیست؛ Dashboard، Alert، مالک، علت‌یابی و ابزار بازپخش کنترل‌شده می‌خواهد.</li>
+            </ol>
+          </section>
+
+          <section id="blueprint">
+            <p class="section-kicker">جمع‌بندی اجرایی</p>
+            <h2>Blueprint یک جریان تراکنش پایدار</h2>
+            <div class="blueprint" role="list" aria-label="مراحل جریان یکپارچهٔ تراکنش">
+              <div role="listitem"><span>01</span><p>API یک <bdi>Idempotency Key</bdi> از Client می‌گیرد و درخواست تکراری را تشخیص می‌دهد.</p></div>
+              <div role="listitem"><span>02</span><p>تغییر مالی و <bdi>Outbox Event</bdi> در یک DB Transaction ثبت می‌شوند.</p></div>
+              <div role="listitem"><span>03</span><p>Relay یا CDC رویداد را با Event ID ثابت به Kafka منتشر می‌کند.</p></div>
+              <div role="listitem"><span>04</span><p>Producer با <bdi>Idempotence</bdi>، <code dir="ltr">acks=all</code> و Replication مناسب پیکربندی می‌شود.</p></div>
+              <div role="listitem"><span>05</span><p>Consumer تغییر خود و Event ID را اتمیک در دیتابیس ذخیره می‌کند.</p></div>
+              <div role="listitem"><span>06</span><p>فقط پس از موفقیت دیتابیس، Offset به‌صورت Manual Commit می‌شود.</p></div>
+              <div role="listitem"><span>07</span><p>خطاهای موقت Retry و خطاهای دائمی همراه Context به DLQ منتقل می‌شوند.</p></div>
+              <div role="listitem"><span>08</span><p>Lag، نرخ Retry، حجم DLQ، زمان پردازش و ناسازگاری Ledger پایش و Alert می‌شوند.</p></div>
+            </div>
+            <h3>چک‌لیست بازبینی معماری</h3>
+            <ul class="checklist">
+              <li>هر رویداد <code dir="ltr">eventId</code>، <code dir="ltr">correlationId</code>، Version و Timestamp مشخص دارد.</li>
+              <li>مبالغ با نوع ده‌دهی دقیق یا کوچک‌ترین واحد پول و Currency صریح منتقل می‌شوند.</li>
+              <li>Key پارتیشن بر اساس نیاز Ordering دامنه انتخاب شده، نه صرفاً توزیع تصادفی.</li>
+              <li>Consumer در برابر Redelivery و Rebalance آزمایش شده است.</li>
+              <li>Replication، Retention، Backup و Disaster Recovery متناسب با RPO/RTO تعریف شده‌اند.</li>
+              <li>برای Schema Evolution، DLQ Replay و Reconciliation فرآیند عملیاتی وجود دارد.</li>
+            </ul>
+            <p class="closing">Kafka یک زیرساخت بسیار توانمند برای جریان رویداد است، اما پایداری مالی حاصل ترکیب چند مرز درست است: مرز ذخیره‌سازی با Outbox، مرز پردازش با Idempotency، مرز تأیید با Manual Commit و مرز خطا با Retry و DLQ. وقتی این اجزا کنار هم قرار بگیرند، سیستم نه‌تنها سریع، بلکه قابل‌اعتماد و قابل‌اثبات می‌شود.</p>
+          </section>
+
+          <footer class="article-source">
+            <h2>منبع ارائه</h2>
+            <p>این مقاله نسخهٔ توضیحی و توسعه‌یافتهٔ ارائهٔ «The Kafka Financial Blueprint» است و مفاهیم فشردهٔ اسلایدها را با مثال، محدودیت و نکات اجرایی برای توسعه‌دهندگان سطح متوسط باز می‌کند.</p>
+            <a class="button-link button-secondary" href="../docs/1788862848657.pdf" target="_blank" rel="noopener">بازکردن PDF اصلی</a>
+            <h3>برای مطالعهٔ بیشتر</h3>
+            <ul class="reference-links">
+              <li><a href="https://kafka.apache.org/documentation/#producerconfigs" target="_blank" rel="noopener">مستندات رسمی Producer Configs در Apache Kafka</a></li>
+              <li><a href="https://kafka.apache.org/documentation/#consumerconfigs" target="_blank" rel="noopener">مستندات رسمی Consumer Configs در Apache Kafka</a></li>
+              <li><a href="https://kafka.apache.org/documentation/#design_filesystem" target="_blank" rel="noopener">طراحی ذخیره‌سازی، Page Cache و Sequential I/O در Kafka</a></li>
+            </ul>
+          </footer>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>آکادمی دات‌نت</strong>؛ آموزش حرفه‌ای برای ساختن نرم‌افزارهای بهتر.</p>
+    <nav aria-label="پیوندهای پایانی"><a href="../index.html">صفحهٔ اصلی</a><a href="index.html">مقالات</a></nav>
+    <p>© ۱۴۰۵ آکادمی دات‌نت</p>
+  </footer>
+</body>
+</html>

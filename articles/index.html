@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="مقالات معماری نرم‌افزار و مهندسی سیستم‌های توزیع‌شده در آکادمی دات‌نت.">
+  <title>مقالات | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="article.css">
+  <script src="../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="ناوبری اصلی">
+      <a class="brand" href="../index.html">آکادمی دات‌نت</a>
+      <div class="nav-links articles-nav-links">
+        <a href="../index.html#courses">دوره‌ها</a>
+        <a href="../index.html#books">کتاب‌ها</a>
+        <a href="index.html" aria-current="page">مقالات</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content" class="articles-index">
+    <header class="articles-index-hero">
+      <p class="eyebrow">دانش برای سیستم‌های واقعی</p>
+      <h1>مقالات</h1>
+      <p>مطالب عمیق، مرحله‌به‌مرحله و مثال‌محور دربارهٔ معماری نرم‌افزار، سیستم‌های توزیع‌شده و اکوسیستم <bdi>.NET</bdi>.</p>
+    </header>
+
+    <section aria-labelledby="latest-articles-title">
+      <h2 id="latest-articles-title">تازه‌ترین مقاله</h2>
+      <article class="article-list-card">
+        <div class="article-list-mark" aria-hidden="true">KAFKA<br><span>TX</span></div>
+        <div>
+          <div class="article-meta"><span>معماری سیستم‌های مالی</span><span>حدود ۲۵ دقیقه مطالعه</span></div>
+          <h3><a href="kafka-financial-blueprint.html">چگونه سیستم‌های مالی و بانکی، پایداری تراکنش‌ها را در مقیاس بالا تضمین می‌کنند؟</a></h3>
+          <p>راهنمای قابل‌فهم <bdi>The Kafka Financial Blueprint</bdi>؛ از مدل ذهنی <bdi>Immutable Log</bdi> تا طراحی <bdi>Transactional Outbox</bdi>، <bdi>Idempotent Consumer</bdi> و <bdi>DLQ</bdi>.</p>
+          <a class="button-link" href="kafka-financial-blueprint.html">مطالعهٔ مقاله</a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>آکادمی دات‌نت</strong>؛ آموزش حرفه‌ای برای ساختن نرم‌افزارهای بهتر.</p>
+    <nav aria-label="پیوندهای پایانی"><a href="../index.html">صفحهٔ اصلی</a><a href="index.html">مقالات</a></nav>
+    <p>© ۱۴۰۵ آکادمی دات‌نت</p>
+  </footer>
+</body>
+</html>
