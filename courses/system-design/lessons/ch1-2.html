@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش Availability در System Design؛ از تعریف و اندازه‌گیری Availability تا Redundancy، Failover، Health Check، SLA/SLO و طراحی سیستم‌های Highly Available.">
+  <title>Availability | راهنمای طراحی سیستم</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../../ai-agent/course.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name">راهنمای طراحی سیستم</span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">راهنمای طراحی سیستم</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل 1، درس 2</span>
+      </nav>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 1 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
+          <h1><bdi>Availability</bdi></h1>
+          <p class="lesson-lead">
+            <bdi>Availability</bdi> یعنی سیستم در زمانی که کاربر به آن نیاز دارد، قابل‌دسترسی باشد و بتواند سرویس مورد
+            انتظار را ارائه دهد.
+            در این درس یاد می‌گیریم Availability را چگونه اندازه بگیریم، چه عواملی آن را کاهش می‌دهند و چگونه با
+            <bdi>Redundancy</bdi>، <bdi>Failover</bdi>، <bdi>Health Check</bdi> و حذف <bdi>Single Point of Failure</bdi>
+            یک سیستم <bdi>Highly Available</bdi> طراحی کنیم.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="observable-example-title">
+          <h2 id="observable-example-title">از یک سیستم پرداخت شروع کنیم</h2>
+
+          <p>
+            فرض کنید یک درگاه پرداخت در بیشتر ساعات روز کاملاً سالم است، اما هر بار که سرور اصلی Database از دسترس خارج
+            می‌شود،
+            کل Payment API نیز متوقف می‌شود. ممکن است این خرابی فقط ۳۰ دقیقه طول بکشد، ولی در همان مدت هیچ کاربری
+            نمی‌تواند پرداخت انجام دهد.
+          </p>
+
+          <p>
+            اینجا مسئله Performance نیست. ممکن است در زمان سلامت، هر Request در کمتر از ۱۰۰ میلی‌ثانیه پاسخ بگیرد؛
+            اما وقتی یکی از اجزای حیاتی خراب می‌شود، کل سرویس دیگر قابل استفاده نیست. این مسئله به
+            <bdi>Availability</bdi> مربوط است.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            یک فروشگاه را تصور کنید که کارکنان سریع و حرفه‌ای دارد، اما در ورودی فقط یک در وجود دارد.
+            اگر همان یک در خراب شود، سرعت کارکنان دیگر اهمیتی ندارد. آن در یک <bdi>Single Point of Failure</bdi> است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title"><bdi>Availability</bdi> دقیقاً چیست؟</h2>
+
+          <p>
+            Availability نشان می‌دهد یک سرویس چه درصدی از زمان مورد انتظار، آمادهٔ ارائهٔ خدمت بوده است.
+            تعریف سادهٔ آن:
+          </p>
+
+          <div class="lesson-example">
+            <h3>فرمول ساده</h3>
+            <p><bdi>Availability = Uptime / Total Time × 100</bdi></p>
+          </div>
+
+          <p>
+            اگر یک سرویس در یک بازهٔ ۱۰۰ ساعته، ۹۹ ساعت قابل استفاده و ۱ ساعت Down باشد، Availability آن تقریباً ۹۹٪
+            است.
+          </p>
+
+          <p>
+            اما در معماری واقعی فقط روشن‌بودن Process کافی نیست. اگر API پاسخ <bdi>200</bdi> بدهد ولی نتواند عملیات اصلی
+            را انجام دهد،
+            از نگاه کاربر سرویس واقعاً Available نیست. بنابراین Availability باید بر اساس <strong>قابلیت ارائهٔ سرویس
+              مورد انتظار</strong> تعریف شود.
+          </p>
+
+          <div class="lesson-example">
+            <h3>تعریف قابل‌اندازه‌گیری</h3>
+            <p>
+              «Payment API باید در هر ماه حداقل ۹۹٫۹۹٪ از زمان قادر باشد درخواست پرداخت معتبر را دریافت و پردازش اولیه
+              کند.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="nines-title">
+          <h2 id="nines-title">عددهای 99.9% و 99.99% چه معنایی دارند؟</h2>
+
+          <p>
+            در Availability معمولاً از تعداد <bdi>Nines</bdi> صحبت می‌شود. تفاوت ظاهراً کوچک بین ۹۹٫۹٪ و ۹۹٫۹۹٪،
+            در میزان Downtime مجاز تفاوت بزرگی ایجاد می‌کند.
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه سطح Availability و Downtime تقریبی"
+            tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Availability</th>
+                  <th>Downtime تقریبی در سال</th>
+                  <th>Downtime تقریبی در ماه</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>99%</td>
+                  <td>حدود 3 روز و 15 ساعت</td>
+                  <td>حدود 7 ساعت و 18 دقیقه</td>
+                </tr>
+                <tr>
+                  <td>99.9%</td>
+                  <td>حدود 8 ساعت و 46 دقیقه</td>
+                  <td>حدود 44 دقیقه</td>
+                </tr>
+                <tr>
+                  <td>99.99%</td>
+                  <td>حدود 52 دقیقه و 36 ثانیه</td>
+                  <td>حدود 4 دقیقه و 23 ثانیه</td>
+                </tr>
+                <tr>
+                  <td>99.999%</td>
+                  <td>حدود 5 دقیقه و 16 ثانیه</td>
+                  <td>حدود 26 ثانیه</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>نکته مهم:</strong>
+            هر Nine اضافه معمولاً هزینه و پیچیدگی معماری را به‌طور قابل‌توجهی افزایش می‌دهد.
+            برای هر سیستم نباید بدون دلیل هدف 99.999% تعیین کرد.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="sla-slo-title">
+          <h2 id="sla-slo-title"><bdi>SLA</bdi>، <bdi>SLO</bdi> و <bdi>SLI</bdi></h2>
+
+          <ul>
+            <li><strong><bdi>SLI — Service Level Indicator:</bdi></strong> مقداری که واقعاً اندازه‌گیری می‌کنیم؛ برای
+              مثال درصد Requestهای موفق.</li>
+            <li><strong><bdi>SLO — Service Level Objective:</bdi></strong> هدف داخلی یا فنی؛ مثلاً Availability سرویس
+              حداقل ۹۹٫۹۹٪ باشد.</li>
+            <li><strong><bdi>SLA — Service Level Agreement:</bdi></strong> تعهد رسمی یا قراردادی به مشتری که ممکن است در
+              صورت نقض، پیامد مالی یا حقوقی داشته باشد.</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>SLI فعلی = 99.97%<br>SLO داخلی = 99.99%<br>SLA با مشتری = 99.9%</p>
+          </div>
+
+          <p>معمولاً SLO داخلی باید سخت‌گیرانه‌تر از SLA باشد تا قبل از نقض تعهد مشتری، فضای عملیاتی برای تیم وجود داشته
+            باشد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="failure-title">
+          <h2 id="failure-title">چه چیزهایی Availability را کاهش می‌دهند؟</h2>
+
+          <p>خرابی همیشه به معنی خاموش‌شدن یک سرور نیست. Failure Modeهای مختلفی می‌توانند سرویس را برای کاربر غیرقابل
+            استفاده کنند:</p>
+
+          <ul>
+            <li><strong>Crash شدن Application:</strong> Process یا Container متوقف می‌شود.</li>
+            <li><strong>Database Failure:</strong> Database اصلی از دسترس خارج می‌شود.</li>
+            <li><strong>Network Failure:</strong> ارتباط میان Serviceها یا Data Centerها قطع می‌شود.</li>
+            <li><strong>Dependency Failure:</strong> سرویس خارجی مانند بانک، PSP یا Identity Provider Down می‌شود.</li>
+            <li><strong>Resource Exhaustion:</strong> Connection Pool، Thread Pool، Memory یا Disk پر می‌شود.</li>
+            <li><strong>Bad Deployment:</strong> نسخهٔ جدید باعث خطا در همهٔ Instanceها می‌شود.</li>
+            <li><strong>Overload:</strong> حجم درخواست بیشتر از ظرفیت سیستم می‌شود و سرویس عملاً غیرقابل استفاده
+              می‌گردد.</li>
+            <li><strong>Configuration Error:</strong> یک Secret، Certificate، DNS یا Connection String اشتباه سرویس را
+              از کار می‌اندازد.</li>
+          </ul>
+
+          <p>
+            هدف طراحی High Availability این نیست که «هیچ چیزی خراب نشود»؛ چنین هدفی واقع‌بینانه نیست.
+            هدف این است که <strong>خرابی یک جزء باعث از دسترس خارج‌شدن کل سیستم نشود</strong>.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="spof-title">
+          <h2 id="spof-title"><bdi>Single Point of Failure</bdi></h2>
+
+          <p><bdi>Single Point of Failure</bdi> یا <bdi>SPOF</bdi> جزئی است که اگر خراب شود، سرویس اصلی متوقف می‌شود.
+          </p>
+
+          <div class="architecture-flow" aria-label="معماری دارای Single Point of Failure">
+            <div>Client</div><span aria-hidden="true">→</span>
+            <div>API Server</div><span aria-hidden="true">→</span>
+            <div>Single Database</div>
+          </div>
+
+          <p>
+            در این معماری اگر API Server یا Database از دسترس خارج شود، کل سیستم Down می‌شود.
+            برای افزایش Availability معمولاً اجزای حیاتی را Redundant می‌کنیم.
+          </p>
+
+          <div class="architecture-flow" aria-label="معماری با Redundancy">
+            <div>Client</div><span aria-hidden="true">→</span>
+            <div>Load Balancer</div><span aria-hidden="true">→</span>
+            <div>API Instance 1 + API Instance 2</div><span aria-hidden="true">→</span>
+            <div>Primary DB + Replica</div>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>سؤال طراحی:</strong>
+            هر بار در دیاگرام فقط یک Instance از یک Component حیاتی می‌بینید، بپرسید:
+            «اگر این Component همین الآن Down شود، چه اتفاقی می‌افتد؟»
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="redundancy-title">
+          <h2 id="redundancy-title"><bdi>Redundancy</bdi>؛ اولین ابزار High Availability</h2>
+
+          <p>Redundancy یعنی بیش از یک نمونه از یک جزء مهم داشته باشیم تا خرابی یک نمونه باعث توقف کامل سرویس نشود.</p>
+
+          <ul>
+            <li>چند Application Instance پشت Load Balancer</li>
+            <li>Database Primary همراه Replica یا Secondary</li>
+            <li>چند Message Broker Node در Cluster</li>
+            <li>چند Availability Zone</li>
+            <li>چند DNS Server یا Load Balancer در لایهٔ زیرساخت</li>
+          </ul>
+
+          <p>
+            اما صرفاً داشتن دو Server کافی نیست. سیستم باید بتواند تشخیص دهد کدام Node سالم است و Traffic را به Node
+            سالم منتقل کند.
+            اینجاست که <bdi>Health Check</bdi> و <bdi>Failover</bdi> اهمیت پیدا می‌کنند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="failover-title">
+          <h2 id="failover-title"><bdi>Failover</bdi> چیست؟</h2>
+
+          <p>Failover یعنی وقتی Component اصلی خراب می‌شود، سرویس به Instance یا Component جایگزین منتقل شود.</p>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه Active Active و Active Passive" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>مدل</th>
+                  <th>نحوه کار</th>
+                  <th>مزیت</th>
+                  <th>Trade-off</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><bdi>Active-Passive</bdi></td>
+                  <td>یک Node فعال است و Node دوم آمادهٔ جایگزینی</td>
+                  <td>سادگی بیشتر</td>
+                  <td>بخشی از ظرفیت در حالت عادی بدون استفاده است و Failover زمان می‌برد</td>
+                </tr>
+                <tr>
+                  <td><bdi>Active-Active</bdi></td>
+                  <td>چند Node هم‌زمان Traffic می‌گیرند</td>
+                  <td>استفاده بهتر از ظرفیت و Failover سریع‌تر</td>
+                  <td>هماهنگی State و Consistency پیچیده‌تر می‌شود</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            در Application Layer معمولاً Active-Active ساده‌تر است، به‌خصوص اگر Instanceها Stateless باشند.
+            در Data Layer انتخاب Active-Passive یا Active-Active بسیار وابسته به نوع Database و نیازهای Consistency است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="health-title">
+          <h2 id="health-title"><bdi>Health Check</bdi>؛ از کجا بفهمیم Instance سالم است؟</h2>
+
+          <p>
+            Load Balancer یا Orchestrator باید بداند یک Instance هنوز قادر به سرویس‌دهی هست یا نه.
+            برای همین معمولاً Endpointهای Health Check تعریف می‌شوند.
+          </p>
+
+          <ul>
+            <li><strong><bdi>Liveness</bdi>:</strong> آیا Process زنده است؟ اگر نه، Container یا Process Restart شود.
+            </li>
+            <li><strong><bdi>Readiness</bdi>:</strong> آیا این Instance همین الآن آمادهٔ دریافت Traffic است؟ اگر نه،
+              موقتاً از Load Balancer خارج شود.</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>نمونه در ASP.NET Core</h3>
+            <pre><code>builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString);
+
+app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/ready");</code></pre>
+          </div>
+
+          <p>
+            در Kubernetes معمولاً <bdi>Liveness Probe</bdi> و <bdi>Readiness Probe</bdi> از همین Endpointها استفاده
+            می‌کنند.
+            اگر Readiness شکست بخورد، Pod لزوماً Restart نمی‌شود؛ فقط تا زمان سلامت از دریافت Traffic کنار گذاشته
+            می‌شود.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            Health Check نباید آن‌قدر سنگین باشد که خودش به Dependencyها فشار ایجاد کند.
+            همچنین Liveness را نباید به هر Dependency خارجی وابسته کرد؛ وگرنه خرابی یک سرویس خارجی می‌تواند باعث Restart
+            بی‌پایان همهٔ Instanceها شود.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="resilience-title">
+          <h2 id="resilience-title">Availability فقط با Server دوم ساخته نمی‌شود</h2>
+
+          <p>در سیستم‌های Distributed، Availability به نحوهٔ مدیریت Failure در ارتباط میان Serviceها نیز وابسته است.</p>
+
+          <ul>
+            <li><strong><bdi>Timeout:</bdi></strong> Request نباید برای همیشه منتظر Dependency بماند.</li>
+            <li><strong><bdi>Retry:</bdi></strong> خطاهای موقتی را می‌توان با Retry کنترل‌شده دوباره امتحان کرد.</li>
+            <li><strong><bdi>Circuit Breaker:</bdi></strong> هنگام خرابی شدید Dependency از ارسال درخواست‌های بیشتر
+              جلوگیری می‌کند.</li>
+            <li><strong><bdi>Bulkhead:</bdi></strong> خرابی یا فشار یک Dependency نباید تمام Thread/Connectionهای سیستم
+              را مصرف کند.</li>
+            <li><strong><bdi>Rate Limiting:</bdi></strong> از فروپاشی سیستم هنگام Overload جلوگیری می‌کند.</li>
+            <li><strong><bdi>Queue:</bdi></strong> می‌تواند بخشی از Workload را موقتاً Buffer کند تا Consumer بعداً آن
+              را پردازش کند.</li>
+          </ul>
+
+          <p>این الگوها معمولاً زیر عنوان <bdi>Resilience</bdi> بررسی می‌شوند و مستقیماً روی Availability سیستم اثر
+            می‌گذارند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="graceful-title">
+          <h2 id="graceful-title"><bdi>Graceful Degradation</bdi>؛ همه یا هیچ نباشد</h2>
+
+          <p>
+            گاهی یک Dependency غیرحیاتی خراب می‌شود. لازم نیست کل سیستم را Down کنیم.
+            بهتر است قابلیت‌های فرعی را موقتاً محدود کنیم ولی مسیر اصلی Business را حفظ کنیم.
+          </p>
+
+          <div class="lesson-example">
+            <h3>مثال فروشگاه</h3>
+            <p>اگر Recommendation Service Down شود، صفحهٔ محصول همچنان نمایش داده شود ولی بخش «پیشنهادهای مشابه» حذف
+              شود.</p>
+          </div>
+
+          <div class="lesson-example">
+            <h3>مثال Payment</h3>
+            <p>
+              اگر Notification Service Down باشد، تراکنش موفق نباید Failed اعلام شود.
+              Payment ثبت می‌شود و Notification Event برای پردازش بعدی در Queue باقی می‌ماند.
+            </p>
+          </div>
+
+          <p>این تصمیم نیازمند تشخیص Dependencyهای <strong>Critical</strong> و <strong>Non-Critical</strong> است.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="database-title">
+          <h2 id="database-title">Availability در Database</h2>
+
+          <p>
+            Application ممکن است چند Instance داشته باشد، اما اگر همه به یک Database بدون Failover وصل شوند، Database
+            همچنان SPOF است.
+          </p>
+
+          <p>راهکارهای رایج بسته به Database می‌توانند شامل این موارد باشند:</p>
+
+          <ul>
+            <li>Primary + Secondary/Replica</li>
+            <li>Automatic Failover</li>
+            <li>Replication</li>
+            <li>Multi-AZ Deployment</li>
+            <li>Backup و Restore برای Disaster Recovery</li>
+          </ul>
+
+          <p>
+            برای SQL Server نمونه‌هایی مانند <bdi>Always On Availability Groups</bdi> می‌توانند برای افزایش Availability
+            استفاده شوند.
+            اما باید Failover، Connection String، Retry Policy و رفتار Application هنگام تغییر Primary نیز طراحی شوند.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            Replica داشتن با Backup داشتن یکی نیست.
+            Replica برای ادامهٔ سرویس‌دهی هنگام خرابی مفید است؛ Backup برای بازیابی از حذف، Corruption یا Disaster
+            استفاده می‌شود.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال واقعی: High Availability در Payment System</h2>
+
+          <div class="architecture-flow" aria-label="High Availability Payment Architecture">
+            <div>Client</div><span aria-hidden="true">→</span>
+            <div>Load Balancer / API Gateway</div><span aria-hidden="true">→</span>
+            <div>Payment Service × N</div><span aria-hidden="true">→</span>
+            <div>SQL Server HA</div><span aria-hidden="true">+</span>
+            <div>RabbitMQ Cluster</div>
+          </div>
+
+          <p>برای افزایش Availability می‌توانیم:</p>
+
+          <ol>
+            <li>چند Instance از Payment Service داشته باشیم و آن‌ها را Stateless نگه داریم.</li>
+            <li>Load Balancer فقط Traffic را به Instanceهای Ready ارسال کند.</li>
+            <li>Database دارای Replica و Failover باشد.</li>
+            <li>Eventهای غیرهمزمان مانند Notification و Reporting را از طریق Message Broker جدا کنیم.</li>
+            <li>برای ارتباط با بانک یا PSP از Timeout، Retry محدود و Circuit Breaker استفاده کنیم.</li>
+            <li>درخواست‌ها را Idempotent طراحی کنیم تا Retry باعث تراکنش تکراری نشود.</li>
+            <li>Metric، Log و Alert داشته باشیم تا Failure سریع تشخیص داده شود.</li>
+          </ol>
+
+          <div class="lesson-example">
+            <h3>یک Failure Scenario مهم</h3>
+            <p>
+              Payment Service درخواست را به بانک می‌فرستد، بانک تراکنش را انجام می‌دهد، اما قبل از رسیدن Response ارتباط
+              قطع می‌شود.
+              اگر Application کورکورانه Retry کند ممکن است عملیات دوباره انجام شود.
+            </p>
+            <p>
+              بنابراین Availability در Payment فقط به «دوباره امتحان کردن» محدود نیست؛
+              Retry باید همراه <bdi>Idempotency</bdi>، Transaction Status Query و طراحی صحیح State Machine باشد.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="rto-rpo-title">
+          <h2 id="rto-rpo-title"><bdi>RTO</bdi> و <bdi>RPO</bdi> در Disaster Recovery</h2>
+
+          <p>
+            High Availability خرابی‌های معمول را مدیریت می‌کند، اما برای Disasterهای بزرگ مانند از دست رفتن کامل Region
+            یا Data Center،
+            باید Recovery نیز طراحی شود.
+          </p>
+
+          <ul>
+            <li><strong><bdi>RTO — Recovery Time Objective:</bdi></strong> حداکثر زمانی که برای بازگرداندن سرویس قابل
+              قبول است.</li>
+            <li><strong><bdi>RPO — Recovery Point Objective:</bdi></strong> حداکثر میزان داده‌ای که از نظر زمانی قابل از
+              دست رفتن است.</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>
+              RTO = 15 دقیقه یعنی بعد از Disaster باید حداکثر طی ۱۵ دقیقه سرویس برگردد.<br>
+              RPO = 1 دقیقه یعنی نباید بیش از یک دقیقه داده از دست برود.
+            </p>
+          </div>
+
+          <p>هرچه RTO و RPO کوچک‌تر باشند، معمولاً هزینهٔ Infrastructure، Replication و Automation بیشتر می‌شود.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="availability-reliability-title">
+          <h2 id="availability-reliability-title">Availability با Reliability یکی نیست</h2>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه Availability و Reliability" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>مفهوم</th>
+                  <th>سؤال اصلی</th>
+                  <th>مثال</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><bdi>Availability</bdi></td>
+                  <td>آیا سرویس الآن قابل استفاده است؟</td>
+                  <td>API در 99.99% زمان قابل دسترس است</td>
+                </tr>
+                <tr>
+                  <td><bdi>Reliability</bdi></td>
+                  <td>آیا سرویس در طول زمان درست و بدون Failure کار می‌کند؟</td>
+                  <td>پرداخت موفق بدون Duplicate و Corruption ثبت می‌شود</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            یک سیستم ممکن است Availability بالایی داشته باشد ولی Reliability ضعیفی داشته باشد؛
+            مثلاً همیشه پاسخ بدهد اما گاهی نتیجهٔ اشتباه تولید کند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tradeoffs-title">
+          <h2 id="tradeoffs-title">Trade-offهای High Availability</h2>
+
+          <ul>
+            <li><strong>هزینه:</strong> Server، Replica، Zone و Region اضافی هزینه دارند.</li>
+            <li><strong>پیچیدگی:</strong> Failover، Replication، Routing و Recovery نیازمند طراحی و تست هستند.</li>
+            <li><strong>Consistency:</strong> Replicaها ممکن است دقیقاً در یک لحظه یک State یکسان نداشته باشند.</li>
+            <li><strong>Operational Complexity:</strong> سیستم Distributed Failure Modeهای بیشتری دارد.</li>
+            <li><strong>Performance:</strong> برخی روش‌های Replication همزمان می‌توانند Latency عملیات Write را افزایش
+              دهند.</li>
+          </ul>
+
+          <p>
+            هدف این نیست که هر Component را به پیچیده‌ترین شکل ممکن Redundant کنیم.
+            ابتدا باید مشخص کنیم کدام مسیر Business واقعاً Critical است و Downtime آن چه هزینه‌ای دارد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+
+          <ul>
+            <li><strong>فقط چند Instance ساختن:</strong> اگر Database یا Message Broker هنوز SPOF باشد، سیستم Highly
+              Available نیست.</li>
+            <li><strong>نداشتن Health Check درست:</strong> Load Balancer ممکن است Traffic را به Instance خراب بفرستد.
+            </li>
+            <li><strong>Retry بدون محدودیت:</strong> می‌تواند خرابی کوچک را به Retry Storm و خرابی بزرگ تبدیل کند.</li>
+            <li><strong>Retry بدون Idempotency:</strong> در Payment و Order ممکن است عملیات تکراری ایجاد کند.</li>
+            <li><strong>اعتماد به Failover بدون تست:</strong> Failover فقط وقتی قابل اعتماد است که عملاً و دوره‌ای
+              آزمایش شده باشد.</li>
+            <li><strong>یکی گرفتن Backup و High Availability:</strong> Backup جای Replica و Failover را نمی‌گیرد.</li>
+            <li><strong>انتخاب Availability غیرواقعی:</strong> 99.999% بدون نیاز Business، هزینه و Complexity زیادی
+              ایجاد می‌کند.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="interview-title">
+          <h2 id="interview-title">در مصاحبه System Design چطور درباره Availability صحبت کنیم؟</h2>
+
+          <p>اگر از شما خواستند یک سیستم Highly Available طراحی کنید، می‌توانید با این ترتیب جلو بروید:</p>
+
+          <ol>
+            <li>Availability هدف را مشخص کنید: مثلاً 99.99%.</li>
+            <li>Critical Path سیستم را مشخص کنید.</li>
+            <li>SPOFها را پیدا کنید.</li>
+            <li>برای Componentهای حیاتی Redundancy در نظر بگیرید.</li>
+            <li>Health Check و Failover را توضیح دهید.</li>
+            <li>Failure سرویس‌های Downstream را با Timeout، Retry و Circuit Breaker مدیریت کنید.</li>
+            <li>برای عملیات حساس، Retry را با Idempotency ترکیب کنید.</li>
+            <li>Observability، Alerting و Recovery Plan را فراموش نکنید.</li>
+            <li>در پایان Trade-off هزینه، Consistency و Complexity را بیان کنید.</li>
+          </ol>
+
+          <div class="lesson-example">
+            <h3>نمونهٔ پاسخ کوتاه</h3>
+            <p>
+              «برای حذف Single Point of Failure چند Stateless Instance پشت Load Balancer قرار می‌دهم.
+              Health Check باعث می‌شود Instance ناسالم Traffic نگیرد. Database نیز باید Replica و Failover داشته باشد.
+              برای Dependencyهای خارجی Timeout، Retry محدود و Circuit Breaker می‌گذارم و در عملیات Payment،
+              Retry را فقط همراه Idempotency انجام می‌دهم. همچنین Availability هدف و Recovery Metricهایی مثل RTO/RPO را
+              از ابتدا مشخص می‌کنم.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+
+          <p>
+            یک Payment API سه Instance پشت Load Balancer دارد، اما هر سه Instance به یک SQL Server منفرد متصل هستند.
+            اگر SQL Server خاموش شود، هیچ پرداختی انجام نمی‌شود. مهم‌ترین مشکل معماری چیست؟
+          </p>
+
+          <ol>
+            <li>تعداد Application Instanceها کم است</li>
+            <li>Database یک Single Point of Failure است</li>
+            <li>باید Redis اضافه شود</li>
+            <li>باید تمام Requestها Asynchronous شوند</li>
+          </ol>
+
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+            <p>
+              گزینهٔ ۲. Application Layer Redundant است، اما Database همچنان SPOF است.
+              برای افزایش Availability باید برای Data Layer نیز Replication/Failover مناسب طراحی شود.
+            </p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+
+          <ul>
+            <li>Availability یعنی سرویس در زمان مورد نیاز واقعاً قابل استفاده باشد.</li>
+            <li>Availability باید به‌صورت عددی با SLI و SLO تعریف شود؛ مثلاً 99.99%.</li>
+            <li>هر Component حیاتی منفرد می‌تواند Single Point of Failure باشد.</li>
+            <li>Redundancy، Health Check و Failover پایه‌های اصلی High Availability هستند.</li>
+            <li>Timeout، Retry، Circuit Breaker، Bulkhead و Graceful Degradation از انتشار Failure جلوگیری می‌کنند.</li>
+            <li>Database، Message Broker و Dependencyهای خارجی نیز باید در طراحی Availability در نظر گرفته شوند.</li>
+            <li>Retry در سیستم‌های Payment باید همراه Idempotency و تشخیص State واقعی تراکنش باشد.</li>
+            <li>High Availability هزینه و Complexity دارد؛ سطح هدف باید بر اساس نیاز Business انتخاب شود.</li>
+            <li>برای Disaster Recovery نیز RTO و RPO باید مشخص باشند.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="ch1-1.html">درس قبلی: <bdi>Scalability</bdi></a>
+          <a href="ch1-3.html">درس بعدی: <bdi>Reliability</bdi></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+
+</html>

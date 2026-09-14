@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="آموزش Scalability در System Design؛ از Workload و ظرفیت تا Vertical/Horizontal Scaling، Stateless Design، Bottleneck و مثال واقعی Payment در .NET." name="description"/>
+<title>Scalability | راهنمای طراحی سیستم</title>
+<script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+<link href="../../../styles.css" rel="stylesheet"/>
+<link href="../../ai-agent/course.css" rel="stylesheet"/>
+<link href="../course.css" rel="stylesheet"/>
+<script defer="" src="../../../script.js"></script>
+<script defer="" src="../course-navigation.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<nav aria-label="ناوبری درس" class="course-nav">
+<a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">راهنمای طراحی سیستم</span>
+<a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+<button aria-label="فعال‌کردن تم تیره" aria-pressed="false" class="icon-button" id="theme-toggle" title="فعال‌کردن تم تیره" type="button">
+<svg aria-hidden="true" class="nav-icon theme-icon-moon" viewbox="0 0 24 24">
+<path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+</svg>
+<svg aria-hidden="true" class="nav-icon theme-icon-sun" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="3.7"></circle>
+<path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+</path>
+</svg>
+</button>
+</nav>
+</header>
+<div class="docs-layout">
+<aside aria-label="فهرست مطالب دوره" class="learning-path docs-sidebar" id="course-sidebar"></aside>
+<main class="lesson-page lesson-article" id="lesson-content">
+<nav aria-label="مسیر راهنما" class="lesson-breadcrumb">
+<a href="../index.html">راهنمای طراحی سیستم</a>
+<span aria-hidden="true">/</span>
+<span>فصل 1، درس 1</span>
+</nav>
+<article>
+<header class="lesson-intro">
+<p class="eyebrow">فصل 1 از ۱۰</p>
+<p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
+<h1><bdi>Scalability</bdi></h1>
+<p class="lesson-lead"><bdi>Scalability</bdi> یعنی سیستم بتواند با افزایش <bdi>Workload</bdi>، سطح سرویس قابل‌قبولی را حفظ کند و ظرفیت آن با هزینه و پیچیدگی منطقی افزایش پیدا کند. در این درس از تعریف و اندازه‌گیری ظرفیت شروع می‌کنیم، Bottleneck را پیدا می‌کنیم و سپس Scale Up، Scale Out و یک مثال واقعی Payment در .NET را بررسی می‌کنیم.</p>
+</header>
+<section aria-labelledby="observable-example-title" class="lesson-section">
+<h2 id="observable-example-title">از یک فروشگاه آنلاین شروع کنیم</h2>
+<p>یک فروشگاه در روزهای عادی در هر ثانیه ۱۰۰ درخواست دریافت می‌کند و صفحهٔ محصول را در کمتر از ۲۰۰ میلی‌ثانیه نمایش می‌دهد. با شروع یک کمپین، ترافیک به ۱۰۰۰ درخواست در ثانیه می‌رسد؛ زمان پاسخ از ۲۰۰ میلی‌ثانیه به ۵ ثانیه افزایش پیدا می‌کند و بخشی از درخواست‌ها با خطا مواجه می‌شوند.</p>
+<p>سیستم هنوز روشن است، اما نتوانسته کیفیت سرویس خود را زیر بار جدید حفظ کند. مسئله فقط «کندشدن» نیست؛ ظرفیت فعلی با شکل تازهٔ <bdi>Workload</bdi> متناسب نیست.</p>
+<aside class="lesson-note">
+<strong>مدل ذهنی:</strong>
+            یک جاده را تصور کنید. اگر تعداد خودروها ده برابر شود، افزودن یک خط شاید موقتاً کمک کند؛ اما اگر گلوگاه اصلی عوارضی باشد، پهن‌ترکردن جاده مشکل را حل نمی‌کند. در سیستم نیز ابتدا باید <bdi>Bottleneck</bdi> را پیدا کنیم.
+          </aside>
+</section>
+<section aria-labelledby="definition-title" class="lesson-section">
+<h2 id="definition-title"><bdi>Scalability</bdi> دقیقاً چیست؟</h2>
+<p><bdi>Workload</bdi> مقدار و نوع کاری است که سیستم باید انجام دهد؛ مانند تعداد درخواست‌ها، تعداد کاربران هم‌زمان، حجم داده، تعداد پیام‌ها یا نرخ تراکنش‌ها. افزایش Workload می‌تواند تدریجی، ناگهانی یا فصلی باشد.</p>
+<p>یک سیستم <bdi>Scalable</bdi> است اگر بتوانیم برای پاسخ‌گویی به Workload بیشتر، منابع یا معماری آن را توسعه دهیم و کیفیت مورد انتظار را حفظ کنیم. «قابل توسعه بودن» بخش مهم تعریف است: سیستمی که اکنون سریع است اما برای دو برابرشدن بار باید از نو نوشته شود، Scalability مناسبی ندارد.</p>
+<p>Scalability یک ویژگی صفر و یک نیست. باید بگوییم سیستم <strong>تا چه Workload، با چه سطح سرویس و با چه هزینه‌ای</strong> مقیاس‌پذیر است.</p>
+<div class="lesson-example">
+<h3>تعریف قابل‌اندازه‌گیری</h3>
+<p>«سرویس جست‌وجو باید تا ۵۰۰۰ درخواست در ثانیه را پشتیبانی کند؛ <bdi>p95 Latency</bdi> کمتر از ۳۰۰ میلی‌ثانیه باشد؛ نرخ خطا از ۰٫۱٪ بیشتر نشود و افزودن هر Instance ظرفیت را به‌صورت قابل‌پیش‌بینی افزایش دهد.»</p>
+</div>
+</section>
+<section aria-labelledby="measurement-title" class="lesson-section">
+<h2 id="measurement-title">پیش از Scaling چه چیزهایی را اندازه می‌گیریم؟</h2>
+<p>عبارت «کاربر زیاد» برای طراحی کافی نیست. ابتدا باید ورودی سیستم و کیفیت خروجی را با Metricهای مشخص توصیف کنیم:</p>
+<ul>
+<li><strong><bdi>Request Rate</bdi>:</strong> تعداد درخواست در واحد زمان؛ معمولاً با <bdi>Requests Per Second</bdi> یا <bdi>RPS</bdi> بیان می‌شود.</li>
+<li><strong><bdi>Concurrent Users</bdi>:</strong> تعداد کاربرانی که هم‌زمان با سیستم تعامل دارند. این عدد با کل کاربران ثبت‌نام‌شده یکسان نیست.</li>
+<li><strong><bdi>Throughput</bdi>:</strong> مقدار کار تکمیل‌شده در واحد زمان؛ برای مثال تعداد Order پردازش‌شده در ثانیه.</li>
+<li><strong><bdi>Latency</bdi>:</strong> مدت‌زمان پاسخ به یک درخواست. به‌جای تکیه بر Average، معمولاً Percentileهایی مانند <bdi>p95</bdi> و <bdi>p99</bdi> نیز بررسی می‌شوند.</li>
+<li><strong><bdi>Error Rate</bdi>:</strong> نسبت درخواست‌های ناموفق به کل درخواست‌ها.</li>
+<li><strong><bdi>Resource Utilization</bdi>:</strong> مصرف CPU، Memory، Network، Disk I/O، Connection Pool و Thread Pool.</li>
+<li><strong><bdi>Data Volume</bdi>:</strong> حجم فعلی داده، نرخ رشد آن و الگوی Read و Write.</li>
+</ul>
+<p><bdi>Service Level Objective</bdi> یا <bdi>SLO</bdi> هدف قابل‌اندازه‌گیری سرویس است. برای مثال «۹۵٪ درخواست‌ها زیر ۳۰۰ میلی‌ثانیه پاسخ بگیرند». ظرفیت زمانی تمام شده است که با افزایش Workload دیگر نتوانیم SLO را حفظ کنیم، نه صرفاً زمانی که CPU به ۱۰۰٪ برسد.</p>
+</section>
+<section aria-labelledby="estimation-title" class="lesson-section">
+<h2 id="estimation-title">یک تخمین سادهٔ ظرفیت</h2>
+<p>فرض کنید فروشگاه ۲ میلیون کاربر فعال روزانه دارد. هر کاربر به‌طور متوسط ۲۰ درخواست ایجاد می‌کند و ۱۰٪ کل درخواست‌های روز در شلوغ‌ترین ساعت وارد می‌شوند.</p>
+<ol>
+<li>تعداد درخواست روزانه: ۲,۰۰۰,۰۰۰ × ۲۰ = ۴۰,۰۰۰,۰۰۰</li>
+<li>درخواست در شلوغ‌ترین ساعت: ۴۰,۰۰۰,۰۰۰ × ۱۰٪ = ۴,۰۰۰,۰۰۰</li>
+<li>میانگین RPS در آن ساعت: ۴,۰۰۰,۰۰۰ ÷ ۳۶۰۰ ≈ ۱۱۱۲</li>
+</ol>
+<p>ترافیک درون همان ساعت نیز یکنواخت نیست. اگر برای Burst ضریب ۲٫۵ در نظر بگیریم، طراحی اولیه باید حدود ۲۷۸۰ RPS را تحمل کند. سپس با <bdi>Load Test</bdi> بررسی می‌کنیم این فرض چقدر به رفتار واقعی نزدیک است.</p>
+<aside class="lesson-note">
+<strong>نکته:</strong>
+            تخمین، جای اندازه‌گیری را نمی‌گیرد. هدف آن مشخص‌کردن مرتبهٔ بزرگی مسئله، آشکارکردن فرض‌ها و انتخاب نقطهٔ شروع برای آزمایش است.
+          </aside>
+</section>
+<section aria-labelledby="dimensions-title" class="lesson-section">
+<h2 id="dimensions-title">سیستم از چه جهت‌هایی رشد می‌کند؟</h2>
+<p>افزایش Workload همیشه به معنای افزایش RPS نیست. نوع رشد تعیین می‌کند کدام بخش معماری باید تغییر کند.</p>
+<div aria-label="ابعاد مختلف رشد Workload" class="comparison-table" role="region" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>نوع رشد</th>
+<th>نمونه</th>
+<th>فشار محتمل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><bdi>Traffic Growth</bdi></td>
+<td>RPS از ۵۰۰ به ۵۰۰۰ می‌رسد</td>
+<td>CPU، Connection و Downstream Service</td>
+</tr>
+<tr>
+<td><bdi>Data Growth</bdi></td>
+<td>جدول Order از ۱۰ میلیون به یک میلیارد Row می‌رسد</td>
+<td>Index، Storage، Query و Backup</td>
+</tr>
+<tr>
+<td><bdi>Concurrency Growth</bdi></td>
+<td>تعداد Connectionهای هم‌زمان ده برابر می‌شود</td>
+<td>Memory، Thread Pool و Connection Pool</td>
+</tr>
+<tr>
+<td><bdi>Geographic Growth</bdi></td>
+<td>کاربران از چند قاره به سرویس متصل می‌شوند</td>
+<td>Network Latency، Data Placement و Consistency</td>
+</tr>
+<tr>
+<td><bdi>Feature Growth</bdi></td>
+<td>محاسبهٔ پیشنهاد و گزارش به مسیر Request اضافه می‌شود</td>
+<td>مدت و پیچیدگی پردازش هر درخواست</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section aria-labelledby="scaling-models-title" class="lesson-section">
+<h2 id="scaling-models-title">دو جهت اصلی Scaling</h2>
+<p>برای افزایش ظرفیت، معمولاً دو مسیر اصلی داریم: <bdi>Scale Up</bdi> و <bdi>Scale Out</bdi>. این دو رقیب مطلق نیستند و در بسیاری از سیستم‌های واقعی هم‌زمان استفاده می‌شوند.</p>
+<h3><bdi>Vertical Scaling</bdi> — بزرگ‌تر کردن همان ماشین</h3>
+<p>در <bdi>Vertical Scaling</bdi> یا <bdi>Scale Up</bdi>، منابع همان Server را بیشتر می‌کنیم؛ برای مثال CPU، RAM یا Disk سریع‌تر اضافه می‌کنیم.</p>
+<div aria-label="Vertical Scaling" class="architecture-flow">
+<div>API Server<br/>4 CPU / 8 GB</div>
+<span aria-hidden="true">→</span>
+<div>API Server<br/>16 CPU / 32 GB</div>
+</div>
+<div class="lesson-example">
+<h3>مثال</h3>
+<p>اگر SQL Server به‌دلیل کمبود Memory تحت فشار باشد، افزایش RAM می‌تواند بدون تغییر معماری ظرفیت را بالا ببرد. این راه‌حل برای شروع ساده و مؤثر است، اما یک سقف سخت‌افزاری دارد.</p>
+</div>
+<ul>
+<li><strong>مزیت:</strong> ساده، سریع و معمولاً بدون تغییر Code.</li>
+<li><strong>محدودیت:</strong> سقف سخت‌افزاری و هزینهٔ زیاد ماشین‌های بزرگ.</li>
+<li><strong>ریسک:</strong> اگر فقط یک Instance داشته باشیم، همچنان Single Point of Failure داریم.</li>
+</ul>
+<h3><bdi>Horizontal Scaling</bdi> — اضافه کردن Instance</h3>
+<p>در <bdi>Horizontal Scaling</bdi> یا <bdi>Scale Out</bdi>، به‌جای قوی‌تر کردن یک ماشین، چند Instance از سرویس اجرا می‌کنیم و Load را بین آن‌ها تقسیم می‌کنیم.</p>
+<div aria-label="Horizontal Scaling" class="architecture-flow">
+<div>Client</div><span aria-hidden="true">→</span>
+<div>Load Balancer</div><span aria-hidden="true">→</span>
+<div>API Instance × N</div>
+</div>
+<div aria-label="مقایسه Vertical و Horizontal Scaling" class="comparison-table" role="region" tabindex="0">
+<table>
+<thead>
+<tr>
+<th>ویژگی</th>
+<th><bdi>Vertical Scaling</bdi></th>
+<th><bdi>Horizontal Scaling</bdi></th>
+</tr>
+</thead>
+<tbody>
+<tr><td>روش</td><td>قوی‌تر کردن ماشین</td><td>افزودن Instance</td></tr>
+<tr><td>پیچیدگی</td><td>کم</td><td>بیشتر</td></tr>
+<tr><td>سقف رشد</td><td>محدود به سخت‌افزار</td><td>معمولاً بالاتر</td></tr>
+<tr><td>Fault Tolerance</td><td>به‌تنهایی ایجاد نمی‌کند</td><td>می‌تواند افزایش دهد</td></tr>
+<tr><td>مناسب برای</td><td>شروع ساده و Load محدود</td><td>سیستم‌های بزرگ و Distributed</td></tr>
+</tbody>
+</table>
+</div>
+<p>برای مثال ممکن است Application Serverها Scale Out شوند، اما Database در مرحلهٔ اول Scale Up شود. تصمیم درست به Bottleneck، هزینه، Availability و پیچیدگی عملیاتی بستگی دارد.</p>
+</section><section aria-labelledby="stateless-title" class="lesson-section">
+<h2 id="stateless-title">چرا <bdi>Stateless</bdi> بودن برای Scale Out مهم است؟</h2>
+<p>فرض کنید کاربر Login می‌کند و Session او فقط داخل Memory یک API Instance ذخیره شده است. Request بعدی ممکن است توسط Load Balancer به Instance دیگری برسد که آن Session را ندارد.</p>
+<p>به همین دلیل سرویس‌هایی که قرار است Horizontal Scale شوند بهتر است تا جای ممکن <bdi>Stateless</bdi> باشند؛ یعنی Instance خاصی مالک State حیاتی کاربر یا Request نباشد.</p>
+<div class="lesson-example">
+<h3>در ASP.NET Core</h3>
+<p>به‌جای نگه‌داشتن State مهم داخل Memory هر Pod، دادهٔ مشترک می‌تواند در Database، Redis یا Storage مشترک نگه‌داری شود. این کار باعث می‌شود هر Request بتواند توسط هر Instance سالم پردازش شود.</p>
+</div>
+<aside class="lesson-note">
+<strong>قاعدهٔ کاربردی:</strong>
+    اگر بتوانید هر Instance را بدون نگرانی حذف و با Instance دیگری جایگزین کنید، Horizontal Scaling و Auto Scaling بسیار ساده‌تر می‌شود.
+  </aside>
+</section>
+<section aria-labelledby="bottleneck-title" class="lesson-section">
+<h2 id="bottleneck-title"><bdi>Bottleneck</bdi> ظرفیت سیستم را تعیین می‌کند</h2>
+<p><bdi>Bottleneck</bdi> بخشی است که زودتر از اجزای دیگر به محدودیت می‌رسد و Throughput کل سیستم را محدود می‌کند. اگر Application را از ۲ Instance به ۱۰ Instance افزایش دهیم اما همهٔ آن‌ها منتظر یک Database اشباع‌شده باشند، ظرفیت نهایی تقریباً تغییری نمی‌کند.</p>
+<div aria-label="نمونهٔ جریان درخواست و گلوگاه Database" class="architecture-flow">
+<div>Client</div><span aria-hidden="true">→</span>
+<div>Load Balancer</div><span aria-hidden="true">→</span>
+<div>App Instances</div><span aria-hidden="true">→</span>
+<div>Database Bottleneck</div>
+</div>
+<p>نشانهٔ Bottleneck فقط مصرف CPU نیست. Lockهای Database، Query کند، محدودیت Connection Pool، Disk I/O، صف رو‌به‌رشد، API خارجی یا حتی یک Lock در Code می‌توانند ظرفیت را محدود کنند. به همین دلیل Scaling باید بر پایهٔ Metric و Profiling انجام شود.</p>
+<div class="lesson-example">
+<h3>اصل مهم</h3>
+<p>هر بار که یک Bottleneck را برطرف می‌کنیم، Bottleneck بعدی آشکار می‌شود. Scalability یک پروژهٔ یک‌باره نیست؛ چرخه‌ای از اندازه‌گیری، آزمایش، اصلاح و اندازه‌گیری دوباره است.</p>
+</div>
+</section>
+<section aria-labelledby="toolbox-title" class="lesson-section">
+<h2 id="toolbox-title">ابزارهای رایج برای افزایش ظرفیت</h2>
+<p>هیچ ابزار واحدی همهٔ مسئله‌های Scalability را حل نمی‌کند. هر تکنیک فشار نوع مشخصی از Workload را کاهش می‌دهد:</p>
+<ul>
+<li><strong><bdi>Stateless Application Instances</bdi>:</strong> نگه‌نداشتن Session محلی باعث می‌شود Load Balancer بتواند درخواست را به هر Instance سالم بفرستد.</li>
+<li><strong><bdi>Caching</bdi>:</strong> دادهٔ پرتکرار را نزدیک‌تر به مصرف‌کننده نگه می‌دارد و Readهای تکراری از Database یا سرویس خارجی را کم می‌کند.</li>
+<li><strong><bdi>Asynchronous Processing</bdi>:</strong> کارهای غیرضروری برای پاسخ فوری، مانند ارسال Email، در Queue قرار می‌گیرند تا Request اصلی زودتر تمام شود و Burst جذب شود.</li>
+<li><strong><bdi>Database Indexing و Query Optimization</bdi>:</strong> مقدار داده‌ای را که Database برای پاسخ باید بررسی کند کاهش می‌دهد.</li>
+<li><strong><bdi>Read Replica</bdi>:</strong> Readها را میان Replicaها پخش می‌کند، به شرط آن‌که تأخیر Replication با نیاز Consistency سازگار باشد.</li>
+<li><strong><bdi>Partitioning و Sharding</bdi>:</strong> داده و Workload را میان چند Partition تقسیم می‌کند؛ اما Queryهای بین Partition، Rebalancing و Hot Partition را پیچیده‌تر می‌سازد.</li>
+<li><strong><bdi>CDN</bdi>:</strong> محتوای Cacheable را از Location نزدیک‌تر به کاربر ارائه می‌دهد و بار Origin را کاهش می‌دهد.</li>
+<li><strong><bdi>Backpressure و Rate Limiting</bdi>:</strong> اجازه نمی‌دهد بار ورودی کنترل‌نشده همهٔ منابع را مصرف و کل سیستم را ناپایدار کند.</li>
+</ul>
+<p>هر تکنیک Trade-off دارد. برای نمونه Cache، Latency و بار Database را کاهش می‌دهد، اما مسئلهٔ Stale Data و Cache Invalidation را به سیستم اضافه می‌کند.</p>
+</section>
+<section aria-labelledby="path-title" class="lesson-section">
+<h2 id="path-title">یک مسیر رشد مرحله‌به‌مرحله</h2>
+<p>برای یک محصول تازه معمولاً لازم نیست از روز اول پیچیده‌ترین معماری Distributed را بسازیم. یک مسیر معقول می‌تواند چنین باشد:</p>
+<ol>
+<li><strong>Workload و SLO را تعریف کنید:</strong> RPS، الگوی Peak، حجم داده، Latency و Error Rate هدف را بنویسید.</li>
+<li><strong>یک معماری ساده و قابل‌اندازه‌گیری بسازید:</strong> Application و Database را Instrument کنید تا Metric، Log و Trace قابل استفاده داشته باشید.</li>
+<li><strong>Baseline بگیرید:</strong> با Load Test مشخص کنید سیستم فعلی تا چه باری SLO را حفظ می‌کند.</li>
+<li><strong>اولین Bottleneck را پیدا کنید:</strong> حدس نزنید؛ Metric و Profiling را با رفتار کاربر تطبیق دهید.</li>
+<li><strong>کم‌هزینه‌ترین اصلاح مؤثر را انجام دهید:</strong> ممکن است یک Index، حذف Query اضافی یا تنظیم Connection Pool کافی باشد.</li>
+<li><strong>در صورت نیاز Scale Out کنید:</strong> Instanceهای Stateless و Load Balancer اضافه کنید و وابستگی‌های مشترک را دوباره بسنجید.</li>
+<li><strong>دوباره آزمایش کنید:</strong> ظرفیت، Latency، Error Rate و هزینه را با Baseline مقایسه کنید.</li>
+</ol>
+<aside class="lesson-note">
+<strong>ترتیب سالم تصمیم‌گیری:</strong>
+            ابتدا اندازه‌گیری، سپس بهینه‌سازی و در نهایت افزودن منابع. اضافه‌کردن ماشین بدون شناخت Bottleneck ممکن است فقط هزینه را بیشتر کند.
+          </aside>
+</section>
+<section aria-labelledby="payment-title" class="lesson-section">
+<h2 id="payment-title">مثال واقعی: Scale کردن یک <bdi>Payment System</bdi></h2>
+<p>فرض کنید Payment API امروز حدود <bdi>200 TPS</bdi> پردازش می‌کند و باید در آینده به <bdi>5000 TPS</bdi> برسد. پاسخ خوب این نیست که فوراً Redis، Kafka یا Sharding اضافه کنیم؛ ابتدا باید مسیر اصلی تراکنش و Bottleneckها را مشخص کنیم.</p>
+<div aria-label="Scalable Payment System" class="architecture-flow">
+<div>Clients</div><span aria-hidden="true">→</span>
+<div>Load Balancer</div><span aria-hidden="true">→</span>
+<div>Payment API × N</div><span aria-hidden="true">→</span>
+<div>SQL Server</div>
+</div>
+<p>یک مسیر رشد منطقی می‌تواند شامل این تصمیم‌ها باشد:</p>
+<ul>
+<li>Payment API را Stateless طراحی کنیم تا بتوان چند Pod از آن اجرا کرد.</li>
+<li>اطلاعات کم‌تغییر مثل Merchant Configuration را در Redis Cache کنیم، نه دادهٔ حساس به Consistency مثل موجودی را بدون تحلیل دقیق.</li>
+<li>Notification، Reporting و کارهای غیرضروری برای پاسخ فوری را از مسیر اصلی Transaction خارج و به RabbitMQ منتقل کنیم.</li>
+<li>Queryهای SQL را با Index، Execution Plan و کاهش Round-tripها بهینه کنیم.</li>
+<li>برای Readهای سنگین، در صورت سازگاری با نیاز Consistency از Read Replica استفاده کنیم.</li>
+<li>با Kubernetes HPA تعداد Podها را براساس Metric مناسب افزایش دهیم؛ CPU همیشه بهترین Metric نیست و ممکن است RPS یا Queue Length مناسب‌تر باشد.</li>
+</ul>
+<div class="lesson-example">
+<h3>مسیر Synchronous</h3>
+<p><code>Client → Payment API → Payment Processing → Database → Response</code></p>
+<h3>مسیر Asynchronous</h3>
+<p><code>Payment Completed → RabbitMQ → Notification / Reporting</code></p>
+</div>
+<p>هدف این است که مسیر حیاتی Payment کوتاه، قابل پیش‌بینی و قابل اندازه‌گیری بماند؛ کارهای جانبی نباید Latency تراکنش اصلی را بالا ببرند.</p>
+</section><section aria-labelledby="tradeoffs-title" class="lesson-section">
+<h2 id="tradeoffs-title">Trade-offهایی که نباید پنهان بمانند</h2>
+<ul>
+<li><strong>هزینه:</strong> دو برابرکردن منابع الزاماً دو برابر ظرفیت ایجاد نمی‌کند، اما تقریباً همیشه هزینهٔ بیشتری دارد.</li>
+<li><strong>پیچیدگی:</strong> Queue، Cache، Replica و Shard ظرفیت می‌آورند، ولی Deployment، Debugging و Operations را دشوارتر می‌کنند.</li>
+<li><strong><bdi>Consistency</bdi>:</strong> توزیع داده ممکن است باعث شود همهٔ Nodeها در یک لحظه یک نسخهٔ یکسان نبینند.</li>
+<li><strong><bdi>Availability</bdi>:</strong> افزودن Node می‌تواند تحمل خرابی را بیشتر کند، اما تعداد Failure Modeها و وابستگی‌های شبکه را نیز افزایش می‌دهد.</li>
+<li><strong>بهره‌وری:</strong> ظرفیت زیاد برای Peak کوتاه‌مدت ممکن است در بیشتر روز بلااستفاده بماند؛ Auto Scaling کمک می‌کند اما آنی نیست و به Threshold درست نیاز دارد.</li>
+</ul>
+<p>هدف System Design بیشترین مقیاس ممکن نیست؛ هدف، مقیاس کافی برای نیاز واقعی با هزینه و پیچیدگی پذیرفتنی است.</p>
+</section>
+<section aria-labelledby="mistakes-title" class="lesson-section">
+<h2 id="mistakes-title">اشتباهات رایج</h2>
+<ul>
+<li><strong>شروع از Solution:</strong> انتخاب Kafka، Redis یا Sharding پیش از تعریف Workload و Bottleneck.</li>
+<li><strong>استفاده از Average:</strong> میانگین Latency می‌تواند تجربهٔ کند کاربران در p95 و p99 را پنهان کند.</li>
+<li><strong>نادیده‌گرفتن Peak و Burst:</strong> تقسیم درخواست روزانه بر ۸۶۴۰۰ معمولاً ترافیک لحظه‌ای را کمتر از واقعیت نشان می‌دهد.</li>
+<li><strong>Scaling فقط در Application Layer:</strong> افزایش Instance بدون بررسی Database، Cache، Queue و سرویس‌های Downstream.</li>
+<li><strong>فرض خطی‌بودن ظرفیت:</strong> چهار برابرشدن Instanceها لزوماً Throughput را چهار برابر نمی‌کند؛ منابع مشترک و هزینهٔ هماهنگی مانع می‌شوند.</li>
+<li><strong>ساخت برای مقیاس خیالی:</strong> پیچیدگی Distributed قبل از وجود نیاز واقعی، سرعت توسعه و Reliability را کاهش می‌دهد.</li>
+</ul>
+</section>
+<section aria-labelledby="interview-title" class="lesson-section">
+<h2 id="interview-title">در مصاحبهٔ <bdi>System Design</bdi> چطور درباره Scalability صحبت کنیم؟</h2>
+<p>اگر مصاحبه‌کننده بپرسد «چطور این سیستم را Scale می‌کنی؟»، پاسخ حرفه‌ای با نام تکنولوژی شروع نمی‌شود. ابتدا مسئله و محدودیت را مشخص می‌کنیم.</p>
+<ol>
+<li>Workload، Peak Load و SLO را مشخص کن.</li>
+<li>Bottleneck فعلی را با Metric و Load Test پیدا کن.</li>
+<li>مشخص کن سیستم Read-heavy است، Write-heavy است یا مشکل اصلی Concurrency است.</li>
+<li>کم‌هزینه‌ترین اصلاح مؤثر را بررسی کن؛ شاید یک Index یا Query Optimization کافی باشد.</li>
+<li>در صورت نیاز درباره Scale Up، Scale Out، Cache، Queue یا Database Scaling تصمیم بگیر.</li>
+<li>Trade-off انتخابت را توضیح بده؛ هزینه، Consistency، Complexity و Failure Modeها.</li>
+</ol>
+<aside class="lesson-note">
+<strong>نکتهٔ مصاحبه:</strong>
+    جملهٔ «اول Bottleneck را پیدا می‌کنم» معمولاً از جملهٔ «Redis و Kafka اضافه می‌کنم» پخته‌تر است؛ چون Scalability یک مسئلهٔ ظرفیت و Trade-off است، نه فهرست تکنولوژی‌ها.
+  </aside>
+</section><section aria-labelledby="practice-title" class="lesson-section">
+<h2 id="practice-title">تمرین کوتاه</h2>
+<p>یک API گزارش‌گیری در ۵۰ RPS عملکرد مناسبی دارد، اما در ۱۰۰ RPS کند می‌شود. CPU سرور Application فقط ۳۵٪ است، Connection Pool پر می‌شود و Query گزارش به‌طور متوسط ۲ ثانیه طول می‌کشد. کدام اقدام باید زودتر بررسی شود؟</p>
+<ol>
+<li>دو برابرکردن تعداد Application Instanceها</li>
+<li>بررسی Query Plan، Indexها و مدت نگه‌داری Connection</li>
+<li>افزودن Kafka به معماری</li>
+<li>Sharding فوری Database</li>
+</ol>
+<details class="lesson-answer">
+<summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+<p>گزینهٔ ۲. شواهد نشان می‌دهند Database یا نحوهٔ استفاده از Connection گلوگاه است. افزودن Application Instance احتمالاً تعداد Connectionهای منتظر را بیشتر می‌کند. ابتدا Query Plan، Index مناسب، تعداد Queryها، Timeout و طول عمر Connection بررسی می‌شوند؛ سپس سیستم دوباره Load Test می‌شود.</p>
+</details>
+</section>
+<section aria-labelledby="summary-title" class="lesson-section lesson-summary">
+<h2 id="summary-title">جمع‌بندی</h2>
+<ul>
+<li>Scalability یعنی حفظ سطح سرویس هنگام رشد Workload، با امکان افزایش ظرفیت به شکلی اقتصادی و قابل‌مدیریت.</li>
+<li>Scalability بدون عدد معنای دقیقی ندارد؛ RPS، Throughput، Latency، Error Rate، حجم داده و SLO باید مشخص باشند.</li>
+<li>نوع رشد مهم است: Traffic، Data، Concurrency، Geography و Feature فشارهای متفاوتی ایجاد می‌کنند.</li>
+<li>ظرفیت کل را Bottleneck محدود می‌کند؛ Scaling یک جزء غیرمحدودکننده مشکل را حل نمی‌کند.</li>
+<li>Scale Up و Scale Out ابزارند، نه هدف. Cache، Queue، Index، Replica و Partition نیز هرکدام مسئله و Trade-off مشخصی دارند.</li>
+<li>چرخهٔ درست شامل تخمین، اندازه‌گیری Baseline، Load Test، یافتن Bottleneck، اصلاح و آزمایش دوباره است.</li>
+</ul>
+</section>
+<nav aria-label="درس قبلی و بعدی" class="lesson-pager">
+<a href="../index.html">بازگشت به فهرست دوره</a>
+<a href="ch1-2.html">درس بعدی: <bdi>Availability</bdi></a>
+</nav>
+</article>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="سرفصل‌های راهنمای طراحی سیستم؛ از Scalability، Networking و Database تا Distributed Systems، Reliability، Observability و تمرین‌های واقعی System Design.">
+  <title>راهنمای طراحی سیستم | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../ai-agent/course.css">
+  <link rel="stylesheet" href="course.css">
+  <script src="../../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#course-content">پرش به محتوای دوره</a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری دوره">
+      <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name">راهنمای طراحی سیستم</span>
+      <a class="back-link" href="../../index.html#courses">بازگشت به دوره‌ها</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <main id="course-content">
+    <section class="course-hero" aria-labelledby="course-title">
+      <div class="course-badge" aria-hidden="true">SYS</div>
+      <p class="eyebrow">از نیازمندی تا معماری قابل دفاع</p>
+      <h1 id="course-title">راهنمای طراحی سیستم</h1>
+      <p class="course-lead">یک مسیر مرحله‌به‌مرحله برای یادگیری مفاهیم پایه، انتخاب ابزار مناسب و تحلیل <bdi>Trade-off</bdi>ها؛ سپس استفاده از آن‌ها در طراحی سیستم‌هایی که در دنیای واقعی با مقیاس، خطا و محدودیت روبه‌رو هستند.</p>
+      <ul class="course-facts" aria-label="مشخصات دوره">
+        <li><strong>۱۰</strong><span>فصل</span></li>
+        <li><strong>۶۶</strong><span>موضوع و تمرین</span></li>
+        <li><strong>۶</strong><span>طراحی واقعی</span></li>
+      </ul>
+      <aside class="course-notice" aria-label="وضعیت انتشار دوره">
+        <strong>سرفصل دوره آماده است.</strong>
+        <span>درس‌ها به‌تدریج منتشر می‌شوند و موضوعات فعلی برای نمایش ساختار کامل مسیر آموزشی هستند.</span>
+      </aside>
+    </section>
+
+    <section class="learning-path" aria-label="فهرست مطالب دوره">
+      <div class="section-heading">
+        <p class="eyebrow">فهرست مطالب</p>
+        <p class="syllabus-count">۱۰ فصل · ۶۶ موضوع و تمرین</p>
+      </div>
+
+      <div class="chapters">
+        <details class="chapter" open>
+          <summary><span class="chapter-number">01</span><span class="chapter-title"><bdi>Fundamentals</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch1-1.html"><bdi>Scalability</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch1-2.html"><bdi>Availability</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch1-3.html"><bdi>Reliability</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch1-4.html"><bdi>Latency</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch1-5.html"><bdi>Throughput</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch1-6.html"><bdi>Vertical vs Horizontal Scaling</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch1-7.html"><bdi>Stateless vs Stateful</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">02</span><span class="chapter-title"><bdi>Networking &amp; Request Flow</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch2-1.html"><bdi>DNS</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch2-2.html"><bdi>HTTP / HTTPS</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch2-3.html"><bdi>REST</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch2-4.html"><bdi>gRPC</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch2-5.html"><bdi>Reverse Proxy</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch2-6.html"><bdi>Load Balancer</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch2-7.html"><bdi>API Gateway</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">03</span><span class="chapter-title"><bdi>Database</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch3-1.html"><bdi>SQL vs NoSQL</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-2.html"><bdi>Index</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-3.html"><bdi>Replication</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-4.html"><bdi>Read Replica</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-5.html"><bdi>Partitioning</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-6.html"><bdi>Sharding</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-7.html"><bdi>Transactions</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-8.html"><bdi>Isolation Level</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch3-9.html"><bdi>Optimistic / Pessimistic Concurrency</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">04</span><span class="chapter-title"><bdi>Caching</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch4-1.html"><bdi>Redis</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch4-2.html"><bdi>Cache Aside</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch4-3.html"><bdi>Write Through</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch4-4.html"><bdi>Cache Invalidation</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch4-5.html"><bdi>Distributed Cache</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch4-6.html"><bdi>Cache Stampede</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">05</span><span class="chapter-title"><bdi>Messaging</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch5-1.html"><bdi>RabbitMQ</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch5-2.html"><bdi>Kafka</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch5-3.html"><bdi>Queue vs Pub/Sub</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch5-4.html"><bdi>At-least-once Delivery</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch5-5.html"><bdi>Duplicate Message</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch5-6.html"><bdi>Idempotency</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch5-7.html"><bdi>Dead Letter Queue</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">06</span><span class="chapter-title"><bdi>Distributed Systems</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch6-1.html"><bdi>CAP Theorem</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch6-2.html"><bdi>Strong Consistency</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch6-3.html"><bdi>Eventual Consistency</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch6-4.html"><bdi>Distributed Transaction</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch6-5.html"><bdi>Saga</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch6-6.html"><bdi>Outbox / Inbox</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">07</span><span class="chapter-title"><bdi>Reliability</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch7-1.html"><bdi>Retry</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch7-2.html"><bdi>Timeout</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch7-3.html"><bdi>Circuit Breaker</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch7-4.html"><bdi>Rate Limiting</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch7-5.html"><bdi>Bulkhead</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch7-6.html"><bdi>Health Check</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch7-7.html"><bdi>Graceful Degradation</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">08</span><span class="chapter-title"><bdi>Microservices Design</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch8-1.html"><bdi>Service Boundary</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch8-2.html"><bdi>Database per Service</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch8-3.html"><bdi>Sync vs Async Communication</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch8-4.html"><bdi>API Gateway</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch8-5.html"><bdi>Service Discovery</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch8-6.html"><bdi>Event-Driven Architecture</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter">
+          <summary><span class="chapter-number">09</span><span class="chapter-title"><bdi>Observability</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch9-1.html"><bdi>Logging</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch9-2.html"><bdi>Metrics</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch9-3.html"><bdi>Distributed Tracing</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch9-4.html"><bdi>Correlation ID</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch9-5.html"><bdi>OpenTelemetry</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+
+        <details class="chapter chapter-practice">
+          <summary><span class="chapter-number">10</span><span class="chapter-title">تمرین‌های واقعی <bdi>System Design</bdi></span></summary>
+          <ol>
+            <li class="course-topic"><a href="lessons/ch10-1.html"><bdi>URL Shortener</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch10-2.html"><bdi>Notification System</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch10-3.html"><bdi>Order Management</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch10-4.html"><bdi>Wallet</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch10-5.html"><bdi>Payment Gateway</bdi></a><small>محتوا به‌زودی</small></li>
+            <li class="course-topic"><a href="lessons/ch10-6.html"><bdi>Banking Transaction System</bdi></a><small>محتوا به‌زودی</small></li>
+          </ol>
+        </details>
+      </div>
+    </section>
+
+    <section class="course-outcomes" aria-labelledby="outcomes-title">
+      <div>
+        <p class="eyebrow">خروجی مسیر</p>
+        <h2 id="outcomes-title">در پایان چه چیزی طراحی می‌کنید؟</h2>
+        <p>برای هر مسئله، از Requirement و تخمین ظرفیت شروع می‌کنید و به معماری‌ای می‌رسید که انتخاب‌ها و Trade-offهای آن قابل توضیح باشند.</p>
+      </div>
+      <ul>
+        <li><bdi>URL Shortener</bdi> با مسیر Redirect مقیاس‌پذیر</li>
+        <li><bdi>Notification System</bdi> چندکاناله</li>
+        <li><bdi>Order Management</bdi> با جریان وضعیت قابل‌اعتماد</li>
+        <li><bdi>Wallet</bdi> با کنترل هم‌زمانی</li>
+        <li><bdi>Payment Gateway</bdi> مقاوم در برابر Retry</li>
+        <li><bdi>Banking Transaction System</bdi> قابل Audit</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="course-footer">
+    <a href="../../index.html#courses">بازگشت به فهرست دوره‌ها</a>
+    <p>آکادمی دات‌نت</p>
+  </footer>
+</body>
+</html>

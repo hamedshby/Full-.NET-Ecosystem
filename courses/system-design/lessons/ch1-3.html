@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش Reliability در System Design؛ از تعریف Reliability و Failure Rate تا Fault Tolerance، MTBF/MTTR، Idempotency، Data Integrity و طراحی سیستم‌های قابل اعتماد.">
+  <title>Reliability | راهنمای طراحی سیستم</title>
+
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../../ai-agent/course.css">
+  <link rel="stylesheet" href="../course.css">
+
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name">راهنمای طراحی سیستم</span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">راهنمای طراحی سیستم</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل 1، درس 3</span>
+      </nav>
+
+      <article>
+
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 1 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
+
+          <h1><bdi>Reliability</bdi></h1>
+
+          <p class="lesson-lead">
+            <bdi>Reliability</bdi> یعنی سیستم در طول زمان، عملیات را درست و قابل پیش‌بینی انجام دهد؛
+            حتی وقتی بخشی از سیستم با Failure، Retry، Timeout، Duplicate Message یا خرابی موقت روبه‌رو می‌شود.
+            در این درس یاد می‌گیریم Reliability چه تفاوتی با Availability دارد و چگونه یک سیستم قابل اعتماد طراحی کنیم.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="example-title">
+          <h2 id="example-title">از یک مثال Payment شروع کنیم</h2>
+
+          <p>
+            فرض کنید Payment API همیشه در دسترس است و در 99.99% زمان پاسخ می‌دهد.
+            اما گاهی وقتی ارتباط با بانک قطع می‌شود، سیستم یک تراکنش را دوبار ثبت می‌کند.
+          </p>
+
+          <p>
+            از نظر Availability سرویس تقریباً همیشه قابل دسترس است،
+            اما از نظر Reliability قابل اعتماد نیست؛ چون نتیجهٔ عملیات همیشه درست نیست.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            Availability می‌پرسد «آیا سیستم در دسترس است؟»
+            Reliability می‌پرسد «آیا سیستم در طول زمان درست کار می‌کند؟»
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title"><bdi>Reliability</bdi> دقیقاً چیست؟</h2>
+
+          <p>
+            Reliability توانایی یک سیستم برای انجام صحیح وظیفهٔ مورد انتظار،
+            در یک بازهٔ زمانی مشخص و تحت شرایط مشخص است.
+          </p>
+
+          <p>
+            یک سیستم Reliable فقط نباید Crash نکند؛ بلکه باید:
+          </p>
+
+          <ul>
+            <li>دادهٔ صحیح تولید کند.</li>
+            <li>عملیات را گم نکند.</li>
+            <li>عملیات را ناخواسته دوبار انجام ندهد.</li>
+            <li>در برابر Failureهای موقت رفتار قابل پیش‌بینی داشته باشد.</li>
+            <li>بعد از Recovery، State معتبر سیستم را حفظ کند.</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>تعریف قابل‌اندازه‌گیری</h3>
+
+            <p>
+              «در سیستم پرداخت، هیچ تراکنش موفقی نباید گم شود و Retry یک درخواست نباید باعث ایجاد پرداخت تکراری شود.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="availability-title">
+          <h2 id="availability-title">تفاوت <bdi>Reliability</bdi> و <bdi>Availability</bdi></h2>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه Reliability و Availability" tabindex="0">
+
+            <table>
+              <thead>
+                <tr>
+                  <th>مفهوم</th>
+                  <th>سؤال اصلی</th>
+                  <th>مثال</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td><bdi>Availability</bdi></td>
+                  <td>آیا سیستم الآن قابل استفاده است؟</td>
+                  <td>API در 99.99% زمان در دسترس است</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>Reliability</bdi></td>
+                  <td>آیا سیستم در طول زمان عملیات را درست انجام می‌دهد؟</td>
+                  <td>یک Payment فقط یک بار و با State صحیح ثبت می‌شود</td>
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+
+          <p>
+            یک سیستم می‌تواند Available باشد ولی Reliable نباشد.
+            برای مثال API همیشه پاسخ بدهد، اما پاسخ یا دادهٔ اشتباه تولید کند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="failures-title">
+          <h2 id="failures-title">چه چیزهایی Reliability را تهدید می‌کنند؟</h2>
+
+          <ul>
+            <li><strong>Network Failure:</strong> Request ارسال شده ولی Response برنگشته است.</li>
+            <li><strong>Partial Failure:</strong> بخشی از عملیات موفق و بخش دیگر ناموفق شده است.</li>
+            <li><strong>Duplicate Request:</strong> Client یا Retry یک عملیات را چندبار ارسال می‌کند.</li>
+            <li><strong>Duplicate Message:</strong> یک پیام در Broker دوباره Deliver می‌شود.</li>
+            <li><strong>Lost Message:</strong> پیام قبل از ثبت پایدار از بین می‌رود.</li>
+            <li><strong>Race Condition:</strong> چند عملیات هم‌زمان State ناسازگار ایجاد می‌کنند.</li>
+            <li><strong>Data Corruption:</strong> دادهٔ ذخیره‌شده معتبر نیست.</li>
+            <li><strong>Timeout:</strong> نتیجهٔ عملیات برای Caller نامشخص می‌شود.</li>
+            <li><strong>Software Bug:</strong> سیستم پاسخ می‌دهد اما Business Rule را اشتباه اجرا می‌کند.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="partial-failure-title">
+          <h2 id="partial-failure-title"><bdi>Partial Failure</bdi> در سیستم‌های Distributed</h2>
+
+          <p>
+            در یک برنامه Monolith ممکن است یک Failure باعث Rollback کل Transaction شود.
+            اما در سیستم Distributed ممکن است بخشی از عملیات موفق و بخش دیگر ناموفق شود.
+          </p>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+
+            <p>
+              Payment Service مبلغ را ثبت می‌کند،
+              سپس Event را برای Reporting ارسال می‌کند.
+              اگر ثبت Payment موفق ولی ارسال Event ناموفق شود،
+              سیستم وارد یک State ناقص می‌شود.
+            </p>
+          </div>
+
+          <p>
+            این یکی از مهم‌ترین دلایل استفاده از Patternهایی مانند:
+          </p>
+
+          <ul>
+            <li><bdi>Transactional Outbox</bdi></li>
+            <li><bdi>Saga</bdi></li>
+            <li><bdi>Idempotency</bdi></li>
+            <li><bdi>Retry</bdi></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="idempotency-title">
+          <h2 id="idempotency-title"><bdi>Idempotency</bdi>؛ پایهٔ Reliability در عملیات حساس</h2>
+
+          <p>
+            یک عملیات Idempotent است اگر اجرای چندبارهٔ یک Request،
+            نتیجهٔ Business را بیش از یک بار اعمال نکند.
+          </p>
+
+          <div class="lesson-example">
+            <h3>مثال Payment</h3>
+
+            <p>
+              Client یک Request با <bdi>TransactionId = 123</bdi> ارسال می‌کند.
+              اگر به دلیل Timeout همان Request دوباره ارسال شود،
+              سیستم نباید Payment جدید ایجاد کند.
+            </p>
+          </div>
+
+          <pre><code>TransactionId = 123
+
+First Request
+→ Payment created
+
+Retry
+→ TransactionId already exists
+→ Return previous result
+→ Do not create another payment</code></pre>
+
+          <p>
+            معمولاً این کار با یک شناسهٔ یکتا و Unique Constraint یا Inbox Table انجام می‌شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="retry-title">
+          <h2 id="retry-title"><bdi>Retry</bdi>؛ مفید اما خطرناک</h2>
+
+          <p>
+            Retry برای Failureهای موقتی مفید است؛
+            اما اگر اشتباه استفاده شود، Reliability را کاهش می‌دهد.
+          </p>
+
+          <p>Retry مناسب معمولاً باید:</p>
+
+          <ul>
+            <li>فقط برای خطاهای Transient انجام شود.</li>
+            <li>تعداد محدودی Attempt داشته باشد.</li>
+            <li>از Backoff استفاده کند.</li>
+            <li>ترجیحاً Jitter داشته باشد.</li>
+            <li>برای عملیات غیر Idempotent با احتیاط استفاده شود.</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال خطرناک</h3>
+
+            <p>
+              بانک Payment را انجام داده ولی Response در شبکه گم شده است.
+              اگر سیستم بدون Idempotency دوباره Payment را ارسال کند،
+              ممکن است مشتری دوبار Charge شود.
+            </p>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong>
+            Retry در Payment بدون Idempotency می‌تواند از خود Failure خطرناک‌تر باشد.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="delivery-title">
+          <h2 id="delivery-title">Message Delivery و Reliability</h2>
+
+          <p>
+            در Message Brokerها معمولاً با چند مدل Delivery روبه‌رو هستیم:
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="مدل‌های Message Delivery" tabindex="0">
+
+            <table>
+              <thead>
+                <tr>
+                  <th>مدل</th>
+                  <th>رفتار</th>
+                  <th>Trade-off</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td><bdi>At-most-once</bdi></td>
+                  <td>پیام حداکثر یک بار پردازش می‌شود</td>
+                  <td>ممکن است پیام گم شود</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>At-least-once</bdi></td>
+                  <td>پیام حداقل یک بار پردازش می‌شود</td>
+                  <td>ممکن است Duplicate ایجاد شود</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>Exactly-once</bdi></td>
+                  <td>از دید Business اثر عملیات یک بار اعمال می‌شود</td>
+                  <td>پیاده‌سازی پیچیده و وابسته به Context است</td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            در بسیاری از سیستم‌ها، روش عملی این است:
+          </p>
+
+          <div class="lesson-example">
+            <p>
+              <bdi>At-least-once Delivery + Idempotent Consumer</bdi>
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="inbox-title">
+          <h2 id="inbox-title"><bdi>Inbox Pattern</bdi></h2>
+
+          <p>
+            برای جلوگیری از پردازش دوبارهٔ پیام،
+            Consumer می‌تواند شناسهٔ پیام‌های پردازش‌شده را در Inbox ذخیره کند.
+          </p>
+
+          <pre><code>Message arrives
+
+↓
+Check MessageId in Inbox
+
+If exists:
+    Skip business operation
+    Ack message
+
+Else:
+    Begin transaction
+    Process business operation
+    Save MessageId in Inbox
+    Commit
+    Ack message</code></pre>
+
+          <p>
+            Business Operation و ثبت MessageId بهتر است در یک Transaction واحد انجام شوند،
+            تا سیستم بین این دو مرحله وارد State ناسازگار نشود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="outbox-title">
+          <h2 id="outbox-title"><bdi>Transactional Outbox</bdi></h2>
+
+          <p>
+            یکی از مشکلات رایج این است:
+          </p>
+
+          <pre><code>Save Payment in SQL
+↓
+Publish PaymentCreated to RabbitMQ</code></pre>
+
+          <p>
+            اگر Database Commit شود ولی Publish شکست بخورد،
+            Payment ذخیره شده اما Event از دست رفته است.
+          </p>
+
+          <p>
+            در Outbox Pattern، Business Data و Event در همان Database Transaction ذخیره می‌شوند.
+          </p>
+
+          <pre><code>BEGIN TRANSACTION
+
+Insert Payment
+Insert OutboxMessage
+
+COMMIT
+
+Background Worker
+↓
+Read Outbox
+↓
+Publish to RabbitMQ
+↓
+Mark as Published</code></pre>
+
+          <p>
+            این Pattern احتمال Dual Write Failure را به‌شدت کاهش می‌دهد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="concurrency-title">
+          <h2 id="concurrency-title">Concurrency و Reliability</h2>
+
+          <p>
+            دو Request هم‌زمان می‌توانند State سیستم را خراب کنند.
+          </p>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+
+            <p>
+              دو درخواست هم‌زمان موجودی یک Wallet را می‌خوانند.
+              هر دو Balance = 100 را می‌بینند و هر کدام 80 واحد برداشت می‌کنند.
+              اگر Concurrency کنترل نشود، نتیجهٔ نهایی اشتباه خواهد بود.
+            </p>
+          </div>
+
+          <p>راهکارها بسته به سناریو می‌توانند شامل این موارد باشند:</p>
+
+          <ul>
+            <li><bdi>Optimistic Concurrency</bdi> با RowVersion</li>
+            <li><bdi>Pessimistic Locking</bdi></li>
+            <li>Distributed Lock</li>
+            <li>Unique Constraint</li>
+            <li>Atomic Database Operation</li>
+          </ul>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            Lock بیشتر همیشه Reliability بیشتری ایجاد نمی‌کند.
+            Lock نامناسب می‌تواند Deadlock، Latency و کاهش Availability ایجاد کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="data-integrity-title">
+          <h2 id="data-integrity-title"><bdi>Data Integrity</bdi></h2>
+
+          <p>
+            یک سیستم Reliable باید State معتبر خود را حفظ کند.
+            فقط Application Code نباید مسئول اعتبار داده باشد؛ Database نیز باید از Invariantهای مهم محافظت کند.
+          </p>
+
+          <ul>
+            <li>Primary Key</li>
+            <li>Foreign Key</li>
+            <li>Unique Constraint</li>
+            <li>Check Constraint</li>
+            <li>Database Transaction</li>
+            <li>Optimistic Concurrency</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+
+            <p>
+              اگر <bdi>MerchantReferenceCode</bdi> باید برای هر Merchant یکتا باشد،
+              بهتر است علاوه بر Validation در Application،
+              Database نیز Unique Constraint داشته باشد.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mtbf-title">
+          <h2 id="mtbf-title"><bdi>MTBF</bdi> و <bdi>MTTR</bdi></h2>
+
+          <p>
+            دو Metric رایج برای بررسی Reliability و عملیات سیستم:
+          </p>
+
+          <ul>
+            <li>
+              <strong><bdi>MTBF — Mean Time Between Failures:</bdi></strong>
+              میانگین زمان بین دو Failure.
+            </li>
+
+            <li>
+              <strong><bdi>MTTR — Mean Time To Recovery:</bdi></strong>
+              میانگین مدت‌زمان لازم برای Recover شدن از Failure.
+            </li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+
+            <p>
+              اگر یک سرویس به‌طور متوسط هر ۳۰ روز یک بار Failure جدی داشته باشد،
+              MTBF آن حدود ۳۰ روز است.
+              اگر تیم به‌طور متوسط در ۱۰ دقیقه سرویس را Recover کند،
+              MTTR حدود ۱۰ دقیقه است.
+            </p>
+          </div>
+
+          <p>
+            Reliability فقط با کمترکردن Failure بهتر نمی‌شود؛
+            کاهش زمان تشخیص و Recovery نیز اهمیت زیادی دارد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="fault-tolerance-title">
+          <h2 id="fault-tolerance-title"><bdi>Fault Tolerance</bdi></h2>
+
+          <p>
+            Fault Tolerance یعنی سیستم بتواند با وجود خرابی بخشی از اجزا،
+            همچنان رفتار صحیح یا حداقل قابل قبول داشته باشد.
+          </p>
+
+          <p>ابزارهای رایج:</p>
+
+          <ul>
+            <li>Replication</li>
+            <li>Retry</li>
+            <li>Timeout</li>
+            <li>Circuit Breaker</li>
+            <li>Failover</li>
+            <li>Queue</li>
+            <li>Idempotency</li>
+            <li>Graceful Degradation</li>
+          </ul>
+
+          <p>
+            Reliability و Fault Tolerance نزدیک‌اند،
+            اما Fault Tolerance بیشتر روی ادامهٔ عملکرد هنگام Failure تمرکز دارد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="observability-title">
+          <h2 id="observability-title">بدون Observability، Reliability قابل مدیریت نیست</h2>
+
+          <p>
+            اگر Failure رخ دهد ولی نتوانیم آن را سریع تشخیص دهیم،
+            MTTR افزایش پیدا می‌کند.
+          </p>
+
+          <p>برای همین باید حداقل این موارد را داشته باشیم:</p>
+
+          <ul>
+            <li>Structured Logging</li>
+            <li>Metrics</li>
+            <li>Distributed Tracing</li>
+            <li>Correlation ID</li>
+            <li>Alerting</li>
+            <li>Dashboard</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال Payment</h3>
+
+            <p>
+              با Correlation ID باید بتوانیم مسیر یک Payment را بین API Gateway،
+              Payment Service، RabbitMQ، Notification و Reporting دنبال کنیم.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال کامل Reliability در Payment System</h2>
+
+          <div class="architecture-flow" aria-label="Reliable Payment Architecture">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>Payment API</div>
+            <span aria-hidden="true">→</span>
+            <div>SQL Server</div>
+            <span aria-hidden="true">+</span>
+            <div>Outbox</div>
+            <span aria-hidden="true">→</span>
+            <div>RabbitMQ</div>
+            <span aria-hidden="true">→</span>
+            <div>Idempotent Consumers</div>
+          </div>
+
+          <p>یک طراحی قابل اعتماد می‌تواند این ویژگی‌ها را داشته باشد:</p>
+
+          <ol>
+            <li>Client برای هر عملیات یک TransactionId یکتا ارسال کند.</li>
+            <li>TransactionId در Database دارای Unique Constraint باشد.</li>
+            <li>Payment و Outbox Event در یک Database Transaction ذخیره شوند.</li>
+            <li>Background Worker پیام Outbox را به RabbitMQ ارسال کند.</li>
+            <li>Consumer از Inbox Pattern استفاده کند.</li>
+            <li>Ack فقط بعد از Commit موفق انجام شود.</li>
+            <li>Retry محدود و با Backoff باشد.</li>
+            <li>برای ارتباط با بانک Idempotency یا Status Query وجود داشته باشد.</li>
+            <li>Concurrency با RowVersion یا مکانیزم مناسب کنترل شود.</li>
+            <li>تمام مسیر با Logging، Metrics و Trace قابل ردیابی باشد.</li>
+          </ol>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tradeoffs-title">
+          <h2 id="tradeoffs-title">Trade-offهای Reliability</h2>
+
+          <ul>
+            <li>
+              <strong>Performance:</strong>
+              Transaction، Replication و Validation بیشتر ممکن است Latency را افزایش دهند.
+            </li>
+
+            <li>
+              <strong>Complexity:</strong>
+              Outbox، Inbox، Saga و Retry Logic پیاده‌سازی را پیچیده‌تر می‌کنند.
+            </li>
+
+            <li>
+              <strong>Storage:</strong>
+              نگهداری Inbox، Outbox و Audit Log فضای بیشتری مصرف می‌کند.
+            </li>
+
+            <li>
+              <strong>Operational Cost:</strong>
+              Monitoring، Alerting و Redundancy هزینه دارند.
+            </li>
+
+            <li>
+              <strong>Consistency vs Availability:</strong>
+              در سیستم Distributed ممکن است نتوان همیشه بالاترین سطح هر دو را هم‌زمان داشت.
+            </li>
+          </ul>
+
+          <p>
+            هدف، بیشترین پیچیدگی ممکن نیست؛
+            باید Reliability متناسب با Criticality بیزینس طراحی شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+
+          <ul>
+            <li><strong>Retry بدون Idempotency</strong></li>
+            <li><strong>Ack کردن Message قبل از Commit</strong></li>
+            <li><strong>Publish مستقیم Event بعد از Database Commit بدون Outbox</strong></li>
+            <li><strong>اعتماد صرف به Application Validation بدون Database Constraint</strong></li>
+            <li><strong>نداشتن Timeout برای Dependencyها</strong></li>
+            <li><strong>استفاده از Distributed Lock برای هر مسئله</strong></li>
+            <li><strong>نداشتن Observability برای Failureهای Distributed</strong></li>
+            <li><strong>فرض اینکه Message فقط یک بار Deliver می‌شود</strong></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="interview-title">
+          <h2 id="interview-title">در مصاحبه System Design چطور درباره Reliability صحبت کنیم؟</h2>
+
+          <p>
+            اگر از شما پرسیدند «چطور این سیستم را Reliable می‌کنی؟»،
+            می‌توانید به این ترتیب فکر کنید:
+          </p>
+
+          <ol>
+            <li>Critical Operationها را مشخص کنید.</li>
+            <li>Failure Scenarioها را پیدا کنید.</li>
+            <li>بررسی کنید Request یا Message ممکن است Duplicate شود یا نه.</li>
+            <li>برای عملیات حساس Idempotency طراحی کنید.</li>
+            <li>برای Dual Write از Outbox استفاده کنید.</li>
+            <li>Consumerها را Idempotent کنید.</li>
+            <li>Retry، Timeout و Circuit Breaker را مشخص کنید.</li>
+            <li>Concurrency و Data Integrity را در Database کنترل کنید.</li>
+            <li>Observability و Recovery Strategy را توضیح دهید.</li>
+            <li>در پایان Trade-offها را بیان کنید.</li>
+          </ol>
+
+          <div class="lesson-example">
+            <h3>نمونهٔ پاسخ کوتاه</h3>
+
+            <p>
+              «برای Reliability ابتدا Failure Scenarioها و Critical Operationها را مشخص می‌کنم.
+              Requestهای حساس را Idempotent طراحی می‌کنم، برای Dual Write از Transactional Outbox،
+              برای Consumerها از Inbox و Unique MessageId استفاده می‌کنم.
+              Retry محدود و همراه Backoff است و Ack فقط بعد از Commit انجام می‌شود.
+              همچنین Data Integrity را با Transaction و Constraintهای Database محافظت می‌کنم
+              و کل مسیر را با Logging، Metrics و Distributed Tracing قابل مشاهده نگه می‌دارم.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+
+          <p>
+            Consumer یک پیام RabbitMQ را دریافت می‌کند.
+            Business Operation را در Database ذخیره می‌کند،
+            اما قبل از ارسال Ack، Process Crash می‌کند.
+            بعد از Restart همان پیام دوباره Deliver می‌شود.
+            بهترین راه جلوگیری از اجرای دوبارهٔ Business Operation چیست؟
+          </p>
+
+          <ol>
+            <li>افزایش Timeout</li>
+            <li>Idempotent Consumer همراه Inbox و Unique MessageId</li>
+            <li>افزایش تعداد Consumerها</li>
+            <li>حذف Database Transaction</li>
+          </ol>
+
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+
+            <p>
+              گزینهٔ ۲. در At-least-once Delivery احتمال دریافت دوبارهٔ پیام وجود دارد.
+              Consumer باید MessageId را در Inbox ذخیره کند و Business Operation و ثبت MessageId
+              را در یک Transaction انجام دهد.
+            </p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+
+          <ul>
+            <li>Reliability یعنی سیستم در طول زمان عملیات را درست و قابل پیش‌بینی انجام دهد.</li>
+            <li>Availability و Reliability یکسان نیستند؛ سیستم می‌تواند Available ولی غیرReliable باشد.</li>
+            <li>Partial Failure یکی از مهم‌ترین چالش‌های سیستم‌های Distributed است.</li>
+            <li>Idempotency برای Request، Retry و Message Processing حیاتی است.</li>
+            <li>At-least-once Delivery معمولاً باید با Idempotent Consumer ترکیب شود.</li>
+            <li>Inbox از Duplicate Processing و Outbox از Dual Write Failure جلوگیری می‌کند.</li>
+            <li>Transaction، Constraint و Concurrency Control برای Data Integrity ضروری‌اند.</li>
+            <li>MTBF و MTTR دو Metric مهم برای بررسی رفتار Failure و Recovery هستند.</li>
+            <li>Observability باعث کاهش زمان تشخیص و Recovery می‌شود.</li>
+            <li>در سیستم Payment، Reliability مستقیماً با جلوگیری از Duplicate، Lost Transaction و State ناسازگار مرتبط
+              است.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="ch1-2.html">درس قبلی: <bdi>Availability</bdi></a>
+          <a href="ch1-4.html">درس بعدی: <bdi>Latency</bdi></a>
+        </nav>
+
+      </article>
+    </main>
+  </div>
+</body>
+
+</html>

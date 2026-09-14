@@ -1,0 +1,69 @@
+.course-badge {
+  background: linear-gradient(145deg, #b55b16, #dc7a25 48%, #1458d4);
+  box-shadow: 0 18px 35px rgb(181 91 22 / 25%);
+}
+
+.course-notice {
+  max-width: 48rem;
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 1.5rem;
+  padding: 0.9rem 1rem;
+  border-inline-start: 4px solid var(--aqua);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--aqua) 8%, var(--surface));
+}
+
+.course-notice strong { color: var(--ink); }
+.course-notice span, .syllabus-count { color: var(--muted); font-size: 0.78rem; }
+.syllabus-count { margin: 0.25rem 0 0; }
+
+.course-topic {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.course-topic > span,
+.course-topic > a {
+  min-width: 0;
+  flex: 1;
+  color: var(--ink);
+}
+
+.course-topic > a {
+  padding: 0;
+  text-decoration: none;
+}
+
+.course-topic > a:hover { color: var(--brand); }
+
+.course-topic small {
+  flex: 0 0 auto;
+  padding: 0.05rem 0.35rem;
+  border-radius: 99rem;
+  background: color-mix(in srgb, var(--gold) 13%, transparent);
+  color: var(--gold);
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.chapter-practice small {
+  background: color-mix(in srgb, var(--aqua) 14%, transparent);
+  color: var(--aqua);
+}
+
+.lesson-empty {
+  min-height: clamp(15rem, 42vh, 28rem);
+  margin-top: 1.5rem;
+  border: 2px dashed color-mix(in srgb, var(--line) 85%, var(--brand));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-soft) 38%, transparent);
+}
+
+.lesson-card .lesson-pager { margin-top: 1.5rem; }
+
+@media (max-width: 760px) {
+  .course-topic { font-size: 0.84rem; }
+  .course-topic small { font-size: 0.65rem; }
+}
