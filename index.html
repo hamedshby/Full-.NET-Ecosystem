@@ -16,10 +16,15 @@
       document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
         ? storedTheme
         : systemDark ? 'dark' : 'light';
+      let storedHomeTheme = null;
+      try { storedHomeTheme = localStorage.getItem('dotnet-academy-home-theme'); } catch (_) {}
+      document.documentElement.dataset.homeTheme = storedHomeTheme === 'classic' ? 'classic' : 'modern';
     })();
   </script>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="home-theme.css">
   <script src="script.js" defer></script>
+  <script src="home-theme.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
@@ -36,6 +41,14 @@
         <a href="#newsletter">خبرنامه</a>
       </div>
       <div class="nav-actions">
+        <button id="home-theme-toggle" class="home-theme-toggle" type="button" aria-label="فعال‌کردن تم کلاسیک صفحهٔ اصلی" title="فعال‌کردن تم کلاسیک صفحهٔ اصلی" aria-pressed="true">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"></path>
+            <path d="M4 9h16M9 9v11"></path>
+            <circle cx="6.5" cy="6.5" r=".5"></circle>
+          </svg>
+          <span data-home-theme-label>نمای کلاسیک</span>
+        </button>
         <button id="language-toggle" class="icon-button" type="button" aria-label="نمایش وضعیت زبان انگلیسی" title="زبان انگلیسی">
           <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="9"></circle>

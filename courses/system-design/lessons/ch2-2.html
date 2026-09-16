@@ -1,59 +1,1098 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحهٔ درس HTTP / HTTPS از راهنمای طراحی سیستم در آکادمی دات‌نت.">
+  <meta name="description"
+    content="آموزش HTTP و HTTPS در System Design؛ از Request/Response و Methodها تا HTTP/1.1، HTTP/2، HTTP/3، TLS، Certificate، Keep-Alive، Proxy، Gateway و مسیر کامل Request.">
   <title>HTTP / HTTPS | راهنمای طراحی سیستم</title>
+
   <script>
     (() => {
       document.documentElement.classList.add('js');
       let storedTheme = null;
-      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
       const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
         ? storedTheme
         : systemDark ? 'dark' : 'light';
     })();
   </script>
+
   <link rel="stylesheet" href="../../../styles.css">
   <link rel="stylesheet" href="../../ai-agent/course.css">
   <link rel="stylesheet" href="../course.css">
+
   <script src="../../../script.js" defer></script>
   <script src="../course-navigation.js" defer></script>
 </head>
+
 <body>
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری درس">
       <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
       <span class="course-name">راهنمای طراحی سیستم</span>
       <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
-      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
-        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
-        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
       </button>
     </nav>
   </header>
+
   <div class="docs-layout">
     <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
-    <main id="lesson-content" class="lesson-page">
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+
       <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
         <a href="../index.html">راهنمای طراحی سیستم</a>
         <span aria-hidden="true">/</span>
         <span>فصل 2، درس 2</span>
       </nav>
-      <article class="lesson-card">
-        <p class="eyebrow">فصل 2 از ۱۰</p>
-        <p class="lesson-chapter"><bdi>Networking &amp; Request Flow</bdi></p>
-        <h1><bdi>HTTP / HTTPS</bdi></h1>
-        <div id="lesson-body" class="lesson-empty" data-content-status="empty" aria-label="محتوای آموزشی درس"></div>
+
+      <article>
+
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 2 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Networking &amp; Request Flow</bdi></p>
+
+          <h1><bdi>HTTP / HTTPS</bdi></h1>
+
+          <p class="lesson-lead">
+            <bdi>HTTP</bdi> پروتکل اصلی ارتباط Request/Response در وب است و
+            <bdi>HTTPS</bdi> همان HTTP روی یک ارتباط رمزنگاری‌شده با TLS است.
+            برای System Design لازم نیست وارد همهٔ جزئیات RFCها شویم؛
+            مهم این است که بدانیم Request چگونه ساخته می‌شود، Connection چگونه برقرار می‌شود،
+            TLS چه کاری انجام می‌دهد، Versionهای مختلف HTTP چه Trade-offهایی دارند و این مفاهیم چگونه روی
+            Latency، Security، Scalability و Reliability اثر می‌گذارند.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="example-title">
+          <h2 id="example-title">از یک Request واقعی شروع کنیم</h2>
+
+          <p>
+            Client می‌خواهد یک Payment ایجاد کند:
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>POST https://api.payment.com/v1/payments</code></pre>
+          </div>
+
+          <p>
+            در نگاه Application فقط یک HTTP Request دیده می‌شود،
+            اما پشت صحنه چند مرحله اتفاق می‌افتد:
+          </p>
+
+          <pre><code>DNS Lookup
+↓
+TCP Connection
+↓
+TLS Handshake
+↓
+HTTP Request
+↓
+Application Processing
+↓
+HTTP Response</code></pre>
+
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            HTTP زبان گفتگو بین Client و Server است؛
+            HTTPS همان گفتگو در یک کانال امن و رمزنگاری‌شده است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="http-title">
+          <h2 id="http-title"><bdi>HTTP</bdi> چیست؟</h2>
+
+          <p>
+            <bdi>HTTP — Hypertext Transfer Protocol</bdi> یک پروتکل Application Layer برای انتقال Request و Response
+            است.
+          </p>
+
+          <p>
+            مدل پایهٔ آن ساده است:
+          </p>
+
+          <div class="architecture-flow" aria-label="HTTP request response">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>HTTP Request</div>
+            <span aria-hidden="true">→</span>
+            <div>Server</div>
+            <span aria-hidden="true">→</span>
+            <div>HTTP Response</div>
+          </div>
+
+          <p>
+            HTTP ذاتاً Request/Response محور است؛
+            Client درخواست می‌فرستد و Server پاسخ می‌دهد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="request-title">
+          <h2 id="request-title">ساختار HTTP Request</h2>
+
+          <p>
+            یک HTTP Request معمولاً شامل این بخش‌هاست:
+          </p>
+
+          <ul>
+            <li>Method</li>
+            <li>Path / URL</li>
+            <li>Headers</li>
+            <li>Body</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+
+            <pre><code>POST /v1/payments HTTP/1.1
+Host: api.payment.com
+Authorization: Bearer eyJ...
+Content-Type: application/json
+Idempotency-Key: 7f0c...
+
+{
+  "amount": 250000,
+  "currency": "IRR",
+  "merchantId": 1024
+}</code></pre>
+          </div>
+
+          <p>
+            Method هدف عملیات را مشخص می‌کند،
+            Headerها Metadata را منتقل می‌کنند و Body دادهٔ اصلی Request را حمل می‌کند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="methods-title">
+          <h2 id="methods-title">HTTP Methodهای مهم</h2>
+
+          <div class="comparison-table" role="region" aria-label="HTTP methods" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>کاربرد رایج</th>
+                  <th>مثال</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td><bdi>GET</bdi></td>
+                  <td>دریافت Resource</td>
+                  <td>GET /payments/123</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>POST</bdi></td>
+                  <td>ایجاد Resource یا اجرای Operation</td>
+                  <td>POST /payments</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>PUT</bdi></td>
+                  <td>جایگزینی کامل Resource</td>
+                  <td>PUT /customers/10</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>PATCH</bdi></td>
+                  <td>به‌روزرسانی بخشی از Resource</td>
+                  <td>PATCH /customers/10</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>DELETE</bdi></td>
+                  <td>حذف Resource</td>
+                  <td>DELETE /tokens/55</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>HEAD</bdi></td>
+                  <td>دریافت Headerها بدون Body</td>
+                  <td>HEAD /files/1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="safe-idempotent-title">
+          <h2 id="safe-idempotent-title"><bdi>Safe</bdi> و <bdi>Idempotent</bdi> در HTTP</h2>
+
+          <p>
+            این دو مفهوم مهم‌اند و نباید با هم اشتباه شوند.
+          </p>
+
+          <ul>
+            <li>
+              <strong>Safe:</strong>
+              Method نباید هدفش تغییر State سرور باشد؛ GET معمولاً Safe است.
+            </li>
+
+            <li>
+              <strong>Idempotent:</strong>
+              اجرای چندبارهٔ همان Request باید اثر نهایی یکسانی داشته باشد؛
+              PUT و DELETE از نظر Semantics پروتکل Idempotent محسوب می‌شوند.
+            </li>
+          </ul>
+
+          <aside class="lesson-note">
+            <strong>نکته مهم در Payment:</strong>
+            POST ذاتاً Idempotent نیست.
+            برای Payment معمولاً با Idempotency Key یا TransactionId یکتا،
+            Idempotency را در سطح Business پیاده‌سازی می‌کنیم.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="response-title">
+          <h2 id="response-title">ساختار HTTP Response</h2>
+
+          <div class="lesson-example">
+            <pre><code>HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /v1/payments/987
+
+{
+  "id": 987,
+  "status": "Pending"
+}</code></pre>
+          </div>
+
+          <p>
+            Response شامل Status Code، Headers و در صورت نیاز Body است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="status-title">
+          <h2 id="status-title">Status Codeهای مهم</h2>
+
+          <div class="comparison-table" role="region" aria-label="HTTP status code groups" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Range</th>
+                  <th>معنی کلی</th>
+                  <th>نمونه</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>1xx</td>
+                  <td>Informational</td>
+                  <td>100 Continue</td>
+                </tr>
+
+                <tr>
+                  <td>2xx</td>
+                  <td>Success</td>
+                  <td>200, 201, 204</td>
+                </tr>
+
+                <tr>
+                  <td>3xx</td>
+                  <td>Redirect</td>
+                  <td>301, 302, 304</td>
+                </tr>
+
+                <tr>
+                  <td>4xx</td>
+                  <td>Client Error</td>
+                  <td>400, 401, 403, 404, 409, 429</td>
+                </tr>
+
+                <tr>
+                  <td>5xx</td>
+                  <td>Server Error</td>
+                  <td>500, 502, 503, 504</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="lesson-example">
+            <h3>چند Status Code مهم در Backend</h3>
+
+            <pre><code>200 OK
+201 Created
+204 No Content
+
+400 Bad Request
+401 Unauthorized
+403 Forbidden
+404 Not Found
+409 Conflict
+429 Too Many Requests
+
+500 Internal Server Error
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="headers-title">
+          <h2 id="headers-title">HTTP Headerها چه کاری انجام می‌دهند؟</h2>
+
+          <p>
+            Headerها Metadata مربوط به Request و Response را منتقل می‌کنند.
+          </p>
+
+          <p>نمونه‌های مهم:</p>
+
+          <ul>
+            <li><strong>Authorization:</strong> Authentication Token</li>
+            <li><strong>Content-Type:</strong> نوع Body</li>
+            <li><strong>Accept:</strong> فرمت مورد انتظار Response</li>
+            <li><strong>Cache-Control:</strong> سیاست Cache</li>
+            <li><strong>Host:</strong> Domain مقصد</li>
+            <li><strong>User-Agent:</strong> اطلاعات Client</li>
+            <li><strong>Correlation-Id:</strong> ردیابی Request</li>
+            <li><strong>Idempotency-Key:</strong> جلوگیری از Duplicate Operation</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="stateless-title">
+          <h2 id="stateless-title">HTTP ذاتاً Stateless است</h2>
+
+          <p>
+            از دید Protocol، هر Request مستقل است و Server نباید فرض کند Request قبلی را به خاطر دارد.
+          </p>
+
+          <p>
+            اگر Session نیاز باشد، باید مکانیزمی بالاتر از HTTP استفاده کنیم:
+          </p>
+
+          <ul>
+            <li>Cookie</li>
+            <li>Session ID</li>
+            <li>JWT</li>
+            <li>Distributed Session Store</li>
+          </ul>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            Stateless بودن HTTP همان Stateless بودن کل Application نیست؛
+            Application ممکن است Session یا Business State داشته باشد.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="https-title">
+          <h2 id="https-title"><bdi>HTTPS</bdi> چیست؟</h2>
+
+          <p>
+            HTTPS در اصل HTTP روی یک ارتباط امن TLS است.
+          </p>
+
+          <pre><code>HTTP
+↓
+TLS
+↓
+TCP
+↓
+IP</code></pre>
+
+          <p>
+            TLS سه هدف اصلی دارد:
+          </p>
+
+          <ul>
+            <li><strong>Confidentiality:</strong> داده رمزنگاری می‌شود.</li>
+            <li><strong>Integrity:</strong> تغییر غیرمجاز داده قابل تشخیص است.</li>
+            <li><strong>Authentication:</strong> Client می‌تواند هویت Server را با Certificate بررسی کند.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="certificate-title">
+          <h2 id="certificate-title">Certificate چه کاری انجام می‌دهد؟</h2>
+
+          <p>
+            Server برای HTTPS یک Digital Certificate ارائه می‌دهد.
+            Certificate مشخص می‌کند Public Key متعلق به چه Domain یا Organizationی است.
+          </p>
+
+          <p>
+            Client معمولاً این موارد را بررسی می‌کند:
+          </p>
+
+          <ul>
+            <li>Certificate Expired نشده باشد.</li>
+            <li>Domain با Certificate مطابقت داشته باشد.</li>
+            <li>Certificate Chain به یک CA قابل اعتماد برسد.</li>
+            <li>Certificate معتبر و قابل Verify باشد.</li>
+          </ul>
+
+          <aside class="lesson-note">
+            <strong>نکته عملی:</strong>
+            Expire شدن Certificate می‌تواند باعث شود سرویس کاملاً سالم باشد،
+            اما Client اتصال HTTPS را رد کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tls-title">
+          <h2 id="tls-title"><bdi>TLS Handshake</bdi> به زبان ساده</h2>
+
+          <p>
+            قبل از انتقال HTTP Data روی HTTPS، Client و Server باید یک Secure Session بسازند.
+          </p>
+
+          <pre><code>Client
+↓ ClientHello
+Server
+
+Server
+↓ Certificate + TLS parameters
+Client
+
+Client verifies certificate
+↓
+Key agreement
+↓
+Encrypted channel established</code></pre>
+
+          <p>
+            بعد از Handshake، HTTP Request داخل ارتباط رمزنگاری‌شده ارسال می‌شود.
+          </p>
+
+          <p>
+            Handshake روی Latency اولین Connection اثر دارد؛
+            به همین دلیل Connection Reuse مهم است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="connection-title">
+          <h2 id="connection-title">Connection Reuse و Keep-Alive</h2>
+
+          <p>
+            ساخت Connection جدید هزینه دارد:
+          </p>
+
+          <ul>
+            <li>TCP Handshake</li>
+            <li>TLS Handshake</li>
+            <li>Network Round Trip</li>
+          </ul>
+
+          <p>
+            بهتر است برای Requestهای متعدد تا حد امکان Connection موجود Reuse شود.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Bad
+
+Request 1 → New TCP/TLS
+Request 2 → New TCP/TLS
+Request 3 → New TCP/TLS
+
+
+Better
+
+One TCP/TLS connection
+↓
+Request 1
+Request 2
+Request 3</code></pre>
+          </div>
+
+          <p>
+            در .NET به همین دلیل استفاده صحیح از <bdi>HttpClient</bdi> و
+            <bdi>IHttpClientFactory</bdi> اهمیت دارد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="httpclient-title">
+          <h2 id="httpclient-title">مثال در <bdi>.NET</bdi></h2>
+
+          <div class="lesson-example">
+            <pre><code>builder.Services.AddHttpClient&lt;BankClient&gt;(client =>
+{
+    client.BaseAddress = new Uri("https://bank.example.com");
+    client.Timeout = TimeSpan.FromSeconds(2);
+});</code></pre>
+          </div>
+
+          <p>
+            ایجاد <bdi>HttpClient</bdi> جدید برای هر Request می‌تواند باعث مشکلات Connection Management و Socket
+            Exhaustion شود.
+            HttpClientFactory برای مدیریت بهتر Connection Pool و Handler Lifetime استفاده می‌شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="versions-title">
+          <h2 id="versions-title">HTTP/1.1، HTTP/2 و HTTP/3</h2>
+
+          <div class="comparison-table" role="region" aria-label="HTTP versions" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Version</th>
+                  <th>ویژگی مهم</th>
+                  <th>نکته</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td><bdi>HTTP/1.1</bdi></td>
+                  <td>Persistent Connections</td>
+                  <td>برای Parallel Requestها معمولاً چند Connection استفاده می‌شود</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>HTTP/2</bdi></td>
+                  <td>Multiplexing روی یک TCP Connection</td>
+                  <td>چند Stream هم‌زمان روی یک Connection</td>
+                </tr>
+
+                <tr>
+                  <td><bdi>HTTP/3</bdi></td>
+                  <td>استفاده از QUIC روی UDP</td>
+                  <td>کاهش بعضی مشکلات TCP-level Head-of-Line Blocking</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="http2-title">
+          <h2 id="http2-title"><bdi>HTTP/2 Multiplexing</bdi></h2>
+
+          <p>
+            در HTTP/2 چند Request و Response می‌توانند هم‌زمان روی یک Connection حرکت کنند.
+          </p>
+
+          <pre><code>One TCP Connection
+
+Stream 1 → Request A
+Stream 3 → Request B
+Stream 5 → Request C</code></pre>
+
+          <p>
+            این کار نیاز به چند Connection را کاهش می‌دهد و برای سرویس‌های پرRequest مفید است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="http3-title">
+          <h2 id="http3-title"><bdi>HTTP/3</bdi> و <bdi>QUIC</bdi></h2>
+
+          <p>
+            HTTP/3 از QUIC استفاده می‌کند که روی UDP ساخته شده ولی Reliability و Security مورد نیاز را در خود Protocol
+            مدیریت می‌کند.
+          </p>
+
+          <p>
+            یکی از مزیت‌های مهم این است که مشکل Loss روی یک Stream،
+            کمتر روی Streamهای دیگر اثر می‌گذارد.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>برای System Design:</strong>
+            لازم نیست QUIC را در سطح Packet بلد باشید؛
+            کافی است بدانید HTTP/3 می‌تواند در شبکه‌های با Latency یا Packet Loss بالا تجربهٔ بهتری ایجاد کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="timeout-title">
+          <h2 id="timeout-title"><bdi>Timeout</bdi> در HTTP Call</h2>
+
+          <p>
+            هر HTTP Call به Downstream Service باید Timeout مناسب داشته باشد.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Payment API SLO = 2 seconds
+
+Bank API timeout = 30 seconds
+
+❌ Invalid design</code></pre>
+          </div>
+
+          <p>
+            اگر Dependency تا ۳۰ ثانیه Connection را نگه دارد،
+            API نمی‌تواند SLO دوثانیه‌ای خود را حفظ کند.
+          </p>
+
+          <p>
+            Timeout باید با Latency Budget کل Request هماهنگ باشد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="retry-title">
+          <h2 id="retry-title">Retry در HTTP</h2>
+
+          <p>
+            Retry برای خطاهای موقت مفید است، اما نباید برای همهٔ HTTP Errorها استفاده شود.
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="HTTP retry examples" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>وضعیت</th>
+                  <th>Retry؟</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>400 Bad Request</td>
+                  <td>معمولاً خیر</td>
+                </tr>
+
+                <tr>
+                  <td>401 Unauthorized</td>
+                  <td>معمولاً نیازمند اصلاح Authentication</td>
+                </tr>
+
+                <tr>
+                  <td>429 Too Many Requests</td>
+                  <td>ممکن است با Backoff و Retry-After</td>
+                </tr>
+
+                <tr>
+                  <td>503 Service Unavailable</td>
+                  <td>ممکن است با Retry محدود</td>
+                </tr>
+
+                <tr>
+                  <td>Timeout / transient network error</td>
+                  <td>در صورت Idempotency و Policy مناسب</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong>
+            Retry در عملیات Payment بدون Idempotency ممکن است Duplicate Transaction ایجاد کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="proxy-title">
+          <h2 id="proxy-title">HTTP Proxy چیست؟</h2>
+
+          <p>
+            Proxy واسطه‌ای بین Client و Server است.
+          </p>
+
+          <div class="architecture-flow" aria-label="proxy flow">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>Proxy</div>
+            <span aria-hidden="true">→</span>
+            <div>Server</div>
+          </div>
+
+          <p>
+            دو نوع مهم:
+          </p>
+
+          <ul>
+            <li><strong>Forward Proxy:</strong> نمایندهٔ Client است.</li>
+            <li><strong>Reverse Proxy:</strong> جلوی Serverها قرار می‌گیرد.</li>
+          </ul>
+
+          <p>
+            در System Design معمولاً Reverse Proxy مهم‌تر است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="reverse-proxy-title">
+          <h2 id="reverse-proxy-title"><bdi>Reverse Proxy</bdi></h2>
+
+          <p>
+            Reverse Proxy Request را دریافت و به Backend مناسب هدایت می‌کند.
+          </p>
+
+          <p>وظایف رایج:</p>
+
+          <ul>
+            <li>TLS Termination</li>
+            <li>Load Balancing</li>
+            <li>Routing</li>
+            <li>Compression</li>
+            <li>Rate Limiting</li>
+            <li>Header Management</li>
+          </ul>
+
+          <div class="lesson-example">
+            <pre><code>Client
+↓ HTTPS
+Nginx / YARP / Envoy
+↓ HTTP or HTTPS
+Backend Services</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="gateway-title">
+          <h2 id="gateway-title">API Gateway در Request Flow</h2>
+
+          <p>
+            API Gateway معمولاً روی HTTP/HTTPS سوار است و نقطهٔ ورودی مجموعه‌ای از Serviceهاست.
+          </p>
+
+          <div class="architecture-flow" aria-label="api gateway flow">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>API Gateway</div>
+            <span aria-hidden="true">→</span>
+            <div>Payment Service</div>
+            <div>Account Service</div>
+            <div>Merchant Service</div>
+          </div>
+
+          <p>Gateway می‌تواند:</p>
+
+          <ul>
+            <li>Authentication</li>
+            <li>Authorization</li>
+            <li>Routing</li>
+            <li>Rate Limiting</li>
+            <li>Request Logging</li>
+            <li>Header Enrichment</li>
+            <li>Aggregation محدود</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="forwarded-title">
+          <h2 id="forwarded-title">Client IP پشت Proxy چه می‌شود؟</h2>
+
+          <p>
+            وقتی Request از Load Balancer یا Reverse Proxy عبور می‌کند،
+            Backend ممکن است IP Proxy را ببیند، نه IP واقعی Client.
+          </p>
+
+          <p>
+            Headerهایی مانند این‌ها برای انتقال اطلاعات اصلی استفاده می‌شوند:
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>X-Forwarded-For
+X-Forwarded-Proto
+X-Forwarded-Host
+
+Forwarded</code></pre>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>نکته امنیتی:</strong>
+            این Headerها را فقط از Proxyهای مورد اعتماد قبول کنید؛
+            Client خارجی می‌تواند آن‌ها را جعل کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="cache-title">
+          <h2 id="cache-title">HTTP Caching</h2>
+
+          <p>
+            HTTP مکانیزم‌های استانداردی برای Cache دارد:
+          </p>
+
+          <ul>
+            <li>Cache-Control</li>
+            <li>ETag</li>
+            <li>If-None-Match</li>
+            <li>Last-Modified</li>
+            <li>If-Modified-Since</li>
+          </ul>
+
+          <div class="lesson-example">
+            <pre><code>Response:
+ETag: "v17"
+
+Next Request:
+If-None-Match: "v17"
+
+Response:
+304 Not Modified</code></pre>
+          </div>
+
+          <p>
+            در این حالت لازم نیست Body دوباره ارسال شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="compression-title">
+          <h2 id="compression-title">Compression</h2>
+
+          <p>
+            برای Payloadهای متنی، Compression می‌تواند حجم Network را کاهش دهد.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Accept-Encoding: gzip, br
+
+Content-Encoding: br</code></pre>
+          </div>
+
+          <p>
+            Trade-off این است که Compression و Decompression CPU مصرف می‌کنند.
+            برای Payloadهای بسیار کوچک ممکن است ارزش نداشته باشد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payload-title">
+          <h2 id="payload-title">Payload Size روی Latency اثر دارد</h2>
+
+          <p>
+            Response بزرگ‌تر یعنی:
+          </p>
+
+          <ul>
+            <li>Serialization بیشتر</li>
+            <li>Network Transfer بیشتر</li>
+            <li>Memory بیشتر</li>
+            <li>Deserialization بیشتر</li>
+          </ul>
+
+          <p>
+            بنابراین API Design باید فقط دادهٔ مورد نیاز را منتقل کند.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Bad:
+GET /transactions
+→ 50 MB response
+
+Better:
+GET /transactions?page=1&pageSize=50</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="rest-title">
+          <h2 id="rest-title">HTTP با REST یکی نیست</h2>
+
+          <p>
+            HTTP یک Protocol است.
+            REST یک Architectural Style است که معمولاً از HTTP استفاده می‌کند.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            هر HTTP API الزاماً RESTful نیست.
+            همچنین gRPC نیز می‌تواند روی HTTP/2 اجرا شود، ولی REST محسوب نمی‌شود.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال کامل Request Flow در Payment System</h2>
+
+          <div class="lesson-example">
+            <pre><code>POST https://api.payment.com/v1/payments</code></pre>
+          </div>
+
+          <div class="architecture-flow" aria-label="Payment HTTP request flow">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>DNS</div>
+            <span aria-hidden="true">→</span>
+            <div>TCP/TLS</div>
+            <span aria-hidden="true">→</span>
+            <div>Load Balancer</div>
+            <span aria-hidden="true">→</span>
+            <div>API Gateway</div>
+            <span aria-hidden="true">→</span>
+            <div>Payment Service</div>
+            <span aria-hidden="true">→</span>
+            <div>Bank API</div>
+          </div>
+
+          <p>
+            در یک طراحی مناسب:
+          </p>
+
+          <ol>
+            <li>Client با HTTPS متصل می‌شود.</li>
+            <li>TLS Certificate اعتبار Domain را تأیید می‌کند.</li>
+            <li>Load Balancer یا Gateway ممکن است TLS را Terminate کند.</li>
+            <li>Gateway Authentication و Rate Limiting را انجام می‌دهد.</li>
+            <li>Payment Service Request را Validate می‌کند.</li>
+            <li>برای POST حساس از Idempotency Key استفاده می‌شود.</li>
+            <li>Call به Bank API دارای Timeout و Retry محدود است.</li>
+            <li>Response با Status Code مناسب برمی‌گردد.</li>
+          </ol>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="failure-title">
+          <h2 id="failure-title">Failure Scenarioهای مهم HTTP/HTTPS</h2>
+
+          <ul>
+            <li><strong>DNS Failure:</strong> Domain Resolve نمی‌شود.</li>
+            <li><strong>TCP Connection Failure:</strong> اتصال شبکه برقرار نمی‌شود.</li>
+            <li><strong>TLS Error:</strong> Certificate نامعتبر یا Expired است.</li>
+            <li><strong>Timeout:</strong> Downstream دیر پاسخ می‌دهد.</li>
+            <li><strong>502 Bad Gateway:</strong> Proxy پاسخ معتبر از Backend نگرفته است.</li>
+            <li><strong>503 Service Unavailable:</strong> Backend فعلاً سرویس نمی‌دهد.</li>
+            <li><strong>504 Gateway Timeout:</strong> Gateway منتظر Backend مانده و Timeout شده است.</li>
+            <li><strong>429 Too Many Requests:</strong> Rate Limit اعمال شده است.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="debug-title">
+          <h2 id="debug-title">برای Debug یک HTTP Call چه چیزهایی را بررسی کنیم؟</h2>
+
+          <ol>
+            <li>آیا DNS Resolve می‌شود؟</li>
+            <li>آیا TCP Connection برقرار می‌شود؟</li>
+            <li>آیا TLS Certificate معتبر است؟</li>
+            <li>Method و URL درست هستند؟</li>
+            <li>Headerهای لازم وجود دارند؟</li>
+            <li>Status Code چیست؟</li>
+            <li>Response Time چقدر است؟</li>
+            <li>Proxy/Gateway چه Logی دارد؟</li>
+            <li>آیا Retry یا Redirect رخ داده است؟</li>
+          </ol>
+
+          <div class="lesson-example">
+            <h3>ابزارهای رایج</h3>
+
+            <pre><code>curl -v https://api.example.com/health
+
+curl -I https://api.example.com
+
+openssl s_client -connect api.example.com:443</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tradeoffs-title">
+          <h2 id="tradeoffs-title">Trade-offهای مهم</h2>
+
+          <ul>
+            <li><strong>HTTPS vs CPU:</strong> Encryption هزینه دارد، ولی برای سرویس Production عملاً ضروری است.</li>
+            <li><strong>Compression vs CPU:</strong> Network کمتر، CPU بیشتر.</li>
+            <li><strong>Keep-Alive vs Resources:</strong> Connection Reuse سریع‌تر است ولی Connection باز Resource مصرف
+              می‌کند.</li>
+            <li><strong>Retry vs Latency:</strong> Reliability بهتر، Latency و Load بیشتر.</li>
+            <li><strong>Large Payload vs Simplicity:</strong> Response بزرگ ساده‌تر است ولی Network و Memory بیشتری مصرف
+              می‌کند.</li>
+            <li><strong>HTTP/2 Multiplexing vs Shared TCP:</strong> Connection کمتر، ولی Packet Loss روی TCP هنوز
+              می‌تواند Streamها را تحت تأثیر قرار دهد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+
+          <ul>
+            <li><strong>ساخت HttpClient جدید برای هر Request در .NET</strong></li>
+            <li><strong>Timeout بسیار بزرگ یا بدون Timeout</strong></li>
+            <li><strong>Retry کردن همهٔ 4xx و 5xxها</strong></li>
+            <li><strong>Retry کردن POST حساس بدون Idempotency</strong></li>
+            <li><strong>نادیده گرفتن Expiration Certificate</strong></li>
+            <li><strong>اعتماد مستقیم به X-Forwarded-For از Client ناشناس</strong></li>
+            <li><strong>برگرداندن Payload بسیار بزرگ بدون Pagination</strong></li>
+            <li><strong>استفاده از 200 برای هر نوع نتیجه و خطا</strong></li>
+            <li><strong>اشتباه گرفتن REST با خود HTTP</strong></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="interview-title">
+          <h2 id="interview-title">در مصاحبه System Design چطور درباره HTTP/HTTPS صحبت کنیم؟</h2>
+
+          <p>
+            در مصاحبه معمولاً نیاز نیست RFCها را حفظ باشید.
+            این موارد مهم‌ترند:
+          </p>
+
+          <ol>
+            <li>Request Flow را از DNS تا HTTP Response توضیح دهید.</li>
+            <li>HTTP Method و Status Code مناسب را انتخاب کنید.</li>
+            <li>برای Production از HTTPS استفاده کنید.</li>
+            <li>نقش TLS و Certificate را بدانید.</li>
+            <li>Connection Reuse و Keep-Alive را در نظر بگیرید.</li>
+            <li>Timeout و Retry Policy را درست طراحی کنید.</li>
+            <li>برای POSTهای حساس Idempotency را توضیح دهید.</li>
+            <li>نقش Reverse Proxy و API Gateway را مشخص کنید.</li>
+            <li>در سیستم‌های پرترافیک HTTP/2/3 و Payload Size را در نظر بگیرید.</li>
+          </ol>
+
+          <div class="lesson-example">
+            <h3>نمونه پاسخ کوتاه</h3>
+
+            <p>
+              «Client ابتدا Domain را Resolve می‌کند، سپس TCP/TLS Connection می‌سازد و HTTP Request را به Load Balancer
+              یا API Gateway می‌فرستد.
+              HTTPS برای Confidentiality، Integrity و Authentication استفاده می‌شود.
+              برای کاهش Latency از Connection Reuse استفاده می‌کنم، Timeout هر Downstream را با Latency Budget هماهنگ
+              می‌کنم
+              و Retry را فقط برای خطاهای Transient و در عملیات Idempotent انجام می‌دهم.
+              برای Payment POST نیز Idempotency Key در نظر می‌گیرم تا Retry باعث Duplicate نشود.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+
+          <p>
+            Payment Service یک POST به Bank API می‌فرستد.
+            بانک عملیات را انجام می‌دهد اما Response در شبکه گم می‌شود و Client Timeout می‌گیرد.
+            کدام گزینه بهترین طراحی است؟
+          </p>
+
+          <ol>
+            <li>بدون محدودیت POST را Retry کنیم</li>
+            <li>Retry همراه Idempotency Key یا TransactionId و بررسی Status انجام شود</li>
+            <li>Timeout را حذف کنیم</li>
+            <li>همیشه 500 برگردانیم</li>
+          </ol>
+
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+
+            <p>
+              گزینهٔ ۲. نتیجهٔ واقعی عملیات برای Caller نامشخص است.
+              Retry کورکورانه می‌تواند Duplicate Payment ایجاد کند.
+              باید عملیات Idempotent طراحی شود یا Status تراکنش قابل بررسی باشد.
+            </p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+
+          <ul>
+            <li>HTTP پروتکل Request/Response در Application Layer است.</li>
+            <li>HTTPS همان HTTP روی TLS است.</li>
+            <li>Request شامل Method، URL، Headers و Body است.</li>
+            <li>Status Code نتیجهٔ استاندارد عملیات را مشخص می‌کند.</li>
+            <li>HTTP ذاتاً Stateless است، ولی Application می‌تواند Stateful باشد.</li>
+            <li>TLS برای Confidentiality، Integrity و Authentication استفاده می‌شود.</li>
+            <li>Connection Reuse و Keep-Alive Latency و هزینهٔ Handshake را کاهش می‌دهند.</li>
+            <li>HTTP/2 از Multiplexing و HTTP/3 از QUIC استفاده می‌کند.</li>
+            <li>Timeout و Retry باید با Latency Budget و Idempotency هماهنگ باشند.</li>
+            <li>Reverse Proxy و API Gateway بخش مهم Request Flow در معماری‌های Backend هستند.</li>
+            <li>در Payment API، POST حساس باید Idempotent طراحی شود.</li>
+          </ul>
+        </section>
+
         <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
           <a href="ch2-1.html">درس قبلی: <bdi>DNS</bdi></a>
           <a href="ch2-3.html">درس بعدی: <bdi>REST</bdi></a>
         </nav>
+
       </article>
     </main>
   </div>
 </body>
+
 </html>
