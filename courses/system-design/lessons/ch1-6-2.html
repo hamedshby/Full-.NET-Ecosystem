@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش Vertical vs Horizontal Scaling در System Design؛ تفاوت Scale Up و Scale Out، Stateless بودن، Load Balancer، Sharding و انتخاب استراتژی مناسب.">
+  <title>Vertical vs Horizontal Scaling | راهنمای طراحی سیستم</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../../ai-agent/course.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name">راهنمای طراحی سیستم</span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">راهنمای طراحی سیستم</a>
+        <span aria-hidden="true">/</span>
+        <span>فصل 1، درس 6</span>
+      </nav>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 1 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
+          <h1><bdi>Vertical vs Horizontal Scaling</bdi></h1>
+          <p class="lesson-lead">
+            وقتی Throughput یا Capacity یک سیستم کافی نیست، دو مسیر اصلی برای افزایش ظرفیت وجود دارد:
+            قوی‌تر کردن یک Node (<bdi>Scale Up</bdi>) یا اضافه‌کردن Nodeهای بیشتر (<bdi>Scale Out</bdi>).
+            در این درس یاد می‌گیریم این دو استراتژی چه تفاوتی دارند، هرکدام چه محدودیت‌هایی دارند
+            و چگونه بین آن‌ها تصمیم بگیریم.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="example-title">
+          <h2 id="example-title">از یک Order Service شروع کنیم</h2>
+          <p>
+            فرض کنید Order Service روی یک Server با ۴ Core و ۸ گیگابایت Memory اجرا می‌شود
+            و در حال حاضر ۴۰۰ RPS را پاسخ می‌دهد. با افزایش کاربران، تیم باید تصمیم بگیرد:
+            همین Server را به ۱۶ Core و ۳۲ گیگابایت ارتقا دهد، یا به‌جای یک Server قوی‌تر،
+            ۴ Server معمولی پشت یک Load Balancer قرار دهد.
+          </p>
+          <p>
+            این دقیقاً همان انتخاب بین Vertical Scaling و Horizontal Scaling است؛
+            انتخابی که نه‌تنها روی Capacity، بلکه روی Cost، Reliability و پیچیدگی معماری هم اثر می‌گذارد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title">تعریف دقیق دو استراتژی</h2>
+          <ul>
+            <li>
+              <strong><bdi>Vertical Scaling (Scale Up):</bdi></strong>
+              افزایش منابع یک Node واحد — CPU قوی‌تر، Memory بیشتر، Disk سریع‌تر یا NIC پرسرعت‌تر —
+              بدون تغییر در تعداد Nodeها.
+            </li>
+            <li>
+              <strong><bdi>Horizontal Scaling (Scale Out):</bdi></strong>
+              اضافه‌کردن Node یا Instance بیشتر و تقسیم Workload بین آن‌ها،
+              معمولاً از طریق یک Load Balancer یا مکانیزم Partitioning.
+            </li>
+          </ul>
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            Vertical Scaling مثل جایگزین‌کردن یک ماشین‌ظرفشویی کوچک با یک مدل بزرگ‌تر و سریع‌تر است.
+            Horizontal Scaling مثل اضافه‌کردن چند ماشین‌ظرفشویی کنار هم و تقسیم ظرف‌ها بین آن‌هاست.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="comparison-title">
+          <h2 id="comparison-title">مقایسهٔ کلی</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسه Vertical و Horizontal Scaling" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>معیار</th>
+                  <th><bdi>Vertical Scaling</bdi></th>
+                  <th><bdi>Horizontal Scaling</bdi></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>پیچیدگی پیاده‌سازی</td>
+                  <td>کم — معمولاً نیازی به تغییر Application نیست</td>
+                  <td>بیشتر — نیاز به Load Balancer، هماهنگی State و گاهی Partitioning</td>
+                </tr>
+                <tr>
+                  <td>سقف رشد</td>
+                  <td>محدود به بزرگ‌ترین سخت‌افزار موجود</td>
+                  <td>در تئوری با اضافه‌کردن Node ادامه‌دار است</td>
+                </tr>
+                <tr>
+                  <td>Single Point of Failure</td>
+                  <td>بله — از کار افتادن همان یک Node، کل سرویس را متوقف می‌کند</td>
+                  <td>کمتر — از کار افتادن یک Node، ظرفیت را کم می‌کند نه صفر</td>
+                </tr>
+                <tr>
+                  <td>Downtime هنگام ارتقا</td>
+                  <td>معمولاً نیاز به Restart یا Migration دارد</td>
+                  <td>می‌توان Node جدید را بدون Downtime اضافه کرد</td>
+                </tr>
+                <tr>
+                  <td>هزینه</td>
+                  <td>رشد هزینه در سخت‌افزار سطح بالا معمولاً نمایی است</td>
+                  <td>رشد هزینه نزدیک‌تر به خطی، اما هزینهٔ عملیاتی بیشتر</td>
+                </tr>
+                <tr>
+                  <td>سازگاری با State</td>
+                  <td>برای Stateful Systemها (مثل اغلب Databaseها) طبیعی‌تر است</td>
+                  <td>برای Stateless Applicationها ساده، برای Stateful نیازمند طراحی اضافه</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="stateless-title">
+          <h2 id="stateless-title">چرا Stateless بودن برای Horizontal Scaling مهم است؟</h2>
+          <p>
+            وقتی هیچ Session یا Local State‌ای روی یک Instance خاص ذخیره نشود،
+            هر Request می‌تواند توسط هر Instance پردازش شود و Load Balancer آزادانه Traffic را تقسیم می‌کند.
+          </p>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>
+              اگر Session کاربر در Memory یک Instance خاص نگه‌داری شود،
+              Requestهای بعدی همان کاربر باید حتماً به همان Instance برسند (<bdi>Sticky Session</bdi>)،
+              که Load Balancing را نامتوازن می‌کند و Scale Out را پیچیده‌تر می‌سازد.
+              راه‌حل رایج، انتقال Session به یک Store مشترک مثل Redis است.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="architecture-title">
+          <h2 id="architecture-title">نقش Load Balancer در Horizontal Scaling</h2>
+          <div class="architecture-flow" aria-label="نمونه معماری Horizontal Scaling">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>Load Balancer</div>
+            <span aria-hidden="true">→</span>
+            <div>Instance A</div>
+            <span aria-hidden="true">|</span>
+            <div>Instance B</div>
+            <span aria-hidden="true">|</span>
+            <div>Instance C</div>
+          </div>
+          <p>
+            Load Balancer باید سلامت هر Instance را با Health Check تشخیص دهد و در صورت خرابی،
+            Traffic را از آن Instance دور کند. الگوریتم‌های رایج توزیع Load عبارتند از
+            Round Robin، Least Connections و Weighted Routing بر اساس ظرفیت هر Instance.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="database-title">
+          <h2 id="database-title">محدودیت Vertical Scaling در Database</h2>
+          <p>
+            بسیاری از Databaseهای رابطه‌ای به‌طور طبیعی Vertical Scale می‌شوند،
+            چون Consistency و Transaction در یک Node واحد ساده‌تر مدیریت می‌شود.
+            اما این مسیر سقف دارد.
+          </p>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <pre><code>SQL Server: 8 Core  → 4000 TPS
+SQL Server: 32 Core → 9000 TPS
+SQL Server: 64 Core → 10500 TPS (رشد کاهنده)</code></pre>
+          </div>
+          <p>
+            وقتی حتی بزرگ‌ترین Instance موجود دیگر جواب‌گو نیست، تیم باید به سراغ
+            Read Replica، Partitioning یا <bdi>Sharding</bdi> برود؛ یعنی نوعی Horizontal Scaling
+            مخصوص Dataها، که پیچیدگی‌های خودش را دارد از جمله انتخاب Shard Key، Cross-Shard Query
+            و Rebalancing داده هنگام اضافه‌کردن Shard جدید.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="reliability-title">
+          <h2 id="reliability-title">تأثیر روی Reliability</h2>
+          <p>
+            در Vertical Scaling، تمام Traffic روی یک Node متمرکز است؛
+            هر مشکل سخت‌افزاری یا Restart باعث Downtime کامل می‌شود.
+          </p>
+          <p>
+            در Horizontal Scaling، از کار افتادن یک Instance فقط بخشی از Capacity را کم می‌کند
+            و اگر Redundancy کافی طراحی شده باشد، کاربر اصلاً متوجه قطعی نمی‌شود.
+            به همین دلیل Horizontal Scaling معمولاً پایه‌ای برای High Availability نیز هست.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="cost-title">
+          <h2 id="cost-title">هزینه و نقطهٔ بازگشت</h2>
+          <p>
+            هزینهٔ سخت‌افزار در سطوح بالا معمولاً نمایی رشد می‌کند؛
+            یک Server با ۶۴ Core لزوماً دو برابر یک Server با ۳۲ Core هزینه ندارد، بلکه معمولاً بیشتر است.
+            در مقابل، افزودن Instanceهای معمولی هزینه‌ای نزدیک به خطی دارد،
+            اما هزینهٔ عملیاتی (Load Balancer، Monitoring، Deployment، Networking) را اضافه می‌کند.
+          </p>
+          <p>
+            در عمل بسیاری از تیم‌ها ابتدا با Vertical Scaling شروع می‌کنند
+            چون ساده‌تر و سریع‌تر است، و وقتی به سقف عملی یا اقتصادی رسیدند
+            به‌سمت Horizontal Scaling حرکت می‌کنند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tradeoffs-title">
+          <h2 id="tradeoffs-title">Trade-offهای اصلی</h2>
+          <ul>
+            <li><strong>سادگی vs مقیاس‌پذیری بلندمدت:</strong> Vertical Scaling سریع و بی‌دردسر است ولی سقف دارد.</li>
+            <li><strong>هزینهٔ سخت‌افزار vs هزینهٔ عملیاتی:</strong> Horizontal Scaling هزینهٔ واحد را پایین نگه می‌دارد
+              ولی پیچیدگی عملیاتی می‌آورد.</li>
+            <li><strong>Consistency vs Availability:</strong> توزیع داده بین چند Node اغلب طراحی Consistency را دشوارتر
+              می‌کند.</li>
+            <li><strong>Single Point of Failure vs Coordination Overhead:</strong> چند Node ریسک قطعی کامل را کم می‌کند
+              اما نیاز به Coordination (مثل Leader Election یا Consensus) ایجاد می‌کند.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+          <ul>
+            <li><strong>فرض این‌که Horizontal Scaling همیشه بهترین گزینه است</strong>، حتی برای Bottleneckهایی که در
+              Database یا یک Dependency مشترک هستند</li>
+            <li><strong>Scale Out کردن یک Application که هنوز Stateful طراحی شده</strong></li>
+            <li><strong>نادیده گرفتن Sticky Session و اثر آن روی توزیع Load</strong></li>
+            <li><strong>ادامهٔ Vertical Scaling تا رسیدن به سقف اقتصادی، بدون برنامه‌ریزی برای مسیر بعدی</strong></li>
+            <li><strong>Scale Out کردن Applicationها بدون رفع Bottleneck واقعی در Database</strong></li>
+            <li><strong>نداشتن Health Check مناسب برای Instanceهای جدید</strong></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="interview-title">
+          <h2 id="interview-title">در مصاحبه System Design چطور دربارهٔ این موضوع صحبت کنیم؟</h2>
+          <p>
+            اگر پرسیدند «چطور این سرویس را Scale می‌کنید؟»، مستقیم نگویید «چند Instance اضافه می‌کنم».
+          </p>
+          <ol>
+            <li>ابتدا مشخص کنید Bottleneck فعلی کجاست (Application یا Database یا Dependency دیگر).</li>
+            <li>بررسی کنید Application Stateless است یا Stateful.</li>
+            <li>اگر Bottleneck در Application است و Stateless است، Horizontal Scaling پیشنهاد دهید.</li>
+            <li>اگر Bottleneck در Database است، ابتدا Vertical Scaling یا Read Replica را بررسی کنید و در صورت نیاز به
+              Sharding فکر کنید.</li>
+            <li>Trade-off هزینه، پیچیدگی و Reliability را توضیح دهید.</li>
+            <li>نتیجه را با Load Test اعتبارسنجی کنید.</li>
+          </ol>
+          <div class="lesson-example">
+            <h3>نمونهٔ پاسخ کوتاه</h3>
+            <p>
+              «اول باید ببینم Bottleneck کجاست. اگر Application Layer است و Stateless طراحی شده،
+              پشت یک Load Balancer آن را Horizontal Scale می‌کنم. اگر مشکل از Database است،
+              ابتدا Vertical Scaling و Read Replica را بررسی می‌کنم و اگر کافی نبود،
+              به سراغ Partitioning یا Sharding می‌روم. در نهایت تصمیم را با Load Test و بر اساس SLO،
+              نه فقط حدس، اعتبارسنجی می‌کنم.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+          <p>
+            یک Notification Service به‌صورت Stateless روی یک Instance اجرا می‌شود
+            و در ساعات پیک به سقف CPU می‌رسد، در حالی که Database آن هنوز زیر ۳۰٪ Load است.
+            بهترین گام بعدی چیست؟
+          </p>
+          <ol>
+            <li>ارتقای Database به یک نسخهٔ قوی‌تر</li>
+            <li>اضافه‌کردن چند Instance دیگر از Notification Service پشت Load Balancer</li>
+            <li>افزایش Connection Pool دیتابیس</li>
+            <li>تبدیل کل سیستم به Batch Processing</li>
+          </ol>
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+            <p>
+              گزینهٔ ۲. چون Bottleneck در Application Layer است، Service Stateless است
+              و Database هنوز ظرفیت آزاد دارد، Horizontal Scaling سرویس ساده‌ترین و مؤثرترین راه‌حل است.
+            </p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li>Vertical Scaling یعنی قوی‌ترکردن یک Node؛ Horizontal Scaling یعنی اضافه‌کردن Node بیشتر.</li>
+            <li>Vertical Scaling ساده‌تر است اما سقف سخت‌افزاری و اقتصادی دارد و Single Point of Failure می‌ماند.</li>
+            <li>Horizontal Scaling در تئوری نامحدود است اما نیاز به Load Balancer، Health Check و اغلب Stateless بودن
+              دارد.</li>
+            <li>Stateful Applicationها برای Horizontal Scaling باید State را به یک Store مشترک منتقل کنند.</li>
+            <li>Database معمولاً ابتدا Vertical Scale می‌شود و در سقف، به Read Replica یا Sharding می‌رود.</li>
+            <li>Horizontal Scaling معمولاً Reliability بهتری می‌دهد چون قطعی یک Node، کل سیستم را از کار نمی‌اندازد.
+            </li>
+            <li>تصمیم درست همیشه با پیدا کردن Bottleneck واقعی شروع می‌شود، نه با انتخاب پیش‌فرض یکی از دو استراتژی.
+            </li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="ch1-5.html">درس قبلی: <bdi>Throughput</bdi></a>
+          <a href="ch1-7.html">درس بعدی: <bdi>Availability</bdi></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+
+</html>

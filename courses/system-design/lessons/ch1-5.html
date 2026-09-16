@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحهٔ درس Throughput از راهنمای طراحی سیستم در آکادمی دات‌نت.">
+  <meta name="description"
+    content="آموزش Throughput در System Design؛ از RPS و TPS تا Capacity، Saturation، Bottleneck، Little's Law، Queue، Backpressure و طراحی سیستم‌های پرتراکنش.">
   <title>Throughput | راهنمای طراحی سیستم</title>
   <script>
     (() => {
       document.documentElement.classList.add('js');
       let storedTheme = null;
-      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
       const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
-        ? storedTheme
-        : systemDark ? 'dark' : 'light';
+        ? storedTheme : systemDark ? 'dark' : 'light';
     })();
   </script>
   <link rel="stylesheet" href="../../../styles.css">
@@ -22,6 +23,7 @@
   <script src="../../../script.js" defer></script>
   <script src="../course-navigation.js" defer></script>
 </head>
+
 <body>
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
@@ -29,25 +31,580 @@
       <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
       <span class="course-name">راهنمای طراحی سیستم</span>
       <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
-      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
-        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
-        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
       </button>
     </nav>
   </header>
+
   <div class="docs-layout">
     <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
-    <main id="lesson-content" class="lesson-page">
+    <main id="lesson-content" class="lesson-page lesson-article">
       <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
         <a href="../index.html">راهنمای طراحی سیستم</a>
         <span aria-hidden="true">/</span>
         <span>فصل 1، درس 5</span>
       </nav>
-      <article class="lesson-card">
-        <p class="eyebrow">فصل 1 از ۱۰</p>
-        <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
-        <h1><bdi>Throughput</bdi></h1>
-        <div id="lesson-body" class="lesson-empty" data-content-status="empty" aria-label="محتوای آموزشی درس"></div>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 1 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
+          <h1><bdi>Throughput</bdi></h1>
+          <p class="lesson-lead">
+            <bdi>Throughput</bdi> یعنی سیستم در یک بازهٔ زمانی مشخص چه مقدار کار را با موفقیت انجام می‌دهد.
+            در Backend معمولاً آن را با معیارهایی مانند <bdi>RPS</bdi>، <bdi>TPS</bdi> یا تعداد Message پردازش‌شده در
+            ثانیه می‌سنجیم.
+            در این درس یاد می‌گیریم Throughput چگونه اندازه‌گیری می‌شود، چه چیزی آن را محدود می‌کند و چگونه ظرفیت واقعی
+            سیستم را افزایش دهیم.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="example-title">
+          <h2 id="example-title">از یک Payment System شروع کنیم</h2>
+          <p>
+            فرض کنید Payment Service در حال حاضر می‌تواند ۱۰۰۰ تراکنش در ثانیه را پردازش کند.
+            در ساعات عادی فقط ۳۰۰ TPS دریافت می‌کند، اما هنگام کمپین ترافیک به ۱۵۰۰ TPS می‌رسد.
+          </p>
+          <p>
+            وقتی نرخ ورودی از ظرفیت واقعی سیستم بیشتر می‌شود، Requestها شروع به صف‌شدن می‌کنند،
+            Latency افزایش پیدا می‌کند و در نهایت Error Rate نیز بالا می‌رود.
+          </p>
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            Throughput را مانند ظرفیت یک عوارضی در نظر بگیرید. اگر عوارضی بتواند در هر دقیقه ۱۰۰ خودرو را عبور دهد ولی
+            ۱۵۰ خودرو وارد شوند،
+            صف تشکیل می‌شود؛ حتی اگر عبور هر خودرو به‌تنهایی سریع باشد.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="definition-title">
+          <h2 id="definition-title"><bdi>Throughput</bdi> دقیقاً چیست؟</h2>
+          <p>
+            Throughput مقدار کاری است که سیستم در واحد زمان <strong>تکمیل</strong> می‌کند.
+            واحد آن بسته به نوع سیستم متفاوت است.
+          </p>
+          <ul>
+            <li><strong><bdi>RPS — Requests Per Second:</bdi></strong> تعداد Request تکمیل‌شده در هر ثانیه.</li>
+            <li><strong><bdi>TPS — Transactions Per Second:</bdi></strong> تعداد تراکنش تکمیل‌شده در هر ثانیه.</li>
+            <li><strong><bdi>Messages/sec:</bdi></strong> تعداد Message پردازش‌شده در ثانیه.</li>
+            <li><strong><bdi>Rows/sec:</bdi></strong> تعداد رکورد پردازش یا نوشته‌شده در ثانیه.</li>
+            <li><strong><bdi>MB/sec:</bdi></strong> حجم داده منتقل‌شده در ثانیه.</li>
+          </ul>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>اگر سیستم در ۱۰ ثانیه ۲۰,۰۰۰ Request موفق را کامل کند:</p>
+            <pre><code>Throughput
+=
+20,000 / 10
+=
+2,000 RPS</code></pre>
+          </div>
+          <p>
+            دقت کنید که Throughput تعداد Requestهای <strong>واردشده</strong> نیست؛
+            بلکه تعداد عملیات تکمیل‌شده در واحد زمان است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="latency-title">
+          <h2 id="latency-title">تفاوت <bdi>Throughput</bdi> و <bdi>Latency</bdi></h2>
+          <div class="comparison-table" role="region" aria-label="مقایسه Throughput و Latency" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>مفهوم</th>
+                  <th>سؤال اصلی</th>
+                  <th>مثال</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><bdi>Latency</bdi></td>
+                  <td>هر Operation چقدر زمان می‌برد؟</td>
+                  <td>هر Payment در p95 زیر 300 ms تکمیل می‌شود</td>
+                </tr>
+                <tr>
+                  <td><bdi>Throughput</bdi></td>
+                  <td>در هر ثانیه چند Operation کامل می‌شود؟</td>
+                  <td>سرویس 2500 Payment در ثانیه پردازش می‌کند</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            یک سیستم می‌تواند Latency پایین ولی Throughput پایین داشته باشد.
+            برای مثال یک Worker هر Job را در ۱۰ میلی‌ثانیه انجام می‌دهد،
+            اما چون فقط یک Job را در لحظه پردازش می‌کند، ظرفیت کل محدود است.
+          </p>
+          <p>
+            برعکس، ممکن است Throughput بالا باشد ولی بعضی Requestها Latency زیادی تجربه کنند؛
+            مثلاً با Batch Processing تعداد زیادی آیتم پردازش می‌شود اما هر آیتم باید منتظر تشکیل Batch بماند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="capacity-title">
+          <h2 id="capacity-title"><bdi>Capacity</bdi> با Throughput چه فرقی دارد؟</h2>
+          <p>
+            Throughput مقدار کاری است که سیستم همین الآن انجام می‌دهد.
+            Capacity حداکثر Throughput قابل‌پشتیبانی در شرایط تعریف‌شده است.
+          </p>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>
+              اگر Payment Service الآن ۸۰۰ TPS پردازش کند،
+              ولی در Load Test تا ۲۲۰۰ TPS بتواند SLO را حفظ کند:
+            </p>
+            <pre><code>Current Throughput = 800 TPS
+Capacity ≈ 2200 TPS</code></pre>
+          </div>
+          <p>
+            ظرفیت واقعی باید همراه SLO تعریف شود. اگر سیستم در ۳۰۰۰ TPS هنوز Response بدهد ولی p99 به ۲۰ ثانیه برسد
+            و Error Rate بالا رود، نمی‌توان گفت ظرفیت مفید سیستم ۳۰۰۰ TPS است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="saturation-title">
+          <h2 id="saturation-title"><bdi>Saturation</bdi>؛ وقتی سیستم به سقف نزدیک می‌شود</h2>
+          <p>
+            Saturation یعنی یک Resource یا Component به نقطه‌ای نزدیک می‌شود که دیگر نمی‌تواند Workload بیشتری را بدون
+            افت کیفیت تحمل کند.
+          </p>
+          <ul>
+            <li>CPU بالا</li>
+            <li>Thread Pool Queue رو‌به‌رشد</li>
+            <li>Connection Pool Exhaustion</li>
+            <li>Database Lock/Blocking</li>
+            <li>Queue Depth رو‌به‌رشد</li>
+            <li>Disk I/O بالا</li>
+            <li>Consumer Lag</li>
+            <li>Latency صعودی</li>
+            <li>Error Rate افزایشی</li>
+          </ul>
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            معمولاً قبل از رسیدن به شکست کامل، Latency و Queueing رشد می‌کنند.
+            بنابراین فقط CPU=100% را به‌عنوان علامت Saturation در نظر نگیرید.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="bottleneck-title">
+          <h2 id="bottleneck-title"><bdi>Bottleneck</bdi> Throughput کل را محدود می‌کند</h2>
+          <p>
+            ظرفیت یک Pipeline معمولاً توسط کندترین یا محدودترین Stage تعیین می‌شود.
+          </p>
+          <div class="architecture-flow" aria-label="نمونه Bottleneck در Payment Flow">
+            <div>API: 5000 TPS</div>
+            <span aria-hidden="true">→</span>
+            <div>Payment Service: 4000 TPS</div>
+            <span aria-hidden="true">→</span>
+            <div>Database: 1800 TPS</div>
+            <span aria-hidden="true">→</span>
+            <div>Bank Adapter: 2500 TPS</div>
+          </div>
+          <p>
+            در این مثال Throughput کل سیستم تقریباً توسط Database محدود می‌شود.
+            اضافه‌کردن Application Instance بدون رفع محدودیت Database ظرفیت واقعی را چندان افزایش نمی‌دهد.
+          </p>
+          <div class="lesson-example">
+            <h3>اصل مهم</h3>
+            <p>ابتدا Bottleneck را پیدا کنید، سپس همان نقطه را Scale یا Optimize کنید.</p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="work-title">
+          <h2 id="work-title">هزینهٔ هر Request مهم است</h2>
+          <p>
+            Throughput فقط به تعداد Serverها وابسته نیست.
+            هرچه CPU، Database Call، Network Call یا Lock بیشتری برای هر Request نیاز باشد،
+            تعداد Request قابل پردازش در واحد زمان کمتر می‌شود.
+          </p>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <pre><code>Version A
+Each request = 1 DB query
+Capacity ≈ 3000 RPS
+
+Version B
+Each request = 8 DB queries
+Capacity ≈ 700 RPS</code></pre>
+          </div>
+          <p>کاهش Work Per Request اغلب یکی از کم‌هزینه‌ترین راه‌های افزایش Throughput است.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="little-title">
+          <h2 id="little-title"><bdi>Little's Law</bdi>؛ ارتباط Concurrency، Throughput و Latency</h2>
+          <p>در یک سیستم پایدار می‌توان به‌صورت ساده از رابطهٔ زیر استفاده کرد:</p>
+          <div class="lesson-example">
+            <pre><code>Concurrency ≈ Throughput × Latency</code></pre>
+          </div>
+          <p>مثال:</p>
+          <pre><code>Throughput = 1000 requests/sec
+Average latency = 0.2 sec
+
+Concurrency ≈ 1000 × 0.2
+Concurrency ≈ 200 requests</code></pre>
+          <p>
+            یعنی به‌طور متوسط حدود ۲۰۰ Request هم‌زمان داخل سیستم در حال پردازش هستند.
+          </p>
+          <aside class="lesson-note">
+            <strong>کاربرد:</strong>
+            این رابطه برای تخمین Connection، Worker، Thread، Queue Capacity و Load Test مفید است،
+            البته زمانی که سیستم در وضعیت نسبتاً پایدار باشد.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="parallel-title">
+          <h2 id="parallel-title">Parallelism و Concurrency برای افزایش Throughput</h2>
+          <p>
+            اگر Workload قابل تقسیم باشد، می‌توان چند Operation را هم‌زمان پردازش کرد.
+          </p>
+          <div class="lesson-example">
+            <h3>مثال Worker</h3>
+            <pre><code>1 Worker
+50 messages/sec
+
+10 Workers
+≈ 500 messages/sec</code></pre>
+          </div>
+          <p>
+            اما افزایش Parallelism فقط تا زمانی مفید است که Dependency مشترک اشباع نشده باشد.
+            اگر ۱۰ Worker همه به یک Database محدود وصل باشند، اضافه‌کردن Worker بیشتر ممکن است فقط Lock،
+            Connection Wait و Latency را افزایش دهد.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="batch-title">
+          <h2 id="batch-title"><bdi>Batch Processing</bdi></h2>
+          <p>
+            Batch Processing چند آیتم را در یک Operation پردازش می‌کند تا هزینهٔ ثابت هر Request کاهش پیدا کند.
+          </p>
+          <div class="comparison-table" role="region" aria-label="مقایسه Single و Batch Processing" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>روش</th>
+                  <th>مزیت</th>
+                  <th>Trade-off</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Single Item</td>
+                  <td>Latency هر آیتم کمتر</td>
+                  <td>Overhead بیشتر</td>
+                </tr>
+                <tr>
+                  <td>Batch</td>
+                  <td>Throughput بالاتر</td>
+                  <td>Latency بعضی آیتم‌ها و پیچیدگی Error Handling بیشتر</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>
+              به‌جای Insert هزار رکورد با هزار Round Trip،
+              می‌توان از Bulk Insert یا Batch Insert استفاده کرد.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="queue-title">
+          <h2 id="queue-title">Queue چگونه Throughput را مدیریت می‌کند؟</h2>
+          <p>
+            Queue می‌تواند Producer و Consumer را از نظر سرعت از هم جدا کند.
+          </p>
+          <pre><code>Producer
+5000 msg/sec
+↓
+Queue
+↓
+Consumers
+4000 msg/sec</code></pre>
+          <p>
+            Queue Burst کوتاه‌مدت را جذب می‌کند، اما اگر نرخ ورودی برای مدت طولانی از نرخ مصرف بیشتر باشد،
+            Queue دائماً رشد خواهد کرد.
+          </p>
+          <ul>
+            <li>افزایش Consumerها</li>
+            <li>کاهش هزینهٔ پردازش هر Message</li>
+            <li>Partition کردن Workload</li>
+            <li>کاهش ورودی با Rate Limiting یا Backpressure</li>
+          </ul>
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong>
+            Queue ظرفیت تولید نمی‌کند؛ فقط تفاوت موقت بین نرخ ورودی و نرخ پردازش را Buffer می‌کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="backpressure-title">
+          <h2 id="backpressure-title"><bdi>Backpressure</bdi></h2>
+          <p>
+            Backpressure یعنی وقتی Consumer یا Downstream ظرفیت کافی ندارد،
+            سیستم اجازه ندهد Producer بدون محدودیت Work بیشتری وارد کند.
+          </p>
+          <ul>
+            <li>Rate Limiting</li>
+            <li>Bounded Queue</li>
+            <li>Reject یا Delay کردن Request</li>
+            <li>Consumer Prefetch Limit</li>
+            <li>Adaptive Concurrency Limit</li>
+          </ul>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>
+              اگر Payment Processor فقط ۲۰۰۰ TPS ظرفیت دارد،
+              قبول کردن ۲۰,۰۰۰ TPS بدون محدودیت می‌تواند کل سیستم را ناپایدار کند.
+              بهتر است ورودی کنترل شود تا سیستم از محدودهٔ امن خارج نشود.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="database-title">
+          <h2 id="database-title">Database و Throughput</h2>
+          <p>Database در بسیاری از Backendها اصلی‌ترین Bottleneck Throughput است.</p>
+          <ul>
+            <li>Index مناسب</li>
+            <li>Query Optimization</li>
+            <li>Connection Pool Size</li>
+            <li>Lock Contention</li>
+            <li>Transaction Duration</li>
+            <li>Read/Write Ratio</li>
+            <li>Batching</li>
+            <li>Read Replica</li>
+            <li>Partitioning / Sharding</li>
+          </ul>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>
+              اگر یک Update روی Rowهای مشترک Lock سنگین ایجاد کند،
+              اضافه‌کردن CPU به Application Serverها Throughput را افزایش نمی‌دهد؛
+              چون Transactionها همچنان پشت Lock منتظر می‌مانند.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="cache-title">
+          <h2 id="cache-title">Cache چگونه Throughput را افزایش می‌دهد؟</h2>
+          <p>
+            Cache علاوه بر کاهش Latency می‌تواند Throughput سیستم را نیز افزایش دهد،
+            چون Load از روی Database یا Dependency اصلی برداشته می‌شود.
+          </p>
+          <pre><code>Without Cache
+
+10,000 reads/sec
+↓
+Database
+
+
+With Cache
+
+9,000 reads/sec → Redis
+1,000 reads/sec → Database</code></pre>
+          <p>
+            در نتیجه Database ظرفیت بیشتری برای Writeها یا Queryهای ضروری خواهد داشت.
+            البته Cache Miss، Invalidation و Hot Key می‌توانند Bottleneck جدید ایجاد کنند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="scale-title">
+          <h2 id="scale-title">Scale Up و Scale Out برای Throughput</h2>
+          <ul>
+            <li><strong><bdi>Scale Up:</bdi></strong> CPU، Memory یا Disk سریع‌تر به یک Node اضافه می‌کنیم.</li>
+            <li><strong><bdi>Scale Out:</bdi></strong> Instance یا Worker بیشتری اضافه می‌کنیم و Workload را تقسیم
+              می‌کنیم.</li>
+          </ul>
+          <p>
+            Stateless Applicationها معمولاً راحت‌تر Scale Out می‌شوند.
+            اما Throughput خطی افزایش پیدا نمی‌کند؛ چون Shared Resourceها، Coordination و Database می‌توانند مانع شوند.
+          </p>
+          <div class="lesson-example">
+            <h3>مثال واقعی</h3>
+            <pre><code>1 instance  = 800 RPS
+2 instances = 1500 RPS
+4 instances = 2400 RPS
+8 instances = 2700 RPS</code></pre>
+            <p>
+              از ۴ Instance به بعد رشد تقریباً متوقف شده است.
+              احتمالاً Bottleneck از Application به Component دیگری منتقل شده است.
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="loadtest-title">
+          <h2 id="loadtest-title"><bdi>Load Test</bdi> برای پیدا کردن ظرفیت واقعی</h2>
+          <p>
+            Throughput را نباید فقط از روی تعداد Core یا Spec سرور حدس زد.
+            باید سیستم را تحت بار واقعی یا شبیه‌سازی‌شده آزمایش کرد.
+          </p>
+          <ul>
+            <li>Input RPS/TPS</li>
+            <li>Completed RPS/TPS</li>
+            <li>p50 / p95 / p99 Latency</li>
+            <li>Error Rate</li>
+            <li>CPU / Memory</li>
+            <li>Database Duration</li>
+            <li>Connection Pool</li>
+            <li>Queue Depth</li>
+            <li>Consumer Lag</li>
+          </ul>
+          <p>
+            Capacity مفید نقطه‌ای است که سیستم هنوز SLO را حفظ می‌کند،
+            نه آخرین نقطه‌ای که Process هنوز Crash نکرده است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال کامل Throughput در Payment System</h2>
+          <div class="lesson-example">
+            <pre><code>Normal load: 1000 TPS
+Peak load:   3000 TPS
+Burst:       5000 TPS for 2 minutes
+
+p95 latency: < 500 ms
+Error rate:  < 0.1%</code></pre>
+          </div>
+
+          <div class="architecture-flow" aria-label="Payment Throughput Architecture">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>Load Balancer</div>
+            <span aria-hidden="true">→</span>
+            <div>Payment Service × N</div>
+            <span aria-hidden="true">→</span>
+            <div>SQL Server</div>
+            <span aria-hidden="true">+</span>
+            <div>RabbitMQ</div>
+          </div>
+
+          <ol>
+            <li>Payment Service را Stateless طراحی می‌کنیم تا Scale Out شود.</li>
+            <li>Query و Indexهای SQL را Optimize می‌کنیم.</li>
+            <li>Transactionها را کوتاه نگه می‌داریم تا Lock Contention کاهش یابد.</li>
+            <li>Readهای پرتکرار و مناسب را Cache می‌کنیم.</li>
+            <li>Notification و Reporting را از مسیر Sync خارج و به RabbitMQ منتقل می‌کنیم.</li>
+            <li>Consumerها را بر اساس Queue Depth و Lag Scale می‌کنیم.</li>
+            <li>برای Burst از Queue و ظرفیت اضافی استفاده می‌کنیم.</li>
+            <li>برای جلوگیری از Overload از Rate Limiting و Backpressure استفاده می‌کنیم.</li>
+            <li>Load Test تا بالاتر از Peak مورد انتظار انجام می‌دهیم.</li>
+          </ol>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tradeoffs-title">
+          <h2 id="tradeoffs-title">Trade-offهای افزایش Throughput</h2>
+          <ul>
+            <li><strong>Throughput vs Latency:</strong> Batch یا Queue می‌تواند Throughput را بالا ببرد ولی Latency هر
+              آیتم را افزایش دهد.</li>
+            <li><strong>Parallelism vs Contention:</strong> Worker بیشتر ممکن است Lock و فشار روی Database را افزایش
+              دهد.</li>
+            <li><strong>Cache vs Consistency:</strong> Throughput Read افزایش می‌یابد اما Stale Data ممکن است ایجاد شود.
+            </li>
+            <li><strong>Async vs Immediate Consistency:</strong> مسیر Sync سبک‌تر می‌شود ولی برخی Stateها با تأخیر
+              به‌روز می‌شوند.</li>
+            <li><strong>Scale Out vs Cost:</strong> Instance بیشتر هزینهٔ Infrastructure و عملیات را افزایش می‌دهد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+          <ul>
+            <li><strong>یکی دانستن Throughput با تعداد Request ورودی</strong></li>
+            <li><strong>اندازه‌گیری TPS بدون درنظرگرفتن Error Rate و Latency</strong></li>
+            <li><strong>افزایش Worker بدون بررسی Bottleneck مشترک</strong></li>
+            <li><strong>استفاده از Queue به‌عنوان راه‌حل دائمی کمبود Capacity</strong></li>
+            <li><strong>نداشتن Backpressure در زمان Overload</strong></li>
+            <li><strong>فرض افزایش خطی Capacity با تعداد Instance</strong></li>
+            <li><strong>نادیده گرفتن Connection Pool و Lock Contention</strong></li>
+            <li><strong>Load Test فقط روی Application و بدون Dependencyهای واقعی</strong></li>
+            <li><strong>بهینه‌سازی قبل از پیدا کردن Bottleneck</strong></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="interview-title">
+          <h2 id="interview-title">در مصاحبه System Design چطور درباره Throughput صحبت کنیم؟</h2>
+          <p>
+            اگر از شما پرسیدند «این سیستم چطور ۱۰,۰۰۰ Request در ثانیه را تحمل می‌کند؟»،
+            مستقیم نگویید «Kubernetes اضافه می‌کنم».
+          </p>
+          <ol>
+            <li>Throughput هدف، Peak و Burst را مشخص کنید.</li>
+            <li>SLO مربوط به Latency و Error Rate را مشخص کنید.</li>
+            <li>Critical Path را رسم کنید.</li>
+            <li>ظرفیت هر Component را بررسی کنید.</li>
+            <li>Bottleneck را پیدا کنید.</li>
+            <li>Work Per Request را کاهش دهید.</li>
+            <li>Application را در صورت Stateless بودن Scale Out کنید.</li>
+            <li>Database، Cache و Queue را جداگانه بررسی کنید.</li>
+            <li>برای Async Work، Consumer Parallelism و Partitioning را طراحی کنید.</li>
+            <li>Backpressure و Rate Limiting را برای Overload مشخص کنید.</li>
+            <li>با Load Test طراحی را اعتبارسنجی کنید.</li>
+          </ol>
+
+          <div class="lesson-example">
+            <h3>نمونهٔ پاسخ کوتاه</h3>
+            <p>
+              «ابتدا Peak TPS و SLO را مشخص می‌کنم. سپس ظرفیت هر Component را با Load Test می‌سنجم و Bottleneck را پیدا
+              می‌کنم.
+              Applicationهای Stateless را پشت Load Balancer Scale Out می‌کنم، Query و Transactionهای Database را بهینه
+              می‌کنم،
+              Readهای مناسب را Cache می‌کنم و عملیات غیرضروری را به Queue منتقل می‌کنم.
+              برای Consumerها Parallelism کنترل‌شده و برای Overload Backpressure و Rate Limiting در نظر می‌گیرم.
+              هدف این است که Throughput افزایش پیدا کند بدون اینکه p95/p99 Latency و Error Rate از SLO خارج شوند.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+          <p>
+            یک API با ۲ Instance تا ۱۵۰۰ RPS عملکرد خوبی دارد.
+            با اضافه‌کردن ۴ Instance دیگر، Throughput فقط به ۱۷۰۰ RPS می‌رسد.
+            هم‌زمان Database CPU برابر ۹۵٪ و Connection Pool تقریباً پر است.
+            بهترین نتیجه‌گیری چیست؟
+          </p>
+          <ol>
+            <li>باید Instanceهای Application را باز هم بیشتر کنیم</li>
+            <li>Database احتمالاً Bottleneck فعلی است</li>
+            <li>باید همهٔ APIها را Async کنیم</li>
+            <li>مشکل فقط Network است</li>
+          </ol>
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+            <p>
+              گزینهٔ ۲. افزایش Application Instance دیگر رشد معناداری ایجاد نکرده و Database به Saturation نزدیک شده
+              است.
+              بنابراین باید Queryها، Indexها، Connection Pool، Locking، Transactionها و در صورت نیاز Scale Strategy
+              دیتابیس بررسی شوند.
+            </p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li>Throughput مقدار کار تکمیل‌شده در واحد زمان است.</li>
+            <li>RPS، TPS و Messages/sec واحدهای رایج Throughput هستند.</li>
+            <li>Throughput با Latency و Capacity یکسان نیست.</li>
+            <li>Capacity باید همراه SLO، Latency و Error Rate تعریف شود.</li>
+            <li>Bottleneck محدودکنندهٔ Throughput کل سیستم است.</li>
+            <li>Little's Law ارتباط Concurrency، Throughput و Latency را نشان می‌دهد.</li>
+            <li>Parallelism، Batch، Cache و Scale Out می‌توانند Throughput را افزایش دهند، اما Trade-off دارند.</li>
+            <li>Queue فقط Burst را Buffer می‌کند و جای Capacity واقعی را نمی‌گیرد.</li>
+            <li>Backpressure از ناپایداری سیستم هنگام Overload جلوگیری می‌کند.</li>
+            <li>Load Test بهترین راه برای سنجش ظرفیت واقعی سیستم است.</li>
+            <li>در Payment System، Database، Lock، Connection Pool و Dependency خارجی معمولاً نقاط مهم ظرفیت هستند.</li>
+          </ul>
+        </section>
+
         <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
           <a href="ch1-4.html">درس قبلی: <bdi>Latency</bdi></a>
           <a href="ch1-6.html">درس بعدی: <bdi>Vertical vs Horizontal Scaling</bdi></a>
@@ -56,4 +613,5 @@
     </main>
   </div>
 </body>
+
 </html>

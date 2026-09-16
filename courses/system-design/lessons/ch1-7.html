@@ -1,59 +1,895 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحهٔ درس Stateless vs Stateful از راهنمای طراحی سیستم در آکادمی دات‌نت.">
+  <meta name="description"
+    content="آموزش Stateless و Stateful در System Design؛ تعریف State، مقایسه Stateless و Stateful، Session، Redis، Sticky Session، Scale Out، Failure Recovery و مثال‌های ASP.NET Core و Payment System.">
   <title>Stateless vs Stateful | راهنمای طراحی سیستم</title>
+
   <script>
     (() => {
       document.documentElement.classList.add('js');
       let storedTheme = null;
-      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
       const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
         ? storedTheme
         : systemDark ? 'dark' : 'light';
     })();
   </script>
+
   <link rel="stylesheet" href="../../../styles.css">
   <link rel="stylesheet" href="../../ai-agent/course.css">
   <link rel="stylesheet" href="../course.css">
+
   <script src="../../../script.js" defer></script>
   <script src="../course-navigation.js" defer></script>
 </head>
+
 <body>
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری درس">
       <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
       <span class="course-name">راهنمای طراحی سیستم</span>
       <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
-      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
-        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
-        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
       </button>
     </nav>
   </header>
+
   <div class="docs-layout">
     <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
-    <main id="lesson-content" class="lesson-page">
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+
       <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
         <a href="../index.html">راهنمای طراحی سیستم</a>
         <span aria-hidden="true">/</span>
         <span>فصل 1، درس 7</span>
       </nav>
-      <article class="lesson-card">
-        <p class="eyebrow">فصل 1 از ۱۰</p>
-        <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
-        <h1><bdi>Stateless vs Stateful</bdi></h1>
-        <div id="lesson-body" class="lesson-empty" data-content-status="empty" aria-label="محتوای آموزشی درس"></div>
+
+      <article>
+
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 1 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
+
+          <h1><bdi>Stateless vs Stateful</bdi></h1>
+
+          <p class="lesson-lead">
+            یکی از مهم‌ترین تصمیم‌های System Design این است که State کجا نگهداری شود.
+            در سیستم <bdi>Stateless</bdi> هر Request تا حد ممکن مستقل از Requestهای قبلی پردازش می‌شود،
+            اما در سیستم <bdi>Stateful</bdi> یک Node یا Service بخشی از State مربوط به Session، Connection یا Business
+            Process را نگه می‌دارد.
+            این تفاوت مستقیماً روی Scalability، Availability، Failover و Complexity اثر می‌گذارد.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="example-title">
+          <h2 id="example-title">از یک مثال ساده شروع کنیم</h2>
+
+          <p>
+            فرض کنید کاربر وارد یک سایت شده است و اطلاعات Login او فقط در Memory همان Server نگهداری می‌شود.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Request 1
+User Login
+↓
+Server A
+
+Session stored in Server A memory</code></pre>
+          </div>
+
+          <p>
+            حالا Request بعدی کاربر به Server B می‌رسد:
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Request 2
+↓
+Server B
+
+Session not found</code></pre>
+          </div>
+
+          <p>
+            این نمونه‌ای از وابستگی به State محلی است.
+            اگر State فقط روی یک Node باشد، Load Balancing و Failover پیچیده‌تر می‌شوند.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            Stateless یعنی هر کارمند بتواند با اطلاعات موجود در Request یا Storage مشترک کار مشتری را انجام دهد.
+            Stateful یعنی مشتری باید دوباره به همان کارمندی مراجعه کند که پرونده‌اش را روی میز خود نگه داشته است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="state-title">
+          <h2 id="state-title"><bdi>State</bdi> چیست؟</h2>
+
+          <p>
+            State اطلاعاتی است که وضعیت فعلی یک User، Session، Connection، Process یا Business Entity را مشخص می‌کند.
+          </p>
+
+          <p>نمونه‌های State:</p>
+
+          <ul>
+            <li>Session کاربر</li>
+            <li>Shopping Cart</li>
+            <li>Authentication State</li>
+            <li>Current Workflow Step</li>
+            <li>Connection State</li>
+            <li>Payment Status</li>
+            <li>Game State</li>
+            <li>Consumer Offset</li>
+          </ul>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            Stateless به این معنی نیست که «سیستم هیچ Stateی ندارد».
+            هر سیستم واقعی State دارد؛ سؤال اصلی این است که State <strong>کجا</strong> نگهداری می‌شود.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="stateless-title">
+          <h2 id="stateless-title"><bdi>Stateless</bdi> چیست؟</h2>
+
+          <p>
+            یک Service Stateless است اگر برای پردازش Request بعدی،
+            وابسته به اطلاعات موقتی ذخیره‌شده در Memory همان Instance نباشد.
+          </p>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+
+            <pre><code>Client
+↓
+Request + JWT
+↓
+Any API Instance
+↓
+Database / Redis</code></pre>
+          </div>
+
+          <p>
+            هر Instance می‌تواند Request را پردازش کند،
+            چون اطلاعات مورد نیاز داخل Request یا در Storage مشترک قرار دارد.
+          </p>
+
+          <p>نمونه‌های Stateless مناسب:</p>
+
+          <ul>
+            <li>REST API</li>
+            <li>ASP.NET Core Web API</li>
+            <li>Authentication با JWT</li>
+            <li>Workerهایی که Job مستقل پردازش می‌کنند</li>
+            <li>Microserviceهایی که State دائمی را در Database نگه می‌دارند</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="stateful-title">
+          <h2 id="stateful-title"><bdi>Stateful</bdi> چیست؟</h2>
+
+          <p>
+            یک Service Stateful است اگر State مهمی را در خود Instance نگه دارد
+            و Request یا Connection بعدی برای ادامهٔ کار به همان State وابسته باشد.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>User
+↓
+Server A
+
+Server A memory:
+SessionId = 123
+Cart = ...
+WorkflowStep = 4</code></pre>
+          </div>
+
+          <p>
+            اگر Server A از بین برود و State جای دیگری ذخیره نشده باشد،
+            اطلاعات مربوط به Session یا Process نیز از دست می‌رود.
+          </p>
+
+          <p>نمونه‌های Stateful:</p>
+
+          <ul>
+            <li>In-Memory Session</li>
+            <li>WebSocket Connection</li>
+            <li>Game Server با State فعال بازیکنان</li>
+            <li>Database</li>
+            <li>Message Broker</li>
+            <li>Stateful Stream Processing</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="comparison-title">
+          <h2 id="comparison-title">مقایسه Stateless و Stateful</h2>
+
+          <div class="comparison-table" role="region" aria-label="مقایسه Stateless و Stateful" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>ویژگی</th>
+                  <th><bdi>Stateless</bdi></th>
+                  <th><bdi>Stateful</bdi></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>وابستگی به Instance</td>
+                  <td>کم</td>
+                  <td>بیشتر</td>
+                </tr>
+
+                <tr>
+                  <td>Scale Out</td>
+                  <td>ساده‌تر</td>
+                  <td>پیچیده‌تر</td>
+                </tr>
+
+                <tr>
+                  <td>Failover</td>
+                  <td>ساده‌تر</td>
+                  <td>نیازمند انتقال یا Replication State</td>
+                </tr>
+
+                <tr>
+                  <td>Load Balancing</td>
+                  <td>ساده</td>
+                  <td>ممکن است Session Affinity لازم شود</td>
+                </tr>
+
+                <tr>
+                  <td>Local Memory</td>
+                  <td>برای Business State حیاتی استفاده نمی‌شود</td>
+                  <td>ممکن است State مهم نگهداری شود</td>
+                </tr>
+
+                <tr>
+                  <td>پیچیدگی Storage مشترک</td>
+                  <td>ممکن است بیشتر شود</td>
+                  <td>State نزدیک به Process است</td>
+                </tr>
+
+                <tr>
+                  <td>نمونه</td>
+                  <td>REST API</td>
+                  <td>Database / WebSocket Session</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="scaling-title">
+          <h2 id="scaling-title">چرا Stateless برای Horizontal Scaling مناسب‌تر است؟</h2>
+
+          <p>
+            اگر Service Stateless باشد،
+            Load Balancer می‌تواند هر Request را به هر Instance سالم ارسال کند.
+          </p>
+
+          <div class="architecture-flow" aria-label="Stateless horizontal scaling">
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+            <div>Load Balancer</div>
+            <span aria-hidden="true">→</span>
+            <div>API 1</div>
+            <div>API 2</div>
+            <div>API 3</div>
+          </div>
+
+          <p>
+            چون Instanceها Business State مهمی در Memory خود نگه نمی‌دارند،
+            اضافه یا حذف‌کردن Instance ساده‌تر است.
+          </p>
+
+          <p>
+            اگر API 2 Down شود، Request بعدی می‌تواند به API 1 یا API 3 برود.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong>
+            Stateless Design یکی از پایه‌های اصلی Elastic Scaling در Cloud و Kubernetes است.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="external-state-title">
+          <h2 id="external-state-title">State را کجا نگه داریم؟</h2>
+
+          <p>
+            در معماری Stateless، State حذف نمی‌شود؛
+            معمولاً به Storage بیرونی منتقل می‌شود.
+          </p>
+
+          <div class="architecture-flow" aria-label="External state storage">
+            <div>API 1</div>
+            <div>API 2</div>
+            <div>API 3</div>
+            <span aria-hidden="true">→</span>
+            <div>Redis / Database</div>
+          </div>
+
+          <p>بسته به نوع State می‌توان از این موارد استفاده کرد:</p>
+
+          <ul>
+            <li><strong>Database:</strong> State دائمی و Business Data</li>
+            <li><strong>Redis:</strong> Session، Cache، Temporary State</li>
+            <li><strong>Object Storage:</strong> فایل و Blob</li>
+            <li><strong>Message Broker:</strong> Event یا Work Queue</li>
+            <li><strong>Distributed Cache:</strong> دادهٔ موقت مشترک</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="session-title">
+          <h2 id="session-title">Session در سیستم Stateless</h2>
+
+          <p>
+            اگر Session در Memory یک Server ذخیره شود،
+            Application عملاً Stateful می‌شود.
+          </p>
+
+          <div class="lesson-example">
+            <h3>In-Memory Session</h3>
+
+            <pre><code>Server A
+Session 101
+Session 102
+
+Server B
+Session 201
+Session 202</code></pre>
+          </div>
+
+          <p>
+            یک راه بهتر، نگهداری Session در Storage مشترک است:
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Server A ─┐
+Server B ─┼──> Redis Session Store
+Server C ─┘</code></pre>
+          </div>
+
+          <p>
+            در این حالت هر Instance می‌تواند Session را بازیابی کند.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="jwt-title">
+          <h2 id="jwt-title">JWT و Stateless Authentication</h2>
+
+          <p>
+            در بسیاری از APIها Authentication با Token انجام می‌شود.
+            Token اطلاعات لازم برای شناسایی User را همراه Request حمل می‌کند.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Client
+
+Authorization:
+Bearer eyJhbGciOi...
+
+↓
+
+Any API Instance
+
+↓
+
+Validate token</code></pre>
+          </div>
+
+          <p>
+            Server لازم نیست Session Authentication را برای هر User در Memory نگه دارد.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            JWT همه‌چیز را Stateless نمی‌کند.
+            مثلاً Revocation، Permissionهای پویا یا Business State ممکن است همچنان به Database یا Cache نیاز داشته
+            باشند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="aspnet-title">
+          <h2 id="aspnet-title">مثال در <bdi>ASP.NET Core</bdi></h2>
+
+          <p>
+            برای Scale Out مناسب، بهتر است Business State مهم را داخل Singleton یا Static Memory نگهداری نکنیم.
+          </p>
+
+          <div class="lesson-example">
+            <h3>نمونهٔ مشکل‌دار</h3>
+
+            <pre><code>public static Dictionary&lt;string, Cart&gt; Carts = new();</code></pre>
+          </div>
+
+          <p>
+            این Dictionary فقط روی همان Process وجود دارد.
+            اگر Request بعدی به Instance دیگری برسد، Cart دیده نمی‌شود.
+          </p>
+
+          <div class="lesson-example">
+            <h3>راه بهتر برای State مشترک</h3>
+
+            <pre><code>builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnectionString;
+});</code></pre>
+          </div>
+
+          <p>
+            یا اگر State دائمی است، آن را در Database نگهداری می‌کنیم.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="sticky-title">
+          <h2 id="sticky-title"><bdi>Sticky Session</bdi> چیست؟</h2>
+
+          <p>
+            Sticky Session یا Session Affinity یعنی Load Balancer تلاش کند
+            Requestهای یک User را همیشه به همان Instance ارسال کند.
+          </p>
+
+          <div class="architecture-flow" aria-label="Sticky Session">
+            <div>User A</div>
+            <span aria-hidden="true">→</span>
+            <div>Server 1</div>
+
+            <div>User B</div>
+            <span aria-hidden="true">→</span>
+            <div>Server 2</div>
+          </div>
+
+          <p>
+            این روش می‌تواند Application Stateful را موقتاً قابل استفاده کند،
+            اما مشکلاتی دارد:
+          </p>
+
+          <ul>
+            <li>Failure همان Instance</li>
+            <li>Load Distribution نامتعادل</li>
+            <li>Scale Down دشوارتر</li>
+            <li>Migration سخت‌تر</li>
+            <li>وابستگی User به یک Node</li>
+          </ul>
+
+          <p>
+            برای APIهای معمول Backend، اگر امکان‌پذیر باشد Stateless Design معمولاً انتخاب تمیزتری است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="failure-title">
+          <h2 id="failure-title">Failure در Stateful Service</h2>
+
+          <p>
+            یکی از چالش‌های اصلی Stateful Service این است که با Failure Node چه اتفاقی برای State می‌افتد.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Node A
+
+State:
+X = 100
+
+↓
+
+Node crashes
+
+↓
+
+Where is X?</code></pre>
+          </div>
+
+          <p>
+            برای جلوگیری از از دست رفتن State ممکن است نیاز داشته باشیم:
+          </p>
+
+          <ul>
+            <li>Replication</li>
+            <li>Persistent Storage</li>
+            <li>Snapshot</li>
+            <li>Write-Ahead Log</li>
+            <li>Failover</li>
+            <li>Leader Election</li>
+          </ul>
+
+          <p>
+            به همین دلیل Scale و Recovery در Stateful System معمولاً پیچیده‌تر است.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="stateful-needed-title">
+          <h2 id="stateful-needed-title">آیا Stateful بد است؟</h2>
+
+          <p>
+            خیر. Stateful Design ذاتاً بد نیست.
+            بعضی Componentها باید State داشته باشند.
+          </p>
+
+          <p>مثلاً:</p>
+
+          <ul>
+            <li>Database باید State داده‌ها را نگه دارد.</li>
+            <li>RabbitMQ باید Messageهای تحویل‌نشده را نگه دارد.</li>
+            <li>Kafka باید Log و Offsetها را نگه دارد.</li>
+            <li>WebSocket Server Connectionهای فعال دارد.</li>
+            <li>Game Server ممکن است State لحظه‌ای بازی را نگه دارد.</li>
+          </ul>
+
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong>
+            سؤال درست این نیست که «Stateful خوب است یا Stateless؟»
+            سؤال درست این است که «State در کدام Component باید قرار بگیرد و چگونه محافظت شود؟»
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="websocket-title">
+          <h2 id="websocket-title">WebSocket چرا Stateful‌تر است؟</h2>
+
+          <p>
+            در HTTP معمولی Request مستقل است.
+            اما WebSocket یک Connection طولانی‌مدت بین Client و یک Server ایجاد می‌کند.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Client
+   |
+   | persistent connection
+   |
+Server A</code></pre>
+          </div>
+
+          <p>
+            اگر Server A Down شود، Connection قطع می‌شود و Client باید Reconnect کند.
+          </p>
+
+          <p>
+            در سیستم‌های بزرگ ممکن است برای مدیریت Connection Mapping،
+            Presence یا Pub/Sub از Redis یا Broker استفاده شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="database-title">
+          <h2 id="database-title">Database یک سیستم Stateful است</h2>
+
+          <p>
+            Database ذاتاً Stateful است چون دادهٔ دائمی را نگهداری می‌کند.
+          </p>
+
+          <p>
+            به همین دلیل Horizontal Scaling Database سخت‌تر از Web API است.
+          </p>
+
+          <p>موضوعاتی که باید حل شوند:</p>
+
+          <ul>
+            <li>Replication</li>
+            <li>Consistency</li>
+            <li>Failover</li>
+            <li>Partitioning</li>
+            <li>Leader / Replica</li>
+            <li>Backup / Recovery</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>مثال</h3>
+
+            <pre><code>Stateless API Instances
+        ↓
+   Stateful Database</code></pre>
+          </div>
+
+          <p>
+            این یکی از رایج‌ترین معماری‌هاست:
+            Application Layer Stateless و Data Layer Stateful.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال کامل در Payment System</h2>
+
+          <div class="architecture-flow" aria-label="Stateless Payment Architecture">
+            <div>Clients</div>
+            <span aria-hidden="true">→</span>
+            <div>Load Balancer</div>
+            <span aria-hidden="true">→</span>
+            <div>Payment API × N</div>
+            <span aria-hidden="true">→</span>
+            <div>SQL Server</div>
+            <span aria-hidden="true">+</span>
+            <div>Redis</div>
+            <span aria-hidden="true">+</span>
+            <div>RabbitMQ</div>
+          </div>
+
+          <p>
+            در یک Payment System بهتر است Payment API تا حد امکان Stateless باشد.
+          </p>
+
+          <ul>
+            <li>Payment State در SQL Server ذخیره شود.</li>
+            <li>Cache یا Temporary State در Redis قرار گیرد.</li>
+            <li>Request اطلاعات Authentication را همراه خود داشته باشد.</li>
+            <li>هیچ Transaction State مهمی فقط در Memory یک Pod نگهداری نشود.</li>
+            <li>Outbox Message در Storage پایدار نگهداری شود.</li>
+          </ul>
+
+          <div class="lesson-example">
+            <h3>سناریوی Failure</h3>
+
+            <pre><code>Request
+↓
+Payment API Pod A
+↓
+Save payment in SQL
+↓
+Pod A crashes
+
+Next request
+↓
+Payment API Pod B
+↓
+Reads payment state from SQL</code></pre>
+          </div>
+
+          <p>
+            چون State در SQL Server است،
+            از بین رفتن Pod A باعث از بین رفتن Business State نمی‌شود.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="kubernetes-title">
+          <h2 id="kubernetes-title">Stateless و Stateful در Kubernetes</h2>
+
+          <p>
+            Kubernetes برای Stateless Workload معمولاً از <bdi>Deployment</bdi> استفاده می‌کند.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>Deployment
+↓
+Pod 1
+Pod 2
+Pod 3
+
+Pods can be replaced freely</code></pre>
+          </div>
+
+          <p>
+            برای Workloadهای Stateful، معمولاً نیاز به Persistent Storage،
+            Stable Identity یا <bdi>StatefulSet</bdi> داریم.
+          </p>
+
+          <div class="lesson-example">
+            <pre><code>StatefulSet
+
+db-0
+db-1
+db-2
+
+Stable identity
+Persistent volumes</code></pre>
+          </div>
+
+          <aside class="lesson-note">
+            <strong>نکته:</strong>
+            StatefulSet یک Application را به‌صورت جادویی Reliable نمی‌کند؛
+            Replication و Consistency باید توسط خود سیستم یا Database طراحی شوند.
+          </aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tradeoffs-title">
+          <h2 id="tradeoffs-title">Trade-offها</h2>
+
+          <ul>
+            <li>
+              <strong>Stateless vs Network:</strong>
+              انتقال State به Redis/Database باعث Remote Call بیشتر می‌شود.
+            </li>
+
+            <li>
+              <strong>Stateless vs Simplicity of Scale:</strong>
+              Storage مشترک Complexity دارد، اما Scale Out Application را ساده می‌کند.
+            </li>
+
+            <li>
+              <strong>Stateful vs Performance:</strong>
+              Local State می‌تواند سریع باشد، ولی Failure و Migration پیچیده‌تر می‌شوند.
+            </li>
+
+            <li>
+              <strong>Sticky Session vs Flexibility:</strong>
+              Stateful Session را ساده می‌کند ولی Load Balancing و Failover را محدود می‌کند.
+            </li>
+
+            <li>
+              <strong>Replication vs Consistency:</strong>
+              Replicate کردن State Availability را افزایش می‌دهد ولی هماهنگی State را پیچیده می‌کند.
+            </li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+
+          <ul>
+            <li><strong>فکر کردن Stateless یعنی سیستم هیچ Stateی ندارد</strong></li>
+            <li><strong>ذخیره Business State مهم در Static یا Singleton Memory</strong></li>
+            <li><strong>وابسته‌کردن Session به یک Pod بدون نیاز واقعی</strong></li>
+            <li><strong>استفاده از Sticky Session برای پوشاندن طراحی ضعیف</strong></li>
+            <li><strong>استفاده از Redis برای هر نوع State بدون توجه به Durability</strong></li>
+            <li><strong>از دست دادن State هنگام Restart Container</strong></li>
+            <li><strong>فرض اینکه JWT همهٔ State سیستم را حذف می‌کند</strong></li>
+            <li><strong>نادیده گرفتن Replication و Recovery در Stateful Componentها</strong></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="decision-title">
+          <h2 id="decision-title">چطور تصمیم بگیریم State کجا باشد؟</h2>
+
+          <p>
+            برای هر State این سؤال‌ها را بپرسید:
+          </p>
+
+          <ol>
+            <li>آیا State باید بعد از Restart باقی بماند؟</li>
+            <li>آیا چند Instance باید آن را ببینند؟</li>
+            <li>آیا از دست رفتن آن قابل قبول است؟</li>
+            <li>Consistency چقدر مهم است؟</li>
+            <li>Latency دسترسی چقدر حساس است؟</li>
+            <li>حجم State چقدر است؟</li>
+            <li>آیا State فقط موقتی است؟</li>
+          </ol>
+
+          <div class="comparison-table" role="region" aria-label="انتخاب Storage برای State" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>نوع State</th>
+                  <th>Storage احتمالی</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>Payment Transaction</td>
+                  <td>Database</td>
+                </tr>
+
+                <tr>
+                  <td>User Session</td>
+                  <td>Redis / Distributed Cache</td>
+                </tr>
+
+                <tr>
+                  <td>Authentication Token</td>
+                  <td>Client + Token Validation</td>
+                </tr>
+
+                <tr>
+                  <td>Temporary Cache</td>
+                  <td>Redis</td>
+                </tr>
+
+                <tr>
+                  <td>File</td>
+                  <td>Object Storage</td>
+                </tr>
+
+                <tr>
+                  <td>Persistent Message</td>
+                  <td>Message Broker</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="interview-title">
+          <h2 id="interview-title">در مصاحبه System Design چطور درباره Stateless/Stateful صحبت کنیم؟</h2>
+
+          <p>
+            اگر از شما پرسیدند «چطور این API را Scale می‌کنی؟»،
+            یکی از اولین سؤال‌ها باید این باشد که آیا Application State محلی دارد یا نه.
+          </p>
+
+          <ol>
+            <li>مشخص کنید چه Stateهایی وجود دارند.</li>
+            <li>Business State و Temporary State را جدا کنید.</li>
+            <li>Application Layer را تا حد امکان Stateless نگه دارید.</li>
+            <li>Persistent State را در Database قرار دهید.</li>
+            <li>Shared Temporary State را در Redis یا Distributed Cache قرار دهید.</li>
+            <li>Load Balancer را بدون وابستگی به Instance خاص طراحی کنید.</li>
+            <li>Sticky Session را فقط در صورت نیاز واقعی استفاده کنید.</li>
+            <li>برای Stateful Componentها Replication و Failover را توضیح دهید.</li>
+          </ol>
+
+          <div class="lesson-example">
+            <h3>نمونهٔ پاسخ کوتاه</h3>
+
+            <p>
+              «برای Scale Out کردن API سعی می‌کنم Application Layer Stateless باشد.
+              Business State را در Database و Shared Temporary State را در Redis نگه می‌دارم.
+              در نتیجه هر Request می‌تواند به هر Instance سالم برسد و Load Balancer نیازی به Sticky Session ندارد.
+              Stateful Componentهایی مثل Database را جداگانه با Replication، Failover و Persistent Storage طراحی
+              می‌کنم.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+
+          <p>
+            یک ASP.NET Core API سه Instance دارد.
+            Shopping Cart کاربران در Memory هر Instance ذخیره می‌شود.
+            بعد از اضافه‌شدن Load Balancer، کاربران گاهی Cart خالی می‌بینند.
+            بهترین راه‌حل معماری چیست؟
+          </p>
+
+          <ol>
+            <li>افزایش CPU هر Instance</li>
+            <li>انتقال Cart State به Shared Store مانند Redis یا Database</li>
+            <li>افزایش Timeout</li>
+            <li>کاهش تعداد Instanceها به یک عدد</li>
+          </ol>
+
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+
+            <p>
+              گزینهٔ ۲. Cart به State محلی هر Instance وابسته شده است.
+              انتقال آن به یک Shared Store باعث می‌شود هر Instance بتواند Request بعدی User را پردازش کند
+              و Scale Out بدون وابستگی به یک Node خاص انجام شود.
+            </p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+
+          <ul>
+            <li>State اطلاعاتی است که وضعیت فعلی User، Session، Process یا Business Entity را مشخص می‌کند.</li>
+            <li>Stateless یعنی Instance برای Request بعدی به State محلی خودش وابسته نباشد.</li>
+            <li>Stateful یعنی بخشی از State داخل Node یا Service نگهداری و برای ادامهٔ کار لازم باشد.</li>
+            <li>Stateless Design Scale Out و Failover را ساده‌تر می‌کند.</li>
+            <li>Stateless به معنی نبود State نیست؛ State معمولاً به Database یا Redis منتقل می‌شود.</li>
+            <li>Sticky Session می‌تواند Stateful Session را مدیریت کند ولی محدودیت‌هایی دارد.</li>
+            <li>Database و Message Broker نمونه‌های طبیعی Stateful Component هستند.</li>
+            <li>Application Layer اغلب Stateless و Data Layer Stateful طراحی می‌شود.</li>
+            <li>در ASP.NET Core نباید Business State مهم فقط در Static یا Process Memory ذخیره شود.</li>
+            <li>در Payment System بهتر است State تراکنش در Storage پایدار باشد، نه داخل یک Pod.</li>
+          </ul>
+        </section>
+
         <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
           <a href="ch1-6.html">درس قبلی: <bdi>Vertical vs Horizontal Scaling</bdi></a>
-          <a href="ch2-1.html">درس بعدی: <bdi>DNS</bdi></a>
+          <a href="../index.html">بازگشت به فهرست دوره</a>
         </nav>
+
       </article>
     </main>
   </div>
 </body>
+
 </html>

@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش Vertical و Horizontal Scaling در System Design؛ مقایسه Scale Up و Scale Out، Stateless Design، Load Balancer، Database Scaling، Auto Scaling و Trade-offها.">
+  <title>Vertical vs Horizontal Scaling | راهنمای طراحی سیستم</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../../ai-agent/course.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری درس">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name">راهنمای طراحی سیستم</span>
+      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
+    <main id="lesson-content" class="lesson-page lesson-article">
+      <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
+        <a href="../index.html">راهنمای طراحی سیستم</a><span aria-hidden="true">/</span><span>فصل 1، درس 6</span>
+      </nav>
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 1 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Fundamentals</bdi></p>
+          <h1><bdi>Vertical vs Horizontal Scaling</bdi></h1>
+          <p class="lesson-lead">
+            وقتی Workload رشد می‌کند، سیستم به Capacity بیشتری نیاز دارد. دو راه اصلی برای افزایش Capacity وجود دارد:
+            <bdi>Vertical Scaling</bdi> یا <bdi>Scale Up</bdi> یعنی قوی‌تر کردن یک Node، و
+            <bdi>Horizontal Scaling</bdi> یا <bdi>Scale Out</bdi> یعنی اضافه‌کردن Nodeهای بیشتر.
+            انتخاب بین این دو به Bottleneck، نوع Workload، Availability، State و هزینه وابسته است.
+          </p>
+        </header>
+
+        <section class="lesson-section" aria-labelledby="example-title">
+          <h2 id="example-title">از یک Payment API شروع کنیم</h2>
+          <p>فرض کنید Payment Service روی یک Server با 4 Core CPU و 8 GB RAM اجرا می‌شود و در Peak به ۹۰٪ CPU می‌رسد.
+          </p>
+          <p>برای افزایش Capacity دو گزینهٔ اصلی داریم:</p>
+          <ul>
+            <li>Server را قوی‌تر کنیم؛ مثلاً 16 Core و 32 GB RAM.</li>
+            <li>چند Instance از Payment Service ایجاد کنیم و Traffic را بین آن‌ها پخش کنیم.</li>
+          </ul>
+          <aside class="lesson-note"><strong>مدل ذهنی:</strong> Scale Up یعنی به یک صندوق فروشگاهی سریع‌تر و قوی‌تر
+            بدهیم. Scale Out یعنی چند صندوق دیگر باز کنیم و مشتری‌ها را بین آن‌ها تقسیم کنیم.</aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="vertical-title">
+          <h2 id="vertical-title"><bdi>Vertical Scaling</bdi> یا <bdi>Scale Up</bdi></h2>
+          <p>در Vertical Scaling قدرت یک Machine یا Node را افزایش می‌دهیم.</p>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <pre><code>Before
+4 CPU
+8 GB RAM
+
+↓ Scale Up
+
+16 CPU
+32 GB RAM
+Faster Disk</code></pre>
+          </div>
+          <p>نمونه‌های رایج شامل افزایش CPU، Memory، IOPS، استفاده از Disk سریع‌تر یا انتقال Database به Server قوی‌تر
+            است.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="vertical-benefits-title">
+          <h2 id="vertical-benefits-title">مزایای Vertical Scaling</h2>
+          <ul>
+            <li><strong>سادگی:</strong> معمولاً معماری Application تغییر نمی‌کند.</li>
+            <li><strong>پیاده‌سازی سریع:</strong> نیازی به Load Balancer یا Distributed Coordination جدید نیست.</li>
+            <li><strong>State Management ساده‌تر:</strong> State می‌تواند روی همان Node باقی بماند.</li>
+            <li><strong>مناسب برای Database:</strong> بسیاری از Databaseها در مراحل اولیه با Scale Up بسیار خوب رشد
+              می‌کنند.</li>
+            <li><strong>Operational Complexity کمتر:</strong> Nodeهای کمتری برای Deploy و Monitor داریم.</li>
+          </ul>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <p>اگر SQL Server کمبود Memory برای Buffer Pool دارد، افزایش RAM ممکن است بسیار ساده‌تر و مؤثرتر از Sharding
+              فوری باشد.</p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="vertical-limits-title">
+          <h2 id="vertical-limits-title">محدودیت‌های Vertical Scaling</h2>
+          <ul>
+            <li><strong>سقف سخت‌افزاری:</strong> هر Machine حداکثر CPU و Memory مشخصی دارد.</li>
+            <li><strong>هزینهٔ غیرخطی:</strong> Serverهای بسیار بزرگ معمولاً بسیار گران می‌شوند.</li>
+            <li><strong>Single Point of Failure:</strong> اگر فقط یک Node داشته باشیم، خرابی آن می‌تواند کل سرویس را
+              متوقف کند.</li>
+            <li><strong>Downtime احتمالی:</strong> بعضی Upgradeها نیاز به Restart یا Migration دارند.</li>
+            <li><strong>رشد محدود:</strong> نمی‌توان یک Machine را بی‌نهایت قوی کرد.</li>
+          </ul>
+          <aside class="lesson-note"><strong>اصل مهم:</strong> Scale Up راه‌حل بدی نیست؛ مشکل زمانی است که آن را تنها
+            Strategy برای رشد بلندمدت در نظر بگیریم.</aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="horizontal-title">
+          <h2 id="horizontal-title"><bdi>Horizontal Scaling</bdi> یا <bdi>Scale Out</bdi></h2>
+          <p>در Horizontal Scaling به‌جای قوی‌ترکردن یک Node، تعداد Nodeها یا Instanceها را افزایش می‌دهیم.</p>
+          <div class="architecture-flow" aria-label="Horizontal Scaling Flow">
+            <div>Client</div><span aria-hidden="true">→</span>
+            <div>Load Balancer</div><span aria-hidden="true">→</span>
+            <div>App 1</div>
+            <div>App 2</div>
+            <div>App 3</div>
+          </div>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <pre><code>1 instance = 800 RPS
+
+↓ 4 instances
+
+Total ≈ 2800 RPS</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="horizontal-benefits-title">
+          <h2 id="horizontal-benefits-title">مزایای Horizontal Scaling</h2>
+          <ul>
+            <li><strong>Capacity بیشتر:</strong> Workload میان Nodeها تقسیم می‌شود.</li>
+            <li><strong>Availability بهتر:</strong> خرابی یک Instance الزاماً کل سرویس را متوقف نمی‌کند.</li>
+            <li><strong>Elasticity:</strong> Instanceها می‌توانند بر اساس Load کم یا زیاد شوند.</li>
+            <li><strong>رشد بلندمدت بهتر:</strong> محدودیت یک Machine کمتر تعیین‌کننده است.</li>
+            <li><strong>مناسب برای Stateless Service:</strong> Web API و Worker معمولاً راحت‌تر Scale Out می‌شوند.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="horizontal-complexity-title">
+          <h2 id="horizontal-complexity-title">چرا Horizontal Scaling پیچیده‌تر است؟</h2>
+          <p>وقتی چند Instance داریم، وارد مسائل Distributed Systems می‌شویم.</p>
+          <ul>
+            <li>State کجا نگهداری شود؟</li>
+            <li>Request بعدی کاربر ممکن است به Instance دیگری برسد.</li>
+            <li>Cacheهای Local ممکن است با هم متفاوت باشند.</li>
+            <li>Distributed Lock ممکن است لازم شود.</li>
+            <li>Configuration باید بین Instanceها هماهنگ باشد.</li>
+            <li>Logging و Tracing باید Centralized باشد.</li>
+            <li>Health Check و Deployment پیچیده‌تر می‌شوند.</li>
+          </ul>
+          <aside class="lesson-note"><strong>اصل مهم:</strong> Scale Out فقط اضافه‌کردن Server نیست؛ Application باید
+            برای اجرای Distributed طراحی شده باشد.</aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="comparison-title">
+          <h2 id="comparison-title">مقایسه Vertical و Horizontal Scaling</h2>
+          <div class="comparison-table" role="region" aria-label="مقایسه Vertical و Horizontal Scaling" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>ویژگی</th>
+                  <th>Vertical Scaling</th>
+                  <th>Horizontal Scaling</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>روش</td>
+                  <td>قوی‌ترکردن Node</td>
+                  <td>اضافه‌کردن Node</td>
+                </tr>
+                <tr>
+                  <td>پیچیدگی</td>
+                  <td>کمتر</td>
+                  <td>بیشتر</td>
+                </tr>
+                <tr>
+                  <td>سقف رشد</td>
+                  <td>محدود به Hardware</td>
+                  <td>معمولاً بالاتر</td>
+                </tr>
+                <tr>
+                  <td>Availability</td>
+                  <td>اگر یک Node باشد پایین‌تر</td>
+                  <td>معمولاً بهتر</td>
+                </tr>
+                <tr>
+                  <td>State Management</td>
+                  <td>ساده‌تر</td>
+                  <td>پیچیده‌تر</td>
+                </tr>
+                <tr>
+                  <td>Elasticity</td>
+                  <td>محدود</td>
+                  <td>مناسب‌تر</td>
+                </tr>
+                <tr>
+                  <td>کاربرد رایج</td>
+                  <td>Database و رشد اولیه</td>
+                  <td>Web/API، Worker و Microservice</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="stateless-title">
+          <h2 id="stateless-title"><bdi>Stateless Design</bdi>؛ کلید Scale Out ساده</h2>
+          <p>اگر هر Instance بتواند هر Request را بدون وابستگی به State محلی پردازش کند، Scale Out بسیار ساده‌تر می‌شود.
+          </p>
+          <div class="lesson-example">
+            <h3>طراحی مشکل‌دار</h3>
+            <pre><code>Request 1 → Instance A → Session in Memory
+Request 2 → Instance B → Session not found</code></pre>
+          </div>
+          <div class="lesson-example">
+            <h3>طراحی بهتر</h3>
+            <pre><code>Instance A ─┐
+Instance B ─┼──> Redis / Database
+Instance C ─┘</code></pre>
+          </div>
+          <p>State مشترک در Store خارجی نگهداری می‌شود و هر Instance می‌تواند Request را پردازش کند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="aspnet-title">
+          <h2 id="aspnet-title">مثال در <bdi>ASP.NET Core</bdi></h2>
+          <p>Web APIهای ASP.NET Core اگر State محلی نداشته باشند، معمولاً به‌خوبی Horizontal Scale می‌شوند.</p>
+          <ul>
+            <li>Session مشترک خارج از Process</li>
+            <li>Distributed Cache</li>
+            <li>Distributed Lock در صورت نیاز واقعی</li>
+            <li>Persistent Data در Database</li>
+            <li>Background Job State در Storage مشترک</li>
+          </ul>
+          <div class="lesson-example">
+            <h3>نمونهٔ Redis Cache</h3>
+            <pre><code>builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnectionString;
+});</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="loadbalancer-title">
+          <h2 id="loadbalancer-title"><bdi>Load Balancer</bdi> در Horizontal Scaling</h2>
+          <p>Load Balancer Requestهای ورودی را میان Instanceها توزیع می‌کند و معمولاً Health Check و Failover نیز انجام
+            می‌دهد.</p>
+          <div class="architecture-flow" aria-label="Load Balancer with Instances">
+            <div>Users</div><span aria-hidden="true">→</span>
+            <div>Load Balancer</div><span aria-hidden="true">→</span>
+            <div>API 1</div>
+            <div>API 2</div>
+            <div>API 3</div>
+          </div>
+          <p>اگر API 2 Health Check را Fail کند، Load Balancer باید Traffic را به Instanceهای سالم بفرستد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="linear-title">
+          <h2 id="linear-title">Scale Out معمولاً خطی نیست</h2>
+          <div class="lesson-example">
+            <pre><code>1 instance  = 1000 RPS
+2 instances = 1900 RPS
+4 instances = 3200 RPS
+8 instances = 3500 RPS</code></pre>
+          </div>
+          <p>از یک نقطه به بعد ممکن است Database، Connection Pool، External API، Lock، Network یا Storage Bottleneck
+            شود.</p>
+          <aside class="lesson-note"><strong>نکته:</strong> با Scale Out کردن یک Layer، Bottleneck معمولاً به Layer بعدی
+            منتقل می‌شود.</aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="database-title">
+          <h2 id="database-title">Scaling در Database</h2>
+          <p>Scale Out کردن Application معمولاً ساده‌تر از Database است چون Database State و Consistency دارد.</p>
+          <p>یک مسیر رشد رایج:</p>
+          <ol>
+            <li>Query Optimization</li>
+            <li>Index مناسب</li>
+            <li>Scale Up</li>
+            <li>Cache</li>
+            <li>Read Replica</li>
+            <li>Partitioning</li>
+            <li>Sharding در صورت نیاز واقعی</li>
+          </ol>
+          <div class="lesson-example">
+            <h3>مثال</h3>
+            <pre><code>Writes → Primary DB
+Reads  → Read Replica 1 / Read Replica 2</code></pre>
+          </div>
+          <p>Read Replica نوعی Scale Out برای Read Workload است، اما Replication Lag و Consistency باید در نظر گرفته
+            شوند.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="partition-title">
+          <h2 id="partition-title"><bdi>Partitioning</bdi> و <bdi>Sharding</bdi></h2>
+          <p>اگر یک Database دیگر نتواند Data یا Throughput مورد نیاز را تحمل کند، ممکن است داده را بین چند Node تقسیم
+            کنیم.</p>
+          <div class="lesson-example">
+            <pre><code>MerchantId 1-10000     → Shard A
+MerchantId 10001-20000 → Shard B
+MerchantId 20001-30000 → Shard C</code></pre>
+          </div>
+          <p>اما Sharding پیچیدگی‌هایی مثل Shard Key، Hot Shard، Cross-Shard Query، Distributed Transaction و
+            Rebalancing دارد.</p>
+          <aside class="lesson-note"><strong>اصل مهم:</strong> Sharding معمولاً راه‌حل اول نیست. قبل از آن Query، Index،
+            Cache، Replica و Scale Up را بررسی کنید.</aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="autoscaling-title">
+          <h2 id="autoscaling-title"><bdi>Auto Scaling</bdi></h2>
+          <p>در Horizontal Scaling می‌توان تعداد Instanceها را بر اساس Metric افزایش یا کاهش داد.</p>
+          <div class="lesson-example">
+            <h3>مثال Kubernetes</h3>
+            <pre><code>Normal traffic → 3 Pods
+Traffic rises   → HPA → 8 Pods
+Traffic drops   → Scale down → 3 Pods</code></pre>
+          </div>
+          <p>Metricهای رایج: CPU، Memory، RPS، Queue Length، Consumer Lag یا Custom Business Metric.</p>
+          <p>Auto Scaling آنی نیست؛ Provision و Warm-up زمان می‌برند، پس برای Burst سریع باید Headroom نیز داشته باشیم.
+          </p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="session-title">
+          <h2 id="session-title">Sticky Session راه‌حل است؟</h2>
+          <p>Sticky Session کاربر را تا حد امکان به همان Instance می‌فرستد؛ اما می‌تواند Load را نامتعادل کند و Failure
+            یا Scale Down را سخت‌تر کند.</p>
+          <p>برای Backend API معمولاً Stateless Design انتخاب مناسب‌تری است، مگر اینکه دلیل مشخصی برای Session Affinity
+            وجود داشته باشد.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="payment-title">
+          <h2 id="payment-title">مثال کامل در Payment System</h2>
+          <p>فرض کنید Payment Service از ۵۰۰ TPS به ۵۰۰۰ TPS رشد کرده است.</p>
+          <div class="architecture-flow" aria-label="Scaled Payment Architecture">
+            <div>Clients</div><span aria-hidden="true">→</span>
+            <div>Load Balancer / API Gateway</div><span aria-hidden="true">→</span>
+            <div>Payment Service × N</div><span aria-hidden="true">→</span>
+            <div>SQL Server HA</div><span aria-hidden="true">+</span>
+            <div>Redis</div><span aria-hidden="true">+</span>
+            <div>RabbitMQ</div>
+          </div>
+          <ol>
+            <li>Payment Service را Stateless نگه می‌داریم.</li>
+            <li>چند Instance پشت Load Balancer اجرا می‌کنیم.</li>
+            <li>Kubernetes HPA بر اساس CPU یا RPS تعداد Podها را تغییر می‌دهد.</li>
+            <li>Redis برای Cache یا State مشترک مناسب استفاده می‌شود.</li>
+            <li>Notification و Reporting با RabbitMQ از مسیر Sync جدا می‌شوند.</li>
+            <li>SQL Server ابتدا با Query Optimization، Index و Scale Up تقویت می‌شود.</li>
+            <li>در صورت Read-heavy بودن، Read Replica بررسی می‌شود.</li>
+            <li>در حجم بسیار بالا و نیاز واقعی، Partitioning یا Sharding بررسی می‌شود.</li>
+          </ol>
+          <p>در معماری واقعی معمولاً ترکیبی از Vertical و Horizontal Scaling استفاده می‌کنیم.</p>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="decision-title">
+          <h2 id="decision-title">چه زمانی Scale Up و چه زمانی Scale Out؟</h2>
+          <div class="comparison-table" role="region" aria-label="انتخاب Scale Up یا Scale Out" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>سناریو</th>
+                  <th>انتخاب اولیهٔ محتمل</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Database کوچک با کمبود RAM</td>
+                  <td>Scale Up</td>
+                </tr>
+                <tr>
+                  <td>Stateless Web API با Traffic زیاد</td>
+                  <td>Scale Out</td>
+                </tr>
+                <tr>
+                  <td>Workerهای مستقل</td>
+                  <td>Scale Out</td>
+                </tr>
+                <tr>
+                  <td>سیستم ساده با Load متوسط</td>
+                  <td>Scale Up ممکن است کافی باشد</td>
+                </tr>
+                <tr>
+                  <td>نیاز به High Availability</td>
+                  <td>Scale Out / Redundancy</td>
+                </tr>
+                <tr>
+                  <td>Database بسیار بزرگ</td>
+                  <td>ترکیبی؛ Scale Up، Replica و در صورت نیاز Partition/Sharding</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <aside class="lesson-note"><strong>نکته:</strong> در System Design کمتر پیش می‌آید پاسخ درست فقط یکی از این دو
+            باشد؛ معماری واقعی معمولاً ترکیبی است.</aside>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="tradeoffs-title">
+          <h2 id="tradeoffs-title">Trade-offها</h2>
+          <ul>
+            <li><strong>Scale Up:</strong> ساده‌تر است ولی سقف Hardware دارد.</li>
+            <li><strong>Scale Out:</strong> Capacity و Availability بهتری می‌دهد ولی Complexity بیشتری دارد.</li>
+            <li><strong>Statelessness:</strong> Scale Out را ساده می‌کند ولی نیازمند External State Store است.</li>
+            <li><strong>Read Replica:</strong> Read Throughput را بالا می‌برد ولی Replication Lag ایجاد می‌کند.</li>
+            <li><strong>Sharding:</strong> Capacity زیادی می‌دهد ولی Query و Transaction را پیچیده می‌کند.</li>
+            <li><strong>Auto Scaling:</strong> هزینه را کنترل می‌کند ولی واکنش آن Instant نیست.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+          <h2 id="mistakes-title">اشتباهات رایج</h2>
+          <ul>
+            <li><strong>فرض اینکه Horizontal Scaling همیشه بهتر است</strong></li>
+            <li><strong>Scale Out کردن Application در حالی که Database Bottleneck است</strong></li>
+            <li><strong>نگه‌داری Session مهم در Memory یک Instance</strong></li>
+            <li><strong>فرض رشد خطی Capacity با تعداد Instance</strong></li>
+            <li><strong>Sharding زودهنگام Database</strong></li>
+            <li><strong>Auto Scaling فقط بر اساس CPU بدون بررسی Workload واقعی</strong></li>
+            <li><strong>نداشتن Health Check برای Instanceهای جدید</strong></li>
+            <li><strong>استفاده از Sticky Session به‌عنوان جایگزین طراحی Stateless</strong></li>
+            <li><strong>Scale کردن بدون Load Test و Measurement</strong></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="interview-title">
+          <h2 id="interview-title">در مصاحبه System Design چطور درباره Scaling صحبت کنیم؟</h2>
+          <p>اگر از شما پرسیدند «وقتی Traffic ده برابر شد چه کار می‌کنی؟»، فقط نگویید «Server بیشتری اضافه می‌کنم».</p>
+          <ol>
+            <li>Workload و Bottleneck را مشخص کنید.</li>
+            <li>بررسی کنید مشکل CPU، Memory، Database، Network یا Dependency است.</li>
+            <li>اگر افزایش Resource ساده و کافی است، Scale Up را در نظر بگیرید.</li>
+            <li>برای Stateless Serviceها Scale Out طراحی کنید.</li>
+            <li>Load Balancer و Health Check را توضیح دهید.</li>
+            <li>State محلی را حذف یا به Store مشترک منتقل کنید.</li>
+            <li>Database Scaling را جداگانه بررسی کنید.</li>
+            <li>Auto Scaling و Metric مناسب را مشخص کنید.</li>
+            <li>بگویید Scale Out خطی نیست و Bottleneck بعدی را باید پیدا کرد.</li>
+            <li>در پایان Cost، Complexity و Availability را به‌عنوان Trade-off بیان کنید.</li>
+          </ol>
+          <div class="lesson-example">
+            <h3>نمونهٔ پاسخ کوتاه</h3>
+            <p>«ابتدا Bottleneck را با Metric و Load Test پیدا می‌کنم. اگر محدودیت سادهٔ CPU یا Memory باشد، Scale Up
+              می‌تواند سریع‌ترین راه باشد. برای Web APIهای Stateless چند Instance پشت Load Balancer قرار می‌دهم و در
+              صورت نیاز با HPA Scale Out می‌کنم. State مشترک را در Database یا Redis نگه می‌دارم. Database را جداگانه
+              بررسی می‌کنم چون Scale Out آن پیچیده‌تر است؛ ابتدا Query Optimization، Index، Scale Up و Replica، و فقط در
+              صورت نیاز واقعی Partitioning یا Sharding را در نظر می‌گیرم.»</p>
+          </div>
+        </section>
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+          <h2 id="practice-title">تمرین کوتاه</h2>
+          <p>یک ASP.NET Core API با ۸ Instance اجرا می‌شود. با افزایش Instanceها از ۴ به ۸، Throughput تقریباً تغییری
+            نکرده است. CPU Applicationها زیر ۴۰٪ است، اما Database CPU برابر ۹۵٪ است. بهترین اقدام بعدی چیست؟</p>
+          <ol>
+            <li>تعداد API Instanceها را به ۱۶ افزایش دهیم</li>
+            <li>Database Bottleneck را بررسی و Optimize/Scale کنیم</li>
+            <li>Sticky Session فعال کنیم</li>
+            <li>Memory APIها را دو برابر کنیم</li>
+          </ol>
+          <details class="lesson-answer">
+            <summary>مشاهدهٔ پاسخ پیشنهادی</summary>
+            <p>گزینهٔ ۲. Application Layer ظرفیت اضافه دارد اما Database به Saturation رسیده است. Scale Out بیشتر در API
+              مشکل اصلی را حل نمی‌کند. باید Query، Index، Lock، Connection Pool و Strategy دیتابیس بررسی شود.</p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+          <h2 id="summary-title">جمع‌بندی</h2>
+          <ul>
+            <li>Vertical Scaling یعنی قوی‌ترکردن یک Node.</li>
+            <li>Horizontal Scaling یعنی اضافه‌کردن Nodeهای بیشتر.</li>
+            <li>Scale Up ساده‌تر است ولی سقف Hardware دارد.</li>
+            <li>Scale Out ظرفیت و Availability بهتری ایجاد می‌کند ولی Complexity بیشتری دارد.</li>
+            <li>Stateless Design مهم‌ترین عامل ساده‌شدن Scale Out در Web APIهاست.</li>
+            <li>Load Balancer Traffic را بین Instanceها تقسیم و Instance ناسالم را حذف می‌کند.</li>
+            <li>Scale Out معمولاً خطی نیست چون Shared Bottleneckها وجود دارند.</li>
+            <li>Database Scaling سخت‌تر از Application Scaling است و معمولاً مرحله‌به‌مرحله انجام می‌شود.</li>
+            <li>Auto Scaling باید بر اساس Metric مناسب طراحی شود.</li>
+            <li>در معماری واقعی معمولاً ترکیبی از Scale Up و Scale Out استفاده می‌شود.</li>
+          </ul>
+        </section>
+
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a href="ch1-5.html">درس قبلی: <bdi>Throughput</bdi></a>
+          <a href="ch1-7.html">درس بعدی: <bdi>Stateless vs Stateful</bdi></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+
+</html>
