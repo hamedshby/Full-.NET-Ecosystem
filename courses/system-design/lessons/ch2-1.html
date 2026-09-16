@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحهٔ درس DNS از راهنمای طراحی سیستم در آکادمی دات‌نت.">
+  <meta name="description"
+    content="آموزش DNS در System Design؛ از Domain Name Resolution و Recursive Resolver تا Authoritative DNS، رکوردها، TTL، Cache، Load Balancing و Failure Scenarioها.">
   <title>DNS | راهنمای طراحی سیستم</title>
   <script>
     (() => {
       document.documentElement.classList.add('js');
       let storedTheme = null;
-      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
       const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
-        ? storedTheme
-        : systemDark ? 'dark' : 'light';
+        ? storedTheme : systemDark ? 'dark' : 'light';
     })();
   </script>
   <link rel="stylesheet" href="../../../styles.css">
@@ -22,6 +23,7 @@
   <script src="../../../script.js" defer></script>
   <script src="../course-navigation.js" defer></script>
 </head>
+
 <body>
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
@@ -29,31 +31,531 @@
       <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
       <span class="course-name">راهنمای طراحی سیستم</span>
       <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
-      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
-        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
-        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
       </button>
     </nav>
   </header>
+
   <div class="docs-layout">
     <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
-    <main id="lesson-content" class="lesson-page">
+    <main id="lesson-content" class="lesson-page lesson-article">
       <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
         <a href="../index.html">راهنمای طراحی سیستم</a>
         <span aria-hidden="true">/</span>
         <span>فصل 2، درس 1</span>
       </nav>
-      <article class="lesson-card">
-        <p class="eyebrow">فصل 2 از ۱۰</p>
-        <p class="lesson-chapter"><bdi>Networking &amp; Request Flow</bdi></p>
-        <h1><bdi>DNS</bdi></h1>
-        <div id="lesson-body" class="lesson-empty" data-content-status="empty" aria-label="محتوای آموزشی درس"></div>
+
+      <article>
+        <header class="lesson-intro">
+          <p class="eyebrow">فصل 2 از ۱۰</p>
+          <p class="lesson-chapter"><bdi>Networking &amp; Request Flow</bdi></p>
+          <h1><bdi>DNS</bdi></h1>
+          <p class="lesson-lead">
+            <bdi>DNS — Domain Name System</bdi> سیستمی است که نام‌هایی مانند
+            <bdi>api.example.com</bdi> را به آدرس IP تبدیل می‌کند.
+            در System Design، DNS فقط «تبدیل نام به IP» نیست؛
+            TTL، Cache، Failover، Geo Routing، Load Distribution و Availability آن
+            مستقیماً روی مسیر Request و رفتار سیستم اثر می‌گذارند.
+          </p>
+        </header>
+
+        <section class="lesson-section">
+          <h2>از یک Request ساده شروع کنیم</h2>
+          <p>کاربر این آدرس را فراخوانی می‌کند:</p>
+          <div class="lesson-example">
+            <pre><code>https://api.payment.com/v1/payments</code></pre>
+          </div>
+          <p>Client برای ایجاد Connection به IP نیاز دارد:</p>
+          <pre><code>api.payment.com
+↓
+DNS Resolution
+↓
+185.10.20.30
+↓
+TCP / TLS
+↓
+HTTP Request</code></pre>
+          <aside class="lesson-note">
+            <strong>مدل ذهنی:</strong>
+            DNS شبیه دفترچه تلفن اینترنت است؛ نام را به آدرس قابل‌استفاده در شبکه تبدیل می‌کند.
+          </aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>DNS</bdi> دقیقاً چیست؟</h2>
+          <p>DNS یک سیستم توزیع‌شده و سلسله‌مراتبی برای نگاشت Domain Name به اطلاعاتی مانند IP Address است.</p>
+          <div class="lesson-example">
+            <pre><code>api.example.com
+↓
+203.0.113.20</code></pre>
+          </div>
+          <ul>
+            <li>نام برای انسان خواناتر از IP است.</li>
+            <li>IP می‌تواند تغییر کند ولی Domain ثابت بماند.</li>
+            <li>می‌توان Traffic را بین چند IP یا Region توزیع کرد.</li>
+            <li>DNS می‌تواند در Failover و Routing نقش داشته باشد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>DNS یک سیستم Hierarchical است</h2>
+          <div class="lesson-example">
+            <pre><code>api.payment.example.com
+
+api      → Subdomain
+payment  → Subdomain
+example  → Domain
+com      → Top-Level Domain (TLD)</code></pre>
+          </div>
+          <pre><code>Root DNS
+↓
+.com TLD Server
+↓
+example.com Authoritative DNS
+↓
+api.example.com record</code></pre>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اجزای اصلی DNS</h2>
+          <ul>
+            <li><strong>Stub Resolver:</strong> بخش Client/OS که Query را آغاز می‌کند.</li>
+            <li><strong>Recursive Resolver:</strong> پاسخ نهایی را برای Client پیدا می‌کند.</li>
+            <li><strong>Root Name Server:</strong> نقطه شروع سلسله‌مراتب DNS.</li>
+            <li><strong>TLD Name Server:</strong> مسیر Domainهای یک TLD مثل .com را مشخص می‌کند.</li>
+            <li><strong>Authoritative Name Server:</strong> منبع معتبر رکوردهای Domain است.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>وقتی Domain را وارد می‌کنیم چه اتفاقی می‌افتد؟</h2>
+          <ol>
+            <li>Browser یا OS ابتدا Cache محلی را بررسی می‌کند.</li>
+            <li>اگر پاسخ نبود Query به Recursive Resolver می‌رود.</li>
+            <li>Resolver در صورت نیاز از Root Server سؤال می‌کند.</li>
+            <li>Root مسیر TLD مناسب را می‌دهد.</li>
+            <li>TLD آدرس Authoritative DNS را برمی‌گرداند.</li>
+            <li>Resolver رکورد Domain را از Authoritative Server می‌گیرد.</li>
+            <li>IP به Client برمی‌گردد.</li>
+            <li>Client اتصال TCP/TLS و سپس HTTP Request را ایجاد می‌کند.</li>
+          </ol>
+          <div class="architecture-flow">
+            <div>Client</div><span>→</span>
+            <div>Recursive Resolver</div><span>→</span>
+            <div>Root</div>
+            <span>→</span>
+            <div>TLD</div><span>→</span>
+            <div>Authoritative DNS</div>
+          </div>
+          <aside class="lesson-note">
+            <strong>نکته:</strong> به دلیل Cache این مسیر کامل برای هر Request تکرار نمی‌شود.
+          </aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>DNS Cache</bdi></h2>
+          <p>DNS معمولاً در چند لایه Cache می‌شود:</p>
+          <ul>
+            <li>Browser Cache</li>
+            <li>Operating System Cache</li>
+            <li>Router / Local Network</li>
+            <li>Recursive Resolver Cache</li>
+          </ul>
+          <p>Cache باعث کاهش Latency، Queryهای تکراری و Load روی DNS Infrastructure می‌شود.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>TTL — Time To Live</bdi></h2>
+          <p>TTL تعیین می‌کند یک DNS Record چه مدت Cache شود.</p>
+          <div class="lesson-example">
+            <pre><code>api.example.com
+A
+203.0.113.20
+TTL = 300 seconds</code></pre>
+          </div>
+          <div class="comparison-table" role="region" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>TTL</th>
+                  <th>مزیت</th>
+                  <th>Trade-off</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>کوتاه</td>
+                  <td>تغییر و Failover سریع‌تر دیده می‌شود</td>
+                  <td>DNS Query بیشتر</td>
+                </tr>
+                <tr>
+                  <td>بلند</td>
+                  <td>Cache بهتر</td>
+                  <td>IP قدیمی دیرتر کنار گذاشته می‌شود</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section">
+          <h2>رکوردهای مهم DNS</h2>
+          <div class="comparison-table" role="region" tabindex="0">
+            <table>
+              <thead>
+                <tr>
+                  <th>Record</th>
+                  <th>کاربرد</th>
+                  <th>مثال</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>A</td>
+                  <td>Domain → IPv4</td>
+                  <td>api.example.com → 203.0.113.20</td>
+                </tr>
+                <tr>
+                  <td>AAAA</td>
+                  <td>Domain → IPv6</td>
+                  <td>api.example.com → IPv6</td>
+                </tr>
+                <tr>
+                  <td>CNAME</td>
+                  <td>Alias یک نام به نام دیگر</td>
+                  <td>www → web.example.net</td>
+                </tr>
+                <tr>
+                  <td>MX</td>
+                  <td>Mail Server</td>
+                  <td>example.com → mail.example.com</td>
+                </tr>
+                <tr>
+                  <td>TXT</td>
+                  <td>Verification / SPF / DKIM</td>
+                  <td>Domain verification</td>
+                </tr>
+                <tr>
+                  <td>NS</td>
+                  <td>Name Serverهای Domain</td>
+                  <td>ns1.provider.com</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>CNAME</bdi> چرا مهم است؟</h2>
+          <div class="lesson-example">
+            <pre><code>api.example.com
+↓ CNAME
+api-prod.cloud-provider.net
+↓ A
+203.0.113.40</code></pre>
+          </div>
+          <p>Backend می‌تواند تغییر کند ولی Domain عمومی Client ثابت بماند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>DNS Load Balancing</bdi></h2>
+          <div class="lesson-example">
+            <pre><code>api.example.com
+
+203.0.113.10
+203.0.113.11
+203.0.113.12</code></pre>
+          </div>
+          <p>DNS می‌تواند Traffic را میان چند Endpoint یا Region توزیع کند.</p>
+          <ul>
+            <li>Round Robin DNS</li>
+            <li>Weighted Routing</li>
+            <li>Geo DNS</li>
+            <li>Latency-based Routing</li>
+            <li>Failover Routing</li>
+          </ul>
+          <aside class="lesson-note">
+            <strong>نکته:</strong> DNS Load Balancing جای Load Balancer Application را کامل نمی‌گیرد؛ Cache و TTL کنترل
+            لحظه‌ای را محدود می‌کنند.
+          </aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Geo DNS</bdi></h2>
+          <pre><code>User in Europe
+↓
+Europe Region
+
+User in Asia
+↓
+Asia Region</code></pre>
+          <p>Geo Routing می‌تواند Network Latency را کم و Traffic را بین Regionها پخش کند، اما Replication و Consistency
+            داده پیچیده‌تر می‌شوند.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>DNS و <bdi>Failover</bdi></h2>
+          <pre><code>Normal
+api.example.com
+↓
+Region A
+
+Failure
+Region A unavailable
+↓
+DNS changed
+↓
+Region B</code></pre>
+          <p>DNS Failover کاملاً Instant نیست، چون Client یا Resolver ممکن است IP قبلی را تا پایان TTL نگه دارد.</p>
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong> برای Recovery بسیار سریع فقط به تغییر DNS متکی نباشید.
+          </aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اگر DNS Down شود چه می‌شود؟</h2>
+          <p>
+            اگر Domain Resolve نشود، حتی با سالم بودن API و Database کاربر به سرویس دسترسی ندارد.
+            بنابراین DNS خودش بخشی از Availability کل سیستم است.
+          </p>
+          <ul>
+            <li>چند Authoritative Name Server</li>
+            <li>چند Location</li>
+            <li>Cache در Resolverها</li>
+            <li>Anycast در Providerهای بزرگ</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2><bdi>Negative Caching</bdi></h2>
+          <p>پاسخ‌هایی مثل NXDOMAIN نیز ممکن است موقتاً Cache شوند.</p>
+          <div class="lesson-example">
+            <pre><code>api2.example.com
+↓
+NXDOMAIN
+↓
+Cached temporarily</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section">
+          <h2>DNS و Security</h2>
+          <ul>
+            <li>DNS Spoofing</li>
+            <li>Cache Poisoning</li>
+            <li>DNS Hijacking</li>
+            <li>DDoS علیه DNS Infrastructure</li>
+          </ul>
+          <p><bdi>DNSSEC</bdi> برای بررسی Authenticity و Integrity پاسخ‌های DNS استفاده می‌شود.</p>
+          <aside class="lesson-note">
+            <strong>نکته:</strong> DNSSEC Query را Encrypt نمی‌کند؛ هدف اصلی آن جلوگیری از جعل پاسخ است.
+          </aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>DNS در Request Flow کجاست؟</h2>
+          <pre><code>1. DNS Lookup
+↓
+2. TCP Connection
+↓
+3. TLS Handshake
+↓
+4. HTTP Request
+↓
+5. HTTP Response</code></pre>
+          <p>بنابراین DNS Latency می‌تواند بخشی از Latency اولین Connection باشد.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>DNS در Microservices</h2>
+          <div class="lesson-example">
+            <pre><code>Payment Service
+↓
+fraud-service
+↓ DNS / Service Discovery
+10.20.1.14</code></pre>
+          </div>
+          <p>در محیط Dynamic بهتر است Serviceها با نام یکدیگر را پیدا کنند، نه با IP ثابت.</p>
+        </section>
+
+        <section class="lesson-section">
+          <h2>DNS در Kubernetes</h2>
+          <p>Kubernetes معمولاً از CoreDNS برای DNS داخلی Cluster استفاده می‌کند.</p>
+          <div class="lesson-example">
+            <pre><code>payment-service.default.svc.cluster.local</code></pre>
+          </div>
+          <pre><code>Merchant API
+↓
+payment-service
+↓
+CoreDNS
+↓
+Service ClusterIP
+↓
+Payment Pods</code></pre>
+          <aside class="lesson-note">
+            <strong>اصل مهم:</strong> به IP موقت Pod وابسته نشوید؛ از Service Name و Service Discovery استفاده کنید.
+          </aside>
+        </section>
+
+        <section class="lesson-section">
+          <h2>مثال کامل در Payment System</h2>
+          <div class="lesson-example">
+            <pre><code>POST https://api.payment.com/v1/payments</code></pre>
+          </div>
+          <div class="architecture-flow">
+            <div>Client</div><span>→</span>
+            <div>DNS Resolver</div><span>→</span>
+            <div>Public Load Balancer IP</div><span>→</span>
+            <div>API Gateway</div><span>→</span>
+            <div>Payment Service</div>
+          </div>
+          <p>DNS معمولاً IP مربوط به Load Balancer یا Edge را برمی‌گرداند، نه IP مستقیم Payment Service.</p>
+          <pre><code>Payment Service
+↓
+fraud-service
+↓
+CoreDNS
+↓
+Fraud Service ClusterIP</code></pre>
+        </section>
+
+        <section class="lesson-section">
+          <h2>Failure Scenarioهای مهم DNS</h2>
+          <ul>
+            <li>Wrong Record</li>
+            <li>Old Cached IP</li>
+            <li>TTL بیش از حد بلند</li>
+            <li>TTL بیش از حد کوتاه</li>
+            <li>DNS Provider Failure</li>
+            <li>Internal DNS Failure</li>
+            <li>Broken CNAME Chain</li>
+            <li>Negative Cache</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>در Debug کردن DNS چه چیزهایی را بررسی کنیم؟</h2>
+          <ol>
+            <li>آیا Domain Resolve می‌شود؟</li>
+            <li>چه IPای برمی‌گردد؟</li>
+            <li>آیا IP مقصد مورد انتظار است؟</li>
+            <li>TTL چقدر است؟</li>
+            <li>آیا CNAME وجود دارد؟</li>
+            <li>Resolverهای مختلف چه پاسخی می‌دهند؟</li>
+            <li>آیا DNS داخلی Kubernetes سالم است؟</li>
+          </ol>
+          <div class="lesson-example">
+            <pre><code>nslookup api.example.com
+
+dig api.example.com
+
+dig CNAME api.example.com</code></pre>
+          </div>
+        </section>
+
+        <section class="lesson-section">
+          <h2>Trade-offهای DNS</h2>
+          <ul>
+            <li><strong>TTL کوتاه vs Query Load:</strong> تغییر سریع‌تر، Query بیشتر.</li>
+            <li><strong>TTL بلند vs Failover:</strong> Cache بهتر، تغییر کندتر.</li>
+            <li><strong>Geo Routing vs Consistency:</strong> Latency کمتر، Data Replication پیچیده‌تر.</li>
+            <li><strong>DNS Load Balancing vs Control:</strong> Global و ساده، ولی Routing لحظه‌ای نیست.</li>
+            <li><strong>CNAME Flexibility vs Extra Lookup:</strong> مدیریت ساده‌تر، Resolution ممکن است یک مرحله بیشتر
+              داشته باشد.</li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>اشتباهات رایج</h2>
+          <ul>
+            <li><strong>فرض اینکه DNS فقط تبدیل Name به IP است</strong></li>
+            <li><strong>TTL بسیار بلند هنگام Migration</strong></li>
+            <li><strong>اتکا به DNS Failover برای Recovery کاملاً Instant</strong></li>
+            <li><strong>وابستگی Microservice به IP ثابت</strong></li>
+            <li><strong>نادیده گرفتن Cache هنگام Debug</strong></li>
+            <li><strong>اشتباه گرفتن CNAME با HTTP Redirect</strong></li>
+            <li><strong>نادیده گرفتن Availability DNS Provider</strong></li>
+          </ul>
+        </section>
+
+        <section class="lesson-section">
+          <h2>در مصاحبه System Design چطور درباره DNS صحبت کنیم؟</h2>
+          <ol>
+            <li>Client Domain را به IP Resolve می‌کند.</li>
+            <li>Recursive Resolver و Authoritative DNS را توضیح دهید.</li>
+            <li>نقش Cache و TTL را بیان کنید.</li>
+            <li>DNS می‌تواند چند Endpoint یا Region برگرداند.</li>
+            <li>Failover تحت تأثیر TTL و Cache است.</li>
+            <li>در Microserviceها DNS بخشی از Service Discovery است.</li>
+            <li>در Kubernetes از Service Name استفاده می‌کنیم، نه IP Pod.</li>
+            <li>DNS را بخشی از Availability کل سیستم در نظر بگیرید.</li>
+          </ol>
+          <div class="lesson-example">
+            <h3>نمونه پاسخ کوتاه</h3>
+            <p>
+              «Client ابتدا api.example.com را با DNS به IP Load Balancer Resolve می‌کند.
+              Resolver پاسخ را طبق TTL Cache می‌کند. برای سیستم Global می‌توان از Geo یا Latency-based Routing استفاده
+              کرد،
+              اما DNS Failover Instant نیست چون Client ممکن است IP قدیمی را Cache کرده باشد.
+              داخل Kubernetes نیز Serviceها را با DNS Name پیدا می‌کنیم تا به IP موقت Podها وابسته نباشیم.»
+            </p>
+          </div>
+        </section>
+
+        <section class="lesson-section">
+          <h2>تمرین کوتاه</h2>
+          <p>
+            IP جدید یک API Deploy شده است، اما بخشی از کاربران هنوز برای چند ساعت به IP قدیمی وصل می‌شوند.
+            محتمل‌ترین دلیل چیست؟
+          </p>
+          <ol>
+            <li>Thread Pool پر شده است</li>
+            <li>DNS Record قدیمی هنوز در Cache و TTL معتبر است</li>
+            <li>Database Index خراب است</li>
+            <li>RabbitMQ Retry می‌کند</li>
+          </ol>
+          <details class="lesson-answer">
+            <summary>مشاهده پاسخ پیشنهادی</summary>
+            <p>
+              گزینه ۲. Resolver یا Client ممکن است Record قبلی را تا پایان TTL نگه داشته باشد.
+              برای Migrationهای حساس معمولاً TTL از قبل کاهش داده می‌شود.
+            </p>
+          </details>
+        </section>
+
+        <section class="lesson-section lesson-summary">
+          <h2>جمع‌بندی</h2>
+          <ul>
+            <li>DNS Domain Name را به اطلاعاتی مانند IP تبدیل می‌کند.</li>
+            <li>DNS یک سیستم توزیع‌شده و Hierarchical است.</li>
+            <li>Recursive Resolver، Root، TLD و Authoritative DNS اجزای اصلی Resolution هستند.</li>
+            <li>Cache و TTL Latency و Load DNS را کاهش می‌دهند.</li>
+            <li>A، AAAA، CNAME، MX، TXT و NS از رکوردهای مهم DNS هستند.</li>
+            <li>DNS می‌تواند در Load Balancing، Geo Routing و Failover نقش داشته باشد.</li>
+            <li>DNS Failover به دلیل Cache و TTL کاملاً Instant نیست.</li>
+            <li>DNS بخشی حیاتی از Availability کل سیستم است.</li>
+            <li>در Kubernetes از DNS برای Service Discovery استفاده می‌شود.</li>
+            <li>در Request Flow معمولاً DNS قبل از TCP، TLS و HTTP قرار دارد.</li>
+          </ul>
+        </section>
+
         <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
-          <a href="ch1-7.html">درس قبلی: <bdi>Stateless vs Stateful</bdi></a>
+          <a href="../chapter-1/ch1-7.html">درس قبلی: <bdi>Stateless vs Stateful</bdi></a>
           <a href="ch2-2.html">درس بعدی: <bdi>HTTP / HTTPS</bdi></a>
         </nav>
       </article>
     </main>
   </div>
 </body>
+
 </html>
