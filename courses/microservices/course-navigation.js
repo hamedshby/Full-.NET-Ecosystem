@@ -4,7 +4,8 @@
     'ch2-1', 'ch2-2', 'ch2-2-1', 'ch2-3', 'ch2-4',
     'ch3-1', 'ch3-2', 'ch3-3', 'ch3-4', 'ch3-5',
     'ch4-1', 'ch4-2', 'ch4-3', 'ch4-4', 'ch4-5', 'ch4-6',
-    'ch5-1', 'ch5-2', 'ch5-3'
+    'ch5-1', 'ch5-2', 'ch5-3',
+    'ch17-1', 'ch17-2', 'ch17-3', 'ch17-4'
   ]);
 
   const chapterData = [
@@ -77,17 +78,22 @@
       ['ch15-9', '15.9 Seq']]],
     ['16 - Security', [
       ['ch16-1', '16.1 SSL'], ['ch16-2', '16.2 TLS'], ['ch16-3', '16.3 Authentication'],
-      ['ch16-4', '16.4 Authorization'], ['ch16-5', '16.5 JWT'], ['ch16-6', '16.6 Message Encryption'],
+      ['ch16-4', '16.4 Authorization'], ['ch16-6', '16.6 Message Encryption'],
       ['ch16-7', '16.7 Message Signing']]],
-    ['17 - Performance', [
-      ['ch17-1', '17.1 Batch'], ['ch17-2', '17.2 Compression'], ['ch17-3', '17.3 Prefetch'],
-      ['ch17-4', '17.4 Parallel Consumer'], ['ch17-5', '17.5 Async Consumer'], ['ch17-6', '17.6 Partitioning']]],
-    ['18 - Practical Project', [
-      ['ch18-1', '18.1 API Gateway'], ['ch18-2', '18.2 Identity Service'],
-      ['ch18-3', '18.3 Customer Service'], ['ch18-4', '18.4 Product Service'],
-      ['ch18-5', '18.5 Inventory Service'], ['ch18-6', '18.6 Order Service'],
-      ['ch18-7', '18.7 Payment Service'], ['ch18-8', '18.8 Shipping Service'],
-      ['ch18-9', '18.9 Notification Service']]]
+    ['17 - JWT', [
+      ['ch17-1', '17.1 JWT Fundamentals'],
+      ['ch17-2', '17.2 JWT Authentication in ASP.NET Core'],
+      ['ch17-3', '17.3 Refresh Token, Rotation and Revocation'],
+      ['ch17-4', '17.4 Security Best Practices and Production Readiness']]],
+    ['18 - Performance', [
+      ['ch18-1', '18.1 Batch'], ['ch18-2', '18.2 Compression'], ['ch18-3', '18.3 Prefetch'],
+      ['ch18-4', '18.4 Parallel Consumer'], ['ch18-5', '18.5 Async Consumer'], ['ch18-6', '18.6 Partitioning']]],
+    ['19 - Practical Project', [
+      ['ch19-1', '19.1 API Gateway'], ['ch19-2', '19.2 Identity Service'],
+      ['ch19-3', '19.3 Customer Service'], ['ch19-4', '19.4 Product Service'],
+      ['ch19-5', '19.5 Inventory Service'], ['ch19-6', '19.6 Order Service'],
+      ['ch19-7', '19.7 Payment Service'], ['ch19-8', '19.8 Shipping Service'],
+      ['ch19-9', '19.9 Notification Service']]]
   ];
 
   const escapeHtml = value => value.replace(/[&<>"']/g, character => ({

@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش Security Best Practices and Production Readiness در راهنمای جامع Microservices؛ 🔐 JWT  📅 به‌روزرسانی: ۱۴۰۵/۰۶/۲۷ ⏱️ زمان مطالعه: ۲۵ دقیقه 👤 تیم فنی یک نمونه ممکن است روی سیستم توسعه کار کند ولی هنوز برا">
+  <title>Security Best Practices and Production Readiness | راهنمای جامع Microservices</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch17-4">
+      <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>17 - JWT</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+<!-- Article Header -->
+<div class="article-header">
+    <div class="article-tag">🔐 JWT</div>
+    <h1>Security Best Practices and Production Readiness</h1>
+    <div class="article-meta">
+        <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۲۷</div>
+        <div class="meta-item">⏱️ زمان مطالعه: ۲۵ دقیقه</div>
+        <div class="meta-item">👤 تیم فنی</div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<p>
+    یک نمونه ممکن است روی سیستم توسعه کار کند ولی هنوز برای Production امن نباشد. Production Readiness یعنی
+    Keyها قابل‌چرخش باشند، Token سطح حملهٔ کوچکی داشته باشد، Browser Storage آگاهانه انتخاب شود و failureها
+    با آزمون و observability کنترل شوند.
+</p>
+
+<hr>
+
+<h2>Signing Key را داخل Repository قرار ندهید</h2>
+
+<p>
+    در Development از <strong>Secret Manager</strong> استفاده کنید. این ابزار Secret را از project tree و Git بیرون
+    نگه می‌دارد، اما storage رمزنگاری‌شدهٔ قابل‌اعتماد نیست. در Production از یک secret store کنترل‌شده مانند
+    <strong>Azure Key Vault</strong> و ترجیحاً Managed Identity استفاده کنید.
+</p>
+
+<div class="code-block">
+    <div class="code-head"><span>Development secret</span><button type="button" data-copy-code>کپی</button></div>
+    <pre><code>dotnet user-secrets init
+dotnet user-secrets set "Jwt:SigningKey" "&lt;high-entropy-development-key&gt;"</code></pre>
+</div>
+
+<div class="callout callout-warning">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+        Secret Manager برای Development است. Secret را در <code>appsettings.json</code>، Docker image، source code،
+        screenshot یا CI log قرار ندهید. دسترسی به Key Vault نیز باید با least privilege و audit همراه باشد.
+    </div>
+</div>
+
+<hr>
+
+<h2>HMAC یا RSA/ECDSA؟</h2>
+
+<table class="table">
+    <thead><tr><th>روش</th><th>مدل Key</th><th>مزیت</th><th>ریسک و کاربرد</th></tr></thead>
+    <tbody>
+        <tr><td><strong>HMAC</strong></td><td>یک Secret مشترک برای sign و validate</td><td>ساده و سریع</td><td>هر API دارای Secret می‌تواند Token هم بسازد؛ مناسب trust boundary کوچک</td></tr>
+        <tr><td><strong>RSA / ECDSA</strong></td><td>Private Key برای sign و Public Key برای validate</td><td>APIها بدون قدرت صدور Token validation می‌کنند</td><td>مدیریت certificate و rotation پیچیده‌تر؛ مناسب چند سرویس</td></tr>
+    </tbody>
+</table>
+
+<p>
+    در معماری Microservices معمولاً asymmetric signing boundary بهتری می‌سازد: Identity Service از Private Key
+    محافظت می‌کند و APIها فقط Public Key را دریافت می‌کنند. Algorithm پذیرفته‌شده را محدود کنید و هرگز بر اساس
+    مقدار <code>alg</code> ارسالی مهاجم validation را شل نکنید.
+</p>
+
+<hr>
+
+<h2>Expiration و ClockSkew</h2>
+
+<p>
+    Access Token را کوتاه‌عمر نگه دارید؛ عدد دقیق تابع ریسک و تجربهٔ کاربری است و معمولاً چند دقیقه است، نه چند روز.
+    <code>ClockSkew</code> تحمل اختلاف ساعت Serverهاست و نباید ناخواسته عمر Token را طولانی کند. همهٔ nodeها باید
+    time synchronization معتبر داشته باشند.
+</p>
+
+<div class="code-block">
+    <div class="code-head"><span>Strict lifetime validation</span><button type="button" data-copy-code>کپی</button></div>
+    <pre><code>options.TokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuer = true,
+    ValidateAudience = true,
+    ValidateIssuerSigningKey = true,
+    ValidateLifetime = true,
+    RequireExpirationTime = true,
+    ClockSkew = TimeSpan.FromSeconds(30),
+    ValidAlgorithms = [SecurityAlgorithms.RsaSha256]
+};</code></pre>
+</div>
+
+<p>
+    اگر زیرساخت ساعت دقیق دارد، مقدار کم یا حتی <code>TimeSpan.Zero</code> قابل‌بررسی است. تصمیم را با مشاهدهٔ
+    clock drift واقعی بگیرید و failure نزدیک مرز Expiration را Integration Test کنید.
+</p>
+
+<hr>
+
+<h2>Key Rotation با kid</h2>
+
+<p>
+    Header می‌تواند <code>kid</code> یا Key ID داشته باشد. هنگام Rotation، Issuer با Key جدید Token صادر می‌کند ولی
+    Public Key قبلی را تا پایان عمر آخرین Token قدیمی برای validation نگه می‌دارد.
+</p>
+
+<div class="code-block">
+    <div class="code-header"><span class="code-lang">Safe Rotation Timeline</span></div>
+    <pre><code>T0: publish public keys K1 and K2
+T1: start signing new tokens with K2 (kid=K2)
+T2: validate both K1 and K2 during overlap
+T3: after every K1 token expires, remove K1</code></pre>
+</div>
+
+<p>
+    حذف فوری K1 تمام Requestهای دارای Token معتبر قدیمی را می‌شکند. overlap باید حداقل برابر بیشینهٔ عمر Token
+    به‌اضافهٔ ClockSkew و زمان انتشار configuration باشد.
+</p>
+
+<hr>
+
+<h2>Token در Browser: XSS و CSRF</h2>
+
+<table class="table">
+    <thead><tr><th>محل</th><th>ویژگی</th><th>تهدید اصلی</th></tr></thead>
+    <tbody>
+        <tr><td><code>localStorage</code></td><td>JavaScript می‌تواند Token را بخواند</td><td><strong>XSS</strong> می‌تواند Token را سرقت کند</td></tr>
+        <tr><td><code>HttpOnly Cookie</code></td><td>JavaScript Token را نمی‌خواند و Browser خودکار ارسال می‌کند</td><td><strong>CSRF</strong> باید کنترل شود</td></tr>
+        <tr><td>BFF</td><td>Token اصلی روی Backend قابل‌اعتماد می‌ماند</td><td>نیازمند Cookie security و CSRF protection</td></tr>
+    </tbody>
+</table>
+
+<p>
+    هیچ storageی به‌تنهایی همهٔ تهدیدها را حذف نمی‌کند. برای Web App حساس، الگوی Backend for Frontend یا
+    secure HttpOnly cookie معمولاً Token را از JavaScript دور نگه می‌دارد. هم‌زمان CSP، output encoding،
+    dependency hygiene و anti-forgery controls لازم‌اند.
+</p>
+
+<hr>
+
+<h2>Logging و Observability بدون افشای Token</h2>
+
+<ul>
+    <li>Header کامل <code>Authorization</code>، Access Token و Refresh Token را redact کنید.</li>
+    <li>برای تحلیل failure از reason category مانند expired، invalid audience یا invalid signature استفاده کنید.</li>
+    <li>UserId، ClientId، CorrelationId و زمان را فقط مطابق privacy policy ثبت کنید.</li>
+    <li>افزایش ناگهانی 401، Refresh Reuse یا login failure را alert کنید.</li>
+    <li>Token را در URL و Query String قرار ندهید؛ URLها در log و browser history پخش می‌شوند.</li>
+</ul>
+
+<hr>
+
+<h2>Integration Testهای ضروری</h2>
+
+<p>
+    فقط happy path کافی نیست. Test باید ثابت کند Token نامعتبر قبل از رسیدن به business logic رد می‌شود.
+</p>
+
+<table class="table">
+    <thead><tr><th>سناریو</th><th>نتیجهٔ مورد انتظار</th></tr></thead>
+    <tbody>
+        <tr><td>بدون Token</td><td><code>401</code></td></tr>
+        <tr><td>Signature دست‌کاری‌شده</td><td><code>401</code></td></tr>
+        <tr><td>Issuer یا Audience اشتباه</td><td><code>401</code></td></tr>
+        <tr><td>Token منقضی</td><td><code>401</code></td></tr>
+        <tr><td>Token معتبر بدون Permission</td><td><code>403</code></td></tr>
+        <tr><td>Token معتبر با Permission</td><td>پاسخ موفق</td></tr>
+        <tr><td>استفادهٔ دوباره از Refresh Token</td><td>رد Request و Revocation کل Family</td></tr>
+        <tr><td>دو Refresh هم‌زمان</td><td>فقط یکی موفق شود</td></tr>
+    </tbody>
+</table>
+
+<div class="code-block">
+    <div class="code-head"><span>WebApplicationFactory - assertion sketch</span><button type="button" data-copy-code>کپی</button></div>
+    <pre><code>[Fact]
+public async Task Protected_endpoint_rejects_expired_token()
+{
+    using var client = _factory.CreateClient();
+    client.DefaultRequestHeaders.Authorization =
+        new AuthenticationHeaderValue("Bearer", CreateExpiredToken());
+
+    var response = await client.GetAsync("/api/orders/mine");
+
+    Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+}</code></pre>
+</div>
+
+<p>
+    برای تست خود Authorization policy می‌توان AuthenticationHandler آزمایشی تزریق کرد؛ اما برای تست pipeline واقعی
+    JWT باید Tokenهای معتبر و نامعتبر با Key مخصوص Test ساخته و validation واقعی اجرا شود.
+</p>
+
+<hr>
+
+<h2>چک‌لیست Production Readiness</h2>
+
+<ul>
+    <li>HTTPS اجباری و HTTP redirect یا rejection در edge تنظیم شده است.</li>
+    <li>Issuer، Audience، Signature، Lifetime و Algorithm validation فعال است.</li>
+    <li>Keyها در Secret Manager فقط برای Development و در Key Vault برای Production نگهداری می‌شوند.</li>
+    <li>Key Rotation تمرین و rollback آن مستند شده است.</li>
+    <li>Access Token کوتاه‌عمر و Refresh Token دارای Rotation، Hash و Reuse Detection است.</li>
+    <li>هیچ دادهٔ حساس یا ناپایدار غیرضروری در Payload نیست.</li>
+    <li>Browser strategy در برابر XSS و CSRF بررسی شده است.</li>
+    <li>401 و 403 درست تفکیک می‌شوند و logها Token را افشا نمی‌کنند.</li>
+    <li>Integration Test مسیرهای منفی و race condition را پوشش می‌دهد.</li>
+    <li>Incident response برای revoke کردن sessionها و key compromise وجود دارد.</li>
+</ul>
+
+<div class="callout callout-success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-content">
+        Best Practice اصلی این است که JWT را یک جزء از security architecture ببینید، نه کل آن. Identity Provider،
+        validation دقیق، lifecycle Refresh Token، مدیریت Key، Browser security و آزمون‌ها باید با هم طراحی شوند.
+    </div>
+</div>
+
+<hr>
+
+<h2>منابع رسمی برای مطالعهٔ بیشتر</h2>
+
+<ul>
+    <li><a href="https://learn.microsoft.com/aspnet/core/security/authentication/configure-jwt-bearer-authentication">Configure JWT bearer authentication in ASP.NET Core</a></li>
+    <li><a href="https://learn.microsoft.com/aspnet/core/security/app-secrets">Safe storage of app secrets in development</a></li>
+    <li><a href="https://learn.microsoft.com/aspnet/core/test/integration-tests">Integration tests in ASP.NET Core</a></li>
+</ul>
+      </div>
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a rel="prev" href="ch17-3.html">درس قبلی: <bdi>17.3 Refresh Token, Rotation and Revocation</bdi></a>
+        <a href="../../../index.html">درس بعدی: صفحهٔ دوره‌ها</a>
+      </nav>
+    </main>
+  </div>
+  <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+</html>

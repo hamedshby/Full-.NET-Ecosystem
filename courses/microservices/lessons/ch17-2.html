@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description"
+        content="آموزش JWT Authentication در ASP.NET Core؛ پیکربندی AddJwtBearer، اعتبارسنجی Access Token، Issuer، Audience، Signature، Lifetime، Authorize و Authorization Policy.">
+
+    <title>JWT Authentication in ASP.NET Core | راهنمای جامع Microservices</title>
+
+    <script>
+        (() => {
+            document.documentElement.classList.add('js');
+
+            try {
+                const t = localStorage.getItem('dotnet-academy-theme');
+
+                document.documentElement.dataset.theme =
+                    t === 'dark' || t === 'light'
+                        ? t
+                        : matchMedia('(prefers-color-scheme: dark)').matches
+                            ? 'dark'
+                            : 'light';
+            } catch { }
+        })();
+    </script>
+
+    <link rel="stylesheet" href="../course.css">
+    <script defer src="../course-navigation.js"></script>
+    <script defer src="../course.js"></script>
+</head>
+
+<body>
+
+    <a class="skip-link" href="#lesson-content">
+        پرش به محتوای درس
+    </a>
+
+    <header class="course-header">
+
+        <a href="../../../index.html">
+            آکادمی دات‌نت
+        </a>
+
+        <span class="course-name">
+            راهنمای جامع <bdi>Microservices</bdi>
+        </span>
+
+        <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">
+            فهرست فصل‌ها
+        </button>
+
+        <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره"
+            title="فعال‌کردن تم تیره">
+            تم
+        </button>
+
+    </header>
+
+
+    <div class="course-shell">
+
+        <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices"
+            data-current-lesson="ch17-2">
+
+            <h2>
+                راهنمای جامع <bdi>Microservices</bdi>
+            </h2>
+
+            <p>
+                برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.
+            </p>
+
+        </aside>
+
+
+        <main id="lesson-content" class="lesson-content">
+
+            <nav class="breadcrumb" aria-label="مسیر راهنما">
+
+                <a href="../../../index.html">
+                    دوره‌ها
+                </a>
+
+                <span>/</span>
+
+                <bdi>17 - JWT</bdi>
+
+            </nav>
+
+
+            <div class="lesson-meta">
+                <span class="availability-badge">
+                    در دسترس
+                </span>
+            </div>
+
+
+            <div class="lesson-body">
+
+
+                <!-- ========================================================= -->
+                <!-- Article Header -->
+                <!-- ========================================================= -->
+
+                <div class="article-header">
+
+                    <div class="article-tag">
+                        🔐 JWT
+                    </div>
+
+                    <h1>
+                        JWT Authentication in ASP.NET Core
+                    </h1>
+
+                    <div class="article-meta">
+
+                        <div class="meta-item">
+                            📅 به‌روزرسانی: ۱۴۰۵/۰۶/۲۷
+                        </div>
+
+                        <div class="meta-item">
+                            ⏱️ زمان مطالعه: ۳۰ دقیقه
+                        </div>
+
+                        <div class="meta-item">
+                            👤 تیم فنی
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="divider"></div>
+
+
+                <!-- ========================================================= -->
+                <!-- Introduction -->
+                <!-- ========================================================= -->
+
+                <h2>در این درس چه چیزی یاد می‌گیریم؟</h2>
+
+                <p>
+                    در درس قبل با ساختار JWT، Claimها، Signature و Access Token آشنا شدیم.
+                    حالا می‌خواهیم ببینیم <strong>ASP.NET Core چگونه یک JWT را دریافت و اعتبارسنجی می‌کند.</strong>
+                </p>
+
+                <p>
+                    هدف اصلی این درس این است که API بتواند Access Token را از Header بخواند،
+                    آن را Validate کند و در صورت معتبر بودن، اطلاعات User را در قالب
+                    <strong>ClaimsPrincipal</strong>
+                    در اختیار Application قرار دهد.
+                </p>
+
+
+                <!-- ========================================================= -->
+                <!-- Mental Model -->
+                <!-- ========================================================= -->
+
+                <h2>ابتدا تصویر کلی را ببینیم</h2>
+
+                <p>
+                    در یک معماری معمول Production، API خودش Token صادر نمی‌کند.
+                    Token توسط یک <strong>Identity Provider</strong> یا
+                    <strong>Authorization Server</strong> صادر می‌شود.
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Authentication Flow</span>
+                    </div>
+
+                    <pre><code>User
+ │
+ │ Login
+ ▼
+Identity Provider
+ │
+ │ Access Token
+ ▼
+Client
+ │
+ │ Authorization: Bearer TOKEN
+ ▼
+ASP.NET Core API
+ │
+ ├── Validate Signature
+ ├── Validate Issuer
+ ├── Validate Audience
+ ├── Validate Lifetime
+ │
+ ▼
+ClaimsPrincipal
+ │
+ ▼
+Authorization
+ │
+ ▼
+Endpoint</code></pre>
+
+                </div>
+
+
+                <div class="callout callout-info">
+
+                    <span class="callout-icon">💡</span>
+
+                    <div class="callout-content">
+                        در این معماری، وظیفهٔ API معمولاً
+                        <strong>صدور Token نیست؛ بلکه Validate کردن Token است.</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="callout callout-warning">
+
+                    <span class="callout-icon">⚠️</span>
+
+                    <div class="callout-content">
+                        در Production عمومی، Access Token را با Flow استاندارد
+                        <strong>OAuth 2.0</strong>
+                        یا
+                        <strong>OpenID Connect</strong>
+                        و یک Identity Provider معتبر دریافت کنید.
+                        صدور دستی Token با Username و Password در این درس فقط برای درک مکانیزم JWT بررسی می‌شود.
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Package -->
+                <!-- ========================================================= -->
+
+                <h2>نصب Package</h2>
+
+                <p>
+                    برای JWT Authentication در ASP.NET Core از Package زیر استفاده می‌کنیم:
+                </p>
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">.NET CLI</span>
+                    </div>
+
+                    <pre><code>dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer</code></pre>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Production -->
+                <!-- ========================================================= -->
+
+                <h2>روش پیشنهادی Production</h2>
+
+                <h3>اعتبارسنجی Token صادرشده توسط Identity Provider</h3>
+
+                <p>
+                    در این حالت User ابتدا توسط Identity Provider احراز هویت می‌شود و
+                    Access Token دریافت می‌کند.
+                </p>
+
+                <p>
+                    سپس Client آن Token را برای API ارسال می‌کند و API فقط مسئول
+                    <strong>Validation</strong>
+                    است.
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Production Flow</span>
+                    </div>
+
+                    <pre><code>Client
+  │
+  │ Login
+  ▼
+Identity Provider
+  │
+  │ Access Token
+  ▼
+Client
+  │
+  │ Bearer Token
+  ▼
+Orders API
+  │
+  └── AddJwtBearer
+        │
+        ├── Authority
+        └── Audience</code></pre>
+
+                </div>
+
+
+                <p>
+                    در ASP.NET Core می‌توان Authentication را به شکل زیر تنظیم کرد:
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+                        <span>Program.cs</span>
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+                    </div>
+
+                    <pre><code>using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =&gt;
+    {
+        options.Authority =
+            builder.Configuration["Authentication:Authority"];
+
+        options.Audience =
+            builder.Configuration["Authentication:Audience"];
+
+        options.MapInboundClaims = false;
+    });
+
+builder.Services.AddAuthorization();
+
+var app = builder.Build();
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();</code></pre>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- Authority -->
+                <!-- ========================================================= -->
+
+                <h3>Authority چیست؟</h3>
+
+                <p>
+                    <code>Authority</code>
+                    آدرس Identity Provider مورد اعتماد را مشخص می‌کند.
+                </p>
+
+                <p>
+                    Middleware از Metadata آن برای دریافت اطلاعات موردنیاز Validation،
+                    از جمله Signing Keyها استفاده می‌کند.
+                </p>
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Configuration</span>
+                    </div>
+
+                    <pre><code>"Authentication": {
+  "Authority": "https://identity.example.com",
+  "Audience": "orders-api"
+}</code></pre>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- Audience -->
+                <!-- ========================================================= -->
+
+                <h3>Audience چیست؟</h3>
+
+                <p>
+                    <code>Audience</code>
+                    مشخص می‌کند Access Token برای کدام API صادر شده است.
+                </p>
+
+                <p>
+                    برای مثال:
+                </p>
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Concept</span>
+                    </div>
+
+                    <pre><code>Token Audience = orders-api
+
+Orders API   ✅ Accept
+
+Payment API  ❌ Reject</code></pre>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- Middleware Order -->
+                <!-- ========================================================= -->
+
+                <h3>ترتیب Middlewareها مهم است</h3>
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">ASP.NET Core Pipeline</span>
+                    </div>
+
+                    <pre><code>app.UseAuthentication();
+
+app.UseAuthorization();</code></pre>
+
+                </div>
+
+                <p>
+                    ابتدا
+                    <code>UseAuthentication</code>
+                    Token را بررسی می‌کند و User را می‌سازد.
+                </p>
+
+                <p>
+                    سپس
+                    <code>UseAuthorization</code>
+                    بررسی می‌کند که این User اجازهٔ اجرای Endpoint را دارد یا خیر.
+                </p>
+
+
+                <div class="callout callout-info">
+
+                    <span class="callout-icon">💡</span>
+
+                    <div class="callout-content">
+                        Authentication یعنی:
+                        <strong>«این User چه کسی است؟»</strong>
+
+                        <br><br>
+
+                        Authorization یعنی:
+                        <strong>«این User اجازهٔ انجام چه کاری را دارد؟»</strong>
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Internal Issuer -->
+                <!-- ========================================================= -->
+
+                <h2>نمونه آموزشی: وقتی Application خودش Token صادر می‌کند</h2>
+
+                <div class="callout callout-warning">
+
+                    <span class="callout-icon">🎓</span>
+
+                    <div class="callout-content">
+                        بخش بعدی برای یادگیری اجزای JWT است.
+
+                        <br><br>
+
+                        در یک سیستم Production بزرگ معمولاً بهتر است Authentication و صدور Token
+                        توسط Identity Provider یا Authorization Server انجام شود.
+                    </div>
+
+                </div>
+
+
+                <p>
+                    برای درک بهتر مکانیزم JWT، فرض می‌کنیم Application خودش Token صادر می‌کند.
+                </p>
+
+                <p>
+                    در این نمونه برای امضای Token از
+                    <strong>HMAC</strong>
+                    و یک Secret Key مشترک استفاده می‌کنیم.
+                </p>
+
+
+                <!-- ========================================================= -->
+                <!-- Options -->
+                <!-- ========================================================= -->
+
+                <h3>تعریف تنظیمات JWT</h3>
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>JwtOptions.cs</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>public sealed class JwtOptions
+{
+    public const string SectionName = "Jwt";
+
+    public required string Issuer { get; init; }
+
+    public required string Audience { get; init; }
+
+    public required string SigningKey { get; init; }
+
+    public int AccessTokenMinutes { get; init; } = 10;
+}</code></pre>
+
+                </div>
+
+
+                <p>
+                    Secret Key نباید داخل Source Code یا Repository قرار گیرد.
+                </p>
+
+
+                <div class="callout callout-warning">
+
+                    <span class="callout-icon">🛡️</span>
+
+                    <div class="callout-content">
+                        Signing Key را در Secret Manager، Environment Variable،
+                        Vault یا سرویس مدیریت Secret نگهداری کنید.
+                    </div>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- Validation -->
+                <!-- ========================================================= -->
+
+                <h2>پیکربندی Token Validation</h2>
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>Program.cs - JWT Validation</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+var jwtSection =
+    builder.Configuration.GetRequiredSection(JwtOptions.SectionName);
+
+builder.Services.Configure&lt;JwtOptions&gt;(jwtSection);
+
+var jwt = jwtSection.Get&lt;JwtOptions&gt;()
+    ?? throw new InvalidOperationException(
+        "Jwt configuration is missing.");
+
+var signingKey = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(jwt.SigningKey));
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =&gt;
+    {
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwt.Issuer,
+
+                ValidateAudience = true,
+                ValidAudience = jwt.Audience,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = signingKey,
+
+                ValidateLifetime = true,
+
+                RequireExpirationTime = true,
+
+                RequireSignedTokens = true,
+
+                ClockSkew = TimeSpan.FromSeconds(30),
+
+                NameClaimType = "name",
+
+                RoleClaimType = "role"
+            };
+    });
+
+builder.Services.AddAuthorization();</code></pre>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- Validation Table -->
+                <!-- ========================================================= -->
+
+                <h3>API دقیقاً چه چیزهایی را Validate می‌کند؟</h3>
+
+                <table class="table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Validation</th>
+                            <th>سؤال اصلی</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td><strong>Signature</strong></td>
+                            <td>آیا Token دست‌کاری شده است؟</td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>Issuer</strong></td>
+                            <td>آیا Token توسط صادرکنندهٔ مورد اعتماد ساخته شده است؟</td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>Audience</strong></td>
+                            <td>آیا Token برای همین API صادر شده است؟</td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>Lifetime</strong></td>
+                            <td>آیا Token هنوز معتبر است؟</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Validation Flow</span>
+                    </div>
+
+                    <pre><code>Bearer Token
+     │
+     ▼
+Signature Valid?
+     │
+     ▼
+Issuer Valid?
+     │
+     ▼
+Audience Valid?
+     │
+     ▼
+Lifetime Valid?
+     │
+     ▼
+ClaimsPrincipal
+     │
+     ▼
+Request Continues</code></pre>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Create Access Token -->
+                <!-- ========================================================= -->
+
+                <h2>تولید Access Token</h2>
+
+                <p>
+                    حالا یک Service ایجاد می‌کنیم که JWT بسازد.
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>AccessTokenService.cs</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+
+public sealed record AccessTokenResult(
+    string Token,
+    DateTime ExpiresAtUtc);
+
+public sealed class AccessTokenService(
+    IOptions&lt;JwtOptions&gt; options)
+{
+    private readonly JwtOptions _options = options.Value;
+
+    public AccessTokenResult Create(
+        string userId,
+        string displayName,
+        string[] roles)
+    {
+        var now = DateTime.UtcNow;
+
+        var expires =
+            now.AddMinutes(_options.AccessTokenMinutes);
+
+        var claims = new List&lt;Claim&gt;
+        {
+            new(
+                JwtRegisteredClaimNames.Sub,
+                userId),
+
+            new(
+                JwtRegisteredClaimNames.Jti,
+                Guid.NewGuid().ToString("N")),
+
+            new(
+                JwtRegisteredClaimNames.Iat,
+                EpochTime.GetIntDate(now).ToString(),
+                ClaimValueTypes.Integer64),
+
+            new(
+                "name",
+                displayName)
+        };
+
+        claims.AddRange(
+            roles.Select(
+                role =&gt; new Claim("role", role)));
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(
+                _options.SigningKey));
+
+        var credentials =
+            new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256);
+
+        var jwt =
+            new JwtSecurityToken(
+                issuer: _options.Issuer,
+                audience: _options.Audience,
+                claims: claims,
+                notBefore: now,
+                expires: expires,
+                signingCredentials: credentials);
+
+        var token =
+            new JwtSecurityTokenHandler()
+                .WriteToken(jwt);
+
+        return new AccessTokenResult(
+            token,
+            expires);
+    }
+}</code></pre>
+
+                </div>
+
+
+                <!-- ========================================================= -->
+                <!-- DI -->
+                <!-- ========================================================= -->
+
+                <h3>ثبت Service در Dependency Injection</h3>
+
+                <p>
+                    چون قرار است
+                    <code>AccessTokenService</code>
+                    را داخل Controller تزریق کنیم، باید آن را در DI Container ثبت کنیم.
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>Program.cs</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>builder.Services.AddSingleton&lt;AccessTokenService&gt;();</code></pre>
+
+                </div>
+
+
+                <h3>Claimهای تولیدشده</h3>
+
+                <table class="table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Claim</th>
+                            <th>کاربرد</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td><code>sub</code></td>
+                            <td>شناسهٔ User</td>
+                        </tr>
+
+                        <tr>
+                            <td><code>jti</code></td>
+                            <td>شناسهٔ یکتای Token</td>
+                        </tr>
+
+                        <tr>
+                            <td><code>iat</code></td>
+                            <td>زمان صدور Token</td>
+                        </tr>
+
+                        <tr>
+                            <td><code>name</code></td>
+                            <td>نام User</td>
+                        </tr>
+
+                        <tr>
+                            <td><code>role</code></td>
+                            <td>Roleهای User</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <div class="callout callout-info">
+
+                    <span class="callout-icon">💡</span>
+
+                    <div class="callout-content">
+                        Access Token بهتر است کوتاه‌عمر باشد.
+
+                        <br><br>
+
+                        تمدید Session با استفاده از Refresh Token در درس بعد بررسی می‌شود.
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Login -->
+                <!-- ========================================================= -->
+
+                <h2>ساخت Login Endpoint</h2>
+
+                <p>
+                    بعد از Validate شدن Username و Password، می‌توان Access Token تولید کرد.
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>AuthController.cs</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>[ApiController]
+[Route("api/auth")]
+public sealed class AuthController(
+    IUserAuthenticator authenticator,
+    AccessTokenService tokens)
+    : ControllerBase
+{
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task&lt;IActionResult&gt; Login(
+        LoginRequest request,
+        CancellationToken cancellationToken)
+    {
+        var user =
+            await authenticator.ValidateAsync(
+                request.Email,
+                request.Password,
+                cancellationToken);
+
+        if (user is null)
+            return Unauthorized();
+
+        var token =
+            tokens.Create(
+                user.Id,
+                user.DisplayName,
+                user.Roles);
+
+        return Ok(token);
+    }
+}</code></pre>
+
+                </div>
+
+
+                <p>
+                    در این مثال فرض می‌کنیم
+                    <code>IUserAuthenticator</code>
+                    مسئول بررسی Credentialهای User است.
+                </p>
+
+
+                <div class="callout callout-warning">
+
+                    <span class="callout-icon">🛡️</span>
+
+                    <div class="callout-content">
+                        Password را مستقیم با مقدار ذخیره‌شده مقایسه نکنید.
+
+                        <br><br>
+
+                        Password باید با الگوریتم مناسب Hash شود و Login Endpoint نیز باید
+                        مکانیزم‌هایی مانند Rate Limiting و Lockout داشته باشد.
+                    </div>
+
+                </div>
+
+
+                <div class="callout callout-warning">
+
+                    <span class="callout-icon">⚠️</span>
+
+                    <div class="callout-content">
+                        Token، Signing Key و Password را داخل Log قرار ندهید.
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Authorize -->
+                <!-- ========================================================= -->
+
+                <h2>محافظت از Endpoint با [Authorize]</h2>
+
+                <p>
+                    برای اینکه Endpoint فقط توسط User احراز هویت‌شده قابل دسترسی باشد،
+                    از
+                    <code>[Authorize]</code>
+                    استفاده می‌کنیم.
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>OrdersController.cs</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+
+[Authorize]
+[ApiController]
+[Route("api/orders")]
+public sealed class OrdersController
+    : ControllerBase
+{
+    [HttpGet("mine")]
+    public IActionResult Mine()
+    {
+        ClaimsPrincipal principal = User;
+
+        var userId =
+            principal.FindFirstValue("sub");
+
+        return Ok(
+            new
+            {
+                UserId = userId
+            });
+    }
+}</code></pre>
+
+                </div>
+
+
+                <p>
+                    وقتی JWT معتبر باشد، ASP.NET Core یک
+                    <code>ClaimsPrincipal</code>
+                    می‌سازد و آن را از طریق Property زیر در اختیار Controller قرار می‌دهد:
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">ASP.NET Core</span>
+                    </div>
+
+                    <pre><code>HttpContext.User</code></pre>
+
+                </div>
+
+
+                <p>
+                    در Controller نیز معمولاً از طریق:
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Controller</span>
+                    </div>
+
+                    <pre><code>User</code></pre>
+
+                </div>
+
+                <p>
+                    به آن دسترسی داریم.
+                </p>
+
+
+                <!-- ========================================================= -->
+                <!-- Roles -->
+                <!-- ========================================================= -->
+
+                <h2>Authorization بر اساس Role</h2>
+
+                <p>
+                    اگر داخل JWT Claim مربوط به Role داشته باشیم، می‌توانیم دسترسی Endpoint
+                    را بر اساس Role محدود کنیم.
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>OrdersController.cs</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>[Authorize(Roles = "Admin")]
+[HttpDelete("{id:guid}")]
+public IActionResult Delete(Guid id)
+{
+    return NoContent();
+}</code></pre>
+
+                </div>
+
+
+                <p>
+                    فقط Userی که دارای Role زیر باشد:
+                </p>
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">JWT Claim</span>
+                    </div>
+
+                    <pre><code>"role": "Admin"</code></pre>
+
+                </div>
+
+                <p>
+                    اجازهٔ اجرای Endpoint را خواهد داشت.
+                </p>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- 401 vs 403 -->
+                <!-- ========================================================= -->
+
+                <h2>تفاوت 401 و 403</h2>
+
+                <p>
+                    این دو Status Code در Authentication و Authorization بسیار مهم هستند.
+                </p>
+
+
+                <table class="table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Status</th>
+                            <th>معنا</th>
+                            <th>مثال</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td><strong>401 Unauthorized</strong></td>
+                            <td>Authentication معتبر وجود ندارد.</td>
+                            <td>Token وجود ندارد، نامعتبر است یا Expire شده است.</td>
+                        </tr>
+
+                        <tr>
+                            <td><strong>403 Forbidden</strong></td>
+                            <td>User احراز هویت شده ولی Permission کافی ندارد.</td>
+                            <td>User وارد شده ولی Admin نیست.</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Mental Model</span>
+                    </div>
+
+                    <pre><code>No Valid Token
+      │
+      ▼
+401 Unauthorized
+
+
+Valid Token
+but
+No Permission
+      │
+      ▼
+403 Forbidden</code></pre>
+
+                </div>
+
+
+                <div class="callout callout-info">
+
+                    <span class="callout-icon">💡</span>
+
+                    <div class="callout-content">
+                        <strong>401</strong>
+                        یعنی:
+                        «نمی‌دانم چه کسی هستی یا Authentication معتبر نیست.»
+
+                        <br><br>
+
+                        <strong>403</strong>
+                        یعنی:
+                        «می‌دانم چه کسی هستی، اما اجازهٔ انجام این عملیات را نداری.»
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Advanced -->
+                <!-- ========================================================= -->
+
+                <h2>یک قدم جلوتر: Authorization Policy</h2>
+
+                <p>
+                    استفاده مستقیم از Role برای سیستم‌های ساده مناسب است.
+                </p>
+
+                <p>
+                    اما در سیستم‌های بزرگ‌تر معمولاً بهتر است Authorization را بر اساس
+                    <strong>Business Permission</strong>
+                    یا
+                    <strong>Policy</strong>
+                    طراحی کنیم.
+                </p>
+
+
+                <p>
+                    مثلاً به‌جای:
+                </p>
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Role Based</span>
+                    </div>
+
+                    <pre><code>[Authorize(Roles = "Admin")]</code></pre>
+
+                </div>
+
+                <p>
+                    می‌توانیم Permission مشخصی تعریف کنیم:
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>Authorization Policy</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>builder.Services.AddAuthorization(options =&gt;
+{
+    options.AddPolicy(
+        "orders.write",
+        policy =&gt;
+            policy.RequireClaim(
+                "permission",
+                "orders.write"));
+});</code></pre>
+
+                </div>
+
+
+                <p>
+                    و Endpoint را به آن Policy متصل کنیم:
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-head">
+
+                        <span>Minimal API</span>
+
+                        <button type="button" data-copy-code>
+                            کپی
+                        </button>
+
+                    </div>
+
+                    <pre><code>app.MapPost(
+        "/api/orders",
+        CreateOrder)
+    .RequireAuthorization(
+        "orders.write");</code></pre>
+
+                </div>
+
+
+                <p>
+                    حالا Token باید Claim زیر را داشته باشد:
+                </p>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">JWT Claim</span>
+                    </div>
+
+                    <pre><code>"permission": "orders.write"</code></pre>
+
+                </div>
+
+
+                <div class="callout callout-info">
+
+                    <span class="callout-icon">💡</span>
+
+                    <div class="callout-content">
+                        Policy معمولاً بهتر از پخش کردن Roleهای مختلف در سراسر Application است،
+                        زیرا Business Capability را مستقیماً بیان می‌کند.
+                    </div>
+
+                </div>
+
+
+                <div class="callout callout-warning">
+
+                    <span class="callout-icon">⚠️</span>
+
+                    <div class="callout-content">
+                        داشتن Claim یا Permission به‌تنهایی همیشه کافی نیست.
+
+                        <br><br>
+
+                        برای مثال User ممکن است Permission خواندن Order را داشته باشد،
+                        اما API همچنان باید بررسی کند که آیا این Order متعلق به همین User است یا خیر.
+                    </div>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Complete Flow -->
+                <!-- ========================================================= -->
+
+                <h2>مسیر کامل یک Request</h2>
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Request Pipeline</span>
+                    </div>
+
+                    <pre><code>HTTP Request
+     │
+     │ Authorization: Bearer TOKEN
+     ▼
+JwtBearer Middleware
+     │
+     ├── Read Token
+     │
+     ├── Validate Signature
+     │
+     ├── Validate Issuer
+     │
+     ├── Validate Audience
+     │
+     └── Validate Lifetime
+     │
+     ▼
+ClaimsPrincipal
+     │
+     ▼
+HttpContext.User
+     │
+     ▼
+Authorization
+     │
+     ├── [Authorize]
+     ├── Role
+     └── Policy
+     │
+     ▼
+Controller / Endpoint</code></pre>
+
+                </div>
+
+
+                <hr>
+
+
+                <!-- ========================================================= -->
+                <!-- Checklist -->
+                <!-- ========================================================= -->
+
+                <h2>چک‌لیست اجرای صحیح JWT Authentication</h2>
+
+                <ul>
+
+                    <li>
+                        Requestها فقط روی
+                        <strong>HTTPS</strong>
+                        دریافت شوند.
+                    </li>
+
+                    <li>
+                        Signature، Issuer، Audience و Lifetime همگی Validate شوند.
+                    </li>
+
+                    <li>
+                        Signing Key داخل Source Code یا Repository قرار نگیرد.
+                    </li>
+
+                    <li>
+                        Access Token کوتاه‌عمر باشد.
+                    </li>
+
+                    <li>
+                        Claimهای Token کمینه باشند.
+                    </li>
+
+                    <li>
+                        <code>UseAuthentication</code>
+                        قبل از
+                        <code>UseAuthorization</code>
+                        اجرا شود.
+                    </li>
+
+                    <li>
+                        Authentication با Authorization اشتباه گرفته نشود.
+                    </li>
+
+                    <li>
+                        Authorization سطح Resource نیز بررسی شود.
+                    </li>
+
+                    <li>
+                        Password، Signing Key و Access Token داخل Log ثبت نشوند.
+                    </li>
+
+                </ul>
+
+
+                <!-- ========================================================= -->
+                <!-- Summary -->
+                <!-- ========================================================= -->
+
+                <hr>
+
+                <h2>جمع‌بندی</h2>
+
+
+                <div class="callout callout-success">
+
+                    <span class="callout-icon">✅</span>
+
+                    <div class="callout-content">
+
+                        در ASP.NET Core، JWT Authentication معمولاً توسط
+                        <strong>JwtBearer Middleware</strong>
+                        انجام می‌شود.
+
+                        <br><br>
+
+                        Middleware Token را از Header می‌خواند و
+                        <strong>Signature، Issuer، Audience و Lifetime</strong>
+                        را بررسی می‌کند.
+
+                        <br><br>
+
+                        اگر Token معتبر باشد، یک
+                        <strong>ClaimsPrincipal</strong>
+                        ساخته می‌شود و در
+                        <code>HttpContext.User</code>
+                        قرار می‌گیرد.
+
+                        <br><br>
+
+                        سپس Authorization با استفاده از
+                        <strong>[Authorize]، Role یا Policy</strong>
+                        تصمیم می‌گیرد Request اجازهٔ ادامه دارد یا خیر.
+
+                    </div>
+
+                </div>
+
+
+                <div class="code-block">
+
+                    <div class="code-header">
+                        <span class="code-lang">Mental Model</span>
+                    </div>
+
+                    <pre><code>Access Token
+     │
+     ▼
+AddJwtBearer
+     │
+     ▼
+Validate Token
+     │
+     ▼
+ClaimsPrincipal
+     │
+     ▼
+HttpContext.User
+     │
+     ▼
+Authorization
+     │
+     ▼
+Endpoint</code></pre>
+
+                </div>
+
+
+            </div>
+
+
+            <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+
+                <a rel="prev" href="ch17-1.html">
+
+                    درس قبلی:
+
+                    <bdi>
+                        17.1 JWT Fundamentals
+                    </bdi>
+
+                </a>
+
+                <a rel="next" href="ch17-3.html">
+
+                    درس بعدی:
+
+                    <bdi>
+                        17.3 Refresh Token, Rotation and Revocation
+                    </bdi>
+
+                </a>
+
+            </nav>
+
+
+        </main>
+
+    </div>
+
+
+    <div id="copy-status" role="status" aria-live="polite">
+    </div>
+
+</body>
+
+</html>

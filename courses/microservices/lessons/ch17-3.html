@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش Refresh Token, Rotation and Revocation در راهنمای جامع Microservices؛ 🔐 JWT  📅 به‌روزرسانی: ۱۴۰۵/۰۶/۲۷ ⏱️ زمان مطالعه: ۲۸ دقیقه 👤 تیم فنی Access Token باید کوتاه‌عمر باشد. اگر پس از پایان آن ک">
+  <title>Refresh Token, Rotation and Revocation | راهنمای جامع Microservices</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch17-3">
+      <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>17 - JWT</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+<!-- Article Header -->
+<div class="article-header">
+    <div class="article-tag">🔐 JWT</div>
+    <h1>Refresh Token, Rotation and Revocation</h1>
+    <div class="article-meta">
+        <div class="meta-item">📅 به‌روزرسانی: ۱۴۰۵/۰۶/۲۷</div>
+        <div class="meta-item">⏱️ زمان مطالعه: ۲۸ دقیقه</div>
+        <div class="meta-item">👤 تیم فنی</div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<p>
+    Access Token باید کوتاه‌عمر باشد. اگر پس از پایان آن کاربر مجبور به Login مجدد شود، تجربهٔ کاربری ضعیف
+    خواهد شد. <strong>Refresh Token</strong> اجازه می‌دهد Client از Authorization Server یک Access Token جدید بگیرد.
+</p>
+
+<div class="code-block">
+    <div class="code-header"><span class="code-lang">Token Lifecycle</span></div>
+    <pre><code>Login
+  └─ Access Token A (10 min) + Refresh Token R1 (30 days)
+       └─ Refresh R1
+            ├─ revoke R1
+            └─ issue Access Token B + Refresh Token R2</code></pre>
+</div>
+
+<p>
+    در این مدل هر Refresh Token فقط یک بار مصرف می‌شود. این رفتار <strong>Rotation</strong> نام دارد و سرقت
+    Token قدیمی را قابل‌تشخیص می‌کند.
+</p>
+
+<div class="callout callout-warning">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+        Refresh Token یک Bearer credential قدرتمند است. آن را JWT طولانی‌عمر و بدون State نسازید. یک مقدار
+        opaque با entropy بالا تولید کنید، hash آن را در Database نگه دارید و lifecycle را سمت Server کنترل کنید.
+    </div>
+</div>
+
+<hr>
+
+<h2>مدل دادهٔ Refresh Token</h2>
+
+<div class="code-block">
+    <div class="code-head"><span>RefreshToken.cs</span><button type="button" data-copy-code>کپی</button></div>
+    <pre><code>public sealed class RefreshToken
+{
+    public Guid Id { get; init; }
+    public required string UserId { get; init; }
+    public required string TokenHash { get; init; }
+    public required string FamilyId { get; init; }
+    public DateTime CreatedAtUtc { get; init; }
+    public DateTime ExpiresAtUtc { get; init; }
+    public DateTime? UsedAtUtc { get; set; }
+    public DateTime? RevokedAtUtc { get; set; }
+    public Guid? ReplacedByTokenId { get; set; }
+    public required string DeviceId { get; init; }
+
+    public bool IsActive(DateTime now) =&gt;
+        UsedAtUtc is null &amp;&amp;
+        RevokedAtUtc is null &amp;&amp;
+        ExpiresAtUtc &gt; now;
+}</code></pre>
+</div>
+
+<p>
+    <code>FamilyId</code> زنجیرهٔ R1، R2 و R3 را به هم متصل می‌کند. <code>DeviceId</code> امکان Logout یک Device
+    بدون خروج همهٔ Deviceها را می‌دهد. Database باید روی <code>TokenHash</code> یک Unique Index داشته باشد.
+</p>
+
+<hr>
+
+<h2>تولید مقدار تصادفی و Hash</h2>
+
+<div class="code-block">
+    <div class="code-head"><span>RefreshTokenFactory.cs</span><button type="button" data-copy-code>کپی</button></div>
+    <pre><code>using System.Security.Cryptography;
+using System.Text;
+
+public static class RefreshTokenFactory
+{
+    public static string CreatePlainText()
+    {
+        var bytes = RandomNumberGenerator.GetBytes(64);
+        return Convert.ToBase64String(bytes);
+    }
+
+    public static string Hash(string token)
+    {
+        var bytes = Encoding.UTF8.GetBytes(token);
+        return Convert.ToHexString(SHA256.HashData(bytes));
+    }
+}</code></pre>
+</div>
+
+<p>
+    مقدار plain text فقط هنگام صدور به Client برمی‌گردد و بعد دور ریخته می‌شود. Database فقط Hash را نگه
+    می‌دارد؛ بنابراین نشت Database مستقیماً credential قابل‌استفاده تولید نمی‌کند. entropy بالای مقدار تصادفی،
+    brute-force کردن Hash را غیرعملی می‌کند.
+</p>
+
+<hr>
+
+<h2>الگوریتم Rotation اتمیک</h2>
+
+<ol>
+    <li>Refresh Token ورودی را Hash کنید.</li>
+    <li>رکورد را داخل Transaction و با concurrency control بخوانید.</li>
+    <li>Expiration، Revocation و User/Client binding را بررسی کنید.</li>
+    <li>Token قبلی را مصرف‌شده علامت بزنید.</li>
+    <li>Refresh Token جایگزین با همان Family و یک Access Token جدید بسازید.</li>
+    <li>هر دو تغییر را در یک Commit ذخیره کنید و plain text Token جدید را فقط یک بار برگردانید.</li>
+</ol>
+
+<div class="code-block">
+    <div class="code-head"><span>Refresh flow - simplified</span><button type="button" data-copy-code>کپی</button></div>
+    <pre><code>public async Task&lt;TokenPair&gt; RotateAsync(
+    string presentedToken,
+    string deviceId,
+    CancellationToken cancellationToken)
+{
+    var now = _timeProvider.GetUtcNow().UtcDateTime;
+    var hash = RefreshTokenFactory.Hash(presentedToken);
+
+    await using var transaction = await _db.Database
+        .BeginTransactionAsync(cancellationToken);
+
+    var current = await _db.RefreshTokens
+        .SingleOrDefaultAsync(x =&gt; x.TokenHash == hash, cancellationToken)
+        ?? throw new SecurityTokenException("Invalid refresh token.");
+
+    if (current.UsedAtUtc is not null)
+    {
+        await RevokeFamilyAsync(current.FamilyId, now, cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        throw new SecurityTokenException("Refresh token reuse detected.");
+    }
+
+    if (!current.IsActive(now) || current.DeviceId != deviceId)
+        throw new SecurityTokenException("Invalid refresh token.");
+
+    var user = await _users.GetRequiredAsync(
+        current.UserId, cancellationToken);
+
+    current.UsedAtUtc = now;
+    var replacement = CreateReplacement(current, now, out var plainText);
+    current.ReplacedByTokenId = replacement.Id;
+    _db.RefreshTokens.Add(replacement);
+
+    await _db.SaveChangesAsync(cancellationToken);
+    await transaction.CommitAsync(cancellationToken);
+
+    return new TokenPair(
+        _accessTokens.Create(user.Id, user.DisplayName, user.Roles),
+        plainText);
+}</code></pre>
+</div>
+
+<div class="callout callout-info">
+    <span class="callout-icon">💡</span>
+    <div class="callout-content">
+        این کد flow را نشان می‌دهد، نه strategy عمومی locking. با توجه به Database از optimistic concurrency،
+        row lock یا isolation مناسب استفاده کنید. دو Request هم‌زمان نباید هر دو یک Token را با موفقیت rotate کنند.
+    </div>
+</div>
+
+<hr>
+
+<h2>Reuse Detection چگونه کار می‌کند؟</h2>
+
+<p>
+    فرض کنید Client معتبر R1 را مصرف کرده و R2 گرفته است. اگر بعداً R1 دوباره ارائه شود، یا Request تکراری
+    رخ داده یا R1 قبلاً سرقت شده است. Server نمی‌تواند تشخیص دهد کدام طرف مهاجم است؛ پس کل Token Family را
+    Revocation می‌کند و Login مجدد می‌خواهد.
+</p>
+
+<div class="code-block">
+    <div class="code-header"><span class="code-lang">Reuse Detection</span></div>
+    <pre><code>R1 --used--&gt; R2 --used--&gt; R3
+ |
+ +-- presented again =&gt; revoke R1, R2, R3 and require Login</code></pre>
+</div>
+
+<p>
+    رویداد Reuse Detection باید بدون ثبت خود Token، با UserId، FamilyId، DeviceId، زمان و Correlation Id
+    در Security Audit ثبت شود.
+</p>
+
+<hr>
+
+<h2>Logout و Revocation</h2>
+
+<ul>
+    <li><strong>Logout یک Device:</strong> تمام Refresh Tokenهای فعال همان Device یا Family را revoke کنید.</li>
+    <li><strong>Logout همه‌جا:</strong> تمام Familyهای User را revoke کنید و در صورت نیاز Security Stamp را تغییر دهید.</li>
+    <li><strong>Password change یا incident:</strong> تمام Sessionها را invalidate کنید.</li>
+    <li><strong>Access Token فعال:</strong> تا پایان عمر کوتاهش معتبر می‌ماند، مگر denylist یا introspection اضافه شود.</li>
+</ul>
+
+<p>
+    denylist برای هر Request دوباره State و lookup ایجاد می‌کند. معمولاً Access Token کوتاه‌عمر به‌همراه Revocation
+    فوری Refresh Token تعادل بهتری است. برای عملیات بسیار حساس می‌توان علاوه بر آن Security Stamp یا Session Version
+    را سمت Server بررسی کرد.
+</p>
+
+<hr>
+
+<h2>انتقال امن Refresh Token</h2>
+
+<p>
+    Mobile یا native client باید از secure storage سیستم‌عامل استفاده کند. در Browser، معماری BFF یا Cookie با
+    <code>HttpOnly</code>، <code>Secure</code> و <code>SameSite</code> مناسب معمولاً exposure به JavaScript را کاهش می‌دهد.
+    اگر Cookie credential را خودکار ارسال می‌کند، محافظت <strong>CSRF</strong> نیز لازم است.
+</p>
+
+<div class="code-block">
+    <div class="code-head"><span>Secure refresh cookie</span><button type="button" data-copy-code>کپی</button></div>
+    <pre><code>Response.Cookies.Append("refresh_token", plainTextRefreshToken,
+    new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Path = "/api/auth/refresh",
+        Expires = DateTimeOffset.UtcNow.AddDays(30)
+    });</code></pre>
+</div>
+
+<p>
+    انتخاب <code>SameSite</code> به معماری واقعی و cross-site flow بستگی دارد. Cookie scope را تا Endpoint refresh
+    محدود کنید و برای سناریوهای cross-site از anti-forgery strategy صریح استفاده کنید.
+</p>
+
+<hr>
+
+<h2>خطاهای رایج</h2>
+
+<ul>
+    <li>ذخیرهٔ plain text Refresh Token در Database.</li>
+    <li>قابل‌استفاده نگه داشتن Token قبلی بعد از Rotation.</li>
+    <li>Rotation خارج از Transaction و صدور چند replacement در رقابت.</li>
+    <li>Refresh Token بدون Expiration، Device binding یا امکان Revocation.</li>
+    <li>فرستادن پاسخ متفاوت برای Token ناشناخته و Token مربوط به User مشخص.</li>
+    <li>Log کردن Token کامل در application log، proxy یا telemetry.</li>
+</ul>
+
+<div class="callout callout-success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-content">
+        Session امن فقط «دو Token» نیست؛ یک lifecycle است: صدور، ذخیرهٔ امن، Rotation اتمیک، Reuse Detection،
+        Revocation، Audit و پاک‌سازی رکوردهای منقضی.
+    </div>
+</div>
+      </div>
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a rel="prev" href="ch17-2.html">درس قبلی: <bdi>17.2 JWT Authentication in ASP.NET Core</bdi></a>
+        <a rel="next" href="ch17-4.html">درس بعدی: <bdi>17.4 Security Best Practices and Production Readiness</bdi></a>
+      </nav>
+    </main>
+  </div>
+  <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+</html>

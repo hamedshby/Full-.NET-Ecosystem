@@ -9,11 +9,11 @@ test('Microservices catalog preserves every source heading and availability stat
   const { microservicesChapters, availableLessons } = require('../courses/microservices/course-navigation.js');
   const lessons = microservicesChapters.flatMap(chapter => chapter.lessons);
 
-  assert.equal(microservicesChapters.length, 18);
-  assert.equal(lessons.length, 151);
-  assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 151);
-  assert.equal(availableLessons.length, 23);
-  assert.equal(lessons.filter(lesson => !lesson.available).length, 128);
+  assert.equal(microservicesChapters.length, 19);
+  assert.equal(lessons.length, 154);
+  assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 154);
+  assert.equal(availableLessons.length, 27);
+  assert.equal(lessons.filter(lesson => !lesson.available).length, 127);
   assert.deepEqual(
     microservicesChapters.map(chapter => chapter.title),
     [
@@ -22,7 +22,17 @@ test('Microservices catalog preserves every source heading and availability stat
       '6 - RabbitMQ vs Kafka', '7 - MassTransit', '8 - Messaging Patterns',
       '9 - Reliability Patterns', '10 - Distributed Transactions', '11 - Outbox Pattern',
       '12 - Inbox Pattern', '13 - Saga Pattern', '14 - Idempotency', '15 - Monitoring',
-      '16 - Security', '17 - Performance', '18 - Practical Project'
+      '16 - Security', '17 - JWT', '18 - Performance', '19 - Practical Project'
+    ]
+  );
+
+  assert.deepEqual(
+    microservicesChapters.find(chapter => chapter.title === '17 - JWT').lessons,
+    [
+      { id: 'ch17-1', title: '17.1 JWT Fundamentals', available: true },
+      { id: 'ch17-2', title: '17.2 JWT Authentication in ASP.NET Core', available: true },
+      { id: 'ch17-3', title: '17.3 Refresh Token, Rotation and Revocation', available: true },
+      { id: 'ch17-4', title: '17.4 Security Best Practices and Production Readiness', available: true }
     ]
   );
 });
@@ -34,7 +44,7 @@ test('navigation renders available lessons as links and upcoming lessons as disa
   assert.match(html, /href="ch1-1\.html"[^>]+aria-current="page"/);
   assert.match(html, /data-lesson-id="ch4-7"[^>]*>[\s\S]*Dead Letter Queue[\s\S]*به‌زودی/);
   assert.doesNotMatch(html, /href="ch4-7\.html"/);
-  assert.equal((html.match(/class="course-chapter"/g) || []).length, 18);
+  assert.equal((html.match(/class="course-chapter"/g) || []).length, 19);
 });
 
 test('navigation hides the lesson count and numeric lesson prefixes', () => {

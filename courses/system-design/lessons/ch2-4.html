@@ -1,59 +1,1119 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحهٔ درس gRPC از راهنمای طراحی سیستم در آکادمی دات‌نت.">
+
+  <meta name="description"
+    content="آموزش gRPC در System Design؛ شامل Protocol Buffers، Unary، Streaming، HTTP/2، REST vs gRPC و مثال واقعی Payment در .NET.">
+
   <title>gRPC | راهنمای طراحی سیستم</title>
+
   <script>
     (() => {
       document.documentElement.classList.add('js');
+
       let storedTheme = null;
-      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
-      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
-        ? storedTheme
-        : systemDark ? 'dark' : 'light';
+
+      try {
+        storedTheme = localStorage.getItem('dotnet-academy-theme');
+      } catch (_) { }
+
+      const systemDark =
+        window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      document.documentElement.dataset.theme =
+        storedTheme === 'dark' || storedTheme === 'light'
+          ? storedTheme
+          : systemDark ? 'dark' : 'light';
     })();
   </script>
+
   <link rel="stylesheet" href="../../../styles.css">
   <link rel="stylesheet" href="../../ai-agent/course.css">
   <link rel="stylesheet" href="../course.css">
+
   <script src="../../../script.js" defer></script>
   <script src="../course-navigation.js" defer></script>
 </head>
+
 <body>
-  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+
+  <a class="skip-link" href="#lesson-content">
+    پرش به محتوای درس
+  </a>
+
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری درس">
-      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
-      <span class="course-name">راهنمای طراحی سیستم</span>
-      <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
-      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
-        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
-        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+
+      <a class="course-brand" href="../../../index.html">
+        آکادمی دات‌نت
+      </a>
+
+      <span class="course-name">
+        راهنمای طراحی سیستم
+      </span>
+
+      <a class="back-link" href="../index.html">
+        بازگشت به سرفصل‌های دوره
+      </a>
+
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره"
+        title="فعال‌کردن تم تیره" aria-pressed="false">
+
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+        </svg>
+
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.7"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4">
+          </path>
+        </svg>
+
       </button>
+
     </nav>
   </header>
+
+
   <div class="docs-layout">
-    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره"></aside>
-    <main id="lesson-content" class="lesson-page">
+
+    <aside id="course-sidebar" class="learning-path docs-sidebar" aria-label="فهرست مطالب دوره">
+    </aside>
+
+    <main id="lesson-content" class="lesson-page lesson-article">
+
       <nav class="lesson-breadcrumb" aria-label="مسیر راهنما">
-        <a href="../index.html">راهنمای طراحی سیستم</a>
+
+        <a href="../index.html">
+          راهنمای طراحی سیستم
+        </a>
+
         <span aria-hidden="true">/</span>
-        <span>فصل 2، درس 4</span>
+
+        <span>
+          فصل 2، Networking & Request Flow
+        </span>
+
       </nav>
-      <article class="lesson-card">
-        <p class="eyebrow">فصل 2 از ۱۰</p>
-        <p class="lesson-chapter"><bdi>Networking &amp; Request Flow</bdi></p>
-        <h1><bdi>gRPC</bdi></h1>
-        <div id="lesson-body" class="lesson-empty" data-content-status="empty" aria-label="محتوای آموزشی درس"></div>
+
+
+      <article>
+
+        <header class="lesson-intro">
+
+          <p class="eyebrow">
+            فصل 2 از ۱۰
+          </p>
+
+          <p class="lesson-chapter">
+            <bdi>Networking & Request Flow</bdi>
+          </p>
+
+          <h1>
+            <bdi>gRPC</bdi>
+          </h1>
+
+          <p class="lesson-lead">
+            <bdi>gRPC</bdi> یک فریم‌ورک ارتباطی سریع و strongly typed برای
+            ارتباط بین سرویس‌ها است که معمولاً از
+            <bdi>HTTP/2</bdi> و <bdi>Protocol Buffers</bdi>
+            استفاده می‌کند و برای ارتباط داخلی Microserviceها بسیار مناسب است.
+          </p>
+
+        </header>
+
+
+        <section class="lesson-section" aria-labelledby="problem-title">
+
+          <h2 id="problem-title">
+            مسئله چیست؟
+          </h2>
+
+          <p>
+            فرض کنید در یک سیستم Payment چند Microservice داریم:
+          </p>
+
+          <ul>
+            <li>Payment Service</li>
+            <li>Account Service</li>
+            <li>Merchant Service</li>
+            <li>Fraud Service</li>
+          </ul>
+
+          <p>
+            Payment Service برای انجام تراکنش باید اطلاعات Merchant را
+            از Merchant Service بگیرد.
+          </p>
+
+          <p>
+            می‌توانیم این ارتباط را با REST پیاده‌سازی کنیم:
+          </p>
+
+          <pre class="code-block" data-language="HTTP"><code>GET /api/merchants/1001</code></pre>
+
+          <p>
+            اما در ارتباط داخلی بین سرویس‌ها گاهی نیاز داریم:
+          </p>
+
+          <ul>
+            <li>Latency پایین‌تر باشد.</li>
+            <li>Payload کوچک‌تر باشد.</li>
+            <li>Contract بین Client و Server دقیق باشد.</li>
+            <li>Client Code به صورت خودکار تولید شود.</li>
+            <li>Streaming داشته باشیم.</li>
+          </ul>
+
+          <p>
+            یکی از گزینه‌های مناسب در چنین شرایطی
+            <bdi>gRPC</bdi> است.
+          </p>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="grpc-title">
+
+          <h2 id="grpc-title">
+            <bdi>gRPC</bdi> چیست؟
+          </h2>
+
+          <p>
+            gRPC یک Remote Procedure Call Framework است.
+          </p>
+
+          <p>
+            یعنی Client می‌تواند یک Method روی Server را تقریباً مانند
+            یک Method محلی صدا بزند.
+          </p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">var merchant =
+    await merchantClient.GetMerchantAsync(request);</code></pre>
+
+          <p>
+            اما پشت صحنه این Call از طریق Network انجام می‌شود.
+          </p>
+
+          <div class="architecture-flow" aria-label="gRPC Flow">
+
+            <div>Payment Service</div>
+            <span aria-hidden="true">→</span>
+
+            <div>gRPC Client</div>
+            <span aria-hidden="true">→</span>
+
+            <div>HTTP/2</div>
+            <span aria-hidden="true">→</span>
+
+            <div>Merchant Service</div>
+
+          </div>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="protobuf-title">
+
+          <h2 id="protobuf-title">
+            <bdi>Protocol Buffers</bdi>
+          </h2>
+
+          <p>
+            gRPC معمولاً برای تعریف Contract از
+            <bdi>Protocol Buffers</bdi> یا همان Protobuf استفاده می‌کند.
+          </p>
+
+          <p>
+            Contract داخل فایل
+            <code>.proto</code>
+            تعریف می‌شود.
+          </p>
+
+          <pre class="code-block" data-language="Protocol Buffers"><code>syntax = "proto3";
+
+service MerchantGrpc {
+  rpc GetMerchant(GetMerchantRequest)
+      returns (MerchantResponse);
+}
+
+message GetMerchantRequest {
+  int64 merchant_id = 1;
+}
+
+message MerchantResponse {
+  int64 merchant_id = 1;
+  string name = 2;
+  bool is_active = 3;
+}</code></pre>
+
+          <p>
+            از روی این فایل، ابزارهای gRPC می‌توانند Client و Server Code
+            موردنیاز را تولید کنند.
+          </p>
+
+          <aside class="lesson-note">
+            <strong>مزیت مهم:</strong>
+            Client و Server یک Contract مشخص دارند و بسیاری از خطاهای
+            Serialization یا تغییر قرارداد در زمان Compile مشخص می‌شوند.
+          </aside>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="binary-title">
+
+          <h2 id="binary-title">
+            Binary Serialization
+          </h2>
+
+          <p>
+            REST APIها معمولاً داده را به شکل JSON ارسال می‌کنند.
+          </p>
+
+          <pre class="code-block" data-language="JSON"><code>{
+  "merchantId": 1001,
+  "name": "Merchant A",
+  "isActive": true
+}</code></pre>
+
+          <p>
+            gRPC معمولاً از Protobuf استفاده می‌کند که یک Format باینری است.
+          </p>
+
+          <p>
+            در نتیجه Payload معمولاً از JSON کوچک‌تر است و Serialization
+            و Deserialization نیز سریع‌تر انجام می‌شود.
+          </p>
+
+          <aside class="lesson-note">
+            این مزیت در سیستم‌هایی با تعداد زیاد Request یا ارتباط زیاد
+            بین Microserviceها می‌تواند مهم باشد.
+          </aside>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="http2-title">
+
+          <h2 id="http2-title">
+            چرا <bdi>HTTP/2</bdi>؟
+          </h2>
+
+          <p>
+            gRPC معمولاً از HTTP/2 استفاده می‌کند.
+          </p>
+
+          <p>
+            HTTP/2 قابلیت‌هایی مانند موارد زیر دارد:
+          </p>
+
+          <ul>
+            <li>Multiplexing</li>
+            <li>Persistent Connections</li>
+            <li>Binary Framing</li>
+            <li>Header Compression</li>
+            <li>Streaming</li>
+          </ul>
+
+          <p>
+            Multiplexing اجازه می‌دهد چند Request و Response به صورت همزمان
+            روی یک Connection ارسال شوند.
+          </p>
+
+          <pre class="code-block" data-language="Flow"><code>Connection
+   ├── Request 1
+   ├── Request 2
+   ├── Request 3
+   └── Request 4</code></pre>
+
+          <p>
+            این ویژگی برای ارتباط Service-to-Service با تعداد Call زیاد
+            بسیار مفید است.
+          </p>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="types-title">
+
+          <h2 id="types-title">
+            انواع Call در gRPC
+          </h2>
+
+          <p>
+            gRPC چهار مدل اصلی Communication دارد.
+          </p>
+
+          <h3>
+            1. Unary RPC
+          </h3>
+
+          <p>
+            Client یک Request می‌فرستد و Server یک Response برمی‌گرداند.
+          </p>
+
+          <pre class="code-block" data-language="Unary RPC"><code>Request → Response</code></pre>
+
+          <p>
+            مثال:
+          </p>
+
+          <pre class="code-block" data-language="Unary RPC"><code>GetMerchant(merchantId)
+    → MerchantResponse</code></pre>
+
+          <p>
+            این مدل شبیه Request/Response معمولی REST است.
+          </p>
+
+
+          <h3>
+            2. Server Streaming
+          </h3>
+
+          <p>
+            Client یک Request می‌فرستد و Server چند Response ارسال می‌کند.
+          </p>
+
+          <pre class="code-block" data-language="Server Streaming"><code>Request → Response
+          Response
+          Response
+          Response</code></pre>
+
+          <p>
+            مثال:
+          </p>
+
+          <pre class="code-block" data-language="Server Streaming"><code>GetTransactions()
+    → Transaction 1
+    → Transaction 2
+    → Transaction 3
+    → ...</code></pre>
+
+
+          <h3>
+            3. Client Streaming
+          </h3>
+
+          <p>
+            Client چند Message ارسال می‌کند و Server در پایان یک Response می‌دهد.
+          </p>
+
+          <pre class="code-block" data-language="Client Streaming"><code>Request
+Request
+Request
+   ↓
+Response</code></pre>
+
+
+          <h3>
+            4. Bidirectional Streaming
+          </h3>
+
+          <p>
+            Client و Server می‌توانند همزمان چند Message برای یکدیگر ارسال کنند.
+          </p>
+
+          <pre class="code-block" data-language="Bidirectional Streaming"><code>Client ←→ Server</code></pre>
+
+          <p>
+            این مدل برای Real-Time Communication یا Streamهای طولانی مناسب است.
+          </p>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="rest-vs-grpc-title">
+
+          <h2 id="rest-vs-grpc-title">
+            <bdi>REST vs gRPC</bdi>
+          </h2>
+
+          <div class="comparison-table" role="region" aria-label="REST vs gRPC" tabindex="0">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>ویژگی</th>
+                  <th>REST</th>
+                  <th>gRPC</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td>Payload</td>
+                  <td>معمولاً JSON</td>
+                  <td>معمولاً Protobuf</td>
+                </tr>
+
+                <tr>
+                  <td>Format</td>
+                  <td>Text</td>
+                  <td>Binary</td>
+                </tr>
+
+                <tr>
+                  <td>خوانایی برای انسان</td>
+                  <td>زیاد</td>
+                  <td>کم</td>
+                </tr>
+
+                <tr>
+                  <td>Performance</td>
+                  <td>خوب</td>
+                  <td>معمولاً بالاتر</td>
+                </tr>
+
+                <tr>
+                  <td>Contract</td>
+                  <td>ممکن است OpenAPI استفاده شود</td>
+                  <td>Proto Contract</td>
+                </tr>
+
+                <tr>
+                  <td>Code Generation</td>
+                  <td>اختیاری</td>
+                  <td>جزء مدل اصلی</td>
+                </tr>
+
+                <tr>
+                  <td>Streaming</td>
+                  <td>محدودتر</td>
+                  <td>Built-in</td>
+                </tr>
+
+                <tr>
+                  <td>Browser Support</td>
+                  <td>بسیار مناسب</td>
+                  <td>محدودتر</td>
+                </tr>
+
+                <tr>
+                  <td>Public API</td>
+                  <td>بسیار مناسب</td>
+                  <td>معمولاً انتخاب اول نیست</td>
+                </tr>
+
+                <tr>
+                  <td>Service-to-Service</td>
+                  <td>مناسب</td>
+                  <td>بسیار مناسب</td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="usage-title">
+
+          <h2 id="usage-title">
+            چه زمانی از gRPC استفاده کنیم؟
+          </h2>
+
+          <p>
+            gRPC معمولاً برای این سناریوها مناسب است:
+          </p>
+
+          <ul>
+            <li>ارتباط داخلی Microserviceها</li>
+            <li>سیستم‌های Low Latency</li>
+            <li>تعداد زیاد Service-to-Service Call</li>
+            <li>سیستم‌هایی با Contract دقیق</li>
+            <li>Streaming</li>
+            <li>سیستم‌های Polyglot</li>
+          </ul>
+
+          <p>
+            برای مثال در معماری Payment:
+          </p>
+
+          <pre class="code-block" data-language="Architecture"><code>Payment Service
+      │
+      ├── gRPC → Merchant Service
+      │
+      ├── gRPC → Account Service
+      │
+      └── gRPC → Fraud Service</code></pre>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="public-api-title">
+
+          <h2 id="public-api-title">
+            آیا برای Public API مناسب است؟
+          </h2>
+
+          <p>
+            gRPC می‌تواند برای Public API استفاده شود، اما معمولاً REST
+            انتخاب ساده‌تر و رایج‌تری است.
+          </p>
+
+          <p>
+            یکی از معماری‌های رایج:
+          </p>
+
+          <div class="architecture-flow" aria-label="REST and gRPC Architecture">
+
+            <div>Mobile / Web</div>
+            <span aria-hidden="true">→</span>
+
+            <div>REST API / API Gateway</div>
+            <span aria-hidden="true">→</span>
+
+            <div>Payment Service</div>
+            <span aria-hidden="true">→</span>
+
+            <div>gRPC</div>
+            <span aria-hidden="true">→</span>
+
+            <div>Internal Services</div>
+
+          </div>
+
+          <aside class="lesson-note">
+            یک الگوی رایج این است که ارتباط Client خارجی با REST انجام شود
+            و ارتباط داخلی بین Microserviceها با gRPC.
+          </aside>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="dotnet-title">
+
+          <h2 id="dotnet-title">
+            مثال ساده در <bdi>.NET</bdi>
+          </h2>
+
+          <p>
+            Proto Contract:
+          </p>
+
+          <pre class="code-block" data-language="Protocol Buffers"><code>syntax = "proto3";
+
+option csharp_namespace = "Payment.Grpc";
+
+service PaymentGrpc {
+  rpc GetPayment(GetPaymentRequest)
+      returns (GetPaymentResponse);
+}
+
+message GetPaymentRequest {
+  int64 payment_id = 1;
+}
+
+message GetPaymentResponse {
+  int64 payment_id = 1;
+  int64 amount = 2;
+  string status = 3;
+}</code></pre>
+
+          <p>
+            پیاده‌سازی Server:
+          </p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">public class PaymentGrpcService
+    : PaymentGrpc.PaymentGrpcBase
+{
+    public override Task&lt;GetPaymentResponse&gt; GetPayment(
+        GetPaymentRequest request,
+        ServerCallContext context)
+    {
+        return Task.FromResult(
+            new GetPaymentResponse
+            {
+                PaymentId = request.PaymentId,
+                Amount = 500000,
+                Status = "Completed"
+            });
+    }
+}</code></pre>
+
+          <p>
+            Client:
+          </p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">var response =
+    await grpcClient.GetPaymentAsync(
+        new GetPaymentRequest
+        {
+            PaymentId = 87542
+        });
+
+Console.WriteLine(response.Status);</code></pre>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="deadline-title">
+
+          <h2 id="deadline-title">
+            <bdi>Deadline</bdi> و Timeout
+          </h2>
+
+          <p>
+            یکی از نکات مهم در Distributed System این است که هیچ Call شبکه‌ای
+            نباید بدون Timeout باشد.
+          </p>
+
+          <p>
+            در gRPC می‌توان Deadline مشخص کرد:
+          </p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">var response =
+    await client.GetMerchantAsync(
+        request,
+        deadline: DateTime.UtcNow.AddSeconds(2));</code></pre>
+
+          <p>
+            اگر سرویس مقصد در زمان مشخص پاسخ ندهد، Call متوقف می‌شود.
+          </p>
+
+          <aside class="lesson-note">
+            بدون Timeout، یک سرویس کند می‌تواند Threadها و Connectionهای
+            سرویس‌های دیگر را نیز درگیر کند و باعث Cascading Failure شود.
+          </aside>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="error-title">
+
+          <h2 id="error-title">
+            مدیریت خطا در gRPC
+          </h2>
+
+          <p>
+            gRPC به جای HTTP Status Codeهای معمول REST، مجموعه‌ای از
+            Status Codeهای استاندارد دارد.
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="gRPC Status Codes" tabindex="0">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>معنی</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td><code>OK</code></td>
+                  <td>عملیات موفق</td>
+                </tr>
+
+                <tr>
+                  <td><code>INVALID_ARGUMENT</code></td>
+                  <td>Request نامعتبر</td>
+                </tr>
+
+                <tr>
+                  <td><code>NOT_FOUND</code></td>
+                  <td>Resource پیدا نشده</td>
+                </tr>
+
+                <tr>
+                  <td><code>ALREADY_EXISTS</code></td>
+                  <td>Resource از قبل وجود دارد</td>
+                </tr>
+
+                <tr>
+                  <td><code>PERMISSION_DENIED</code></td>
+                  <td>عدم دسترسی</td>
+                </tr>
+
+                <tr>
+                  <td><code>UNAVAILABLE</code></td>
+                  <td>سرویس در دسترس نیست</td>
+                </tr>
+
+                <tr>
+                  <td><code>DEADLINE_EXCEEDED</code></td>
+                  <td>Timeout</td>
+                </tr>
+
+                <tr>
+                  <td><code>INTERNAL</code></td>
+                  <td>خطای داخلی سرویس</td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="payment-example-title">
+
+          <h2 id="payment-example-title">
+            مثال واقعی در سیستم Payment
+          </h2>
+
+          <p>
+            فرض کنید Payment Service درخواست پرداخت دریافت کرده است:
+          </p>
+
+          <pre class="code-block" data-language="HTTP"><code>POST /api/payments</code></pre>
+
+          <p>
+            Payment Service برای ادامه عملیات باید Merchant را بررسی کند.
+          </p>
+
+          <div class="architecture-flow" aria-label="Payment gRPC Request Flow">
+
+            <div>Client</div>
+            <span aria-hidden="true">→</span>
+
+            <div>Payment API</div>
+            <span aria-hidden="true">→</span>
+
+            <div>Payment Service</div>
+            <span aria-hidden="true">→ gRPC →</span>
+
+            <div>Merchant Service</div>
+
+          </div>
+
+          <p>
+            Payment Service می‌تواند چنین Callی انجام دهد:
+          </p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">var merchant =
+    await merchantGrpcClient.GetMerchantAsync(
+        new GetMerchantRequest
+        {
+            MerchantId = request.MerchantId
+        });</code></pre>
+
+          <p>
+            Merchant Service نتیجه را برمی‌گرداند:
+          </p>
+
+          <pre class="code-block" data-language="C#"><code class="language-csharp">{
+    MerchantId = 1001,
+    IsActive = true
+}</code></pre>
+
+          <p>
+            Payment Service سپس عملیات Payment را ادامه می‌دهد.
+          </p>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="sync-title">
+
+          <h2 id="sync-title">
+            gRPC همچنان یک ارتباط Synchronous است
+          </h2>
+
+          <p>
+            نکته مهم این است که استفاده از gRPC مشکل Coupling زمانی بین
+            سرویس‌ها را حذف نمی‌کند.
+          </p>
+
+          <p>
+            اگر Payment Service برای پاسخ دادن حتماً منتظر Merchant Service باشد:
+          </p>
+
+          <pre class="code-block" data-language="Flow"><code>Payment Service
+      ↓
+wait
+      ↓
+Merchant Service</code></pre>
+
+          <p>
+            در صورت Down بودن Merchant Service، Payment Service نیز ممکن است
+            نتواند Request را کامل کند.
+          </p>
+
+          <p>
+            بنابراین کنار gRPC باید به موارد زیر نیز فکر کنیم:
+          </p>
+
+          <ul>
+            <li>Timeout</li>
+            <li>Retry</li>
+            <li>Circuit Breaker</li>
+            <li>Fallback</li>
+            <li>Bulkhead</li>
+            <li>Observability</li>
+          </ul>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="grpc-rabbit-title">
+
+          <h2 id="grpc-rabbit-title">
+            <bdi>gRPC vs Message Broker</bdi>
+          </h2>
+
+          <p>
+            gRPC و RabbitMQ یا Kafka جایگزین مستقیم یکدیگر نیستند.
+          </p>
+
+          <div class="comparison-table" role="region" aria-label="gRPC vs Message Broker" tabindex="0">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>ویژگی</th>
+                  <th>gRPC</th>
+                  <th>Message Broker</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                <tr>
+                  <td>نوع ارتباط</td>
+                  <td>معمولاً Synchronous</td>
+                  <td>Asynchronous</td>
+                </tr>
+
+                <tr>
+                  <td>نیاز به پاسخ فوری</td>
+                  <td>بله</td>
+                  <td>معمولاً خیر</td>
+                </tr>
+
+                <tr>
+                  <td>Temporal Coupling</td>
+                  <td>بیشتر</td>
+                  <td>کمتر</td>
+                </tr>
+
+                <tr>
+                  <td>Streaming</td>
+                  <td>بله</td>
+                  <td>مدل متفاوت</td>
+                </tr>
+
+                <tr>
+                  <td>Event Processing</td>
+                  <td>انتخاب اصلی نیست</td>
+                  <td>بسیار مناسب</td>
+                </tr>
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          <p>
+            مثال:
+          </p>
+
+          <pre class="code-block" data-language="Communication Choice"><code>بررسی موجودی حساب
+→ gRPC
+
+ارسال PaymentCompleted Event
+→ RabbitMQ / Kafka</code></pre>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="mistakes-title">
+
+          <h2 id="mistakes-title">
+            اشتباهات رایج
+          </h2>
+
+          <ul>
+
+            <li>
+              استفاده از gRPC برای تمام ارتباطات بدون بررسی نیاز واقعی.
+            </li>
+
+            <li>
+              نداشتن Deadline یا Timeout.
+            </li>
+
+            <li>
+              Retry بدون درنظر گرفتن Idempotency.
+            </li>
+
+            <li>
+              ایجاد زنجیره طولانی از Callهای Synchronous.
+            </li>
+
+            <li>
+              ایجاد Contractهای بسیار بزرگ در فایل Proto.
+            </li>
+
+            <li>
+              وابسته کردن Domain Model مستقیماً به Proto Model.
+            </li>
+
+            <li>
+              استفاده از gRPC به جای Event-driven Communication در جایی که
+              پاسخ فوری لازم نیست.
+            </li>
+
+          </ul>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="design-title">
+
+          <h2 id="design-title">
+            gRPC در System Design
+          </h2>
+
+          <p>
+            هنگام انتخاب gRPC فقط Performance را بررسی نکنید.
+          </p>
+
+          <p>
+            باید این سؤال‌ها را نیز بررسی کنید:
+          </p>
+
+          <ul>
+            <li>آیا ارتباط Synchronous لازم است؟</li>
+            <li>Latency چقدر مهم است؟</li>
+            <li>آیا Client مرورگر است؟</li>
+            <li>آیا Streaming نیاز داریم؟</li>
+            <li>Timeout چقدر باشد؟</li>
+            <li>Retry Policy چیست؟</li>
+            <li>آیا عملیات Idempotent است؟</li>
+            <li>اگر سرویس مقصد Down شود چه اتفاقی می‌افتد؟</li>
+            <li>Versioning فایل Proto چگونه مدیریت می‌شود؟</li>
+            <li>Observability و Distributed Tracing چگونه انجام می‌شود؟</li>
+          </ul>
+
+          <aside class="lesson-note">
+            انتخاب بین REST، gRPC و Messaging باید براساس نیاز سیستم باشد،
+            نه صرفاً سریع‌تر بودن یک تکنولوژی.
+          </aside>
+
+        </section>
+
+
+        <section class="lesson-section" aria-labelledby="practice-title">
+
+          <h2 id="practice-title">
+            تمرین کوتاه
+          </h2>
+
+          <p>
+            در یک سیستم Payment، Payment Service برای ادامه تراکنش باید
+            موجودی حساب را بلافاصله از Account Service دریافت کند.
+            کدام گزینه مناسب‌تر است؟
+          </p>
+
+          <ol>
+            <li>RabbitMQ Event</li>
+            <li>gRPC Unary Call</li>
+            <li>Background Job</li>
+            <li>Database Polling</li>
+          </ol>
+
+          <details class="lesson-answer">
+
+            <summary>
+              مشاهده پاسخ پیشنهادی
+            </summary>
+
+            <p>
+              گزینه ۲ یعنی <bdi>gRPC Unary Call</bdi>.
+              چون Payment Service برای ادامه عملیات به یک Response فوری از
+              Account Service نیاز دارد.
+            </p>
+
+          </details>
+
+        </section>
+
+
+        <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+
+          <h2 id="summary-title">
+            جمع‌بندی
+          </h2>
+
+          <ul>
+
+            <li>
+              gRPC یک Framework برای Remote Procedure Call است.
+            </li>
+
+            <li>
+              معمولاً از HTTP/2 و Protocol Buffers استفاده می‌کند.
+            </li>
+
+            <li>
+              Protobuf یک Contract strongly typed بین Client و Server ایجاد می‌کند.
+            </li>
+
+            <li>
+              Payload باینری معمولاً کوچک‌تر و سریع‌تر از JSON است.
+            </li>
+
+            <li>
+              gRPC از Unary و انواع مختلف Streaming پشتیبانی می‌کند.
+            </li>
+
+            <li>
+              gRPC برای ارتباط داخلی Microserviceها انتخاب بسیار مناسبی است.
+            </li>
+
+            <li>
+              REST معمولاً برای Public API و Browser Clientها ساده‌تر است.
+            </li>
+
+            <li>
+              gRPC همچنان می‌تواند Temporal Coupling ایجاد کند.
+            </li>
+
+            <li>
+              Timeout، Retry، Circuit Breaker و Idempotency در طراحی gRPC مهم هستند.
+            </li>
+
+            <li>
+              gRPC و Message Broker کاربرد متفاوتی دارند؛ یکی معمولاً برای
+              Request/Response فوری و دیگری برای ارتباط Asynchronous مناسب است.
+            </li>
+
+          </ul>
+
+        </section>
+
+
         <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
-          <a href="ch2-3.html">درس قبلی: <bdi>REST</bdi></a>
-          <a href="ch2-5.html">درس بعدی: <bdi>Reverse Proxy</bdi></a>
+
+          <a href="../index.html">
+            بازگشت به فهرست دوره
+          </a>
+
         </nav>
+
       </article>
+
     </main>
+
   </div>
+
 </body>
+
 </html>
