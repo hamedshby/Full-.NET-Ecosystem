@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="مقایسهٔ معماری RabbitMQ و Kafka با مثال ثبت سفارش؛ نقش Exchange، Queue، Binding، Topic، Partition و Consumer Group در مسیر پیام.">
+  <title>Architecture در RabbitMQ و Kafka | راهنمای جامع Microservices</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch6-1">
+      <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>6 - RabbitMQ vs Kafka</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+<div class="article-header">
+  <div class="article-tag">6.1 Architecture</div>
+  <h1>مقایسهٔ Architecture در RabbitMQ و Kafka</h1>
+  <div class="article-meta"><span>فصل ۶ — RabbitMQ vs Kafka</span><span>زمان مطالعه: حدود ۷ دقیقه</span><span>به‌روزرسانی: ۲۸ شهریور ۱۴۰۵</span></div>
+</div>
+<p>فرض کنید Order Service ثبت سفارش شمارهٔ ۴۲ را اعلام می‌کند. Billing Service باید از این اتفاق باخبر شود و Notification Service هم باید پیام مشتری را آماده کند. سؤال این درس این است: پیام از چه اجزایی عبور می‌کند و این دو سرویس در کجای معماری به آن متصل می‌شوند؟</p>
+<p><strong>Architecture</strong> در اینجا یعنی اجزای سیستم، مسئولیت هر جزء و ارتباط میان آن‌ها. برای مقایسه، یک پیام یکسان را در دو ساختار دنبال می‌کنیم؛ هدف این بخش، شناخت نقشهٔ سیستم است.</p>
+<nav aria-label="بخش‌های درس"><ul>
+<li><a href="#shared">اجزای مشترک</a></li><li><a href="#rabbitmq">نقشهٔ RabbitMQ</a></li><li><a href="#kafka">نقشهٔ Kafka</a></li><li><a href="#comparison">مقایسهٔ مسئولیت‌ها</a></li><li><a href="#boundaries">مرز این مدل ذهنی</a></li><li><a href="#exercise">تمرین معماری</a></li>
+</ul></nav>
+<section id="shared">
+<h2>۱. ابتدا نقش‌ها را مشخص کنیم</h2>
+<p><strong>Producer</strong> برنامه‌ای است که پیام را منتشر می‌کند؛ در مثال ما Order Service. <strong>Consumer</strong> برنامه‌ای است که پیام را دریافت و منطق مربوط به آن را اجرا می‌کند؛ مانند Billing Service. <strong>Broker</strong> سرویس زیرساختی میان این دو است که امکانات پیام‌رسانی را فراهم می‌کند. در هر دو محصول این نقش‌ها وجود دارند، اما ساختار داخلی Broker و نقطهٔ اتصال Consumer یکسان نیست.</p>
+<p>پیام نمونهٔ ما یک <strong>Event</strong> است؛ گزارشی از اتفاقی که رخ داده، مانند <code>OrderCreated</code>. محتوا می‌تواند چنین شکلی داشته باشد؛ این JSON صرفاً دادهٔ مثال است و دستور تنظیم Broker نیست:</p>
+<pre dir="ltr"><code>{
+  "eventId": "evt-1042",
+  "eventType": "OrderCreated",
+  "orderId": 42,
+  "customerId": 7
+}</code></pre>
+<p>این داده به‌تنهایی مقصد را مشخص نمی‌کند. در RabbitMQ تنظیم Exchange و Binding در مسیر پیام نقش دارد؛ در Kafka نام Topic و انتخاب Partition بخشی از انتشار هستند. اکنون این نام‌ها را روی نقشه تعریف می‌کنیم.</p>
+</section>
+<section id="rabbitmq">
+<h2>۲. RabbitMQ: ارتباط از مسیر Exchange و Queue</h2>
+<p>در مدل رایج RabbitMQ با پروتکل <bdi>AMQP 0-9-1</bdi>، <strong>Exchange</strong> نقطهٔ انتشار و تصمیم‌گیری دربارهٔ مسیر پیام است. <strong>Queue</strong> محل دریافت پیام‌های مسیریابی‌شده برای تحویل به Consumer است. <strong>Binding</strong> رابطه‌ای است که Exchange را با یک مقصد و قاعدهٔ مشخص به هم وصل می‌کند. <strong>Routing Key</strong> مقداری همراه انتشار است که بعضی Exchangeها برای تطبیق این قواعد استفاده می‌کنند.</p>
+<figure>
+<pre dir="ltr" aria-label="مسیر پیام از Order Service به دو Queue مستقل در RabbitMQ"><code>Order Service (Producer)
+          |
+          | Exchange: orders.events
+          | Routing Key: order.created
+          v
+     Topic Exchange
+          |
+          +-- Binding: order.created --&gt; billing.orders
+          |                                  |
+          |                                  v
+          |                            Billing Consumer
+          |
+          +-- Binding: order.created --&gt; notification.orders
+                                             |
+                                             v
+                                      Notification Consumer</code></pre>
+<figcaption>Exchange و هر دو Queue در Broker قرار دارند؛ Consumerها برنامه‌های متصل به آن هستند.</figcaption>
+</figure>
+<p>در این نقشه، <bdi>Topic Exchange</bdi> نوعی Exchange است که قواعد Binding را با Routing Key تطبیق می‌دهد. هر دو Binding با <code>order.created</code> سازگارند، بنابراین پیام به هر دو Queue مسیر دارد. Consumer مربوط به Billing از Queue خودش می‌خواند و Consumer مربوط به Notification از Queue دیگری.</p>
+<p>Exchange را با صندوق پیام یکی ندانید: مسئولیت آن Routing است و Queue نقطهٔ اتصال Consumer در این مدل است. حتی انتشار ظاهراً مستقیم به نام Queue در AMQP 0-9-1 از <bdi>Default Exchange</bdi> عبور می‌کند. جزئیات این مسیر در <a href="https://www.rabbitmq.com/docs/exchanges">مستندات Exchanges</a> آمده است.</p>
+<h3>دو سرویس مستقل یا دو نمونه از یک سرویس؟</h3>
+<p>این دو را روی نقشه جدا کنید. اگر دو Worker مربوط به Billing به همان <code>billing.orders</code> متصل شوند، در مصرف کارهای همان Queue مشارکت می‌کنند؛ اتصال به یک Queue مشترک به معنی دریافت مستقل همهٔ پیام‌ها توسط هر دو نیست. اما Billing و Notification دو مسئولیت متفاوت دارند و در مثال ما دو Queue مستقل برایشان تعریف کرده‌ایم. این تمایز در <a href="https://www.rabbitmq.com/docs/queues">مدل Queue و Consumer در RabbitMQ</a> توضیح داده شده است.</p>
+<p><strong>Virtual Host</strong> یا <bdi>vhost</bdi> محدوده‌ای منطقی برای منابع و مجوزهای RabbitMQ است. می‌توانید Exchangeها و Queueهای مثال را زیر یک vhost رسم کنید؛ آن را با یک سرور فیزیکی جداگانه اشتباه نگیرید. <a href="https://www.rabbitmq.com/docs/vhosts">مرجع Virtual Hosts</a>.</p>
+</section>
+<section id="kafka">
+<h2>۳. Kafka: ارتباط از مسیر Topic و Partition</h2>
+<p><strong>Topic</strong> نام یک جریان از Recordهاست؛ مثلاً <code>orders.events</code>. هر پیام ثبت‌شده در این جریان یک <strong>Record</strong> است. Topic به بخش‌هایی به نام <strong>Partition</strong> تقسیم می‌شود و هر Partition یک Log دارد؛ یعنی دنباله‌ای که Recordهای جدید به انتهای آن افزوده می‌شوند. Producer پیام را در یک Partition از Topic می‌نویسد.</p>
+<figure>
+<pre dir="ltr" aria-label="دو Consumer Group مستقل از یک Topic دارای سه Partition می‌خوانند"><code>Order Service (Producer)
+          |
+          | Topic: orders.events
+          | Key: orderId
+          v
+  +-----------------------------+
+  | Topic: orders.events        |
+  | Partition 0: [..][..][..]    |
+  | Partition 1: [..][42][..]    |
+  | Partition 2: [..][..][..]    |
+  +-----------------------------+
+          ^                 ^
+          | fetch           | fetch
+          |                 |
+   billing-group     notification-group
+   Billing Service   Notification Service</code></pre>
+<figcaption>قرارگرفتن سفارش ۴۲ در Partition 1 در این شکل فرض آموزشی است؛ شمارهٔ واقعی به منطق انتخاب Partition وابسته است.</figcaption>
+</figure>
+<p><strong>Key</strong> داده‌ای همراه Record است که می‌تواند در انتخاب Partition نقش داشته باشد؛ اینجا <code>orderId</code>. <strong>Consumer Group</strong> مجموعه‌ای از Consumerها با هویت گروهی مشترک است. در مدل معمول Subscription، Partitionها میان اعضای همان گروه تخصیص می‌یابند. دو گروه مستقل می‌توانند همان Topic را بخوانند؛ بنابراین Billing و Notification نام گروه متفاوتی دارند. <a href="https://kafka.apache.org/41/getting-started/introduction/">معرفی معماری Kafka</a>.</p>
+<p>در این مدل، Kafka برای هر سرویس یک Queue مشابه شکل RabbitMQ ایجاد نمی‌کند. Record در Topic قرار دارد و گروه‌ها خواندن خود را مستقل دنبال می‌کنند. <strong>Offset</strong> شمارهٔ موقعیت Record در یک Partition است؛ اطلاعات پیشرفت گروه نیز برای هر Partition نگهداری می‌شود. اینجا فقط جایگاه آن در نقشه مهم است، نه جزئیات Commit.</p>
+<p>Consumer از Broker درخواست داده می‌کند؛ این مسیر را <strong>Pull</strong> می‌نامیم. در مصرف اشتراکی رایج RabbitMQ، Broker تحویل را به Consumer ثبت‌شده انجام می‌دهد که معمولاً <strong>Push</strong> نامیده می‌شود. این تفاوت جهت تعامل است و به‌تنهایی هیچ نتیجه‌ای دربارهٔ سرعت نمی‌دهد. <a href="https://kafka.apache.org/41/design/design/">شرح Consumer در طراحی Kafka</a> و <a href="https://www.rabbitmq.com/docs/consumers">مرجع RabbitMQ Consumers</a>.</p>
+</section>
+<section id="comparison">
+<h2>۴. دو نقشه را بر اساس مسئولیت مقایسه کنیم</h2>
+<table>
+<caption>مقایسهٔ مدل Queue در RabbitMQ با مدل Consumer Group معمول در Kafka</caption>
+<thead><tr><th scope="col">پرسش معماری</th><th scope="col">RabbitMQ</th><th scope="col">Kafka</th></tr></thead>
+<tbody>
+<tr><th scope="row">Producer کجا منتشر می‌کند؟</th><td>Exchange، همراه اطلاعات Routing</td><td>Topic، با انتخاب یک Partition</td></tr>
+<tr><th scope="row">واحد ساختاری دریافت چیست؟</th><td>Queue متصل به Exchange</td><td>Partition درون Topic</td></tr>
+<tr><th scope="row">دو سرویس مستقل چگونه جدا می‌شوند؟</th><td>در مثال ما با Queueهای مستقل</td><td>در مثال ما با Consumer Groupهای مستقل</td></tr>
+<tr><th scope="row">ارتباط‌ها کجا تعریف می‌شوند؟</th><td>Bindingها و اتصال Consumer به Queue</td><td>انتشار در Topic و Subscription گروه‌ها</td></tr>
+</tbody>
+</table>
+<p>این جدول نگاشت یک‌به‌یک میان اجزا نیست. <bdi>Kafka Topic</bdi> معادل <bdi>RabbitMQ Topic Exchange</bdi> نیست: اولی نام جریان داده است؛ دومی نوعی جزء Routing. همچنین Consumer Group یک Queue جدید ایجاد نمی‌کند. تشابه اسم‌ها نباید باعث شود دو نمودار را فقط با عوض‌کردن برچسب‌ها یکسان فرض کنیم.</p>
+<h3>Broker با سرویس کسب‌وکار فرق دارد</h3>
+<p>کادر Broker محل زیرساخت پیام‌رسانی است، نه محل اجرای منطق صدور فاکتور. Consumer متعلق به Billing Service است و خودش این منطق را اجرا می‌کند. یک <strong>Cluster</strong> مجموعه‌ای از Nodeهای همکار است؛ Node را یک عضو اجراشوندهٔ زیرساخت در نظر بگیرید. نقشهٔ منطقی بالا الزاماً یک Broker روی یک ماشین را نشان نمی‌دهد. در Kafka، Partitionهای Topic می‌توانند روی Brokerهای مختلف باشند؛ در RabbitMQ نیز منابع در محدودهٔ Cluster تعریف می‌شوند. <a href="https://www.rabbitmq.com/docs/clustering">مرجع Clustering در RabbitMQ</a>.</p>
+</section>
+<section id="boundaries">
+<h2>۵. محدودهٔ این مقایسه چیست؟</h2>
+<p>RabbitMQ فقط مدل Queue ندارد؛ <strong>RabbitMQ Streams</strong> ساختاری مبتنی بر Log فراهم می‌کند. از طرف دیگر، Kafka علاوه بر Consumer Group معمول، مدل <strong>Share Group</strong> را نیز مطرح می‌کند که شیوهٔ اشتراک کار متفاوتی دارد. بنابراین دو شکل این درس، مدل‌های مشخص را مقایسه می‌کنند و تعریف تمام قابلیت‌های دو محصول نیستند. <a href="https://www.rabbitmq.com/docs/streams">RabbitMQ Streams</a> و <a href="https://kafka.apache.org/41/design/design/#share-groups">Kafka Share Groups در مستندات 4.1</a>.</p>
+<p>در این بخش نقشهٔ اجزا را شناختیم. تحلیل Speed، Throughput، Latency، Ordering، Retry، Persistence، Scalability و Use Cases در سرفصل‌های جداگانهٔ همین فصل انجام می‌شود؛ از شکل Architecture به‌تنهایی دربارهٔ آن‌ها نتیجه‌گیری نمی‌کنیم.</p>
+</section>
+<section id="exercise">
+<h2>۶. تمرین: سرویس سوم را به نقشه اضافه کنید</h2>
+<p>فرض کنید Audit Service هم باید مستقل از Billing و Notification از ثبت سفارش باخبر شود. بدون تغییر محتوای Event، در هر نقشه چه چیزی اضافه می‌کنید؟</p>
+<details><summary>مشاهدهٔ پاسخ و دلیل آن</summary>
+<p>در نقشهٔ RabbitMQ یک Queue مانند <code>audit.orders</code> با Binding مناسب به <code>orders.events</code> اضافه می‌کنیم و Audit Consumer را به آن وصل می‌کنیم. در نقشهٔ Kafka، Audit Consumer را با گروه مستقلی مانند <code>audit-group</code> به Topic موجود متصل می‌کنیم. در هر دو حالت استقلال مسئولیت حفظ می‌شود، اما محل نمایش این استقلال در معماری فرق دارد: یک Queue در اولی و هویت گروه مستقل در دومی.</p>
+<p>اگر Audit را به Queue مربوط به Billing یا گروه Billing متصل کنیم، آن را وارد تقسیم کار همان مجموعه کرده‌ایم؛ این با هدف «هر سرویس مستقل از ثبت سفارش باخبر شود» هماهنگ نیست. این تمرین یک نتیجهٔ معماری از مدل‌های توضیح‌داده‌شده است.</p>
+</details>
+</section>
+<section id="references"><h2>منابع رسمی برای مطالعهٔ بیشتر</h2>
+<ul>
+<li><a href="https://www.rabbitmq.com/docs/exchanges">RabbitMQ — Exchanges و Binding</a></li>
+<li><a href="https://www.rabbitmq.com/docs/queues">RabbitMQ — Queues</a></li>
+<li><a href="https://www.rabbitmq.com/docs/consumers">RabbitMQ — Consumers</a></li>
+<li><a href="https://kafka.apache.org/41/getting-started/introduction/">Apache Kafka — Introduction، نسخهٔ 4.1</a></li>
+<li><a href="https://kafka.apache.org/41/design/design/">Apache Kafka — Design، نسخهٔ 4.1</a></li>
+</ul>
+</section>
+
+      </div>
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a rel="prev" href="ch5-3.html">درس قبلی: <bdi>5.3 Producer</bdi></a>
+        <a rel="next" href="ch17-1.html">درس بعدی: <bdi>17.1 JWT Fundamentals</bdi></a>
+      </nav>
+    </main>
+  </div>
+  <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+</html>

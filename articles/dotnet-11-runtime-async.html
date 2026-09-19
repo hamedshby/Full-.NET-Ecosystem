@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="توضیح فارسی Runtime Async در .NET 11؛ از مثال سادهٔ await تا کاهش overhead، live stack traces و بررسی ادعاهای تصویر با منابع رسمی.">
+  <meta property="og:title" content="async/await در .NET 11؛ همان کد، اجرای هوشمندتر">
+  <meta property="og:description" content="Runtime Async چه چیزی را تغییر می‌دهد و چه انتظاری باید از آن داشت؟">
+  <title>async/await در .NET 11؛ همان کد، اجرای هوشمندتر | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="article.css">
+  <script src="../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#article-content">پرش به متن مقاله</a>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="ناوبری اصلی">
+      <a class="brand" href="../index.html">آکادمی دات‌نت</a>
+      <div class="nav-links articles-nav-links">
+        <a href="../index.html#courses">دوره‌ها</a>
+        <a href="../index.html#books">کتاب‌ها</a>
+        <a href="index.html" aria-current="page">مقالات</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="article-content">
+    <article class="article-shell">
+      <header class="article-hero">
+        <nav class="breadcrumbs" aria-label="مسیر صفحه"><a href="../index.html">خانه</a><span aria-hidden="true">/</span><a href="index.html">مقالات</a></nav>
+        <p class="eyebrow">.NET 11 · Runtime Async</p>
+        <h1><bdi>async/await</bdi> در <bdi>.NET 11</bdi>؛ همان کد، اجرای هوشمندتر</h1>
+        <p class="article-lead">فرض کنید برنامه منتظر پاسخ یک سرویس است. همچنان با <code>await</code> نتیجه را دریافت می‌کنید؛ تغییر تصویر دربارهٔ سازوکاری است که توقف و ادامهٔ متد را مدیریت می‌کند. از یک مثال ساده شروع می‌کنیم و بعد ادعاهای تصویر را دقیق‌تر می‌خوانیم.</p>
+        <div class="article-byline"><span>سطح: مقدماتی تا متوسط</span><span>حدود ۶ دقیقه مطالعه</span><span>بررسی منابع: ۲۸ شهریور ۱۴۰۵</span></div>
+      </header>
+      <div class="article-layout">
+        <aside class="article-toc" aria-labelledby="toc-title">
+          <h2 id="toc-title">در این مقاله</h2>
+          <ol><li><a href="#example">ابتدا یک مثال ساده</a></li><li><a href="#mechanism">چه چیزی تغییر می‌کند؟</a></li><li><a href="#image">خواندن دقیق تصویر</a></li><li><a href="#try">چگونه امتحان کنیم؟</a></li><li><a href="#measure">چه چیزی را اندازه بگیریم؟</a></li></ol>
+          <a class="source-link" href="#sources">منابع رسمی</a>
+        </aside>
+        <div class="article-body">
+          <section id="example">
+            <p class="section-kicker">از رفتار قابل مشاهده شروع کنیم</p>
+            <h2>منتظر ماندن بدون مسدودکردن Thread</h2>
+            <p><bdi>Thread</bdi> مسیر اجرای دستورهای برنامه است. <code>Task</code> انجام یک عملیات را نمایندگی می‌کند و <code>await</code> اجازه می‌دهد نتیجهٔ آن را پس از پایان دریافت کنیم، بدون اینکه برای انتظار، Thread اجراکننده را مسدود کنیم. این برنامهٔ کوچک را در یک پروژهٔ Console قرار دهید:</p>
+            <pre dir="ltr"><code>using System;
+using System.Threading.Tasks;
+
+Console.WriteLine("Before");
+await ProcessAsync();
+Console.WriteLine("After");
+
+static async Task ProcessAsync()
+{
+    await Task.Delay(1000);
+    Console.WriteLine("Completed");
+}</code></pre>
+            <p>ابتدا <code>Before</code> چاپ می‌شود. حدود یک ثانیه بعد <code>Completed</code> و سپس <code>After</code> را می‌بینید. <code>Task.Delay</code> برای این مثال نقش انتظار را دارد؛ زمان دقیق ادامهٔ اجرا به زمان‌بندی سیستم هم وابسته است.</p>
+            <p>این ترتیب نشان می‌دهد <code>await</code> دستور بعدی همان مسیر را تا پایان عملیات جلو نمی‌برد؛ اما Thread را برای انتظار نگه نمی‌دارد. همچنین <code>async</code> به‌تنهایی Thread جدید نمی‌سازد. اگر عملیات هنگام رسیدن به <code>await</code> تمام شده باشد، نیازی به توقف متد نیست. <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/await">مرجع رسمی await</a> و <a href="https://devblogs.microsoft.com/dotnet/asyncawait-faq/">Async/Await FAQ</a> این رفتار را توضیح می‌دهند.</p>
+          </section>
+          <section id="mechanism">
+            <h2>پشت همین کد چه اتفاقی می‌افتد؟</h2>
+            <p>وقتی یک متد متوقف می‌شود، باید اطلاعات لازم برای ادامهٔ آن حفظ شود: کجا بودیم و کدام مقدارها را بعداً لازم داریم؟ در مدل رایج، C# Compiler کد را به یک <bdi>State Machine</bdi> تبدیل می‌کند؛ ساختاری که وضعیت اجرای متد را نگه می‌دارد. کد تولیدشده پس از پایان انتظار از محل مناسب ادامه می‌یابد. این ساختار الزاماً یک Class با Allocation جداگانه برای هر فراخوانی نیست؛ جزئیات به مسیر اجرا و نوع ساخت وابسته است. <a href="https://devblogs.microsoft.com/dotnet/how-async-await-really-works/">توضیح سازوکار سنتی در .NET Blog</a>.</p>
+            <p><bdi>Runtime</bdi> محیط اجرای برنامه است. در <bdi>Runtime Async</bdi>، Compiler برای متدهای واجد شرایط، دستورهای میانی یا <bdi>IL</bdi> کوچک‌تری با اطلاعات لازم برای توقف تولید می‌کند. <bdi>JIT</bdi>، بخشی که هنگام اجرا کد را به دستورهای ماشین تبدیل می‌کند، مسئولیت بیشتری در تبدیل و اجرای این متدها می‌گیرد. پس Compiler حذف نشده؛ تقسیم کار تغییر کرده است. <a href="https://devblogs.microsoft.com/dotnet/performance-improvements-in-net-11/">شرح Runtime Async در بررسی عملکرد .NET 11</a>.</p>
+            <p>برای مثال بالا، انتظار ما از نتیجه تغییر نمی‌کند: همان سه پیام و همان ترتیب. ارزش تغییر در هزینهٔ اجرای این رفتار است، نه در نوشتن یک Keyword تازه. این تفاوت توضیح می‌دهد چرا شعار «همان کد» در تصویر معنادار است.</p>
+          </section>
+          <section id="image">
+            <h2>پنج پیام تصویر را چطور بخوانیم؟</h2>
+            <figure class="runtime-async-figure">
+              <img src="../assets/images/dotnet-11-runtime-async.png" width="673" height="673" loading="lazy" alt="اینفوگرافیک .NET 11: کد آشنای async/await، با ادعای Stack Trace خواناتر، overhead و Allocation کمتر و پشتیبانی از JIT، ReadyToRun و NativeAOT">
+              <figcaption>تصویر ارسالی؛ خلاصه‌ای تصویری که جزئیات و محدودیت‌های آن در متن بررسی شده است.</figcaption>
+            </figure>
+            <p><bdi>Stack Trace</bdi> فهرست فراخوانی‌های قابل مشاهده است؛ <bdi>Overhead</bdi> هزینهٔ اضافی سازوکار اجرا و <bdi>Allocation</bdi> تخصیص حافظه برای داده‌هاست.</p>
+            <ul>
+              <li><strong>Stack Trace خواناتر:</strong> بهبود اصلی در <bdi>Live Stack Trace</bdi> داخل Debugger و Profiler است. نمایش Exception از قبل پاک‌سازی‌هایی داشته؛ نباید هر دو را یکسان دانست.</li>
+              <li><strong>Overhead کمتر:</strong> مدیریت مستقیم‌تر توقف و ادامه، فرصت کاهش کارهای واسطه‌ای را می‌دهد.</li>
+              <li><strong>Allocation کمتر:</strong> استفادهٔ مجدد از اطلاعات ادامهٔ اجرا می‌تواند فشار تخصیص حافظه را کم کند؛ ادعای «بدون تخصیص» نداریم.</li>
+              <li><strong>اجرای بهینه‌تر:</strong> نتیجه به مسیر کد وابسته است؛ سرعت بیشتر در همهٔ برنامه‌ها تضمین نمی‌شود.</li>
+              <li><strong>فراتر از JIT:</strong> پشتیبانی از <bdi>ReadyToRun</bdi>، با بخشی از کد آمادهٔ اجرا، و <bdi>NativeAOT</bdi>، با تولید کد Native پیش از اجرا، نیز مستند شده است.</li>
+            </ul>
+            <p>مبنای این تفکیک: <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-11/runtime#runtime-async">مستندات رسمی Runtime Async</a>.</p>
+          </section>
+          <section id="try">
+            <h2>اجرای آزمایشی با تنظیم صریح</h2>
+            <aside class="callout"><strong>وضعیت نسخه:</strong> در مستندات بررسی‌شده برای <bdi>.NET 11 RC 1</bdi>، خود قابلیت <bdi>Runtime Async</bdi> همچنان Preview معرفی شده است. تنظیم زیر روش Opt-in مستندشده است؛ برای SDK نصب‌شدهٔ خود، راهنمای همان نسخه را بررسی کنید.</aside>
+            <p>با SDK سازگار با <bdi>.NET 11</bdi>، تنظیم‌های زیر را در فایل پروژهٔ آزمایشی قرار دهید. نمونهٔ قبلی محتوای <code>Program.cs</code> است.</p>
+            <pre dir="ltr"><code>&lt;Project Sdk="Microsoft.NET.Sdk"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;OutputType&gt;Exe&lt;/OutputType&gt;
+    &lt;TargetFramework&gt;net11.0&lt;/TargetFramework&gt;
+    &lt;Features&gt;runtime-async=on&lt;/Features&gt;
+  &lt;/PropertyGroup&gt;
+&lt;/Project&gt;</code></pre>
+            <p>سپس با <code>dotnet run -c Release</code> اجرا کنید. این نمونه فقط رفتار را نشان می‌دهد و Benchmark نیست. روش فعال‌سازی از <a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-11/runtime#runtime-async">راهنمای رسمی</a> آمده است.</p>
+          </section>
+          <section id="measure">
+            <h2>برای برنامهٔ خودمان چه نتیجه‌ای بگیریم؟</h2>
+            <p>فرض کنید دریافت پاسخ سرویس بیرونی ۵۰۰ میلی‌ثانیه زمان می‌برد. کاهش هزینهٔ مدیریت <code>await</code> آن سرویس را سریع‌تر نمی‌کند. برای دیدن اثر، باید هزینهٔ محلی برنامه را از زمان انتظار شبکه جدا کنید. این استدلال دلیل پرهیز از وعدهٔ یک درصد ثابت برای همهٔ برنامه‌هاست.</p>
+            <p>برای ارزیابی، دو ساخت با SDK و ورودی یکسان تهیه کنید: یکی با تنظیم صریح فعال‌سازی و دیگری با تنظیم غیرفعال‌سازی مستند همان نسخه. پس از چند اجرای اولیه، زمان پاسخ، تعداد عملیات در ثانیه و حافظهٔ تخصیص‌یافته را مقایسه کنید. مسیر دارای عملیات ازقبل‌تمام‌شده و مسیر دارای انتظار واقعی را جدا بسنجید؛ ترکیب آن‌ها ممکن است علت تغییر را پنهان کند.</p>
+            <p>در کنار عددها، نتیجهٔ عملیات، لغو درخواست و انتشار خطا را هم بررسی کنید. اگر برنامه پس از مهاجرت پاسخ اشتباه بدهد، کاهش زمان اجرا ارزشی ندارد. برای کد کاربردی، پیام تصویر این است: الگوی آشنای <code>async/await</code> را درست به کار ببرید و اثر تغییر زیرساخت را روی کار واقعی خود اندازه بگیرید.</p>
+          </section>
+          <footer id="sources" class="article-source">
+            <h2>منابع و تاریخ بررسی</h2>
+            <p>این مقاله با الهام از تصویر ارسالی نوشته شده است؛ منبع ادعاهای فنی، مستندات رسمی زیر است. بررسی در ۱۹ سپتامبر ۲۰۲۶ انجام شده و نمونهٔ کد در این مقاله برای آموزش است؛ نتیجهٔ Benchmark مستقلی گزارش نشده است.</p>
+            <ul class="reference-links">
+              <li><a href="https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-11/runtime">Microsoft Learn: تغییرات Runtime در .NET 11</a></li>
+              <li><a href="https://devblogs.microsoft.com/dotnet/performance-improvements-in-net-11/">.NET Blog: بررسی عملکرد .NET 11</a></li>
+              <li><a href="https://devblogs.microsoft.com/dotnet/how-async-await-really-works/">.NET Blog: سازوکار async/await</a></li>
+              <li><a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/await">Microsoft Learn: مرجع await</a></li>
+            </ul>
+          </footer>
+        </div>
+      </div>
+    </article>
+  </main>
+  <footer class="site-footer">
+    <p><strong>آکادمی دات‌نت</strong>؛ آموزش حرفه‌ای برای ساختن نرم‌افزارهای بهتر.</p>
+    <nav aria-label="پیوندهای پایانی"><a href="../index.html">صفحهٔ اصلی</a><a href="index.html">مقالات</a></nav>
+    <p>© ۱۴۰۵ آکادمی دات‌نت</p>
+  </footer>
+</body>
+</html>

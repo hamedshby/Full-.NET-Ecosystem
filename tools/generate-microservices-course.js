@@ -90,7 +90,8 @@ ${content}
 
 fs.mkdirSync(outputRoot, { recursive: true });
 for (const [index, lesson] of availableLessons.entries()) {
-  const sourcePath = path.join(sourceRoot, `${lesson.id}.html`);
+  const localSource = path.join(root, "courses", "microservices", "content", `${lesson.id}.html`);
+  const sourcePath = fs.existsSync(localSource) ? localSource : path.join(sourceRoot, `${lesson.id}.html`);
   if (!fs.existsSync(sourcePath)) throw new Error(`Missing source chapter: ${sourcePath}`);
   const source = fs.readFileSync(sourcePath, 'utf8');
   fs.writeFileSync(path.join(outputRoot, `${lesson.id}.html`), renderPage(lesson, source, index), 'utf8');

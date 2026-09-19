@@ -12,8 +12,8 @@ test('Microservices catalog preserves every source heading and availability stat
   assert.equal(microservicesChapters.length, 19);
   assert.equal(lessons.length, 154);
   assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 154);
-  assert.equal(availableLessons.length, 27);
-  assert.equal(lessons.filter(lesson => !lesson.available).length, 127);
+  assert.equal(availableLessons.length, 28);
+  assert.equal(lessons.filter(lesson => !lesson.available).length, 126);
   assert.deepEqual(
     microservicesChapters.map(chapter => chapter.title),
     [
@@ -62,6 +62,7 @@ test('every available catalog lesson has a source chapter file', () => {
   const { availableLessons } = require('../courses/microservices/course-navigation.js');
   for (const lesson of availableLessons) {
     assert.ok(
+      fs.existsSync(path.join(root, 'courses', 'microservices', 'content', `${lesson.id}.html`)) ||
       fs.existsSync(path.join(root, '..', 'MicroService', 'chapters', `${lesson.id}.html`)),
       lesson.id
     );
