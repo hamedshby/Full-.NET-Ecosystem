@@ -1,40 +1,319 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="آموزش 15.7 Grafana در راهنمای جامع Microservices؛ ">
-  <title>15.7 Grafana | راهنمای جامع Microservices</title>
-  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <meta name="description"
+    content="آموزش Grafana در Microservices در راهنمای جامع Microservices؛ Monitoring · 15.7  Data Source، Dashboard، Panel، Variable و Alerting؛ Provisioning به‌عنوان کد و یک نمونهٔ قابل‌اجرا با Docker Compose">
+  <title>Grafana در Microservices | راهنمای جامع Microservices</title>
+  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
   <link rel="stylesheet" href="../course.css">
   <script defer src="../course-navigation.js"></script>
   <script defer src="../course.js"></script>
 </head>
+
 <body>
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
     <a href="../../../index.html">آکادمی دات‌نت</a>
     <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
-    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
-    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست
+      فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره"
+      title="فعال‌کردن تم تیره">تم</button>
   </header>
   <div class="course-shell">
-    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch15-7">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices"
+      data-current-lesson="ch15-7">
       <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
       <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
     </aside>
     <main id="lesson-content" class="lesson-content">
-      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>15 - Monitoring</bdi></nav>
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>15 -
+          Monitoring</bdi></nav>
       <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
       <div class="lesson-body">
+        <div class="article-header">
+          <span class="article-tag">Monitoring · 15.7</span>
+          <h1>Grafana در Microservices</h1>
+          <p>از Data Source تا Dashboard قابل‌اشتراک؛ Panel، Variable، Alerting و Provisioning به‌عنوان کد</p>
+        </div>
+        <section>
+          <h2>۱. سه سؤال دربارهٔ یک صفحهٔ نمایش</h2>
+          <p>مدیر عملیات هر صبح می‌خواهد در یک نگاه ببیند وضعیت کلی سرویس‌ها سالم است یا نه. توسعه‌دهنده می‌خواهد روند
+            زمان پاسخ یک Endpoint خاص را در دو هفتهٔ گذشته مقایسه کند. تیم پشتیبانی می‌خواهد به‌محض عبور نرخ خطا از یک
+            آستانه، پیامکی دریافت کند. Prometheus این داده را ذخیره می‌کند، اما نمایش، مقایسه و هشدار روی آن، کار یک
+            لایهٔ دیگر است.</p>
+          <p><strong>Grafana</strong> ابزاری متن‌باز برای نمایش، کاوش و هشداردهی روی داده‌های سری‌زمانی است. Grafana
+            خودش داده تولید یا ذخیره نمی‌کند؛ به یک یا چند <strong>Data Source</strong> مثل Prometheus وصل می‌شود،
+            پرس‌وجو را به آن می‌فرستد و نتیجه را در قالب نمودار، جدول یا عدد نمایش می‌دهد.</p>
+          <p>در زنجیرهٔ مانیتورینگ، Prometheus مسئول جمع‌آوری و ذخیرهٔ Metric است و Grafana مسئول نمایش و هشدار مبتنی بر
+            همان داده؛ جای‌گزین Prometheus نیست و می‌تواند هم‌زمان به چند Backend دیگر مثل Loki برای Log یا Tempo برای
+            Trace هم متصل شود.</p>
+        </section>
+        <section>
+          <h2>۲. مفاهیم پایه: Data Source، Dashboard، Panel و Query</h2>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">مفهوم</th>
+                <th scope="col">معنی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data Source</td>
+                <td>اتصال پیکربندی‌شده به یک منبع داده، مثل یک سرور Prometheus با آدرس و احراز هویت مشخص</td>
+              </tr>
+              <tr>
+                <td>Dashboard</td>
+                <td>مجموعه‌ای از Panelها که در کنار هم یک دید کامل از یک سرویس یا موضوع می‌سازند</td>
+              </tr>
+              <tr>
+                <td>Panel</td>
+                <td>یک واحد نمایش، مثل یک نمودار خطی یا یک عدد تکی، که از یک یا چند Query تغذیه می‌شود</td>
+              </tr>
+              <tr>
+                <td>Query</td>
+                <td>عبارتی به زبان همان Data Source، مثلاً PromQL، که Panel برای گرفتن داده اجرا می‌کند</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>هر Panel به‌طور مستقل Data Source و Query خودش را دارد؛ بنابراین یک Dashboard می‌تواند هم‌زمان از چند Data
+            Source مختلف تغذیه شود. تغییر بازهٔ زمانی بالای Dashboard روی همهٔ Panelها اثر می‌گذارد، اما تنظیمات نمایش
+            هر Panel جداگانه است.</p>
+        </section>
+        <section>
+          <h2>۳. انواع رایج Panel</h2>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">نوع Panel</th>
+                <th scope="col">کاربرد مناسب</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Time series</td>
+                <td>روند یک یا چند مقدار در طول زمان، مثل نرخ درخواست یا مصرف حافظه</td>
+              </tr>
+              <tr>
+                <td>Stat</td>
+                <td>یک عدد لحظه‌ای بزرگ، مثل تعداد کاربر فعال یا وضعیت آخرین Deploy</td>
+              </tr>
+              <tr>
+                <td>Gauge</td>
+                <td>یک مقدار نسبت به آستانه‌های مشخص، مثل درصد اشغال دیسک</td>
+              </tr>
+              <tr>
+                <td>Table</td>
+                <td>مقایسهٔ چند سری کنار هم به‌صورت سطر و ستون، مثل زمان پاسخ به‌ازای هر Endpoint</td>
+              </tr>
+              <tr>
+                <td>Heatmap</td>
+                <td>توزیع مقدارها در طول زمان، مناسب برای نمایش Bucketهای Histogram</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>انتخاب نوع Panel به شکل داده بستگی دارد، نه فقط سلیقه: یک Histogram معمولاً در Heatmap یا با محاسبهٔ صدک در
+            Time series بهتر دیده می‌شود، در حالی‌که یک Counter تجمیع‌نشده در Stat گمراه‌کننده است و باید پیش از نمایش
+            با rate() تبدیل شود.</p>
+        </section>
+        <section>
+          <h2>۴. Provisioning: تعریف Data Source و Dashboard به‌عنوان کد</h2>
+          <p>ساخت Data Source و Dashboard از طریق رابط وب سریع است، اما با هر بازسازی Container از بین می‌رود.
+            <strong>Provisioning</strong> یعنی تعریف همین تنظیمات در فایل‌های YAML و JSON که Grafana هنگام بالا آمدن
+            آن‌ها را می‌خواند؛ به این ترتیب تنظیمات در Git نگه‌داری و در محیط‌های مختلف تکرارپذیر می‌شود.</p>
+          <div class="code-head"><span>provisioning/datasources/prometheus.yml</span><button type="button"
+              data-copy-code>کپی کد</button></div>
+          <pre dir="ltr"><code>apiVersion: 1
 
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true</code></pre>
+          <p>مقدار url به آدرس سرویس Prometheus در همان شبکه اشاره می‌کند، نه به localhost؛ در Docker Compose این آدرس
+            معمولاً نام سرویس در همان فایل Compose است. access: proxy یعنی درخواست از سمت سرور Grafana به Data Source
+            ارسال می‌شود، نه مستقیماً از مرورگر کاربر.</p>
+        </section>
+        <section>
+          <h2>۵. نمونهٔ اجرایی: Prometheus، Grafana و سرویس .NET با Docker Compose</h2>
+          <p>این نمونه سرویس Order از درس Prometheus را با Prometheus و Grafana در یک شبکه اجرا می‌کند. ساختار پوشه:</p>
+          <pre dir="ltr"><code>.
+├── docker-compose.yml
+├── prometheus.yml
+└── grafana/
+    └── provisioning/
+        └── datasources/
+            └── prometheus.yml</code></pre>
+          <div class="code-head"><span>docker-compose.yml</span><button type="button" data-copy-code>کپی کد</button>
+          </div>
+          <pre dir="ltr"><code>services:
+  order-service:
+    build: ./order-service
+    ports:
+      - "15201:8080"
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus</code></pre>
+          <p>در prometheus.yml مربوط به این Compose، آدرس Target باید نام سرویس order-service باشد، نه localhost:</p>
+          <div class="code-head"><span>prometheus.yml</span><button type="button" data-copy-code>کپی کد</button></div>
+          <pre dir="ltr"><code>global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'order-service'
+    static_configs:
+      - targets: ['order-service:8080']</code></pre>
+          <pre dir="ltr"><code>docker compose up -d</code></pre>
+          <p>پس از بالا آمدن، آدرس http://localhost:3000 را باز کنید. کاربر و رمز پیش‌فرض admin/admin است و در اولین
+            ورود تغییر رمز درخواست می‌شود. Data Source با نام Prometheus باید از قبل، بدون نیاز به تنظیم دستی، در فهرست
+            Data Sourceها دیده شود.</p>
+        </section>
+        <section>
+          <h2>۶. ساخت اولین Dashboard</h2>
+          <p>در بخش Dashboards گزینهٔ New و سپس New Dashboard را انتخاب کنید، یک Panel اضافه کنید و در بخش Query این
+            عبارت را بنویسید:</p>
+          <pre dir="ltr"><code>rate(shop_orders_completed_total[1m])</code></pre>
+          <p>نوع Panel را روی Time series نگه دارید و روی Apply بزنید. برای دیدن تغییر در نمودار، چند درخواست به سرویس
+            order-service بفرستید و چند ثانیه صبر کنید تا Prometheus مقدار جدید را Scrape کند.</p>
+          <pre dir="ltr"><code>1..5 | ForEach-Object {
+    Invoke-RestMethod -Method Post "http://localhost:15201/orders/$_"
+}</code></pre>
+          <p>یک Panel دوم با نوع Stat و عبارت زیر برای مشاهدهٔ اندازهٔ لحظه‌ای صف اضافه کنید:</p>
+          <pre dir="ltr"><code>shop_orders_queue_size</code></pre>
+          <p>Dashboard را با نامی مثل Order Service Overview ذخیره کنید. ذخیره‌شدن از طریق رابط وب، تنظیمات را در
+            پایگاه‌دادهٔ داخلی Grafana نگه می‌دارد؛ برای نگه‌داری آن به‌صورت فایل قابل‌بازبینی در Git، باید Dashboard را
+            Export و به پوشهٔ Provisioning اضافه کرد.</p>
+        </section>
+        <section>
+          <h2>۷. Variable: یک Dashboard برای چند نمونه از سرویس</h2>
+          <p><strong>Variable</strong> مقداری است که در بالای Dashboard قابل‌انتخاب است و می‌تواند داخل Queryها جایگزین
+            شود؛ به این ترتیب یک Dashboard می‌تواند بدون تغییر، برای چند سرویس یا چند نمونه از یک سرویس استفاده شود.
+            برای ساخت آن، در تنظیمات Dashboard بخش Variables را باز کنید و یک Variable با نام job از نوع Query تعریف
+            کنید که مقدارش را از خود Prometheus می‌گیرد:</p>
+          <pre dir="ltr"><code>label_values(job)</code></pre>
+          <p>سپس در Query هر Panel، مقدار ثابت job را با متغیر جایگزین کنید:</p>
+          <pre dir="ltr"><code>rate(shop_orders_completed_total{job="$job"}[1m])</code></pre>
+          <p>اکنون یک منوی کشویی در بالای Dashboard ظاهر می‌شود که کاربر می‌تواند سرویس موردنظر را انتخاب کند، بدون نیاز
+            به ساخت یک Dashboard جداگانه برای هر سرویس.</p>
+        </section>
+        <section>
+          <h2>۸. Alerting در Grafana</h2>
+          <p>Grafana می‌تواند مستقل از Alertmanager خود Prometheus، قواعد هشدار تعریف کند. این قواعد روی هر Panel یا
+            به‌صورت متمرکز در بخش Alerting قابل تعریف‌اند و بر پایهٔ همان Query کار می‌کنند؛ اگر نتیجهٔ Query از آستانهٔ
+            مشخصی عبور کند، هشدار فعال می‌شود.</p>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">بخش قاعده</th>
+                <th scope="col">معنی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Query</td>
+                <td>همان عبارت PromQL که مقدار مورد بررسی را برمی‌گرداند</td>
+              </tr>
+              <tr>
+                <td>Condition</td>
+                <td>شرطی مثل IS ABOVE 10 که روی نتیجهٔ Query اعمال می‌شود</td>
+              </tr>
+              <tr>
+                <td>Evaluation interval</td>
+                <td>فاصلهٔ زمانی بررسی مجدد شرط</td>
+              </tr>
+              <tr>
+                <td>For</td>
+                <td>مدتی که شرط باید پیوسته برقرار بماند تا هشدار از Pending به Firing برسد</td>
+              </tr>
+              <tr>
+                <td>Contact point</td>
+                <td>مقصد اعلان، مثل ایمیل، Slack یا Webhook</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>فیلد For برای جلوگیری از هشدارهای زودگذر مهم است؛ بدون آن، یک جهش لحظه‌ای در ترافیک می‌تواند هشدار کاذب
+            ایجاد کند. تعریف Contact point و مسیر اعلان جدا از تعریف خود قاعده انجام می‌شود؛ به این ترتیب می‌توان چند
+            قاعده را به یک مقصد مشترک وصل کرد بدون تکرار تنظیمات.</p>
+        </section>
+        <section>
+          <h2>۹. سازمان‌دهی و کنترل دسترسی</h2>
+          <ul>
+            <li>Dashboardهای مرتبط را در یک Folder قرار دهید؛ دسترسی و اشتراک‌گذاری در سطح Folder ساده‌تر از تک‌تک
+              Dashboardهاست.</li>
+            <li>به‌جای کپی‌کردن یک Dashboard برای هر سرویس، از Variable برای پارامتری‌کردن آن استفاده کنید.</li>
+            <li>Dashboardهای پرکاربرد را Export و در Provisioning نگه دارید تا با تغییر Container از بین نروند.</li>
+            <li>Panelهای زیاد با Refresh کوتاه روی یک صفحه، فشار پرس‌وجوی زیادی به Data Source وارد می‌کند؛ بازهٔ
+              Refresh را متناسب با نیاز واقعی تنظیم کنید.</li>
+          </ul>
+          <p>Grafana خودش دادهٔ Metric را تغییر یا حذف نمی‌کند؛ حذف یک Panel یا Dashboard فقط نمایش را از بین می‌برد، نه
+            Time Seriesهای ذخیره‌شده در Prometheus.</p>
+        </section>
+        <section>
+          <h2>۱۰. عیب‌یابی و تمرین</h2>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">مشکل</th>
+                <th scope="col">بررسی اول</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data Source وضعیت خطا نشان می‌دهد</td>
+                <td>درستی url در تنظیمات Data Source و دسترسی شبکهٔ Container به Prometheus</td>
+              </tr>
+              <tr>
+                <td>Panel داده‌ای نشان نمی‌دهد</td>
+                <td>درستی نام Metric و Label در Query، و بازهٔ زمانی انتخاب‌شدهٔ Dashboard</td>
+              </tr>
+              <tr>
+                <td>Variable مقداری نشان نمی‌دهد</td>
+                <td>درستی عبارت label_values و اینکه Metric مربوط حداقل یک بار Scrape شده باشد</td>
+              </tr>
+              <tr>
+                <td>هشدار فعال نمی‌شود</td>
+                <td>بررسی Condition، مقدار For و اینکه Evaluation در حال اجراست</td>
+              </tr>
+              <tr>
+                <td>Dashboard پس از بازسازی Container ناپدید شده</td>
+                <td>ذخیره‌نشدن آن در Provisioning و تکیه بر پایگاه‌دادهٔ داخلی موقت</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><strong>تمرین اول:</strong> یک Panel از نوع Table بسازید که هم‌زمان نرخ تکمیل سفارش و اندازهٔ صف را در دو
+            ستون کنار هم نشان دهد و نتیجه را با دیدن همان دو مقدار در دو Panel جدا مقایسه کنید.</p>
+          <p><strong>تمرین دوم:</strong> یک قاعدهٔ هشدار برای زمانی تعریف کنید که shop_orders_queue_size برای مدت یک
+            دقیقه بیشتر از ۵۰ بماند و با ارسال درخواست‌های پیاپی، رفتار Pending و Firing را مشاهده کنید.</p>
+          <p><strong>پرسش مرور:</strong> اگر Prometheus برای چند دقیقه از دسترس خارج شود، آیا Panelهای Grafana دادهٔ آن
+            بازه را از جایی دیگر می‌گیرند؟ خیر؛ Grafana فقط نمایش‌دهندهٔ همان چیزی است که Data Source برمی‌گرداند و خودش
+            داده‌ای ذخیره نمی‌کند، پس آن بازه در نمودار خالی یا ناپیوسته دیده می‌شود.</p>
+        </section>
       </div>
       <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
-        <a rel="prev" href="ch15-6.html">درس قبلی: <bdi>15.6 Prometheus</bdi></a>
-        <a rel="next" href="ch15-8.html">درس بعدی: <bdi>15.8 Jaeger</bdi></a>
+        <a rel="prev" href="ch15-6.html">درس قبلی: <bdi>15.6 Prometheus در Microservices</bdi></a>
+        <a rel="next" href="ch17-1.html">درس بعدی: <bdi>17.1 JWT Fundamentals</bdi></a>
       </nav>
     </main>
   </div>
   <div id="copy-status" role="status" aria-live="polite"></div>
 </body>
+
 </html>
