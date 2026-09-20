@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="آموزش Logging در Microservices با مثال عملی ASP.NET Core، Structured Logging، Log Level، Scope، Exception و جمع‌آوری مرکزی Logها.">
+<title>Logging | راهنمای جامع Microservices</title>
+<script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+<link rel="stylesheet" href="../course.css">
+<script defer src="../course-navigation.js"></script>
+<script defer src="../course.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+<header class="course-header">
+<a href="../../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+<button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+<button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+</header>
+<div class="course-shell">
+<aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch15-1">
+<h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+<p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+</aside>
+<main id="lesson-content" class="lesson-content">
+<nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>15 - Monitoring</bdi></nav>
+<div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+<div class="lesson-body">
+<div class="article-header">
+  <span class="article-tag">Monitoring · 15.1</span>
+  <h1>Logging در Microservices</h1>
+  <p>از پیدا کردن یک سفارش ناموفق تا ثبت رخدادهای قابل جست‌وجو در ASP.NET Core</p>
+</div>
+<section>
+<h2>۱. چرا سفارش ۴۲ تکمیل نشد؟</h2>
+<p>کاربر روی «ثبت سفارش» کلیک کرده، اما نتیجه را دریافت نکرده است. سرویس Order درخواست را پذیرفته، سرویس Payment پرداخت را بررسی کرده و سرویس Inventory باید موجودی را رزرو می‌کرده است. وقتی فقط پیام «خطایی رخ داد» را داریم، معلوم نیست کدام مرحله متوقف شده است.</p>
+<p><strong>Logging</strong> یعنی ثبت رخدادهای اجرای برنامه به شکلی که بعداً بتوانیم آن‌ها را بررسی کنیم. هر <strong>Log</strong> یک سابقه از یک اتفاق است؛ مثلاً «درخواست پرداخت سفارش ۴۲ در زمان مشخص ناموفق شد». نمونهٔ زیر آموزشی است و قالب خروجی یک ابزار خاص نیست:</p>
+<pre dir="ltr"><code>10:00:00Z  Information  Order      OrderId=42  Order accepted
+10:00:01Z  Information  Payment    OrderId=42  Payment approved
+10:00:03Z  Warning      Inventory  OrderId=42  Reservation timed out</code></pre>
+<p>اکنون یک سرنخ داریم: پرداخت تأیید شده، اما پاسخ رزرو موجودی به‌موقع نرسیده است. هنوز نمی‌توان گفت رزرو انجام نشده؛ شاید عملیات انجام شده و پاسخ آن گم شده باشد. Log شاهد یک رفتار مشاهده‌شده است، نه اثبات وضعیت نهایی همهٔ سرویس‌ها. برای تصمیم تجاری باید وضعیت سفارش و نتیجهٔ عملیات را هم بررسی کنیم.</p>
+</section>
+<section>
+<h2>۲. تفاوت Log، Metric و Trace</h2>
+<p><strong>Metric</strong> یک اندازه‌گیری عددی است؛ مثلاً تعداد سفارش‌های ناموفق در هر دقیقه. <strong>Trace</strong> مسیر اجرای یک عملیات بین چند بخش یا سرویس را نشان می‌دهد. <strong>Monitoring</strong> پایش وضعیت سیستم است و می‌تواند از هر سه نوع اطلاعات استفاده کند.</p>
+<table><thead><tr><th scope="col">نوع اطلاعات</th><th scope="col">پرسش نمونه</th><th scope="col">کاربرد</th></tr></thead><tbody>
+<tr><td>Log</td><td>برای سفارش ۴۲ چه اتفاقی افتاد؟</td><td>بررسی جزئیات یک رخداد</td></tr>
+<tr><td>Metric</td><td>چند درصد سفارش‌ها ناموفق‌اند؟</td><td>تشخیص تغییر وضعیت و تعریف Alert</td></tr>
+<tr><td>Trace</td><td>درخواست در کدام سرویس کند شد؟</td><td>مشاهدهٔ مسیر و مدت اجرای بخش‌ها</td></tr>
+</tbody></table>
+<p>مثلاً افزایش نرخ خطا شما را متوجه مشکل می‌کند؛ Trace سرویس کند را مشخص می‌کند و Log همان عملیات، خطا و شناسهٔ سفارش را در اختیار شما قرار می‌دهد. ثبت هزاران Log به‌تنهایی جای اندازه‌گیری نرخ خطا را نمی‌گیرد.</p>
+</section>
+<section>
+<h2>۳. چه اطلاعاتی ثبت کنیم؟</h2>
+<p>یک پیام قابل‌استفاده باید توضیح دهد چه اتفاقی، در کدام سرویس، برای کدام عملیات و با چه نتیجه‌ای رخ داده است. زمان را با UTC ثبت کنید تا تبدیل منطقهٔ زمانی باعث ابهام نشود؛ UTC جای همگام‌سازی ساعت سرورها را نمی‌گیرد.</p>
+<ul>
+<li><strong>Timestamp:</strong> زمان رخداد؛ برای محدود کردن بازهٔ جست‌وجو.</li>
+<li><strong>ServiceName و Environment:</strong> مثلاً OrderService و Production؛ برای جدا کردن سرویس و محیط.</li>
+<li><strong>Level و EventId:</strong> اهمیت رخداد و شناسهٔ ثابت نوع آن؛ مثلاً ۱۰۰۱ برای پذیرش سفارش.</li>
+<li><strong>OrderId یا MessageId:</strong> شناسهٔ عملیاتی که بررسی می‌کنیم. شناسه‌های تجاری هم باید مطابق سیاست دسترسی سازمان محافظت شوند.</li>
+<li><strong>Outcome و DurationMs:</strong> نتیجه و زمان سپری‌شده، وقتی برای رخداد معنی دارند.</li>
+<li><strong>Exception:</strong> اطلاعات خطای غیرمنتظره، در صورت وقوع و با توجه به احتمال وجود دادهٔ حساس در آن.</li>
+</ul>
+<p>نام فیلدها را بین سرویس‌ها هماهنگ نگه دارید. اگر یکی از سرویس‌ها OrderId و دیگری order_number بنویسد، جست‌وجوی یک سفارش به دانستن قرارداد هر سرویس وابسته می‌شود.</p>
+</section>
+<section>
+<h2>۴. Structured Logging: پیام به‌علاوهٔ داده</h2>
+<p><strong>Structured Logging</strong> یعنی مقدارهای مهم را جدا از متن پیام نگه داریم. این کار اجازه می‌دهد ابزار جست‌وجو روی فیلد OrderId فیلتر کند، نه اینکه فقط دنبال یک قطعه متن بگردد.</p>
+<div class="code-head"><span>C# · مقایسه</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>// The value becomes part of a single string.
+logger.LogInformation($"Order {orderId} accepted");
+
+// A stable template and a named property.
+logger.LogInformation("Order {OrderId} accepted", orderId);</code></pre>
+<p>در خط دوم، <strong>Message Template</strong> همان متن ثابت دارای جای‌نگهدار <code dir="ltr">{OrderId}</code> است. مقدار واقعی به‌صورت آرگومان جداگانه ارسال می‌شود. ذخیره و نمایش فیلدها به Provider وابسته است؛ صرف استفاده از Template به معنی وجود یک پایگاه جست‌وجوی مرکزی نیست.</p>
+<p><strong>Provider</strong> بخشی است که رخدادهای Logger را به یک خروجی می‌فرستد؛ مثلاً Console. <code dir="ltr">ILogger&lt;T&gt;</code> رابط ثبت رخداد است و نوع T به تعیین Category کمک می‌کند. <strong>Category</strong> نام گروه تولیدکنندهٔ Log است و برای فیلترکردن مفید است. مستندات <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview">Logging در .NET</a> قرارداد این APIها را توضیح می‌دهند.</p>
+</section>
+<section>
+<h2>۵. انتخاب Log Level با مثال</h2>
+<p><strong>Log Level</strong> اهمیت رخداد را مشخص می‌کند. تصمیم را بر اساس نتیجهٔ عملیات بگیرید؛ وجود Exception همیشه به معنی اختلال گسترده نیست.</p>
+<table><thead><tr><th scope="col">Level</th><th scope="col">مثال در فروشگاه</th></tr></thead><tbody>
+<tr><td>Trace</td><td>جزئیات بسیار ریز مراحل داخلی؛ معمولاً فقط در بررسی محدود یک مشکل.</td></tr>
+<tr><td>Debug</td><td>تعداد اقلام خوانده‌شده از Cache برای عیب‌یابی.</td></tr>
+<tr><td>Information</td><td>پذیرش سفارش یا تکمیل موفق یک عملیات مهم.</td></tr>
+<tr><td>Warning</td><td>Timeout موقت که برای آن تلاش مجدد برنامه‌ریزی شده است.</td></tr>
+<tr><td>Error</td><td>شکست نهایی عملیات پرداخت پس از تمام تلاش‌های مجاز.</td></tr>
+<tr><td>Critical</td><td>اختلالی که ادامهٔ کار بخش حیاتی سرویس را ناممکن کرده است.</td></tr>
+<tr><td>None</td><td>مقدار تنظیماتی برای غیرفعال‌کردن ثبت؛ Level یک رخداد نیست.</td></tr>
+</tbody></table>
+<p>مثلاً رد شدن پرداخت به علت موجودی ناکافی می‌تواند یک نتیجهٔ تجاری عادی باشد؛ ثبت آن با Error، گزارش سلامت فنی را گمراه می‌کند. برای Retry نیز هر تلاش را شکست نهایی معرفی نکنید: شمارهٔ تلاش و نتیجهٔ نهایی را از هم جدا ثبت کنید.</p>
+</section>
+<section>
+<h2>۶. نمونهٔ قابل‌اجرای ASP.NET Core</h2>
+<p>این نمونه با .NET 10 ساخته می‌شود و یک Endpoint آموزشی دارد که پذیرش سفارش را شبیه‌سازی می‌کند. Database و پرداخت واقعی ندارد. ابتدا پروژه را بسازید:</p>
+<div class="code-head"><span>Terminal</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet new web -n LoggingDemo -f net10.0
+cd LoggingDemo</code></pre>
+<p>محتوای Program.cs را با کد زیر جایگزین کنید. <strong>Dependency Injection</strong> یعنی دریافت وابستگی آماده از Container برنامه؛ در اینجا ASP.NET Core مقدار ILogger را به Endpoint می‌دهد. <strong>Scope</strong> مجموعه‌ای از اطلاعات مشترک برای Logهای یک محدودهٔ اجرای منطقی است. using پایان عمر آن را مشخص می‌کند.</p>
+<div class="code-head"><span>Program.cs</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddJsonConsole(options =&gt;
+{
+    options.IncludeScopes = true;
+    options.UseUtcTimestamp = true;
+    options.TimestampFormat = "yyyy-MM-dd'T'HH:mm:ss.fff'Z'";
+});
+
+var app = builder.Build();
+
+app.MapPost("/orders/{orderId:int}", (
+    int orderId,
+    ILogger&lt;Program&gt; logger) =&gt;
+{
+    using var scope = logger.BeginScope(new Dictionary&lt;string, object?&gt;
+    {
+        ["ServiceName"] = "OrderService",
+        ["Environment"] = app.Environment.EnvironmentName,
+        ["OrderId"] = orderId,
+        ["TraceId"] = Activity.Current?.TraceId.ToString()
+    });
+
+    if (orderId &lt;= 0)
+    {
+        logger.LogWarning(new EventId(1000, "OrderRejected"),
+            "Order rejected: {Reason}", "InvalidOrderId");
+        return Results.BadRequest(new { error = "OrderId must be positive." });
+    }
+
+    logger.LogInformation(new EventId(1001, "OrderAccepted"),
+        "Order {OrderId} accepted", orderId);
+
+    return Results.Ok(new { orderId, status = "Accepted" });
+});
+
+app.Run();</code></pre>
+<p>ClearProviders خروجی‌های پیش‌فرض را حذف می‌کند و AddJsonConsole خروجی JSON را اضافه می‌کند؛ در پروژه‌ای که Provider دیگری دارد، حذف آن‌ها باید آگاهانه باشد. IncludeScopes اطلاعات Scope را هم وارد خروجی می‌کند. JSON کردن دوبارهٔ پیام لازم نیست؛ قالب‌بندی را Formatter انجام می‌دهد. جزئیات این تنظیمات در <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/console-log-formatter">مستندات Console Formatter</a> آمده است.</p>
+<p>برنامه را اجرا کنید و در Terminal دوم درخواست بفرستید:</p>
+<div class="code-head"><span>Terminal 1</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet run --no-launch-profile --urls http://localhost:5085</code></pre>
+<div class="code-head"><span>PowerShell · Terminal 2</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>Invoke-RestMethod -Method Post http://localhost:5085/orders/42</code></pre>
+<p>پاسخ شامل orderId برابر ۴۲ و status برابر Accepted است. یک Log با EventId برابر ۱۰۰۱ هم ثبت می‌شود. نمونهٔ زیر فقط فیلدهای منتخب خروجی را نشان می‌دهد؛ Timestamp و TraceId در هر اجرا تغییر می‌کنند و Scopes ممکن است اطلاعات بیشتری داشته باشد:</p>
+<pre dir="ltr"><code>{
+  "LogLevel": "Information",
+  "EventId": 1001,
+  "Category": "Program",
+  "Message": "Order 42 accepted",
+  "State": {
+    "OrderId": 42,
+    "{OriginalFormat}": "Order {OrderId} accepted"
+  }
+}</code></pre>
+<p>برای مسیر نامعتبر، درخواست به <code dir="ltr">/orders/0</code> بفرستید: HTTP 400 و رخداد Warning با EventId برابر ۱۰۰۰ دریافت می‌شود. PowerShell برای پاسخ 400 خطا نمایش می‌دهد؛ این رفتار Client است و Log مربوط به رد درخواست را در Terminal برنامه می‌بینید.</p>
+</section>
+<section>
+<h2>۷. کم‌کردن شلوغی با تنظیم Category</h2>
+<p>اگر تمام جزئیات Framework را در کنار رخدادهای سفارش ثبت کنیم، پیدا کردن اتفاق اصلی سخت می‌شود. تنظیم زیر را در appsettings.json قرار دهید:</p>
+<div class="code-head"><span>appsettings.json</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}</code></pre>
+<p>رخدادهای Information برنامه ثبت می‌شوند، اما از Categoryهای Microsoft.AspNetCore فقط Warning و بالاتر باقی می‌مانند. اگر Information سفارش دیده نمی‌شود، علاوه بر این فایل، تنظیمات محیط مانند appsettings.Development.json، Environment Variableها و فیلتر مخصوص Provider را بررسی کنید. بالا بردن Level حداقل به Warning، Information را حذف می‌کند.</p>
+</section>
+<section>
+<h2>۸. Exception را کجا و چگونه ثبت کنیم؟</h2>
+<p><strong>Exception</strong> خطایی است که جریان عادی اجرای کد را قطع می‌کند. برای عیب‌یابی، فقط Message آن کافی نیست؛ مسیر فراخوانی یا <strong>Stack Trace</strong> هم کمک می‌کند محل خطا را پیدا کنیم. Logger یک overload برای دریافت خود Exception دارد.</p>
+<div class="code-head"><span>C# · الگوی ثبت در محل رسیدگی نهایی</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>logger.LogError(exception,
+    "Payment failed for order {OrderId} after {AttemptCount} attempts",
+    orderId, attemptCount);</code></pre>
+<p>این قطعه الگو است و متغیرهای آن از عملیات پرداخت می‌آیند. اگر Repository خطا را ثبت کند، Service دوباره ثبت کند و Middleware بار سوم ثبت کند، یک شکست به سه خطا تبدیل می‌شود. محل ثبت نهایی را مشخص کنید؛ مثلاً لایه‌ای که شکست عملیات را پاسخ می‌دهد. قبل از اضافه کردن Log دستی، رفتار ثبت خود Framework یا کتابخانهٔ پیام‌رسان را بررسی کنید.</p>
+<p>اگر خطا را دوباره پرتاب می‌کنید، از <code dir="ltr">throw;</code> استفاده کنید تا Stack Trace اولیه حفظ شود. Cancellation ناشی از قطع درخواست کاربر را هم بدون بررسی به‌عنوان Error سرویس گزارش نکنید. Timeout وابستگی و لغو درخواست کاربر یک معنا ندارند.</p>
+</section>
+<section>
+<h2>۹. اتصال Logها بین سرویس‌ها</h2>
+<p><strong>Correlation Id</strong> شناسه‌ای برای مرتبط کردن رخدادهای یک جریان کاری است. <strong>Trace Id</strong> شناسهٔ یک Trace است و <strong>Span Id</strong> یک بخش از اجرای آن را مشخص می‌کند. OrderId نیز شناسهٔ تجاری سفارش است؛ یک سفارش می‌تواند طی چند درخواست و چند Trace پردازش شود.</p>
+<p>در نمونهٔ ما، Activity.Current اجرای فعال را نشان می‌دهد و TraceId از آن خوانده می‌شود. در عملیات فاقد Activity، این مقدار ممکن است null باشد. BeginScope اطلاعات را در محدودهٔ محلی در اختیار Provider می‌گذارد؛ آن را خودکار به سرویس بعدی ارسال نمی‌کند.</p>
+<p>برای ادامهٔ Trace، Context باید با HTTP یا Headerهای پیام منتقل و در مقصد استخراج شود. ابزارهایی مانند OpenTelemetry با Instrumentation مناسب در این مسیر کمک می‌کنند. در Consumer پیام، MessageId و شمارهٔ تلاش هم مفیدند: یک پیام ممکن است چند بار تحویل شود و هر تحویل یک اجرای متفاوت داشته باشد. جزئیات Correlation Id و Distributed Tracing موضوع درس‌های بعدی فصل است.</p>
+</section>
+<section>
+<h2>۱۰. از Console تا جست‌وجوی مرکزی</h2>
+<p>وقتی سه نسخه از OrderService داریم، دیدن Console یکی از آن‌ها کافی نیست. <strong>Centralized Logging</strong> یعنی جمع‌آوری Logهای چند اجرا در یک محل قابل جست‌وجو. یک الگوی رایج این است که برنامه JSON را روی Console بنویسد، یک Agent یا Collector آن را جمع کند و به Backend ذخیره‌سازی بفرستد.</p>
+<p>در این مسیر، Collector مسئول دریافت و انتقال است و Backend مسئول نگهداری و جست‌وجو. ابزارهایی مثل Seq یا مجموعه‌های مبتنی بر Elasticsearch گزینه‌های این لایه‌اند؛ انتخاب به نیاز جست‌وجو، حجم و زیرساخت بستگی دارد. برنامهٔ این درس فقط خروجی Console دارد و اتصال به Backend را پیاده‌سازی نمی‌کند.</p>
+<p>برای بررسی سفارش، ابتدا Environment و ServiceName را محدود کنید، سپس OrderId و بازهٔ زمان را انتخاب کنید و در صورت وجود، TraceId را دنبال کنید. فقط به ترتیب رسیدن Logها اعتماد نکنید؛ انتقال شبکه و تفاوت ساعت میزبان‌ها می‌تواند ترتیب ظاهری را تغییر دهد.</p>
+<p>برای صف انتقال ظرفیت مشخص، رفتار زمان پر شدن و هشدار افت داده تعریف کنید. قطعی Backend نباید بی‌تصمیم رها شود: Blocking می‌تواند درخواست‌ها را کند کند و Drop باعث از دست رفتن شواهد می‌شود. انتخاب Buffer محدود، Retry محدود یا ذخیرهٔ موقت باید با حساسیت داده و منابع سیستم هماهنگ باشد.</p>
+</section>
+<section>
+<h2>۱۱. امنیت، هزینه و Performance</h2>
+<p>ثبت کامل Request Body ممکن است رمز عبور، Access Token یا اطلاعات پرداخت را وارد Log کند. فیلدهای مجاز را از قبل انتخاب کنید و Authorization Header، Cookie، Secret و اطلاعات کارت را ثبت نکنید. خود Exception یا URL نیز ممکن است دادهٔ حساس داشته باشد؛ محدودکردن دسترسی و حذف یا پوشاندن این داده‌ها باید قبل از ارسال به Backend انجام شود.</p>
+<p><strong>Retention</strong> مدت نگهداری داده است. برای Logهای عیب‌یابی، مدت نگهداری و حجم مجاز تعیین کنید و دسترسی خواندن را محدود کنید. <strong>Audit Log</strong> سابقهٔ اعمال حساس مانند تغییر دسترسی است؛ نیازهای تمامیت، دسترسی و نگهداری آن ممکن است با Log تشخیصی متفاوت باشد. خروجی Console جای سازوکار قابل‌اتکای Audit یا ثبت تراکنش تجاری نیست.</p>
+<p>در مسیر پرتکرار، تولید یک پیام بزرگ و محاسبهٔ دادهٔ آن هزینه دارد، حتی اگر خروجی بعداً فیلتر شود. برای محاسبهٔ گران Debug ابتدا IsEnabled را بررسی کنید. <strong>Source-generated Logging</strong> کد ثبت را هنگام Compile تولید می‌کند؛ LoggerMessage برای کم‌کردن هزینهٔ پردازش Template و Boxing در مسیرهای پرتکرار مناسب است. کاربرد و محدودیت‌ها را در <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/high-performance-logging">مستندات High-performance Logging</a> ببینید.</p>
+<p>برای مثال، به‌جای ثبت تک‌تک هزار قلم سفارش در Information، تعداد اقلام و نتیجهٔ نهایی را ثبت کنید. Sampling یعنی ثبت بخشی از رخدادها برای کاهش حجم؛ برای دادهٔ الزامی Audit یا رخداد شکست نهایی، حذف نمونه‌ای را بدون سیاست مشخص اعمال نکنید.</p>
+</section>
+<section>
+<h2>۱۲. تمرین و معیار بررسی</h2>
+<ol>
+<li>درخواست سفارش ۴۲ را اجرا کنید؛ وجود EventId برابر ۱۰۰۱ و State.OrderId برابر ۴۲ را در خروجی پیدا کنید.</li>
+<li>درخواست سفارش صفر را اجرا کنید؛ باید 400 بگیرید و فقط رخداد رد سفارش برای آن درخواست ثبت شود، نه OrderAccepted.</li>
+<li>Default را موقتاً Warning کنید و برنامه را دوباره اجرا کنید؛ Log پذیرش حذف می‌شود ولی Log رد سفارش باقی می‌ماند. سپس تنظیم را برگردانید.</li>
+<li>در دو درخواست متفاوت، Scope را بررسی کنید؛ OrderId هر درخواست باید متعلق به همان درخواست باشد.</li>
+<li>یک بازبینی محتوایی انجام دهید: آیا هیچ Token، رمز یا Body کامل درخواست در خروجی وجود دارد؟</li>
+</ol>
+<p>برای بررسی خطای واقعی، از «چه چیزی را می‌خواهیم بفهمیم؟» شروع کنید. Log خوب برای همان پرسش شواهد می‌سازد: چه عملیاتی، در کدام اجرا، با چه نتیجه‌ای. تعداد بیشتر پیام‌ها الزاماً پاسخ دقیق‌تری نمی‌دهد.</p>
+</section>
+</div>
+<nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+<a rel="prev" href="ch5-3.html">درس قبلی: <bdi>5.3 Producer</bdi></a>
+<a rel="next" href="ch17-1.html">درس بعدی: <bdi>17.1 JWT Fundamentals</bdi></a>
+</nav>
+</main>
+</div>
+<div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+</html>

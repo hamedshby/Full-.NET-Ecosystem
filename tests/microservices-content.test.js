@@ -10,7 +10,7 @@ test('every available Microservices lesson is generated as a standalone accessib
   const pages = fs.existsSync(lessonsRoot)
     ? fs.readdirSync(lessonsRoot).filter(file => file.endsWith('.html'))
     : [];
-  assert.equal(pages.length, 27);
+  assert.equal(pages.length, 28);
 
   for (const lesson of availableLessons) {
     const html = fs.readFileSync(path.join(lessonsRoot, `${lesson.id}.html`), 'utf8');
