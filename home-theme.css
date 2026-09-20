@@ -442,7 +442,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   [data-home-theme="modern"] {
     --content: min(100% - 1.25rem, 1220px);
   }

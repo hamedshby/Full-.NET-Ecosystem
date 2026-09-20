@@ -451,7 +451,7 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
   .hero { grid-template-columns: minmax(20rem, 0.9fr) minmax(0, 1.1fr); gap: 2rem; }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   :root { --content: min(100% - 2rem, 1120px); }
   .site-nav { min-height: 4.25rem; flex-wrap: wrap; }
   .menu-toggle { margin-inline-start: auto; }

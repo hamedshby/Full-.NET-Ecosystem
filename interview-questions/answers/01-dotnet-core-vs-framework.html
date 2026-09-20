@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="پاسخ کامل و مصاحبه‌محور به تفاوت .NET Core و .NET Framework.">
+  <title>.NET Core vs .NET Framework — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="standalone-answer">
+  <main data-answer-content>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p><strong>.NET Framework</strong> is the original, Windows-only implementation of .NET. <strong>.NET Core</strong> was a redesigned, open-source, cross-platform implementation built for modern workloads such as cloud services, containers, and high-performance web APIs. After .NET Core 3.1, Microsoft dropped “Core” from the product name, so .NET 5 and later are simply called <strong>.NET</strong>.</p>
+        <p>Modern .NET supports side-by-side runtime versions, flexible deployment, the <code>dotnet</code> CLI, and generally better performance and scalability. .NET Framework is still supported, but it is mainly used for existing Windows applications or technologies such as ASP.NET Web Forms that are not available in modern .NET. For a new application, I would normally choose the latest supported .NET version; I would keep .NET Framework only when a legacy dependency or Windows-specific technology requires it.</p>
+      </div>
+
+      <section>
+        <h4>ابتدا نام‌ها را درست کنیم</h4>
+        <p><bdi>.NET Framework</bdi> نسخهٔ اصلی و قدیمی Platform دات‌نت است که برای Windows ساخته شد. سال‌ها بعد Microsoft محصولی تازه با معماری مدرن‌تر به نام <bdi>.NET Core</bdi> ایجاد کرد.</p>
+        <p>نسخه‌های این مسیر ابتدا <bdi>.NET Core 1.0</bdi> تا <bdi>.NET Core 3.1</bdi> نام داشتند. از <bdi>.NET 5</bdi> به بعد، واژهٔ <bdi>Core</bdi> از نام محصول حذف شد. بنابراین وقتی امروز می‌گوییم <bdi>modern .NET</bdi> یا فقط <bdi>.NET</bdi>، منظور ادامهٔ همان مسیر <bdi>.NET Core</bdi> است؛ نه نسخهٔ تازه‌ای از <bdi>.NET Framework</bdi>.</p>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> عبارت «<bdi>.NET Core</bdi> در برابر <bdi>.NET Framework</bdi>» هنوز رایج است، اما نام دقیق محصول امروزی <bdi>.NET</bdi> است.</aside>
+      </section>
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+        <p><bdi>.NET Framework</bdi> را مانند خانه‌ای قدیمی و بزرگ تصور کنید که کاملاً برای Windows ساخته شده و بعضی سامانه‌های سازمانی سال‌هاست داخل آن زندگی می‌کنند. <bdi>modern .NET</bdi> خانه‌ای بازطراحی‌شده است که روی Windows، Linux و macOS اجرا می‌شود و برای Cloud، Container و سرویس‌های جدید آماده‌تر است.</p>
+        <p>خانهٔ جدید به این معنا نیست که خانهٔ قدیمی فوراً خراب یا بدون پشتیبانی شده است؛ فقط برای ساخت یک پروژهٔ جدید، معمولاً انتخاب پیش‌فرض بهتری است.</p>
+      </section>
+
+      <section>
+        <h4>تفاوت‌های اصلی</h4>
+        <div class="answer-table" role="region" aria-label="مقایسهٔ .NET و .NET Framework" tabindex="0">
+          <table>
+            <thead><tr><th>موضوع</th><th><bdi>modern .NET</bdi></th><th><bdi>.NET Framework</bdi></th></tr></thead>
+            <tbody>
+              <tr><td>سیستم‌عامل</td><td>Cross-platform؛ روی Windows، Linux و macOS</td><td>Windows-only</td></tr>
+              <tr><td>وضعیت توسعه</td><td>مسیر اصلی توسعهٔ .NET با Releaseهای منظم</td><td>پشتیبانی می‌شود، اما عمدتاً در حالت Maintenance است</td></tr>
+              <tr><td>Open Source</td><td>Runtime و بخش بزرگی از Platform به‌صورت Open Source توسعه می‌یابد</td><td>بخش‌هایی Open Source شده‌اند، اما محصول اصلی به Windows وابسته است</td></tr>
+              <tr><td>Deployment</td><td>نسخه‌های مختلف Runtime می‌توانند Side-by-side باشند؛ امکان Framework-dependent و Self-contained Deployment وجود دارد</td><td><bdi>.NET Framework 4.x</bdi> جزئی از Windows است و نسخهٔ جدیدتر معمولاً جای نسخهٔ قبلی 4.x را می‌گیرد</td></tr>
+              <tr><td>Performance</td><td>برای Performance، Scalability، Cloud و Container بهینه و به‌صورت فعال بهتر می‌شود</td><td>برای بسیاری از برنامه‌های موجود کافی است، اما مسیر اصلی بهبودهای جدید نیست</td></tr>
+              <tr><td>ابزارها</td><td>SDK-style Project و <code>dotnet</code> CLI؛ مناسب Build و Automation روی سیستم‌عامل‌های مختلف</td><td>بیشتر متکی به ابزارهای قدیمی Visual Studio و Windows</td></tr>
+              <tr><td>Web</td><td><bdi>ASP.NET Core</bdi> برای Web API و برنامه‌های Web جدید</td><td><bdi>ASP.NET MVC 5</bdi>، <bdi>Web API 2</bdi> و <bdi>Web Forms</bdi></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>چه چیزهایی عملاً تغییر کرده‌اند؟</h4>
+        <ol>
+          <li><strong>Platform دیگر به Windows محدود نیست.</strong> یک Web API مدرن را می‌توان روی Linux Server یا Linux Container اجرا کرد.</li>
+          <li><strong>استقرار انعطاف‌پذیرتر شده است.</strong> هر Application می‌تواند Runtime مناسب خودش را داشته باشد و سرویس‌های مختلف مجبور نیستند همگی از یک نسخه استفاده کنند.</li>
+          <li><strong>معماری برای Cloud و Container مناسب‌تر است.</strong> Runtime ماژولارتر و Imageهای Container معمولاً کوچک‌تر و عملی‌تر هستند.</li>
+          <li><strong>Performance و Scalability به اولویت اصلی تبدیل شده‌اند.</strong> این موضوع برای Web API، Microservice و سیستم‌های پرترافیک اهمیت زیادی دارد.</li>
+          <li><strong>تجربهٔ توسعه یکپارچه‌تر شده است.</strong> با <code>dotnet restore</code>، <code>dotnet build</code>، <code>dotnet test</code> و <code>dotnet run</code> می‌توان چرخهٔ توسعه را از Command Line و در CI/CD اجرا کرد.</li>
+          <li><strong>نسخه‌گذاری سریع‌تر شده است.</strong> modern .NET به‌صورت منظم نسخهٔ جدید منتشر می‌کند و نسخه‌های <bdi>LTS</bdi> و <bdi>STS</bdi> چرخهٔ پشتیبانی مشخص دارند.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h4>آیا Code قدیمی بدون تغییر اجرا می‌شود؟</h4>
+        <p>همیشه نه. بسیاری از Class Libraryها و Codeهای معمول C# قابل‌استفادهٔ مجدد هستند، اما Migration یک Application کامل ممکن است نیاز به تغییر داشته باشد. باید موارد زیر بررسی شوند:</p>
+        <ul>
+          <li>آیا NuGet Packageها نسخهٔ سازگار با modern .NET دارند؟</li>
+          <li>آیا Application از Technology قدیمی مانند <bdi>ASP.NET Web Forms</bdi> استفاده می‌کند؟</li>
+          <li>آیا API مورد استفاده فقط در Windows یا فقط در <bdi>.NET Framework</bdi> وجود دارد؟</li>
+          <li>آیا Configuration، Authentication، Hosting یا Deployment باید بازطراحی شود؟</li>
+        </ul>
+        <p>برای مثال، یک پروژهٔ <bdi>Web Forms</bdi> را نمی‌توان فقط با تغییر <bdi>Target Framework</bdi> به <bdi>.NET</bdi> تبدیل کرد؛ چون <bdi>Web Forms</bdi> در <bdi>ASP.NET Core</bdi> وجود ندارد و UI باید بازنویسی یا جایگزین شود.</p>
+      </section>
+
+      <section>
+        <h4>برای پروژهٔ جدید کدام را انتخاب کنیم؟</h4>
+        <div class="decision-grid">
+          <div><strong>modern .NET را انتخاب کنید اگر:</strong><ul><li>پروژه جدید است.</li><li>Web API، Cloud Service، Microservice یا Container می‌سازید.</li><li>Cross-platform بودن، Performance و توسعهٔ آینده مهم است.</li></ul></div>
+          <div><strong>.NET Framework را نگه دارید اگر:</strong><ul><li>Application موجود پایدار است و Migration ارزش تجاری کافی ندارد.</li><li>به <bdi>Web Forms</bdi> یا Technology قدیمیِ پشتیبانی‌نشده وابسته‌اید.</li><li>Library یا Platform ضروری شما فقط <bdi>.NET Framework</bdi> را پشتیبانی می‌کند.</li></ul></div>
+        </div>
+      </section>
+
+      <section>
+        <h4>مثال واقعی</h4>
+        <p>فرض کنید یک شرکت یک Application قدیمی <bdi>Web Forms</bdi> روی <bdi>.NET Framework 4.8</bdi> دارد و می‌خواهد سرویس سفارش جدیدی بسازد. لازم نیست ابتدا کل سیستم قدیمی بازنویسی شود. تصمیم منطقی می‌تواند این باشد:</p>
+        <ul>
+          <li>Application قدیمی فعلاً روی <bdi>.NET Framework</bdi> باقی بماند.</li>
+          <li>سرویس سفارش جدید با <bdi>ASP.NET Core</bdi> روی modern .NET ساخته شود.</li>
+          <li>دو بخش از طریق HTTP یا Messaging با هم ارتباط داشته باشند.</li>
+          <li>Migration بخش‌های قدیمی به‌تدریج و براساس ارزش و ریسک انجام شود.</li>
+        </ul>
+        <p>این پاسخ نشان می‌دهد که در مصاحبه فقط تفاوت فنی را نمی‌دانید؛ بلکه هزینه، ریسک و نیاز کسب‌وکار را هم در تصمیم لحاظ می‌کنید.</p>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p><bdi>.NET Framework</bdi> محصول اصلی و Windows-only است و بیشتر برای Applicationهای موجود و Technologyهای Legacy استفاده می‌شود. <bdi>.NET Core</bdi> بازطراحی Cross-platform و Open Source این Platform بود که از <bdi>.NET 5</bdi> به بعد فقط <bdi>.NET</bdi> نامیده می‌شود. modern .NET برای پروژه‌های جدید انتخاب پیش‌فرض است، چون Deployment منعطف‌تر، Performance بهتر، پشتیبانی از Cloud و Container و توسعهٔ فعال دارد. بااین‌حال، نگه‌داشتن <bdi>.NET Framework</bdi> برای یک سیستم Legacy پایدار یا وابسته به Technologyهای قدیمی می‌تواند تصمیم کاملاً درستی باشد.</p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://learn.microsoft.com/dotnet/standard/choosing-core-framework-server">انتخاب بین .NET و .NET Framework</a>
+        <a href="https://learn.microsoft.com/dotnet/core/introduction">معرفی .NET</a>
+        <a href="https://learn.microsoft.com/dotnet/core/whats-new/dotnet-5">تغییر نام از .NET Core به .NET</a>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>
+

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="پاسخ کامل و مصاحبه‌محور به توضیح ASP.NET Core Request Pipeline و Middleware.">
+  <title>ASP.NET Core Request Pipeline — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="standalone-answer">
+  <main data-answer-content>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>The ASP.NET Core <strong>request pipeline</strong> is an ordered chain of <strong>middleware</strong> components that every incoming HTTP request passes through before a response is sent back. Each middleware can inspect or modify the request, decide whether to pass control to the next middleware (call <code>next()</code>), and then inspect or modify the response on the way back out.</p>
+        <p>The pipeline is built in <code>Program.cs</code> using <code>WebApplicationBuilder</code>/<code>WebApplication</code>, and the <strong>order in which middleware is registered is the order in which it runs</strong> — this ordering is one of the most common interview and real-world debugging topics in ASP.NET Core.</p>
+      </div>
+
+      <section>
+        <h4>Pipeline یعنی چه؟</h4>
+        <p>وقتی یک Request به یک ASP.NET Core Application می‌رسد، مستقیماً به Controller یا Endpoint نمی‌رود. ابتدا از یک زنجیرهٔ منظم از قطعات کوچک کد به نام <bdi>Middleware</bdi> عبور می‌کند. هر <bdi>Middleware</bdi> یک وظیفهٔ مشخص دارد — مثلاً Logging، Authentication، یا Exception Handling — و می‌تواند تصمیم بگیرد Request را به <bdi>Middleware</bdi> بعدی منتقل کند یا پاسخ را همان‌جا Short-circuit کند.</p>
+        <p>این مجموعهٔ به‌هم‌پیوسته را <bdi>Request Pipeline</bdi> می‌نامند، و در کد با <code>IApplicationBuilder</code> ساخته می‌شود.</p>
+      </section>
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+        <p>Pipeline را مانند یک خط تولید در کارخانه تصور کنید. هر ایستگاه (Middleware) یک کار مشخص انجام می‌دهد و سپس محصول را به ایستگاهِ بعدی می‌فرستد. بعضی ایستگاه‌ها می‌توانند محصول را رد نکنند و همان‌جا آن را برگردانند — مثلاً اگر Authentication ناموفق باشد، دیگر لازم نیست محصول تا انتهای خط برود.</p>
+        <p>نکتهٔ مهم این است که Response هم از همان مسیر، اما به‌صورت برعکس، بازمی‌گردد؛ یعنی هر <bdi>Middleware</bdi> هم روی Request و هم روی Response تأثیر می‌گذارد.</p>
+      </section>
+
+      <section>
+        <h4>ساخت Pipeline در Program.cs</h4>
+        <pre dir="ltr" lang="en"><code>var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
+var app = builder.Build();
+
+app.UseExceptionHandler("/error");
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();</code></pre>
+        <p>هر خط <code>app.Use...</code> یک <bdi>Middleware</bdi> جدید را به Pipeline اضافه می‌کند، و ترتیب همین خطوط، ترتیب اجرای واقعی آن‌هاست.</p>
+      </section>
+
+      <section>
+        <h4>سه روش اصلی تعریف Middleware</h4>
+        <div class="answer-table" role="region" aria-label="مقایسهٔ Use، Run و Map" tabindex="0">
+          <table>
+            <thead><tr><th>روش</th><th>رفتار</th><th>مثال کاربرد</th></tr></thead>
+            <tbody>
+              <tr><td><code>Use</code></td><td>Middleware را اجرا می‌کند و در انتها می‌تواند با فراخوانی <code>next()</code>، کنترل را به Middleware بعدی بدهد</td><td>Logging، Exception Handling، Authentication</td></tr>
+              <tr><td><code>Run</code></td><td>یک Middleware ترمینال است؛ هیچ <code>next()</code> ندارد و Pipeline را همان‌جا به پایان می‌رساند</td><td>یک Endpoint ساده در انتهای Pipeline</td></tr>
+              <tr><td><code>Map</code> / <code>MapWhen</code></td><td>بر اساس Path یا شرط، Pipeline را به یک شاخهٔ جداگانه هدایت می‌کند</td><td>مسیرهای جداگانه برای API نسخهٔ قدیمی یا Health Check</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>نوشتن یک Middleware سفارشی</h4>
+        <pre dir="ltr" lang="en"><code>app.Use(async (context, next) =>
+{
+    var sw = Stopwatch.StartNew();
+
+    await next(); // پاس دادن Request به Middleware بعدی
+
+    sw.Stop();
+    Console.WriteLine($"{context.Request.Path} took {sw.ElapsedMilliseconds}ms");
+});</code></pre>
+        <p>کدی که قبل از <code>await next()</code> است روی Request اجرا می‌شود؛ کدی که بعد از آن است، روی Response در مسیر بازگشت اجرا می‌شود. اگر <code>next()</code> فراخوانی نشود، Pipeline در همین‌جا Short-circuit می‌شود و باقی Middlewareها اصلاً اجرا نخواهند شد.</p>
+      </section>
+
+      <section>
+        <h4>چرا ترتیب Middleware اهمیت حیاتی دارد؟</h4>
+        <ul>
+          <li><strong>Exception Handling</strong> باید نزدیک ابتدای Pipeline باشد تا خطاهای Middlewareهای بعدی را هم بگیرد.</li>
+          <li><strong>Routing</strong> باید قبل از <bdi>Authentication</bdi> و <bdi>Authorization</bdi> ثبت شود، چون تصمیم‌گیری دربارهٔ دسترسی نیاز به دانستن Endpoint هدف دارد.</li>
+          <li><strong>Authentication</strong> باید قبل از <strong>Authorization</strong> بیاید — اول باید بدانیم کاربر کیست، بعد تصمیم بگیریم به چه چیزی اجازهٔ دسترسی دارد.</li>
+          <li><strong>Static Files</strong> معمولاً زودتر ثبت می‌شود تا درخواست‌های فایل بدون عبور از Authentication یا Routing کامل پاسخ داده شوند.</li>
+        </ul>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> جابه‌جا کردن <code>UseAuthentication</code> و <code>UseAuthorization</code>، یا قرار دادن آن‌ها قبل از <code>UseRouting</code>، یکی از رایج‌ترین اشتباهات در پروژه‌های واقعی است و معمولاً به‌صورت خطاهای مبهم ۴۰۱ یا ۴۰۳ ظاهر می‌شود.</aside>
+      </section>
+
+      <section>
+        <h4>مسیر رفت و برگشت یک Request</h4>
+        <ol>
+          <li>Request وارد Kestrel (یا Server میزبان) می‌شود.</li>
+          <li>Request وارد اولین Middleware ثبت‌شده می‌شود (مثلاً Exception Handler).</li>
+          <li>هر Middleware به نوبت اجرا می‌شود و با <code>next()</code>، کنترل را به بعدی می‌دهد.</li>
+          <li>در انتهای Pipeline، یک Endpoint (Controller Action یا Minimal API) اجرا و Response تولید می‌شود.</li>
+          <li>Response از همان زنجیره، اما به‌ترتیب معکوس، عبور می‌کند و هر Middleware می‌تواند آن را هم بررسی یا تغییر دهد.</li>
+          <li>Response نهایی به Client بازگردانده می‌شود.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h4>مثال واقعی</h4>
+        <p>فرض کنید یک Web API دارید که هم نیاز به Authentication دارد و هم باید Exception‌های پیش‌بینی‌نشده را با یک پیام یکسان به Client برگرداند. یک ترتیب منطقی می‌تواند این باشد:</p>
+        <ul>
+          <li><code>UseExceptionHandler</code> در ابتدا، تا هر خطایی در هر Middleware بعدی گرفته شود.</li>
+          <li><code>UseHttpsRedirection</code> و <code>UseStaticFiles</code> بلافاصله بعد از آن.</li>
+          <li><code>UseRouting</code> برای تعیین Endpoint هدف.</li>
+          <li><code>UseAuthentication</code> و سپس <code>UseAuthorization</code>.</li>
+          <li>در نهایت <code>MapControllers</code> یا <code>MapGet/MapPost</code> برای Minimal APIها.</li>
+        </ul>
+        <p>این نشان می‌دهد که Pipeline فقط یک لیست از Featureها نیست؛ بلکه یک تصمیم معماری دربارهٔ این است که هر Request دقیقاً چه مراحلی را باید طی کند و چرا با همین ترتیب.</p>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p><bdi>Request Pipeline</bdi> در ASP.NET Core از زنجیره‌ای از <bdi>Middleware</bdi> تشکیل شده که هر Request باید از آن‌ها عبور کند. Middlewareها در <code>Program.cs</code> با متدهایی مثل <code>Use</code>، <code>Run</code> و <code>Map</code> ثبت می‌شوند، و ترتیب ثبت آن‌ها دقیقاً ترتیب اجراست. هر Middleware می‌تواند Request را قبل از رسیدن به Endpoint پردازش کند، تصمیم به Short-circuit کردن Pipeline بگیرد، و روی مسیر بازگشت Response را هم تغییر دهد. درک درست ترتیب Middlewareهایی مانند Exception Handling، Routing، Authentication و Authorization یکی از مهم‌ترین مهارت‌های عملی توسعه‌دهندهٔ ASP.NET Core است.</p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/middleware/">ASP.NET Core Middleware</a>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/">ASP.NET Core Fundamentals</a>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/routing">Routing in ASP.NET Core</a>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>
