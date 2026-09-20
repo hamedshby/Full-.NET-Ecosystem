@@ -10,7 +10,7 @@ test('every available Microservices lesson is generated as a standalone accessib
   const pages = fs.existsSync(lessonsRoot)
     ? fs.readdirSync(lessonsRoot).filter(file => file.endsWith('.html'))
     : [];
-  assert.equal(pages.length, 33);
+  assert.equal(pages.length, 37);
 
   for (const lesson of availableLessons) {
     const html = fs.readFileSync(path.join(lessonsRoot, `${lesson.id}.html`), 'utf8');
@@ -61,8 +61,12 @@ test('merged lessons keep their chronological pager sequence', () => {
     'ch15-2.html': ['ch15-1.html', 'ch15-3.html'],
     'ch15-3.html': ['ch15-2.html', 'ch15-4.html'],
     'ch15-4.html': ['ch15-3.html', 'ch15-5.html'],
-    'ch15-5.html': ['ch15-4.html', 'ch17-1.html'],
-    'ch17-1.html': ['ch15-5.html', 'ch17-2.html']
+    'ch15-5.html': ['ch15-4.html', 'ch15-6.html'],
+    'ch15-6.html': ['ch15-5.html', 'ch15-7.html'],
+    'ch15-7.html': ['ch15-6.html', 'ch15-8.html'],
+    'ch15-8.html': ['ch15-7.html', 'ch15-9.html'],
+    'ch15-9.html': ['ch15-8.html', 'ch17-1.html'],
+    'ch17-1.html': ['ch15-9.html', 'ch17-2.html']
   };
 
   for (const [file, links] of Object.entries(expectedLinks)) {

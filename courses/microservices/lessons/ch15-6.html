@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="آموزش Prometheus در Microservices در راهنمای جامع Microservices؛ Monitoring · 15.6  مدل داده Metric و Label، انواع Counter و Gauge و Histogram، معماری Pull و یک نمونهٔ قابل‌اجرا با .NET">
+  <title>Prometheus در Microservices | راهنمای جامع Microservices</title>
+  <script>(() => { document.documentElement.classList.add('js'); try { const t = localStorage.getItem('dotnet-academy-theme'); document.documentElement.dataset.theme = t === 'dark' || t === 'light' ? t : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } catch { } })()</script>
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست
+      فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره"
+      title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices"
+      data-current-lesson="ch15-6">
+      <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>15 -
+          Monitoring</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+        <div class="article-header">
+          <span class="article-tag">Monitoring · 15.6</span>
+          <h1>Prometheus در Microservices</h1>
+          <p>جمع‌آوری Pull-based معیارها، مدل داده Time Series، انواع Metric و یک نمونهٔ قابل‌اجرا با .NET</p>
+        </div>
+        <section>
+          <h2>۱. سه سؤال دربارهٔ ظرفیت سیستم</h2>
+          <p>تیم عملیات می‌خواهد بداند سرویس Order در حال حاضر چند درخواست در ثانیه پردازش می‌کند. توسعه‌دهنده می‌خواهد
+            بداند مصرف حافظه در یک ساعت گذشته چه روندی داشته است. تیم مدیریت حادثه می‌خواهد پیش از پر شدن صف، هشدار
+            خودکار دریافت کند. هر سه سؤال به یک نوع داده نیاز دارند: مقدارهای عددی که در طول زمان نمونه‌برداری شده‌اند.
+          </p>
+          <p><strong>Prometheus</strong> سامانه‌ای متن‌باز برای مانیتورینگ و هشداردهی است که داده را به روش
+            <strong>Pull</strong> جمع‌آوری می‌کند؛ یعنی خودش با فاصلهٔ زمانی مشخص به سراغ برنامه می‌رود، نه اینکه برنامه
+            داده را فشار (Push) کند. داده در یک پایگاه سری‌زمانی (<strong>TSDB</strong>) ذخیره می‌شود و با زبان
+            <strong>PromQL</strong> پرس‌وجو می‌شود.</p>
+          <p>برخلاف OpenTelemetry که استانداردی برای هر سه Signal یعنی Trace، Metric و Log است، Prometheus تنها روی
+            Metric تمرکز دارد. این دو ابزار رقیب نیستند؛ در بسیاری از سیستم‌ها، برنامه Metric را با کتابخانهٔ سازگار با
+            OpenTelemetry تولید می‌کند و Prometheus یا یک Backend دیگر آن را ذخیره می‌کند.</p>
+        </section>
+        <section>
+          <h2>۲. مدل داده: Metric، Label، Series و Sample</h2>
+          <p><strong>Metric</strong> یک سنجهٔ نام‌دار است؛ مثلاً shop_orders_completed_total. <strong>Label</strong> جفت
+            کلید-مقداری است که یک Metric را به زیرمجموعه‌های مشخص تقسیم می‌کند؛ مثلاً method="POST" یا
+            status_code="200". ترکیب نام Metric با مجموعهٔ Labelهای آن یک <strong>Time Series</strong> منحصربه‌فرد
+            می‌سازد. <strong>Sample</strong> یک مقدار عددی به‌همراه برچسب زمانی است که در یک Series ثبت می‌شود.</p>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">مفهوم</th>
+                <th scope="col">معنی</th>
+                <th scope="col">مثال</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Metric</td>
+                <td>نام سنجه‌ای که اندازه‌گیری می‌شود</td>
+                <td>shop_orders_completed_total</td>
+              </tr>
+              <tr>
+                <td>Label</td>
+                <td>بعدی که Series را تفکیک می‌کند</td>
+                <td>method="POST", path="/orders"</td>
+              </tr>
+              <tr>
+                <td>Time Series</td>
+                <td>یک Metric به‌همراه یک ترکیب مشخص از Labelها</td>
+                <td>شمارندهٔ سفارش‌های تکمیل‌شده برای path="/orders"</td>
+              </tr>
+              <tr>
+                <td>Sample</td>
+                <td>یک مقدار در یک لحظهٔ مشخص</td>
+                <td>مقدار ۴۲ در ساعت ۱۰:۰۰:۱۵</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>افزودن یک Label جدید به یک Metric، Time Series تازه‌ای برای هر مقدار متمایز آن Label می‌سازد؛ به همین دلیل
+            انتخاب Labelها مستقیماً روی حجم داده و هزینهٔ ذخیره‌سازی اثر می‌گذارد.</p>
+        </section>
+        <section>
+          <h2>۳. چهار نوع Metric در Prometheus</h2>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">نوع</th>
+                <th scope="col">معنی</th>
+                <th scope="col">نمونهٔ کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Counter</td>
+                <td>مقداری که فقط افزایش می‌یابد یا در Restart صفر می‌شود</td>
+                <td>تعداد کل سفارش‌های تکمیل‌شده</td>
+              </tr>
+              <tr>
+                <td>Gauge</td>
+                <td>مقداری که می‌تواند بالا و پایین برود</td>
+                <td>تعداد آیتم‌های فعلی در صف</td>
+              </tr>
+              <tr>
+                <td>Histogram</td>
+                <td>توزیع مقدارها در Bucketهای از پیش تعریف‌شده، به‌همراه شمارش و مجموع</td>
+                <td>توزیع زمان پردازش سفارش</td>
+              </tr>
+              <tr>
+                <td>Summary</td>
+                <td>شمارش، مجموع و صدک‌های محاسبه‌شده در سمت برنامه</td>
+                <td>میانهٔ زمان پاسخ در همان فرآیند</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Counter هرگز کاهش پیدا نمی‌کند؛ اگر مقداری نیاز به کاهش دارد، Gauge مناسب‌تر است. Histogram Bucketهای خود
+            را در سمت برنامه تعریف می‌کند و می‌توان بعداً در PromQL صدک را از روی آن‌ها تخمین زد؛ Summary صدک را از قبل
+            در برنامه محاسبه می‌کند و نمی‌توان صدک‌های آن را در Backend با هم جمع کرد. برای Metricهایی که قرار است بین
+            چند نمونه از سرویس تجمیع شوند، Histogram معمولاً انتخاب امن‌تری است.</p>
+        </section>
+        <section>
+          <h2>۴. از Exporter تا Alertmanager: معماری Pull</h2>
+          <p><strong>Client Library</strong> کتابخانه‌ای در زبان برنامه است که Metricها را در حافظه نگه می‌دارد و آن‌ها
+            را روی یک مسیر HTTP، معمولاً /metrics، در قالب متنی Prometheus قابل‌خواندن می‌کند. <strong>Exporter</strong>
+            برنامه‌ای کمکی است که Metric یک سامانهٔ بیرونی، مثل یک پایگاه‌داده یا سیستم‌عامل، را به همین قالب تبدیل
+            می‌کند. <strong>Prometheus Server</strong> با فاصلهٔ زمانی مشخص این مسیرها را Scrape، یعنی درخواست و
+            جمع‌آوری، می‌کند و در TSDB ذخیره می‌کند. <strong>Alertmanager</strong> بر اساس قواعدی که در Prometheus تعریف
+            می‌شود، هشدار تولید و مسیریابی می‌کند.</p>
+          <pre dir="ltr"><code>Application
+  Client Library  →  GET /metrics
+        ↑                 ↓
+        |          Prometheus Server  →  TSDB
+        |                 ↓
+        |            Rule Evaluation
+        |                 ↓
+        |            Alertmanager  →  Notification
+        |
+   PromQL / Grafana  ←———— Query API</code></pre>
+          <p>برخلاف مدل Push در OpenTelemetry Exporterهای رایج، اینجا برنامه هیچ داده‌ای را فعالانه ارسال نمی‌کند؛ فقط
+            آماده نگه می‌دارد تا Prometheus بیاید و بخواند. این یعنی برنامه باید در دسترس شبکهٔ Prometheus باشد؛ برای
+            Jobهای کوتاه‌عمر که قبل از Scrape بعدی از بین می‌روند، از <strong>Pushgateway</strong> به‌عنوان واسطه
+            استفاده می‌شود، نه از خود Prometheus.</p>
+        </section>
+        <section>
+          <h2>۵. نمونهٔ اجرایی: راه‌اندازی با .NET</h2>
+          <p>این نمونه با .NET 10 و کتابخانهٔ prometheus-net یک عملیات آموزشی ثبت سفارش را اجرا می‌کند و سه نوع Metric
+            را منتشر می‌کند. ابتدا پروژه و Packageها را آماده کنید:</p>
+          <div class="code-head"><span>Terminal</span><button type="button" data-copy-code>کپی کد</button></div>
+          <pre dir="ltr"><code>dotnet new web -n PrometheusDemo -f net10.0
+cd PrometheusDemo
+dotnet add package prometheus-net.AspNetCore</code></pre>
+          <p>محتوای Program.cs را جایگزین کنید:</p>
+          <div class="code-head"><span>Program.cs</span><button type="button" data-copy-code>کپی کد</button></div>
+          <pre dir="ltr"><code>using Prometheus;
+
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.UseHttpMetrics();   // generic HTTP request metrics
+app.UseMetricServer();  // publish on the default /metrics path
+
+var ordersCompleted = Metrics.CreateCounter(
+    "shop_orders_completed_total", "Total completed orders");
+
+var ordersDuration = Metrics.CreateHistogram(
+    "shop_orders_duration_seconds", "Order processing duration");
+
+var queueSize = Metrics.CreateGauge(
+    "shop_orders_queue_size", "Current in-flight orders");
+
+app.MapPost("/orders/{orderId:int}", async (int orderId) =&gt;
+{
+    if (orderId &lt;= 0)
+        return Results.BadRequest(new { error = "OrderId must be positive" });
+
+    queueSize.Inc();
+    using (ordersDuration.NewTimer())
+    {
+        await Task.Delay(120);
+    }
+    queueSize.Dec();
+    ordersCompleted.Inc();
+
+    return Results.Ok(new { orderId, status = "Completed" });
+});
+
+app.Run();</code></pre>
+          <p>UseHttpMetrics پیش از Map کردن Endpointها اضافه می‌شود تا زمان و کد وضعیت هر درخواست را به‌طور خودکار
+            اندازه بگیرد. UseMetricServer یک Middleware مجزا است که فقط به مسیر /metrics پاسخ می‌دهد و به منطق سایر
+            Endpointها کاری ندارد. ordersDuration.NewTimer() یک IDisposable برمی‌گرداند که در پایان using، مدت اجرا را
+            در Histogram ثبت می‌کند؛ اگر داخل این محدوده استثنایی رخ دهد، زمان تا همان لحظه ثبت می‌شود.</p>
+        </section>
+        <section>
+          <h2>۶. اجرا و نتیجهٔ مورد انتظار</h2>
+          <div class="code-head"><span>Terminal 1</span><button type="button" data-copy-code>کپی کد</button></div>
+          <pre dir="ltr"><code>dotnet run --no-launch-profile --urls http://localhost:15201</code></pre>
+          <p>در ترمینال دیگری سه درخواست معتبر و یک درخواست نامعتبر بفرستید:</p>
+          <div class="code-head"><span>PowerShell · Terminal 2</span><button type="button" data-copy-code>کپی
+              کد</button></div>
+          <pre dir="ltr"><code>1..3 | ForEach-Object {
+    Invoke-RestMethod -Method Post "http://localhost:15201/orders/$_"
+}
+Invoke-RestMethod -Method Post "http://localhost:15201/orders/0"</code></pre>
+          <p>سپس مسیر /metrics را در مرورگر یا با curl باز کنید:</p>
+          <div class="code-head"><span>/metrics</span><button type="button" data-copy-code>کپی کد</button></div>
+          <pre dir="ltr"><code># HELP shop_orders_completed_total Total completed orders
+# TYPE shop_orders_completed_total counter
+shop_orders_completed_total 3
+
+# HELP shop_orders_duration_seconds Order processing duration
+# TYPE shop_orders_duration_seconds histogram
+shop_orders_duration_seconds_bucket{le="0.1"} 0
+shop_orders_duration_seconds_bucket{le="0.25"} 3
+shop_orders_duration_seconds_bucket{le="+Inf"} 3
+shop_orders_duration_seconds_sum 0.372
+shop_orders_duration_seconds_count 3
+
+# HELP shop_orders_queue_size Current in-flight orders
+# TYPE shop_orders_queue_size gauge
+shop_orders_queue_size 0</code></pre>
+          <p>درخواست OrderId برابر صفر پیش از رسیدن به queueSize.Inc() با پاسخ 400 برمی‌گردد؛ بنابراین در Counter و
+            Histogram سفارش شمرده نمی‌شود، اما به‌عنوان یک درخواست HTTP در Metricهای UseHttpMetrics با کد وضعیت 400 ثبت
+            می‌شود. Bucketهای پیش‌فرض Histogram ممکن است با زمان واقعی درخواست‌های شما هم‌خوانی نداشته باشند؛ در
+            استفادهٔ واقعی، Bucketها را متناسب با محدودهٔ زمانی سرویس تنظیم کنید.</p>
+        </section>
+        <section>
+          <h2>۷. مرحلهٔ بعد: افزودن prometheus.yml و PromQL مقدماتی</h2>
+          <p>برای اینکه Prometheus خودش این مسیر را Scrape کند، یک فایل تنظیمات نیاز است:</p>
+          <div class="code-head"><span>prometheus.yml</span><button type="button" data-copy-code>کپی کد</button></div>
+          <pre dir="ltr"><code>global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'order-service'
+    static_configs:
+      - targets: ['localhost:15201']</code></pre>
+          <pre dir="ltr"><code>prometheus --config.file=prometheus.yml</code></pre>
+          <p>پس از اجرا، در رابط وب Prometheus روی پورت پیش‌فرض 9090 می‌توان PromQL نوشت. چند نمونه:</p>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">عبارت PromQL</th>
+                <th scope="col">معنی</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td dir="ltr">rate(shop_orders_completed_total[1m])</td>
+                <td>نرخ تکمیل سفارش در ثانیه، میانگین‌گیری‌شده روی بازهٔ یک‌دقیقه‌ای</td>
+              </tr>
+              <tr>
+                <td dir="ltr">shop_orders_queue_size</td>
+                <td>مقدار لحظه‌ای فعلی صف، بدون نیاز به rate</td>
+              </tr>
+              <tr>
+                <td dir="ltr">histogram_quantile(0.95, sum(rate(shop_orders_duration_seconds_bucket[5m])) by (le))</td>
+                <td>برآورد صدک ۹۵ زمان پردازش در پنج دقیقهٔ اخیر</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>rate فقط روی Counter معنا دارد، چون فرض می‌کند مقدار پایه‌ای پیوسته افزایش می‌یابد؛ اجرای rate روی Gauge
+            نتیجهٔ گمراه‌کننده می‌دهد. histogram_quantile روی خود مقدار Histogram اجرا نمی‌شود، بلکه روی سری _bucket آن
+            اجرا می‌شود که به‌طور خودکار توسط کتابخانهٔ Client تولید شده است.</p>
+        </section>
+        <section>
+          <h2>۸. Cardinality و کنترل هزینه</h2>
+          <p><strong>Cardinality</strong> تعداد ترکیب‌های متمایز Labelهاست. افزودن Labelی مانند order_id یا user_id به
+            یک Metric پرتکرار، به‌ازای هر مقدار متمایز یک Time Series تازه می‌سازد؛ در حجم بالای سفارش، این کار می‌تواند
+            میلیون‌ها Series تولید کند و حافظه و کارایی Prometheus را به‌شدت تحت‌فشار بگذارد.</p>
+          <ul>
+            <li>شناسه‌های یکتا و پرتکرار مثل order_id یا request_id را Label نکنید؛ این‌ها متعلق به Log یا Trace هستند.
+            </li>
+            <li>Labelهایی با تعداد مقدار محدود و از‌پیش‌شناخته مثل method یا status_code گزینهٔ مناسب‌تری هستند.</li>
+            <li>پیش از افزودن یک Label جدید، تخمین بزنید که چند مقدار متمایز ممکن است داشته باشد.</li>
+            <li>Bucketهای Histogram را کم و هدفمند نگه دارید؛ هر Bucket یک Time Series جداگانه است.</li>
+          </ul>
+          <p>برخلاف Sampling در Tracing که حجم داده را با از‌دست‌دادن بخشی از رخدادها کاهش می‌دهد، در Prometheus معمولاً
+            کنترل حجم از طریق طراحی درست Label و Bucket انجام می‌شود، نه حذف تصادفی Sampleها.</p>
+        </section>
+        <section>
+          <h2>۹. عیب‌یابی و تمرین</h2>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">مشکل</th>
+                <th scope="col">بررسی اول</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>مسیر /metrics پاسخ نمی‌دهد</td>
+                <td>ثبت UseMetricServer پیش از app.Run و باز بودن پورت</td>
+              </tr>
+              <tr>
+                <td>Prometheus هدف را Down نشان می‌دهد</td>
+                <td>درستی targets در prometheus.yml و دسترسی شبکه به آن آدرس</td>
+              </tr>
+              <tr>
+                <td>Counter در Grafana صفر یا خطی مسطح است</td>
+                <td>استفاده از rate() به‌جای نمایش مستقیم Counter خام</td>
+              </tr>
+              <tr>
+                <td>Histogram صدک درستی نمی‌دهد</td>
+                <td>تعریف Bucketهای متناسب با بازهٔ واقعی زمان پاسخ</td>
+              </tr>
+              <tr>
+                <td>حجم حافظهٔ Prometheus به‌سرعت رشد می‌کند</td>
+                <td>بررسی Cardinality؛ جست‌وجوی Labelهای با مقادیر بسیار متنوع</td>
+              </tr>
+            </tbody>
+          </table>
+          <p><strong>تمرین اول:</strong> پس از سه درخواست معتبر، مقدار shop_orders_queue_size را بلافاصله پس از افزایش
+            هر درخواست، پیش از پایان Task.Delay، از مسیر /metrics بخوانید. باید مقداری بزرگ‌تر از صفر ببینید، چون
+            درخواست هنوز در حال پردازش است.</p>
+          <p><strong>تمرین دوم:</strong> یک Label به نام order_id به Counter شمارش سفارش اضافه کنید و ۵۰ سفارش با
+            شناسه‌های متفاوت بفرستید. تعداد Time Seriesهای تولیدشده در /metrics را بشمارید و نتیجه را با حالت بدون این
+            Label مقایسه کنید.</p>
+          <p><strong>پرسش مرور:</strong> اگر UseHttpMetrics را اضافه کنیم اما UseMetricServer را حذف کنیم، آیا Metricهای
+            HTTP در جایی قابل‌مشاهده خواهند بود؟ خیر؛ UseHttpMetrics فقط مقدارها را در حافظهٔ Client Library ثبت می‌کند؛
+            بدون یک مسیر منتشرشده برای Scrape، هیچ سامانهٔ بیرونی نمی‌تواند آن‌ها را بخواند.</p>
+        </section>
+      </div>
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a rel="prev" href="ch15-5.html">درس قبلی: <bdi>15.5 OpenTelemetry در Microservices</bdi></a>
+        <a rel="next" href="ch17-1.html">درس بعدی: <bdi>17.1 JWT Fundamentals</bdi></a>
+      </nav>
+    </main>
+  </div>
+  <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+
+</html>
