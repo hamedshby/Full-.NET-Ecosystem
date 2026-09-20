@@ -500,3 +500,5 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
+
+.featured-article-card + .featured-article-card { margin-top: 1.5rem; }

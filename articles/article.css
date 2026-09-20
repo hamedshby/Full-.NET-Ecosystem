@@ -205,3 +205,8 @@
   .article-body pre { margin-inline: -0.15rem; padding: 1rem; }
   .article-source { padding: 1.25rem; }
 }
+
+.article-list-card + .article-list-card { margin-top: 1.5rem; }
+.runtime-async-figure { margin: 1.5rem 0; }
+.runtime-async-figure img { display: block; width: 100%; max-width: 673px; height: auto; margin-inline: auto; border-radius: var(--radius-md); }
+.runtime-async-figure figcaption { margin-top: 0.75rem; color: var(--muted); font-size: 0.85rem; line-height: 1.9; }

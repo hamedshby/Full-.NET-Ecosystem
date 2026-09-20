@@ -10,7 +10,7 @@ test('every available Microservices lesson is generated as a standalone accessib
   const pages = fs.existsSync(lessonsRoot)
     ? fs.readdirSync(lessonsRoot).filter(file => file.endsWith('.html'))
     : [];
-  assert.equal(pages.length, 28);
+  assert.equal(pages.length, 29);
 
   for (const lesson of availableLessons) {
     const html = fs.readFileSync(path.join(lessonsRoot, `${lesson.id}.html`), 'utf8');
@@ -50,5 +50,24 @@ test('generated lesson pager only links between available lessons', () => {
       if (href === '../../../index.html') continue;
       assert.ok(availableIds.has(path.basename(href, '.html')), `${lesson.id} -> ${href}`);
     }
+  }
+});
+
+test('merged lessons keep their chronological pager sequence', () => {
+  const expectedLinks = {
+    'ch5-3.html': ['ch5-2.html', 'ch6-1.html'],
+    'ch6-1.html': ['ch5-3.html', 'ch15-1.html'],
+    'ch15-1.html': ['ch6-1.html', 'ch17-1.html'],
+    'ch17-1.html': ['ch15-1.html', 'ch17-2.html']
+  };
+
+  for (const [file, links] of Object.entries(expectedLinks)) {
+    const html = fs.readFileSync(path.join(lessonsRoot, file), 'utf8');
+    const pager = html.match(/<nav class="lesson-pager"[\s\S]*?<\/nav>/)?.[0] || '';
+    assert.deepEqual(
+      [...pager.matchAll(/href="([^"]+\.html)"/g)].map(match => match[1]),
+      links,
+      file
+    );
   }
 });
