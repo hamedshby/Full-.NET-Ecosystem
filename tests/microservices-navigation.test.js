@@ -12,11 +12,11 @@ test('Microservices catalog preserves every source heading and availability stat
   assert.equal(microservicesChapters.length, 19);
   assert.equal(lessons.length, 154);
   assert.equal(new Set(lessons.map(lesson => lesson.id)).size, 154);
-  assert.equal(availableLessons.length, 29);
-  assert.equal(lessons.filter(lesson => !lesson.available).length, 125);
+  assert.equal(availableLessons.length, 30);
+  assert.equal(lessons.filter(lesson => !lesson.available).length, 124);
   assert.deepEqual(
     availableLessons.slice(22).map(lesson => lesson.id),
-    ['ch5-3', 'ch6-1', 'ch15-1', 'ch17-1', 'ch17-2', 'ch17-3', 'ch17-4']
+    ['ch5-3', 'ch6-1', 'ch15-1', 'ch15-2', 'ch17-1', 'ch17-2', 'ch17-3', 'ch17-4']
   );
   assert.deepEqual(
     microservicesChapters.map(chapter => chapter.title),

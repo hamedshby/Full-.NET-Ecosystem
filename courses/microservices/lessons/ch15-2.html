@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش Correlation ID در Microservices در راهنمای جامع Microservices؛ Monitoring · 15.2  دنبال کردن یک عملیات از Order تا Payment با یک شناسهٔ مشترک و Logهای قابل جست‌وجو ۱. کدام Logها متعلق به د">
+  <title>Correlation ID در Microservices | راهنمای جامع Microservices</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch15-2">
+      <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>15 - Monitoring</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+<div class="article-header">
+  <span class="article-tag">Monitoring · 15.2</span>
+  <h1>Correlation ID در Microservices</h1>
+  <p>دنبال کردن یک عملیات از Order تا Payment با یک شناسهٔ مشترک و Logهای قابل جست‌وجو</p>
+</div>
+<section>
+<h2>۱. کدام Logها متعلق به درخواست من هستند؟</h2>
+<p>دو کاربر هم‌زمان سفارش ثبت می‌کنند. سرویس Order برای هر دو درخواست از سرویس Payment کمک می‌گیرد. حالا یکی از پرداخت‌ها ناموفق شده است. اگر فقط زمان و متن «پرداخت ناموفق بود» را داشته باشیم، نزدیک بودن زمان رخدادها مشخص نمی‌کند کدام درخواست به این خطا رسیده است.</p>
+<p><strong>Correlation ID</strong> شناسه‌ای است که رخدادهای مرتبط با یک عملیات را به هم وصل می‌کند. در مثال زیر مقدار کوتاه checkout-a فقط برای خوانایی است؛ در برنامه از یک مقدار تصادفی بلندتر استفاده می‌کنیم:</p>
+<pre dir="ltr"><code>Order    CorrelationId=checkout-a  OrderId=42  Order accepted
+Order    CorrelationId=checkout-b  OrderId=43  Order accepted
+Payment  CorrelationId=checkout-b  Payment approved
+Payment  CorrelationId=checkout-a  Payment declined</code></pre>
+<p>با جست‌وجوی فیلد CorrelationId برابر checkout-a، رخدادهای سفارش اول را کنار هم می‌بینیم. این شناسه دلیل شکست را به‌تنهایی نمی‌گوید؛ جزئیات Log توضیح می‌دهند چه اتفاقی افتاده است. همچنین ترتیب نمایش Logها الزاماً ترتیب واقعی رخدادها نیست، چون ساعت و زمان رسیدن Logهای سرویس‌ها می‌تواند متفاوت باشد.</p>
+</section>
+<section>
+<h2>۲. شناسه کجا ساخته و چگونه منتقل می‌شود؟</h2>
+<p><strong>Header</strong> بخشی از پیام HTTP برای حمل اطلاعات جانبی درخواست یا پاسخ است. در این درس قرارداد خودمان را با نام <code dir="ltr">X-Correlation-ID</code> تعریف می‌کنیم؛ این نام یک قرارداد رایج است و استاندارد اجباری و یکسان همهٔ سیستم‌ها نیست.</p>
+<ol>
+<li>نقطهٔ ورود، مثلاً API Gateway یا اولین سرویس، یک شناسه می‌سازد؛ یا شناسهٔ معتبر فرستندهٔ قابل اعتماد را می‌پذیرد.</li>
+<li>سرویس شناسه را در اطلاعات مشترک Logهای همان درخواست قرار می‌دهد.</li>
+<li>هنگام فراخوانی سرویس بعدی، همان مقدار را در Header درخواست خروجی می‌فرستد.</li>
+<li>سرویس گیرنده همین مراحل را تکرار می‌کند و شناسه در پاسخ اولیه هم برگردانده می‌شود تا پشتیبانی بتواند آن را از کاربر دریافت کند.</li>
+</ol>
+<pre dir="ltr"><code>Client → Order → Payment
+         X-Correlation-ID: 79c7795a68274e54ae61d1e3be1262d7
+         Same value is forwarded to Payment.</code></pre>
+<p>اگر هر سرویس بدون بررسی ورودی یک شناسهٔ تازه بسازد، ارتباط Logها قطع می‌شود. از طرف دیگر، نگه‌داشتن یک مقدار ثابت برای همهٔ درخواست‌های یک کاربر باعث مخلوط‌شدن عملیات مستقل می‌شود. دامنهٔ شناسه را مشخص کنید؛ در این درس هر عملیات ورودی مستقل یک Correlation ID دارد.</p>
+</section>
+<section>
+<h2>۳. تفاوت با Request ID، Trace ID و OrderId</h2>
+<p><strong>Trace</strong> مسیر اجرای یک عملیات و <strong>Span</strong> یک بخش از آن مسیر با زمان شروع و پایان است. در .NET، <strong>Activity</strong> نمایندهٔ یک بخش از اجرای قابل ردیابی است. جدول زیر کمک می‌کند شناسه‌ها را جای یکدیگر استفاده نکنیم:</p>
+<table><thead><tr><th scope="col">شناسه</th><th scope="col">کاربرد</th><th scope="col">مثال</th></tr></thead><tbody>
+<tr><td>Correlation ID</td><td>گروه‌بندی رخدادهای مرتبط طبق قرارداد برنامه</td><td>یک فرایند ثبت سفارش بین چند سرویس</td></tr>
+<tr><td>Request ID</td><td>تشخیص یک درخواست در محدودهٔ تعریف‌شدهٔ میزبان</td><td><code dir="ltr">HttpContext.TraceIdentifier</code> برای درخواست HTTP جاری؛ انتقال بین سرویس‌ها را تضمین نمی‌کند</td></tr>
+<tr><td>Trace ID</td><td>شناسهٔ مشترک Spanهای یک Trace</td><td><code dir="ltr">Activity.Current?.TraceId</code></td></tr>
+<tr><td>Span ID</td><td>تشخیص یک بخش مشخص از Trace</td><td>بخش اجرای فراخوانی Payment</td></tr>
+<tr><td>OrderId</td><td>شناسهٔ موجودیت تجاری سفارش</td><td>سفارش ۴۲ که ممکن است امروز ایجاد و فردا لغو شود</td></tr>
+</tbody></table>
+<p>در W3C Trace Context، Header به نام <code dir="ltr">traceparent</code> اطلاعات Trace و بخش والد را حمل می‌کند. در مسیرهای پشتیبانی‌شده و با تنظیمات مناسب، ASP.NET Core و HttpClient در انتقال این Context مشارکت دارند. اما Header سفارشی X-Correlation-ID خودکار از این راه منتقل نمی‌شود. آن را جای traceparent ننویسید و GUID دلخواه را به‌عنوان مقدار کامل traceparent ارسال نکنید.</p>
+<p>اگر هدف فقط یافتن Logهای یک Trace است، Trace ID می‌تواند نیاز شما را برطرف کند. Correlation ID جدا زمانی مفید است که قرارداد پشتیبانی یا یک فرایند تجاری چندمرحله‌ای را دنبال می‌کنید؛ چنین فرایندی ممکن است چند Trace داشته باشد. برای جزئیات بیشتر، <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-concepts">مفاهیم Distributed Tracing در .NET</a> و <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/telemetry/tracing">Tracing در کتابخانه‌های شبکهٔ .NET</a> را ببینید.</p>
+</section>
+<section>
+<h2>۴. نمونهٔ قابل‌اجرای ASP.NET Core</h2>
+<p>ابتدا ساخت و ثبت شناسه را در یک سرویس یاد می‌گیریم. این نمونه با .NET 10 اجرا می‌شود و Endpoint آن فقط دریافت سفارش را شبیه‌سازی می‌کند؛ Database و پرداخت واقعی ندارد.</p>
+<div class="code-head"><span>Terminal</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet new web -n CorrelationDemo -f net10.0
+cd CorrelationDemo</code></pre>
+<p><strong>Middleware</strong> بخشی از مسیر پردازش درخواست است که می‌تواند قبل و بعد از مرحلهٔ بعدی اجرا شود. <strong>Scope</strong> اطلاعات مشترکی به Logهای یک محدودهٔ اجرای منطقی اضافه می‌کند. کد زیر را در Program.cs قرار دهید:</p>
+<div class="code-head"><span>Program.cs</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddJsonConsole(options =&gt; options.IncludeScopes = true);
+var app = builder.Build();
+
+const string headerName = "X-Correlation-ID";
+const string itemKey = "CorrelationId";
+
+app.Use(async (context, next) =&gt;
+{
+    var incoming = context.Request.Headers[headerName];
+    // Demo contract: accept exactly one GUID in the 32-digit N format.
+    var correlationId = incoming.Count == 1
+        &amp;&amp; Guid.TryParseExact(incoming[0], "N", out var parsed)
+        &amp;&amp; parsed != Guid.Empty
+            ? parsed.ToString("N")
+            : Guid.NewGuid().ToString("N");
+
+    context.Items[itemKey] = correlationId;
+    context.Response.OnStarting(() =&gt;
+    {
+        context.Response.Headers[headerName] = correlationId;
+        return Task.CompletedTask;
+    });
+
+    using var scope = app.Logger.BeginScope(new Dictionary&lt;string, object&gt;
+    {
+        ["CorrelationId"] = correlationId,
+        ["ServiceName"] = "OrderService"
+    });
+
+    await next(context);
+});
+
+app.MapPost("/orders/{orderId:int}", (
+    int orderId, HttpContext context, ILogger&lt;Program&gt; logger) =&gt;
+{
+    logger.LogInformation("Order {OrderId} received", orderId);
+    return Results.Ok(new
+    {
+        orderId,
+        correlationId = (string)context.Items[itemKey]!
+    });
+});
+
+app.Run();</code></pre>
+<p>اگر Header وجود نداشته باشد، خالی، چندمقداری، GUID صفر یا خارج از قالب توافق‌شده باشد، نمونه یک شناسهٔ تازه می‌سازد. ورودی نامعتبر در Log بازنویسی نمی‌شود. <code dir="ltr">HttpContext.Items</code> مقدار را فقط برای همان درخواست نگه می‌دارد؛ متغیر static برای این کار مناسب نیست، چون درخواست‌های هم‌زمان مقدار یکدیگر را تغییر می‌دهند.</p>
+<p>OnStarting، Header را پیش از ارسال پاسخ تنظیم می‌کند. Scope تا پایان اجرای await next فعال است و با using آزاد می‌شود. IncludeScopes باعث می‌شود JSON Console اطلاعات Scope را نمایش دهد؛ همهٔ Providerها الزاماً Scope را یکسان ذخیره نمی‌کنند. Scope نیز فقط Logهای داخل محدودهٔ خود را پوشش می‌دهد، نه تمام Logهای میزبان پیش از ورود یا پس از خروج از Middleware. توضیح رسمی در <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/logging/">مستندات Logging و Log Scope</a> آمده است.</p>
+<p>این نمونه برای آموزش، شناسهٔ معتبر ورودی را می‌پذیرد. اعتبار قالب به معنی اعتماد به فرستنده نیست. در ورودی عمومی می‌توانید همیشه شناسهٔ داخلی تازه بسازید و تنها در ارتباط داخلی قابل اعتماد مقدار ورودی را حفظ کنید. این سیاست باید در Gateway و سرویس‌ها هماهنگ باشد.</p>
+</section>
+<section>
+<h2>۵. اجرا و مشاهدهٔ نتیجه</h2>
+<div class="code-head"><span>Terminal 1</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet run --no-launch-profile --urls http://localhost:5086</code></pre>
+<p>در PowerShell دیگری درخواست بفرستید. Invoke-WebRequest امکان دیدن Header پاسخ و محتوای آن را می‌دهد:</p>
+<div class="code-head"><span>PowerShell · Terminal 2</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>$id = [Guid]::NewGuid().ToString("N")
+$response = Invoke-WebRequest -Method Post `
+    -Uri http://localhost:5086/orders/42 `
+    -Headers @{ "X-Correlation-ID" = $id }
+$response.Headers["X-Correlation-ID"]
+$response.Content</code></pre>
+<p>شناسه در Header و فیلد correlationId پاسخ باید همان $id باشد. در خروجی Console، Log دریافت سفارش دارای Scope شامل CorrelationId است. در ابزار مرکزی Log، همین فیلد را همراه نام محیط و بازهٔ زمانی جست‌وجو کنید؛ شکل دقیق دستور جست‌وجو به ابزار وابسته است.</p>
+<p>بار دوم بدون Header درخواست بفرستید؛ یک شناسهٔ جدید دریافت می‌کنید. بار سوم مقدار invalid بفرستید؛ باز هم سرور مقدار معتبر جدید تولید می‌کند. با دو شناسهٔ متفاوت هم درخواست بفرستید و بررسی کنید Logهای آن‌ها مخلوط نشده باشد.</p>
+</section>
+<section>
+<h2>۶. انتقال به سرویس بعدی با HttpClient</h2>
+<p><strong>Propagation</strong> یعنی منتقل‌کردن اطلاعات لازم از فرستنده به گیرنده. ثبت شناسه در Scope یا Items آن را به شبکه نمی‌فرستد. برای فراخوانی HTTP، مقدار را روی پیام خروجی قرار دهید. این قطعه الگوی ادغام در سرویس واقعی است و برای اجرا به PaymentService نیاز دارد.</p>
+<p>پیش از builder.Build، یک Client نام‌دار ثبت کنید. IHttpClientFactory ساخت Client و مدیریت Handlerهای زیربنایی را انجام می‌دهد:</p>
+<pre dir="ltr"><code>builder.Services.AddHttpClient("Payment", client =&gt;
+{
+    client.BaseAddress = new Uri("http://localhost:5087");
+});</code></pre>
+<p>در Endpoint از نوع async، با دریافت HttpContext به نام context و IHttpClientFactory به نام factory، فراخوانی را به شکل زیر انجام دهید:</p>
+<pre dir="ltr"><code>var correlationId = (string)context.Items["CorrelationId"]!;
+var client = factory.CreateClient("Payment");
+using var request = new HttpRequestMessage(HttpMethod.Get, "/health");
+request.Headers.Add("X-Correlation-ID", correlationId);
+using var response = await client.SendAsync(request, context.RequestAborted);
+response.EnsureSuccessStatusCode();</code></pre>
+<p>در این مثال، /health یک مسیر آزمایشی در PaymentService است. گیرنده باید Header را بخواند و Scope مخصوص خودش را بسازد؛ برای مثال همان Middleware با ServiceName برابر PaymentService. سپس Logهای دو سرویس با CorrelationId مشترک قابل جست‌وجو هستند.</p>
+<p>شناسهٔ متغیر هر درخواست را روی HttpRequestMessage بگذارید. تغییر DefaultRequestHeaders یک Client مشترک هنگام اجرای هم‌زمان درخواست‌ها می‌تواند شناسه‌ها را جابه‌جا کند. در پروژهٔ بزرگ می‌توانید انتقال را در DelegatingHandler، یعنی مرحلهٔ سفارشی مسیر ارسال HttpClient، متمرکز کنید؛ ولی Context درخواست را در فیلد مشترک یا طولانی‌عمر نگه ندارید و شناسه را فقط به مقصدهای مورد اعتماد بفرستید.</p>
+</section>
+<section>
+<h2>۷. پیام، Retry و کار پس‌زمینه</h2>
+<p>وقتی Order یک پیام برای پردازش بعدی منتشر می‌کند، ممکن است درخواست HTTP پیش از مصرف پیام تمام شود. بنابراین Consumer، یعنی دریافت‌کنندهٔ پیام، نمی‌تواند به HttpContext فرستنده تکیه کند. شناسه را در Metadata پیام، یعنی اطلاعات همراه آن، قرار دهید:</p>
+<pre dir="ltr"><code>{
+  "messageId": "msg-102",
+  "correlationId": "79c7795a68274e54ae61d1e3be1262d7",
+  "causationId": "msg-101",
+  "type": "OrderCreated",
+  "data": { "orderId": 42 }
+}</code></pre>
+<p>این JSON قرارداد آموزشی است؛ محل واقعی فیلدها می‌تواند Header یا Properties مربوط به Broker باشد. <strong>MessageId</strong> یک پیام مشخص را معرفی می‌کند و <strong>CausationId</strong> شناسهٔ پیام یا عملیاتی است که باعث تولید پیام فعلی شده است. در این مثال msg-101 باعث تولید msg-102 شده، اما هر دو در یک فرایند با Correlation ID مشترک قرار دارند.</p>
+<p>Consumer برای هر پیام یک Scope مستقل باز می‌کند، عملیات را با await انجام می‌دهد و Scope را پس از پردازش می‌بندد. در ارسال پیام بعدی همان Correlation ID حفظ می‌شود. برای یک Job مستقل بدون پیام ورودی، شناسه در شروع اجرای همان Job ساخته می‌شود.</p>
+<p><strong>Retry</strong> تکرار تلاش برای انجام همان عملیات است. معمولاً Correlation ID را در Retry حفظ می‌کنیم و شمارهٔ تلاش را در فیلدی مثل Attempt ثبت می‌کنیم. <strong>Idempotency Key</strong> کلیدی برای جلوگیری از اثر تجاری تکراری است؛ Correlation ID چنین تضمینی نمی‌دهد. مثلاً دو تلاش با شناسهٔ یکسان همچنان می‌توانند بدون سازوکار Idempotency دو بار پرداخت انجام دهند.</p>
+</section>
+<section>
+<h2>۸. اشتباه‌های رایج و تمرین</h2>
+<ul>
+<li><strong>اعتماد امنیتی به شناسه:</strong> Correlation ID مدرک هویت و مجوز دسترسی نیست. دانستن آن نباید اجازهٔ مشاهدهٔ سفارش یا Log را بدهد.</li>
+<li><strong>قرار دادن دادهٔ شخصی در شناسه:</strong> ایمیل، شماره تلفن و Token را وارد شناسه نکنید؛ شناسه باید یک مقدار opaque، یعنی فاقد معنای تجاری قابل خواندن، باشد.</li>
+<li><strong>استفاده در Metric Label:</strong> هر شناسه مقدار متفاوتی دارد. این تنوع زیاد که Cardinality نام دارد، تعداد سری‌های Metric را زیاد می‌کند؛ برای بررسی یک عملیات از Log یا Trace استفاده کنید.</li>
+<li><strong>فرض انتقال خودکار:</strong> هر مرز HTTP، پیام و Job را بررسی کنید؛ اولین مرزی که شناسه را حذف کند، جست‌وجوی سراسری را ناقص می‌کند.</li>
+</ul>
+<p><strong>تمرین:</strong> دو نسخه از نمونه را روی پورت‌های 5086 و 5087 اجرا کنید. در نسخهٔ دوم ServiceName را PaymentService بگذارید و یک Endpoint از نوع GET با مسیر /health بسازید که یک Log بنویسد. در نسخهٔ اول یک Endpoint از نوع async اضافه کنید که قطعهٔ فراخوانی بخش قبل را اجرا کند. درخواست را با شناسهٔ مشخص بفرستید. معیار موفقیت این است که پاسخ Order و Logهای هر دو سرویس یک CorrelationId داشته باشند؛ درخواست مستقل بعدی بدون Header باید شناسهٔ تازه داشته باشد.</p>
+<p><strong>پرسش مرور:</strong> اگر Order شناسه را ثبت کند ولی Payment شناسهٔ دیگری داشته باشد، ابتدا چه چیزی را بررسی می‌کنید؟ Header پیام خروجی، سیاست پذیرش شناسه در گیرنده و قالب معتبر مورد توافق را بررسی کنید؛ اضافه‌کردن Logهای بیشتر بدون اصلاح انتقال، ارتباط رخدادها را بازسازی نمی‌کند.</p>
+</section>
+      </div>
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a rel="prev" href="ch15-1.html">درس قبلی: <bdi>15.1 Logging</bdi></a>
+        <a rel="next" href="ch17-1.html">درس بعدی: <bdi>17.1 JWT Fundamentals</bdi></a>
+      </nav>
+    </main>
+  </div>
+  <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+</html>
