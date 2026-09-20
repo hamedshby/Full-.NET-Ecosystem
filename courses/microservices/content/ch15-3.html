@@ -1,0 +1,170 @@
+<div class="article-header">
+  <span class="article-tag">Monitoring · 15.3</span>
+  <h1>Trace ID در Microservices</h1>
+  <p>شناخت مسیر یک درخواست، ارتباط Spanها و مشاهدهٔ انتقال خودکار Trace Context در ASP.NET Core</p>
+</div>
+<section>
+<h2>۱. سفارش ثبت شد، اما پاسخ چرا دیر رسید؟</h2>
+<p>کاربر سفارش ۴۲ را ثبت می‌کند. Order برای بررسی پرداخت به Payment درخواست می‌فرستد و Payment از Database اطلاعات می‌خواند. پاسخ نهایی دو ثانیه طول می‌کشد. Log «سفارش دریافت شد» فقط یک رخداد را نشان می‌دهد؛ برای فهمیدن اینکه زمان در کدام قسمت مصرف شده است، باید بخش‌های اجرای همین درخواست را به هم وصل کنیم.</p>
+<p><strong>Trace</strong> مجموعهٔ بخش‌های مرتبط اجرای یک عملیات است. هر بخش با نام <strong>Span</strong> شناخته می‌شود و می‌تواند نام، زمان شروع، مدت اجرا و نتیجه داشته باشد. <strong>Trace ID</strong> شناسهٔ مشترک Spanهای همان Trace است؛ مثل شمارهٔ پرونده‌ای که روی همهٔ برگه‌های مربوط به یک بررسی قرار دارد.</p>
+<pre dir="ltr"><code>TraceId = 4bf92f3577b34da6a3ce929d0e0e4736
+
+Order: POST /orders/42          [Server Span A]
+  └─ HTTP request to Payment   [Client Span B]
+       └─ Payment: GET /payment [Server Span C]
+            └─ Database query [Span D, if instrumented]</code></pre>
+<p>همهٔ این بخش‌ها Trace ID یکسان دارند، اما هرکدام Span ID جدا دارند. وجود شناسه به‌تنهایی مدت اجرای Database را آشکار نمی‌کند؛ آن بخش باید اندازه‌گیری و اطلاعاتش جمع‌آوری شده باشد. همچنین مدت Spanهای تو‌در‌تو را نباید با هم جمع زد، چون زمان فرزند معمولاً داخل بازهٔ والد قرار دارد.</p>
+</section>
+<section>
+<h2>۲. Trace ID، Span ID و Parent Span ID</h2>
+<p><strong>Parent Span ID</strong> شناسهٔ بخشی است که بخش فعلی از آن آغاز شده است. در مثال بالا، والد C بخش B است. ارتباط والد و فرزند ساختار مسیر را مشخص می‌کند؛ Trace ID فقط نشان می‌دهد بخش‌ها به کدام Trace تعلق دارند.</p>
+<table><thead><tr><th scope="col">مقدار</th><th scope="col">پرسش قابل پاسخ</th><th scope="col">رفتار در مثال</th></tr></thead><tbody>
+<tr><td>Trace ID</td><td>این بخش متعلق به کدام اجرای سراسری است؟</td><td>در A، B و C یکسان است</td></tr>
+<tr><td>Span ID</td><td>این بخش مشخص کدام است؟</td><td>A، B و C شناسه‌های متفاوت دارند</td></tr>
+<tr><td>Parent Span ID</td><td>این بخش از کدام بخش آغاز شده است؟</td><td>در C برابر Span ID بخش B است</td></tr>
+<tr><td>Correlation ID</td><td>طبق قرارداد برنامه، کدام رخدادها مرتبط‌اند؟</td><td>ممکن است فرایندی شامل چند Trace را به هم وصل کند</td></tr>
+<tr><td>OrderId</td><td>کدام موجودیت تجاری درگیر است؟</td><td>سفارش ۴۲ می‌تواند در Trace ثبت، استعلام و لغو دیده شود</td></tr>
+</tbody></table>
+<p>در قالب W3C، Trace ID برابر ۱۶ بایت است و با ۳۲ رقم hexadecimal نمایش داده می‌شود؛ Span ID برابر ۸ بایت و ۱۶ رقم است. hexadecimal از رقم‌های 0 تا 9 و حرف‌های a تا f استفاده می‌کند. این شناسه‌ها زمان رخداد یا شمارهٔ مشتری را در خود بیان نمی‌کنند. جزئیات در <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-concepts">مفاهیم Distributed Tracing در .NET</a> آمده است.</p>
+</section>
+<section>
+<h2>۳. traceparent چه چیزی را منتقل می‌کند؟</h2>
+<p><strong>Trace Context</strong> اطلاعاتی است که سرویس گیرنده برای ادامه‌دادن Trace لازم دارد. <strong>Propagation</strong> انتقال این اطلاعات بین بخش‌ها یا سرویس‌هاست. در HTTP، استاندارد W3C این اطلاعات را از طریق Header، یعنی اطلاعات جانبی پیام، منتقل می‌کند. نمونهٔ زیر یک traceparent معتبر در نسخهٔ 00 است:</p>
+<pre dir="ltr"><code>traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+             │  └────────── trace-id ─────────┘ └── parent-id ─┘ │
+          version                                           flags</code></pre>
+<p>trace-id شناسهٔ Trace است. parent-id شناسهٔ Span فرستنده است که گیرنده آن را والد خود می‌داند. flags شامل پرچم sampled است؛ مقدار 01 یعنی این پرچم روشن است. این پرچم تضمین نمی‌کند تمام سرویس‌ها داده را ذخیره کرده‌اند.</p>
+<p>هنگام ایجاد Span در سرویس بعدی، Trace ID حفظ می‌شود و Span ID تازه ساخته می‌شود. بنابراین کل Header نباید مانند یک رشتهٔ ثابت برای تمام مسیر کپی شود. Trace ID یا Span ID تمام‌صفر معتبر نیست. Header اختیاری <code dir="ltr">tracestate</code> نیز اطلاعات وابسته به سامانهٔ Tracing را حمل می‌کند. قرارداد دقیق در <a href="https://www.w3.org/TR/trace-context/">استاندارد W3C Trace Context</a> تعریف شده است.</p>
+</section>
+<section>
+<h2>۴. خواندن Trace ID در .NET</h2>
+<p>در .NET، <strong>Activity</strong> نمایندهٔ یک Span است. <code dir="ltr">Activity.Current</code> به Activity فعال در جریان اجرای فعلی اشاره می‌کند. وقتی ASP.NET Core درخواست را پردازش می‌کند، می‌توان شناسه‌های Activity درخواست را خواند:</p>
+<div class="code-head"><span>C# · داخل پردازش درخواست</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>using System.Diagnostics;
+
+var activity = Activity.Current;
+var traceId = activity?.TraceId.ToString();
+var spanId = activity?.SpanId.ToString();
+var parentSpanId = activity?.ParentSpanId.ToString();</code></pre>
+<p>علامت ?. از دسترسی به عضو یک مقدار null جلوگیری می‌کند. خارج از یک عملیات فعال، Activity.Current می‌تواند null باشد؛ مثلاً در یک برنامهٔ Console که هنوز Activity نساخته است. برای پرکردن این جای خالی یک GUID تصادفی با نام TraceId ثبت نکنید، چون آن مقدار به Trace واقعی متصل نیست.</p>
+<p>در اجرای معمول async/await، Activity جاری همراه Context اجرای منطقی جریان پیدا می‌کند؛ وابسته به ثابت‌ماندن Thread نیست. بااین‌حال ارسال پیام به Broker یا شروع یک Job مستقل نیازمند انتقال یا ایجاد Context مناسب است. همچنین <code dir="ltr">HttpContext.TraceIdentifier</code> شناسهٔ درخواست میزبان است و جای Activity.TraceId را نمی‌گیرد.</p>
+</section>
+<section>
+<h2>۵. مثال اجرایی: Order و Payment</h2>
+<p>یک پروژهٔ .NET 10 را در دو Process مستقل اجرا می‌کنیم؛ یکی نقش Order و دیگری نقش Payment را دارد. هر دو از کد یکسان استفاده می‌کنند تا تمرکز روی شناسه‌ها باشد. در این مثال پرداخت واقعی انجام نمی‌شود و به Package اضافی نیاز نداریم.</p>
+<div class="code-head"><span>Terminal · ساخت پروژه</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet new web -n TraceIdDemo -f net10.0
+cd TraceIdDemo</code></pre>
+<p>محتوای Program.cs را جایگزین کنید. <strong>IHttpClientFactory</strong> ساخت HttpClient و مدیریت Handlerهای ارسال را بر عهده دارد. Client نام‌دار Payment مقصد فراخوانی را مشخص می‌کند. <strong>Scope</strong> اطلاعات مشترک Logهای یک محدودهٔ اجراست؛ ActivityTrackingOptions شناسه‌های Activity فعال را به Scopeهای Logging اضافه می‌کند.</p>
+<div class="code-head"><span>Program.cs</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>using System.Diagnostics;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddJsonConsole(options =&gt; options.IncludeScopes = true);
+builder.Logging.Configure(options =&gt;
+    options.ActivityTrackingOptions = ActivityTrackingOptions.TraceId
+        | ActivityTrackingOptions.SpanId
+        | ActivityTrackingOptions.ParentId);
+
+builder.Services.AddHttpClient("Payment", client =&gt;
+{
+    client.BaseAddress = new Uri("http://localhost:5092");
+});
+
+var app = builder.Build();
+var serviceName = builder.Configuration["ServiceName"] ?? "Demo";
+
+app.MapGet("/payment", (ILogger&lt;Program&gt; logger) =&gt;
+{
+    var snapshot = ReadTrace(serviceName);
+    logger.LogInformation("Payment request received by {ServiceName}", serviceName);
+    return Results.Ok(snapshot);
+});
+
+app.MapGet("/orders/{orderId:int}", async (
+    int orderId, IHttpClientFactory factory,
+    HttpContext context, ILogger&lt;Program&gt; logger) =&gt;
+{
+    var order = ReadTrace(serviceName);
+    logger.LogInformation("Order {OrderId} received by {ServiceName}",
+        orderId, serviceName);
+
+    var client = factory.CreateClient("Payment");
+    var payment = await client.GetFromJsonAsync&lt;TraceSnapshot&gt;(
+        "/payment", context.RequestAborted);
+
+    return Results.Ok(new { orderId, order, payment });
+});
+
+app.Run();
+
+static TraceSnapshot ReadTrace(string serviceName)
+{
+    var current = Activity.Current;
+    return new TraceSnapshot(serviceName,
+        current?.TraceId.ToString(),
+        current?.SpanId.ToString(),
+        current?.ParentSpanId.ToString());
+}
+
+record TraceSnapshot(string ServiceName, string? TraceId,
+    string? SpanId, string? ParentSpanId);</code></pre>
+<p>ReadTrace فقط شناسه‌ها را می‌خواند و Activity جدید نمی‌سازد. قبل از فراخوانی Payment، شناسه‌های Activity درخواست Order در متغیر order ذخیره می‌شوند. سپس HttpClient درخواست را می‌فرستد و Payment شناسه‌های Activity سمت خودش را برمی‌گرداند. نمایش شناسه‌ها در Body برای مشاهدهٔ آموزشی است؛ پاسخ یک API واقعی باید متناسب با قرارداد محصول طراحی شود.</p>
+<p>در این مسیر و با تنظیمات پیش‌فرض نمونه، ASP.NET Core ورودی و HttpClient خروجی در انتقال Trace Context مشارکت دارند؛ نیازی به افزودن دستی traceparent نیست. جزئیات پشتیبانی در <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/networking/telemetry/tracing">مستندات Networking Tracing</a> آمده است. تنظیمات Scope و ActivityTrackingOptions را نیز در <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/logging/">مستندات Logging در ASP.NET Core</a> می‌توانید ببینید.</p>
+</section>
+<section>
+<h2>۶. اجرا و مقایسهٔ نتیجه</h2>
+<p>ابتدا Build کنید؛ سپس از داخل پوشهٔ پروژه در دو Terminal جدا برنامه را اجرا کنید:</p>
+<pre dir="ltr"><code>dotnet build</code></pre>
+<div class="code-head"><span>Terminal 1 · Payment</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet run --no-build --no-launch-profile -- --urls http://localhost:5092 --ServiceName Payment</code></pre>
+<div class="code-head"><span>Terminal 2 · Order</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet run --no-build --no-launch-profile -- --urls http://localhost:5091 --ServiceName Order</code></pre>
+<p>در PowerShell سوم درخواست را بفرستید:</p>
+<div class="code-head"><span>PowerShell · Terminal 3</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>$result = Invoke-RestMethod http://localhost:5091/orders/42
+$result | ConvertTo-Json -Depth 5
+$result.order.traceId -eq $result.payment.traceId
+$result.order.spanId -ne $result.payment.spanId</code></pre>
+<p>هر دو مقایسه باید True باشند: Trace ID مشترک است و Span IDها متفاوت‌اند. در Log هر سرویس نیز TraceId و SpanId در Scopes دیده می‌شوند. مقدار ParentSpanId مربوط به Payment معمولاً با SpanId مربوط به Order برابر نیست؛ بین آن‌ها Span فراخوانی HttpClient قرار دارد که والد مستقیم Activity درخواست Payment است.</p>
+<p>یک درخواست مستقل دیگر بدون Header بفرستید؛ Trace ID تازه‌ای دریافت می‌کنید. سپس ادامهٔ یک Trace ورودی مشخص را آزمایش کنید:</p>
+<pre dir="ltr"><code>$headers = @{
+    traceparent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+}
+$result = Invoke-RestMethod http://localhost:5091/orders/42 -Headers $headers
+$result.order.traceId
+$result.order.parentSpanId
+$result.payment.traceId</code></pre>
+<p>Trace ID هر دو سرویس برابر 4bf92f3577b34da6a3ce929d0e0e4736 و ParentSpanId سرویس Order برابر 00f067aa0ba902b7 می‌شود. این Header ثابت فقط برای آزمایش است؛ آن را در تمام درخواست‌های واقعی تکرار نکنید. فرستادن Header نامعتبر نیز نباید برنامه را وابسته به شناسهٔ ارسالی شما کند؛ رفتار پذیرش Context را با تنظیمات واقعی Gateway و سرویس خود بررسی کنید.</p>
+</section>
+<section>
+<h2>۷. داشتن Trace ID با ذخیره‌شدن Trace فرق دارد</h2>
+<p>نمونهٔ ما شناسه‌ها را در پاسخ و Log نشان می‌دهد، اما هیچ صفحهٔ نمایش مسیر یا محل ذخیرهٔ Spanها راه‌اندازی نمی‌کند. <strong>Instrumentation</strong> کدی است که اطلاعات اجرای عملیات را تولید می‌کند. <strong>Exporter</strong> آن اطلاعات را به محل جمع‌آوری می‌فرستد. <strong>Sampling</strong> سیاست انتخاب بخشی از اجراها برای ثبت است تا هزینه و حجم داده کنترل شود.</p>
+<p>بنابراین ممکن است Trace ID را در Log داشته باشید، اما Trace متناظر در ابزار مشاهده پیدا نشود: آن اجرا انتخاب نشده، Exporter تنظیم نیست، ارسال شکست خورده یا داده از دورهٔ نگهداری خارج شده است. برای تشخیص کندی به Spanهای جمع‌آوری‌شده و زمان آن‌ها نیاز دارید؛ رشتهٔ Trace ID به‌تنهایی اطلاعات Performance ندارد.</p>
+<p>برای افزودن یک بخش داخلی، مثلاً محاسبهٔ تخفیف، API مناسب <strong>ActivitySource</strong> است؛ این شیء Activityهای مربوط به یک بخش از برنامه را تولید می‌کند. نمونهٔ زیر فقط الگوی Instrumentation است و باید در کلاس سرویس قرار گیرد:</p>
+<pre dir="ltr"><code>private static readonly ActivitySource Source = new("Shop.Pricing");
+
+public decimal CalculateDiscount(decimal total)
+{
+    using var activity = Source.StartActivity("CalculateDiscount");
+    return total * 0.05m;
+}</code></pre>
+<p>در صورت ایجاد Activity، با Activity جاری رابطهٔ والد و فرزند برقرار می‌شود و using پایان Span را مشخص می‌کند. StartActivity ممکن است به علت نبود Listener علاقه‌مند یا تصمیم Sampling مقدار null بدهد؛ منطق برنامه باید همچنان کار کند. <strong>Listener</strong> مصرف‌کننده‌ای است که به ActivitySource گوش می‌دهد؛ در راه‌اندازی OpenTelemetry، Source مربوط به Shop.Pricing باید ثبت شود. جزئیات در <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs">راهنمای افزودن Instrumentation</a> و <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-collection-walkthroughs">راهنمای جمع‌آوری Trace</a> آمده است.</p>
+</section>
+<section>
+<h2>۸. مرزهای پیام و خطاهای رایج</h2>
+<ul>
+<li><strong>ساخت Trace ID تازه در هر سرویس:</strong> وقتی سرویس باید ادامهٔ همان درخواست باشد، این کار مسیر را تکه‌تکه می‌کند. بررسی کنید Gateway و Client اطلاعات Context را حفظ کرده باشند.</li>
+<li><strong>انتقال فقط Trace ID در پیام:</strong> گیرنده برای ارتباط والد و فرزند به Context نیاز دارد. از Instrumentation و Propagator کتابخانهٔ Messaging استفاده کنید؛ Propagator مسئول نوشتن و خواندن Context در Metadata پیام است.</li>
+<li><strong>فرض یک Trace برای تمام عمر سفارش:</strong> درخواست لغو روز بعد می‌تواند Trace مستقلی داشته باشد. OrderId یا Correlation ID رابطهٔ تجاری را نگه می‌دارد. برای ارتباط چند Context، مثلاً پردازش دسته‌ای پیام‌ها، ActivityLink امکان اشاره به عملیات مرتبط را می‌دهد.</li>
+<li><strong>اعتماد به Trace ID ورودی:</strong> این مقدار می‌تواند از Client بیاید؛ برای Authentication، Authorization یا جلوگیری از پرداخت تکراری کاربرد ندارد. سیاست مرز اعتماد و Sampling باید مستقل باشد.</li>
+<li><strong>استفاده به‌عنوان Metric Label:</strong> تنوع بسیار زیاد شناسه‌ها، یا Cardinality بالا، تعداد سری‌های Metric را زیاد می‌کند. برای جست‌وجوی یک اجرای خاص از Log و Trace استفاده کنید.</li>
+<li><strong>کپی دستی traceparent در HttpClient:</strong> در مسیر دارای Instrumentation، این کار ممکن است والد نادرست ایجاد کند. انتقال را به سازوکار استاندارد واگذار کنید و نتیجه را در گیرنده بررسی کنید.</li>
+</ul>
+</section>
+<section>
+<h2>۹. تمرین عیب‌یابی</h2>
+<p>Payment را متوقف کنید و دوباره /orders/42 را صدا بزنید. Order به خطای اتصال می‌رسد؛ Log دریافت درخواست هنوز Trace ID دارد، اما Payment درخواست را دریافت نکرده که Log متناظر بسازد. این تفاوت کمک می‌کند نبود Log را با «پرداخت انجام شد» اشتباه نگیرید.</p>
+<p>سپس Payment را اجرا کنید و دو درخواست مستقل به Order بفرستید. معیار موفقیت: داخل هر درخواست، Trace ID دو سرویس یکسان باشد؛ بین دو درخواست مستقل، Trace ID تغییر کند؛ و Span ID سرویس‌ها یکسان نباشد. برای بررسی سرعت، در درس Distributed Tracing همین ساختار را با جمع‌آوری Spanها و زمان اجرا ادامه می‌دهیم.</p>
+<p><strong>پرسش مرور:</strong> آیا یکسان بودن Trace ID دو Log یعنی یکی مستقیماً دیگری را فراخوانی کرده است؟ خیر؛ آن‌ها ممکن است دو فرزند مستقل در یک Trace باشند. برای فهمیدن رابطهٔ مستقیم، Parent Span ID و ساختار Spanها را بررسی کنید.</p>
+</section>

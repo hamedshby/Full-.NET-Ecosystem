@@ -1,0 +1,180 @@
+<div class="article-header">
+  <span class="article-tag">Monitoring · 15.4</span>
+  <h1>Distributed Tracing در Microservices</h1>
+  <p>از مشاهدهٔ یک درخواست کند تا جمع‌آوری Spanها، پیدا کردن محل تأخیر و بررسی خطا بین سرویس‌ها</p>
+</div>
+<section>
+<h2>۱. کاربر دو ثانیه منتظر ماند؛ زمان کجا مصرف شد؟</h2>
+<p>ثبت سفارش از Order شروع می‌شود، برای پرداخت به Payment می‌رود و سپس پاسخ به کاربر برمی‌گردد. Order می‌گوید درخواست موفق بوده و Payment هم خطایی ثبت نکرده است، اما کاربر منتظر مانده است. برای بررسی این وضعیت، فقط دانستن نتیجه کافی نیست؛ باید مسیر و زمان بخش‌های اجرای همین درخواست را ببینیم.</p>
+<p><strong>Distributed Tracing</strong> روشی برای دنبال‌کردن اجرای یک عملیات در چند بخش یا سرویس است. <strong>Trace</strong> مجموعهٔ بخش‌های مرتبط این اجراست. هر بخش، یا <strong>Span</strong>، نام، زمان شروع، مدت اجرا و اطلاعاتی دربارهٔ نتیجه دارد. <strong>Trace ID</strong> شناسهٔ مشترک بخش‌های یک Trace است؛ <strong>Span ID</strong> هر بخش را مشخص می‌کند و <strong>Parent Span ID</strong> ارتباط آن با بخش والد را نشان می‌دهد.</p>
+<pre dir="ltr"><code>One trace — illustrative durations
+
+Order /checkout                  [====================]  2000 ms
+  HTTP call to Payment            [==================]   1800 ms
+    Payment /authorize             [================]    1600 ms
+      Provider call                 [==============]     1400 ms</code></pre>
+<p>در این مثال فرضی، انتظار برای Provider، یعنی ارائه‌دهندهٔ بیرونی پرداخت، بخش بزرگی از زمان را گرفته است. این مشاهده جهت بررسی را مشخص می‌کند؛ هنوز علت نهایی، مثلاً اشباع اتصال یا کندی خود Provider، معلوم نیست. مجموع این چهار زمان ۶۸۰۰ میلی‌ثانیه، زمان انتظار کاربر نیست؛ Spanهای فرزند داخل بازهٔ والد اجرا شده‌اند.</p>
+</section>
+<section>
+<h2>۲. کنار Log و Metric چه چیزی اضافه می‌کند؟</h2>
+<p><strong>Log</strong> سابقهٔ یک رخداد و <strong>Metric</strong> اندازه‌گیری عددی وضعیت سیستم است. مثلاً Metric نشان می‌دهد درخواست‌ها کندتر شده‌اند؛ Trace یک نمونهٔ مشخص از مسیر کند را نشان می‌دهد و Log جزئیات رخداد همان مسیر را روشن می‌کند.</p>
+<table><thead><tr><th scope="col">ابزار بررسی</th><th scope="col">پرسش</th><th scope="col">محدودیت</th></tr></thead><tbody>
+<tr><td>Metric</td><td>چند درصد درخواست‌ها کند یا ناموفق‌اند؟</td><td>معمولاً مسیر یک درخواست مشخص را نشان نمی‌دهد</td></tr>
+<tr><td>Trace</td><td>این درخواست از کجا گذشت و کجا منتظر ماند؟</td><td>بخش اندازه‌گیری‌نشده یا جمع‌آوری‌نشده را نمی‌بیند</td></tr>
+<tr><td>Log</td><td>در مرحلهٔ ناموفق چه اتفاقی ثبت شد؟</td><td>به‌تنهایی نمودار زمان و ارتباط فراخوانی‌ها را نمی‌سازد</td></tr>
+</tbody></table>
+<p>یک مسیر عملی این است: با افزایش زمان پاسخ متوجه مشکل شوید، Traceهای کند همان بازه و نسخهٔ سرویس را پیدا کنید، سپس Logهای دارای Trace ID همان اجرا را بخوانید. یک Trace کند به‌تنهایی ثابت نمی‌کند همهٔ درخواست‌ها همین مشکل را دارند؛ آن را با چند نمونه و Metricهای همان بازه مقایسه کنید.</p>
+</section>
+<section>
+<h2>۳. اطلاعات چگونه به صفحهٔ نمایش می‌رسد؟</h2>
+<p><strong>Instrumentation</strong> کدی است که Spanها و داده‌های اجرای برنامه را تولید می‌کند. <strong>Propagation</strong> انتقال Trace Context، یعنی اطلاعات لازم برای ادامهٔ Trace، بین سرویس‌هاست. در HTTP، این انتقال معمولاً با Header استاندارد traceparent انجام می‌شود؛ فقط نوشتن Trace ID در متن Log کافی نیست.</p>
+<p><strong>OpenTelemetry</strong> مجموعهٔ APIها، SDKها و ابزارهای تولید و انتقال Telemetry است؛ Telemetry داده‌ای است که دربارهٔ رفتار برنامه جمع می‌کنیم. <strong>Exporter</strong> داده را از برنامه به مقصد می‌فرستد. <strong>Collector</strong> یک مؤلفهٔ جدا برای دریافت، پردازش و ارسال Telemetry است. <strong>Backend</strong> محل ذخیره و جست‌وجوی داده است؛ مثلاً Jaeger امکان جست‌وجو و نمایش Traceها را فراهم می‌کند.</p>
+<pre dir="ltr"><code>Request path:  Client → Order → Payment
+                           traceparent →
+
+Telemetry:     Order   ─┐
+                        ├→ Exporter → [Collector] → Trace backend / UI
+               Payment ─┘</code></pre>
+<p>مسیر Telemetry با مسیر پاسخ تجاری متفاوت است. در این نمودار Collector اختیاری است؛ برای آزمایش می‌توان مستقیم به Backend فرستاد. در محیط واقعی Collector می‌تواند Batch، یعنی گروه‌بندی ارسال‌ها، و پردازش متمرکز انجام دهد. ارسال معمولاً از صف‌های محدود استفاده می‌کند؛ خرابی مقصد می‌تواند باعث ازدست‌رفتن داده شود، پس Tracing دفتر قطعی تراکنش‌های تجاری نیست. نمای کلی در <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel">مستندات Observability با OpenTelemetry</a> آمده است.</p>
+</section>
+<section>
+<h2>۴. یک آزمایش قابل‌اجرا با .NET 10</h2>
+<p>یک برنامه را در دو Process مستقل با نام‌های Order و Payment اجرا می‌کنیم. Order یک درخواست HTTP می‌فرستد و Payment یک عملیات ۶۰۰ میلی‌ثانیه‌ای را شبیه‌سازی می‌کند. ابتدا Spanها را در Console می‌بینیم؛ در بخش بعد، ارسال به Jaeger را اضافه می‌کنیم. این نمونه Database یا پرداخت واقعی ندارد.</p>
+<div class="code-head"><span>Terminal · ساخت پروژه</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet new web -n DistributedTracingDemo -f net10.0
+cd DistributedTracingDemo
+dotnet add package OpenTelemetry.Extensions.Hosting
+dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+dotnet add package OpenTelemetry.Instrumentation.Http
+dotnet add package OpenTelemetry.Exporter.Console</code></pre>
+<p>این فرمان‌ها نسخهٔ پایدار قابل‌دسترسی Packageها را به پروژه اضافه می‌کنند. نسخه‌های ثبت‌شده در فایل پروژه را برای بازتولید نگه دارید. <strong>Activity</strong> نمایندهٔ Span در .NET است و <strong>ActivitySource</strong> منبع تولید Activityهای سفارشی است. Program.cs را با کد زیر جایگزین کنید:</p>
+<div class="code-head"><span>Program.cs</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>using System.Diagnostics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
+var builder = WebApplication.CreateBuilder(args);
+var serviceName = builder.Configuration["ServiceName"] ?? "Order";
+using var source = new ActivitySource("Shop.Checkout");
+
+builder.Services.AddHttpClient("Payment", client =&gt;
+    client.BaseAddress = new Uri("http://localhost:15102"));
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource =&gt; resource.AddService(serviceName))
+    .WithTracing(tracing =&gt; tracing
+        .SetSampler(new AlwaysOnSampler())
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddSource("Shop.Checkout")
+        .AddConsoleExporter());
+
+var app = builder.Build();
+
+app.MapGet("/payment", async (bool? fail, CancellationToken cancellationToken) =&gt;
+{
+    using var activity = source.StartActivity("Payment.Authorize");
+    activity?.SetTag("payment.provider", "simulator");
+    await Task.Delay(600, cancellationToken);
+
+    if (fail == true)
+    {
+        activity?.SetStatus(ActivityStatusCode.Error, "Simulated provider failure");
+        return Results.StatusCode(503);
+    }
+
+    return Results.Ok(new { approved = true });
+});
+
+app.MapGet("/checkout", async (
+    bool? fail, IHttpClientFactory factory, HttpContext context) =&gt;
+{
+    var traceId = Activity.Current?.TraceId.ToString();
+    var client = factory.CreateClient("Payment");
+    var path = fail == true ? "/payment?fail=true" : "/payment";
+    using var response = await client.GetAsync(path, context.RequestAborted);
+
+    if (!response.IsSuccessStatusCode)
+    {
+        return Results.Json(new { traceId, error = "Payment unavailable" },
+            statusCode: 502);
+    }
+
+    return Results.Ok(new { traceId, status = "Completed" });
+});
+
+app.Run();</code></pre>
+<p>AddService نام سرویس را در Resource ثبت می‌کند؛ <strong>Resource</strong> اطلاعات تولیدکنندهٔ داده است، نه مشخصات یک درخواست. AddAspNetCoreInstrumentation درخواست ورودی و AddHttpClientInstrumentation فراخوانی خروجی را پوشش می‌دهند. AddSource باعث جمع‌آوری Activityهای منبع Shop.Checkout می‌شود؛ اگر نام با ActivitySource متفاوت باشد، Span سفارشی دیده نمی‌شود.</p>
+<p>StartActivity بخش Payment.Authorize را زیر Activity درخواست Payment ایجاد می‌کند. using پایان آن را ثبت می‌کند. <strong>Tag</strong> یک ویژگی نام‌دار روی Span است؛ در اینجا می‌گوید Provider شبیه‌ساز است. عملگر ?. لازم است، چون در نبود Listener مناسب یا با سیاست Sampling، StartActivity می‌تواند null باشد. توضیح APIها در <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/distributed-tracing-instrumentation-walkthroughs">راهنمای Instrumentation در .NET</a> آمده است.</p>
+<p>AlwaysOnSampler برای این آزمایش انتخاب شده تا اجراها برای ثبت انتخاب شوند؛ تنظیم پیشنهادی عمومی برای Production نیست. AddConsoleExporter خود Spanها را چاپ می‌کند و با Console Logger معمولی تفاوت دارد. این برنامه Logs را به Backend ارسال نمی‌کند. الگوی پیکربندی بر اساس <a href="https://opentelemetry.io/docs/languages/dotnet/traces/getting-started-aspnetcore/">راهنمای رسمی OpenTelemetry برای ASP.NET Core</a> است.</p>
+</section>
+<section>
+<h2>۵. اجرا، مشاهدهٔ Span و ایجاد خطا</h2>
+<p>یک بار Build کنید و سپس در دو Terminal از پوشهٔ پروژه اجرا کنید:</p>
+<pre dir="ltr"><code>dotnet build</code></pre>
+<div class="code-head"><span>Terminal 1 · Payment</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet run --no-build --no-launch-profile -- --urls http://localhost:15102 --ServiceName Payment</code></pre>
+<div class="code-head"><span>Terminal 2 · Order</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet run --no-build --no-launch-profile -- --urls http://localhost:15101 --ServiceName Order</code></pre>
+<p>در PowerShell سوم درخواست را بفرستید:</p>
+<pre dir="ltr"><code>Invoke-RestMethod http://localhost:15101/checkout
+curl.exe -i "http://localhost:15101/checkout?fail=true"</code></pre>
+<p>درخواست اول پاسخ Completed و یک traceId می‌دهد. در Console دو Process، Spanهای مرتبط را با همان TraceId پیدا کنید. مسیر اصلی شامل Span ورودی Order، Span خروجی HttpClient، Span ورودی Payment و Span داخلی Payment.Authorize است؛ بسته به نسخه و Instrumentation ممکن است Spanهای دیگری هم دیده شوند.</p>
+<p>در خروجی، DisplayName نام عملیات، Duration مدت اجرا، SpanId شناسهٔ بخش و ParentSpanId والد آن است. Payment.Authorize حدود ۶۰۰ میلی‌ثانیه یا بیشتر طول می‌کشد؛ زمان دقیق به زمان‌بندی و بار سیستم وابسته است. اولین درخواست ممکن است به دلیل راه‌اندازی اولیه و ساخت اتصال کندتر باشد؛ چند بار اجرا کنید.</p>
+<p>درخواست دوم از Payment پاسخ 503 می‌گیرد و Order پاسخ 502 برمی‌گرداند. Span سفارشی با SetStatus به Error علامت‌گذاری می‌شود؛ Instrumentation مربوط به HTTP نیز وضعیت 5xx را روی Spanهای HTTP منعکس می‌کند. SetStatus پاسخ HTTP را تغییر نمی‌دهد و Exception پرتاب نمی‌کند؛ به همین دلیل در کد، نتیجهٔ HTTP جداگانه مشخص شده است. نتیجهٔ تجاری عادی مثل «موجودی ناکافی» را الزاماً خطای زیرساختی در نظر نگیرید.</p>
+</section>
+<section>
+<h2>۶. نمایش مسیر در Jaeger</h2>
+<p>برای دیدن نمودار، Docker باید نصب و Engine آن فعال باشد. در یک Terminal جدا Jaeger را فقط روی رابط محلی اجرا کنید. این حالت آزمایشی از ذخیره‌سازی حافظه‌ای استفاده می‌کند و داده با پایان اجرا باقی نمی‌ماند:</p>
+<div class="code-head"><span>Terminal · Jaeger</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>docker run --rm --name tracing-lesson-jaeger -p 127.0.0.1:16686:16686 -p 127.0.0.1:4317:4317 cr.jaegertracing.io/jaegertracing/jaeger:2.21.0</code></pre>
+<p>طبق <a href="https://www.jaegertracing.io/docs/2.21/getting-started/">راهنمای Jaeger</a>، پورت 16686 برای UI و پورت 4317 برای دریافت OTLP روی gRPC است. <strong>OTLP</strong> پروتکل انتقال دادهٔ OpenTelemetry است. برنامه‌های این مثال روی میزبان اجرا می‌شوند؛ اگر آن‌ها را Container کنید، localhost داخل Container به همان Container اشاره می‌کند و آدرس مقصد باید متناسب با شبکه تغییر کند.</p>
+<p>دو برنامه را با Ctrl+C متوقف کنید، Package زیر را اضافه کنید و سپس تغییر کد را انجام دهید:</p>
+<pre dir="ltr"><code>dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol</code></pre>
+<p>این using را ابتدای Program.cs اضافه کنید:</p>
+<pre dir="ltr"><code>using OpenTelemetry.Exporter;</code></pre>
+<p>انتهای زنجیرهٔ WithTracing، عبارت <code dir="ltr">.AddConsoleExporter());</code> را با قطعهٔ زیر جایگزین کنید تا Spanها به هر دو مقصد بروند:</p>
+<pre dir="ltr"><code>.AddConsoleExporter()
+        .AddOtlpExporter(options =&gt;
+        {
+            options.Endpoint = new Uri("http://localhost:4317");
+            options.Protocol = OtlpExportProtocol.Grpc;
+        }));</code></pre>
+<p>دوباره dotnet build و فرمان‌های اجرای دو سرویس را بزنید، سپس درخواست تازه بفرستید. صفحهٔ <a href="http://localhost:16686">Jaeger محلی</a> را باز کنید، سرویس Order را انتخاب و Traceهای بازهٔ اخیر را جست‌وجو کنید. Trace مربوط به درخواست را با traceId پاسخ تطبیق دهید و شاخهٔ Payment.Authorize را باز کنید. ارسال OTLP ممکن است با تأخیر کوتاه Batch انجام شود. اگر Console خروجی دارد ولی UI ندارد، ابتدا Endpoint، Protocol و دسترسی مقصد را بررسی کنید. گزینه‌های Export در <a href="https://opentelemetry.io/docs/languages/dotnet/exporters/">مستندات Exporterهای OpenTelemetry .NET</a> آمده است.</p>
+</section>
+<section>
+<h2>۷. نمودار را چگونه تحلیل کنیم؟</h2>
+<p><strong>Waterfall</strong> نمایی است که Spanها را به‌صورت نوارهای زمانی نشان می‌دهد. نوار بلندتر فقط مدت سپری‌شدهٔ بیشتری دارد؛ الزاماً CPU بیشتری مصرف نکرده است. در نمونه، Task.Delay تقریباً تمام زمان Span سفارشی را به انتظار اختصاص می‌دهد.</p>
+<ol>
+<li><strong>درخواست درست را انتخاب کنید:</strong> Trace ID، زمان، نام سرویس و نسخهٔ منتشرشده را تطبیق دهید.</li>
+<li><strong>از ریشه به فرزند بروید:</strong> اگر بیشتر زمان Order داخل فراخوانی Payment است، بررسی را در Payment ادامه دهید.</li>
+<li><strong>شاخه‌های هم‌زمان را تشخیص دهید:</strong> دو فراخوانی موازی ۷۰۰ و ۹۰۰ میلی‌ثانیه‌ای معمولاً حدود ۹۰۰ میلی‌ثانیه به انتظار بخش منتظر همهٔ نتایج اضافه می‌کنند، نه ۱۶۰۰؛ سربار هم وجود دارد.</li>
+<li><strong>Critical Path را پیدا کنید:</strong> این مسیر از وابستگی‌ها زمان تکمیل کل عملیات را تعیین می‌کند. کوتاه‌کردن یک شاخهٔ سریع و موازی ممکن است پاسخ نهایی را سریع‌تر نکند.</li>
+<li><strong>فضای خالی را با شواهد بررسی کنید:</strong> فاصلهٔ زمانی می‌تواند از انتظار، صف، شبکه، بخش فاقد Instrumentation یا تفاوت ساعت سرورها باشد؛ به‌تنهایی علت را ثابت نمی‌کند.</li>
+</ol>
+<p>برای Spanهای هم‌پوشان، کم‌کردن سادهٔ مجموع زمان فرزندان از والد هم می‌تواند اشتباه باشد. پیش از نتیجه‌گیری دربارهٔ شبکه یا CPU، Metricهای اتصال، صف و منابع و Logهای همان عملیات را بررسی کنید. همگام‌سازی ساعت سرویس‌ها نیز به تفسیر Timeline کمک می‌کند.</p>
+</section>
+<section>
+<h2>۸. پیام، Retry و Trace ناقص</h2>
+<p>در پیام‌رسانی، Producer فرستنده و Consumer دریافت‌کنندهٔ پیام است. Context باید در Metadata پیام منتقل و هنگام پردازش بازیابی شود. یک پیام ممکن است پس از پایان درخواست HTTP مصرف شود؛ به HttpContext فرستنده تکیه نکنید. کتابخانهٔ Messaging و Propagator آن، یعنی سازوکار نوشتن و خواندن Context، باید هماهنگ پیکربندی شوند.</p>
+<p>در پردازش دسته‌ای چند پیام، یک Span نمی‌تواند چند والد مستقیم داشته باشد. <strong>Span Link</strong> ارتباط با Contextهای دیگر را نشان می‌دهد؛ در .NET با ActivityLink بیان می‌شود. در فرایندهای طولانی ممکن است چند Trace با Link یا Correlation ID مرتبط شوند. جزئیات لینک‌ها در <a href="https://opentelemetry.io/docs/languages/dotnet/traces/links-creation/">راهنمای Span Link در OpenTelemetry .NET</a> توضیح داده شده است.</p>
+<p><strong>Retry</strong> تلاش دوباره برای یک عملیات است. چند Span خروجی مشابه می‌تواند نشان‌دهندهٔ چند تلاش باشد؛ شمارهٔ تلاش و نتیجهٔ نهایی را ثبت کنید. Timeout اثبات نمی‌کند سرویس مقصد هیچ کاری انجام نداده است. برای جلوگیری از اثر تکراری، مانند دو بار پرداخت، به Idempotency نیاز دارید؛ Tracing فقط به بررسی رفتار کمک می‌کند.</p>
+<table><thead><tr><th scope="col">نشانه</th><th scope="col">اول چه چیزی را بررسی کنیم؟</th></tr></thead><tbody>
+<tr><td>Order و Payment در دو Trace جدا دیده می‌شوند</td><td>انتقال traceparent، تنظیمات Gateway و ساخت اشتباه Context جدید</td></tr>
+<tr><td>Span داخلی وجود ندارد</td><td>تطابق ActivitySource با AddSource و تصمیم Sampling</td></tr>
+<tr><td>یک سرویس اصلاً دیده نمی‌شود</td><td>نام Resource، Instrumentation، Exporter، بازهٔ جست‌وجو و دسترسی شبکه</td></tr>
+<tr><td>Trace ID در Log هست ولی Trace پیدا نمی‌شود</td><td>Sampling، شکست ارسال و زمان نگهداری داده</td></tr>
+</tbody></table>
+</section>
+<section>
+<h2>۹. Sampling و هزینهٔ نگهداری</h2>
+<p><strong>Sampling</strong> انتخاب بخشی از اجراها برای ثبت و نگهداری است. در <strong>Head Sampling</strong> تصمیم نزدیک شروع عملیات گرفته می‌شود؛ هزینه زود محدود می‌شود، اما نتیجهٔ نهایی هنوز معلوم نیست. در <strong>Tail Sampling</strong> تصمیم پس از دریافت بخشی از Spanها و انتظار برای اطلاعات بیشتر گرفته می‌شود؛ می‌توان اجراهای کند یا خطادار را هدف گرفت، ولی حافظه، زمان انتظار و مسیریابی هماهنگ لازم است.</p>
+<p>اگر Head Sampling داده‌ای را از ابتدا حذف کرده باشد، Tail Sampling نمی‌تواند آن را بازسازی کند. سیاست Parent-based نیز کمک می‌کند سرویس‌های بعدی تصمیم والد را دنبال کنند. Sampling به معنی نمونهٔ کاملاً بی‌طرف از همهٔ رخدادها نیست؛ نرخ خطای کل سرویس را صرفاً از Traceهایی که عمداً برای خطا انتخاب شده‌اند محاسبه نکنید. توضیح سیاست‌ها در <a href="https://opentelemetry.io/docs/concepts/sampling/">مستندات Sampling</a> آمده است.</p>
+<p>نام Span را ثابت و کم‌تنوع نگه دارید، مثلاً Payment.Authorize، نه Payment.Authorize.Order42. Token، شمارهٔ کارت و Body کامل درخواست را در Tagها نگذارید. نام سرویس، نسخه و محیط را هماهنگ تعریف کنید و مدت نگهداری، دسترسی به Backend و هزینهٔ ارسال را مشخص کنید. خرابی سیستم Tracing نباید به وابستگی اجباری موفقیت پرداخت تبدیل شود.</p>
+</section>
+<section>
+<h2>۱۰. تمرین: تأخیر را با شواهد پیدا کنید</h2>
+<p>در Payment مقدار Task.Delay را از 600 به 1200 تغییر دهید، Build و سرویس را دوباره اجرا کنید. چند درخواست تازه بفرستید و آن‌ها را با قبل مقایسه کنید. انتظار داریم زمان Payment.Authorize و والدهای منتظر آن بیشتر شود؛ تعداد Spanهای مسیر اصلی نباید صرفاً به علت افزایش Delay تغییر کند.</p>
+<p>بعد درخواست fail=true را اجرا کنید. بررسی کنید Span داخلی Payment خطادار است و پاسخ Order برابر 502 است. اگر فقط رنگ قرمز را دیدید، بررسی تمام نشده است؛ باید مشخص کنید کدام مرحله خطا را ایجاد کرده، کدام مرحله فقط آن را دریافت کرده و چه اطلاعاتی هنوز جمع‌آوری نشده است.</p>
+<p><strong>پرسش مرور:</strong> اگر Order حدود دو ثانیه طول بکشد ولی هیچ Span فرزندی دیده نشود، آیا نتیجه می‌گیریم تمام زمان در کد Order مصرف شده است؟ خیر؛ ممکن است فراخوانی خروجی یا عملیات داخلی Instrumentation نداشته باشد. ابتدا پوشش جمع‌آوری را بررسی کنید، سپس دربارهٔ محل مصرف زمان نتیجه بگیرید.</p>
+</section>

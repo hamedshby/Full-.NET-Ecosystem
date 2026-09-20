@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش OpenTelemetry در Microservices در راهنمای جامع Microservices؛ Monitoring · 15.5  تولید و ارسال Trace، Metric و Log با APIهای .NET، شناخت SDK و Collector و یک نمونهٔ قابل‌اجرا ۱. سه سؤال د">
+  <title>OpenTelemetry در Microservices | راهنمای جامع Microservices</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch15-5">
+      <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>15 - Monitoring</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+<div class="article-header">
+  <span class="article-tag">Monitoring · 15.5</span>
+  <h1>OpenTelemetry در Microservices</h1>
+  <p>تولید و ارسال Trace، Metric و Log با APIهای .NET، شناخت SDK و Collector و یک نمونهٔ قابل‌اجرا</p>
+</div>
+<section>
+<h2>۱. سه سؤال دربارهٔ یک سفارش</h2>
+<p>کاربر می‌گوید ثبت سفارش کند شده است. تیم پشتیبانی می‌خواهد بداند برای سفارش او چه اتفاقی افتاده، تیم عملیات می‌خواهد تعداد درخواست‌های ناموفق را ببیند و توسعه‌دهنده می‌خواهد محل انتظار در مسیر اجرا را پیدا کند. برای این سه سؤال، یک نوع داده کافی نیست.</p>
+<p><strong>Telemetry</strong> داده‌ای است که دربارهٔ رفتار برنامه تولید می‌کنیم. <strong>OpenTelemetry</strong>، با نام کوتاه OTel، مجموعه‌ای از استانداردها، APIها، SDKها و ابزارها برای تولید، جمع‌آوری و ارسال این داده‌هاست. مثلاً برنامهٔ Order می‌تواند اطلاعات اجرای خود را با OTel تولید کند و بعداً مقصد ذخیره‌سازی را با تغییر تنظیمات Export عوض کند.</p>
+<table><thead><tr><th scope="col">Signal</th><th scope="col">معنی</th><th scope="col">نمونهٔ سؤال</th></tr></thead><tbody>
+<tr><td>Trace</td><td>بخش‌های مرتبط اجرای یک عملیات؛ هر بخش Span نام دارد</td><td>این درخواست در کدام مرحله منتظر ماند؟</td></tr>
+<tr><td>Metric</td><td>اندازه‌گیری عددی، معمولاً تجمیع‌شده در بازهٔ زمانی</td><td>چند عملیات کامل شد و زمان آن‌ها چگونه توزیع شده است؟</td></tr>
+<tr><td>Log</td><td>سابقهٔ یک رخداد با پیام و ویژگی‌های مرتبط</td><td>برای سفارش ۴۲ چه نتیجه‌ای ثبت شد؟</td></tr>
+</tbody></table>
+<p><strong>Signal</strong> یعنی دستهٔ اطلاعات مشاهده‌پذیری؛ تمرکز این درس روی سه مورد جدول است. OpenTelemetry خودش صفحهٔ Dashboard و پایگاه ذخیره‌سازی بلندمدت نیست. برای جست‌وجو، نمودار و Alert، یعنی اعلام وضعیت نیازمند توجه، به ابزار مقصد و تنظیمات آن نیاز داریم. معرفی این نقش در <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel">راهنمای Observability با OTel در .NET</a> آمده است.</p>
+</section>
+<section>
+<h2>۲. از API تا Backend</h2>
+<p><strong>Instrumentation</strong> کدی است که رفتار برنامه را اندازه می‌گیرد؛ مثلاً شروع و پایان درخواست HTTP. <strong>API</strong> قرارداد نوشتن این اندازه‌گیری‌هاست. <strong>SDK</strong> پیاده‌سازی جمع‌آوری و پردازش آن‌هاست و تعیین می‌کند چه داده‌ای به کجا برود.</p>
+<p><strong>Exporter</strong> داده را به یک مقصد می‌فرستد. <strong>OTLP</strong> پروتکل انتقال OpenTelemetry است و می‌تواند روی gRPC یا HTTP استفاده شود. <strong>Collector</strong> یک برنامهٔ جداست که داده را دریافت، پردازش و به مقصدهای بعدی ارسال می‌کند. <strong>Backend</strong> سامانهٔ ذخیره و جست‌وجو است.</p>
+<pre dir="ltr"><code>Application
+  ActivitySource / Meter / ILogger
+                 ↓
+        OpenTelemetry SDK
+                 ↓ Exporter / OTLP
+        [OpenTelemetry Collector]
+          ↓          ↓          ↓
+       Traces     Metrics      Logs
+       backend    backend      backend</code></pre>
+<p>Collector برای همهٔ سناریوها اجباری نیست؛ ارسال مستقیم هم ممکن است. اضافه‌کردن آن در یک سیستم چندسرویسی می‌تواند فیلتر و ارسال به چند مقصد را متمرکز کند. بااین‌حال، انتخاب Backend همچنان مهم است: مثلاً ارسال هر سه Signal به یک مقصد مخصوص Trace باعث نمی‌شود آن مقصد Metric و Log را هم ذخیره کند.</p>
+</section>
+<section>
+<h2>۳. APIهای اصلی در .NET</h2>
+<table><thead><tr><th scope="col">API</th><th scope="col">کاربرد</th><th scope="col">نحوهٔ اتصال به SDK</th></tr></thead><tbody>
+<tr><td>ActivitySource و Activity</td><td>تولید Span و مشخص‌کردن محدودهٔ اجرا</td><td>ثبت نام Source با AddSource</td></tr>
+<tr><td>Meter</td><td>تعریف ابزارهای اندازه‌گیری مانند Counter و Histogram</td><td>ثبت نام Meter با AddMeter</td></tr>
+<tr><td>ILogger</td><td>ثبت رخدادها با Message Template و ویژگی‌ها</td><td>افزودن OpenTelemetry Logging Provider</td></tr>
+</tbody></table>
+<p><strong>Counter</strong> مجموع مقدارهای افزوده‌شده را اندازه می‌گیرد؛ مثلاً به‌ازای هر عملیات کامل‌شده یک واحد اضافه می‌کنیم. <strong>Histogram</strong> توزیع مقدارها را نگه می‌دارد؛ مثلاً تعداد و مجموع زمان عملیات و تعداد مشاهده‌ها در بازه‌های زمانی مشخص. Histogram به معنی نگهداری تک‌تک درخواست‌ها نیست.</p>
+<p>Providerهای مربوط به Trace، Metric و Log چرخهٔ جمع‌آوری هر Signal را مدیریت می‌کنند. آن‌ها را در شروع برنامه پیکربندی کنید و در هر درخواست Provider تازه نسازید. نام Source و Meter باید دقیقاً با نام ثبت‌شده مطابق باشد؛ تولید داده بدون ثبت منبع ممکن است خروجی قابل مشاهده‌ای نداشته باشد.</p>
+</section>
+<section>
+<h2>۴. Resource، Attribute و ارتباط داده‌ها</h2>
+<p><strong>Resource</strong> مشخصات تولیدکنندهٔ داده است؛ مثل service.name برابر OrderService و service.version برابر 1.0.0. <strong>Attribute</strong> یک ویژگی نام‌دار روی داده است؛ مثلاً outcome برابر completed. مشخصات مشترک سرویس را روی Resource و جزئیات همان عملیات را روی دادهٔ مربوط ثبت کنید.</p>
+<p><strong>Semantic Conventions</strong> قراردادهای مشترک نام‌گذاری و معنای ویژگی‌ها و اندازه‌گیری‌ها هستند؛ مثلاً ابزارها با نام یکسان ویژگی‌های HTTP، اطلاعات سرویس‌های مختلف را بهتر کنار هم قرار می‌دهند. برای ویژگی استاندارد، نام دلخواه مشابه نسازید؛ قرارداد متناسب با نسخهٔ Instrumentation را دنبال کنید.</p>
+<p>وقتی Log داخل Activity فعال ثبت شود، OpenTelemetry .NET می‌تواند TraceId و SpanId همان Activity را همراه آن ثبت کند. بنابراین از رخداد سفارش می‌توان به Trace مرتبط رسید، به شرط اینکه Backend و تنظیمات نمایش این ارتباط را پشتیبانی کنند. Metric تجمیع‌شده معمولاً متعلق به یک درخواست خاص نیست؛ Trace ID را به Label آن اضافه نکنید. جزئیات Log در <a href="https://opentelemetry.io/docs/languages/dotnet/logs/getting-started-aspnetcore/">راهنمای Logging در ASP.NET Core</a> آمده است.</p>
+</section>
+<section>
+<h2>۵. نمونهٔ اجرایی: هر سه Signal در Console</h2>
+<p>این نمونه با .NET 10 یک عملیات آموزشی ثبت سفارش را اجرا می‌کند و داده‌های سه Signal را در Console نشان می‌دهد. Database و سرویس بیرونی ندارد. ابتدا پروژه و Packageها را آماده کنید:</p>
+<div class="code-head"><span>Terminal</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet new web -n OpenTelemetryDemo -f net10.0
+cd OpenTelemetryDemo
+dotnet add package OpenTelemetry.Extensions.Hosting
+dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+dotnet add package OpenTelemetry.Exporter.Console</code></pre>
+<p>فرمان‌ها نسخهٔ پایدار در دسترس را نصب می‌کنند؛ نسخه‌های ثبت‌شده در فایل پروژه را برای اجرای قابل‌بازتولید نگه دارید. محتوای Program.cs را جایگزین کنید:</p>
+<div class="code-head"><span>Program.cs</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
+var builder = WebApplication.CreateBuilder(args);
+const string serviceName = "OrderService";
+const string sourceName = "Shop.Orders";
+
+using var source = new ActivitySource(sourceName);
+using var meter = new Meter(sourceName);
+var completed = meter.CreateCounter&lt;long&gt;("shop.orders.completed",
+    unit: "{order}");
+var duration = meter.CreateHistogram&lt;double&gt;("shop.orders.duration",
+    unit: "s");
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource =&gt;
+        resource.AddService(serviceName, serviceVersion: "1.0.0"))
+    .WithTracing(tracing =&gt; tracing
+        .SetSampler(new AlwaysOnSampler())
+        .AddAspNetCoreInstrumentation()
+        .AddSource(sourceName)
+        .AddConsoleExporter())
+    .WithMetrics(metrics =&gt; metrics
+        .AddMeter(sourceName)
+        .AddConsoleExporter((exporterOptions, readerOptions) =&gt;
+        {
+            readerOptions.PeriodicExportingMetricReaderOptions
+                .ExportIntervalMilliseconds = 1000;
+        }));
+
+// Only the OpenTelemetry provider is needed for this console demo.
+builder.Logging.ClearProviders();
+builder.Logging.AddOpenTelemetry(options =&gt;
+{
+    options.SetResourceBuilder(ResourceBuilder.CreateDefault()
+        .AddService(serviceName, serviceVersion: "1.0.0"));
+    options.IncludeFormattedMessage = true;
+    options.IncludeScopes = true;
+    options.AddConsoleExporter();
+});
+
+var app = builder.Build();
+
+app.MapPost("/orders/{orderId:int}", async (
+    int orderId, ILogger&lt;Program&gt; logger, CancellationToken cancellationToken) =&gt;
+{
+    if (orderId &lt;= 0)
+        return Results.BadRequest(new { error = "OrderId must be positive" });
+
+    using var activity = source.StartActivity("Order.Process");
+    using var scope = logger.BeginScope(new Dictionary&lt;string, object&gt;
+    {
+        ["OrderId"] = orderId
+    });
+
+    var start = Stopwatch.GetTimestamp();
+    await Task.Delay(120, cancellationToken);
+
+    var elapsed = Stopwatch.GetElapsedTime(start).TotalSeconds;
+    activity?.SetTag("order.outcome", "completed");
+    completed.Add(1);
+    duration.Record(elapsed);
+    logger.LogInformation("Order {OrderId} completed", orderId);
+
+    return Results.Ok(new
+    {
+        orderId,
+        traceId = Activity.Current?.TraceId.ToString(),
+        status = "Completed"
+    });
+});
+
+app.Run();</code></pre>
+<p>ActivitySource و Meter در طول عمر برنامه مشترک‌اند. هر درخواست معتبر یک Span با نام ثابت Order.Process ایجاد می‌کند. using پایان محدودهٔ Span و Log Scope را مشخص می‌کند. Scope اطلاعات مشترک رخدادهای داخل محدوده است؛ در اینجا OrderId را نگه می‌دارد. StartActivity ممکن است null باشد، بنابراین کد باید بدون آن هم کار کند.</p>
+<p>پس از پایان انتظار شبیه‌سازی‌شده، Counter یک واحد افزایش می‌یابد و Histogram زمان مرحلهٔ پردازش را برحسب ثانیه ثبت می‌کند؛ این زمان کل پاسخ HTTP، از جمله ارسال پاسخ، نیست. درخواست نامعتبر یا لغوشده پیش از تکمیل در این دو Instrument ثبت نمی‌شود. <strong>Instrument</strong> همان ابزار اندازه‌گیری مثل Counter است؛ پس نام completed آگاهانه انتخاب شده است.</p>
+<p>ClearProviders فقط برای جلوگیری از خروجی تکراری این آزمایش است؛ در پروژهٔ دارای Providerهای موردنیاز، آن‌ها را بدون بررسی حذف نکنید. IncludeFormattedMessage متن قالب‌بندی‌شدهٔ پیام و IncludeScopes داده‌های Scope را فعال می‌کند. AlwaysOnSampler و بازهٔ یک‌ثانیه‌ای Export نیز برای مشاهدهٔ سریع آزمایش‌اند. الگوی Metric در <a href="https://opentelemetry.io/docs/languages/dotnet/metrics/getting-started-aspnetcore/">راهنمای رسمی Metrics</a> توضیح داده شده است.</p>
+</section>
+<section>
+<h2>۶. اجرا و نتیجهٔ مورد انتظار</h2>
+<div class="code-head"><span>Terminal 1</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>dotnet run --no-launch-profile --urls http://localhost:15201</code></pre>
+<p>در PowerShell دیگری سه درخواست معتبر بفرستید و یکی دو ثانیه برای Export دوره‌ای Metric صبر کنید:</p>
+<div class="code-head"><span>PowerShell · Terminal 2</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>1..3 | ForEach-Object {
+    Invoke-RestMethod -Method Post "http://localhost:15201/orders/$_"
+}</code></pre>
+<ul>
+<li><strong>Trace:</strong> برای هر درخواست، Span ورودی HTTP و Span داخلی Order.Process را می‌بینید. Trace ID آن دو مشترک و Span IDها متفاوت است.</li>
+<li><strong>Log:</strong> پیام Order … completed دارای OrderId، TraceId و SpanId است؛ چون داخل Span داخلی ثبت شده، SpanId آن به Order.Process اشاره می‌کند.</li>
+<li><strong>Metric:</strong> پس از سه درخواست و در اجرای تازه، Counter مقدار ۳ دارد؛ Histogram نیز سه مشاهده با زمان حدود ۰٫۱۲ ثانیه یا بیشتر دارد. زمان دقیق ثابت نیست.</li>
+</ul>
+<p>خروجی Metric در تنظیمات پیش‌فرض این نمونه Cumulative است؛ یعنی مقدارها از شروع جمع‌آوری انباشته می‌شوند. تکرار مقدار ۳ در Export بعدی به معنی سه سفارش جدید نیست. با Restart برنامه، مقدارهای درون حافظه دوباره شروع می‌شوند. در <strong>Delta</strong>، هر خروجی تغییرات بازهٔ مربوط را گزارش می‌کند؛ نوع خروجی و تفسیر Backend باید هماهنگ باشند.</p>
+<p>Metric رخدادها را تجمیع می‌کند، پس سه Log، سه Trace و یک مقدار Counter همگی می‌توانند همان سه عملیات را توصیف کنند. واحد، نام و بازهٔ اندازه‌گیری را هنگام خواندن نمودار بررسی کنید. برای مثال میانگین به‌تنهایی کندترین درخواست‌ها را نشان نمی‌دهد.</p>
+</section>
+<section>
+<h2>۷. انتقال هر سه Signal با OTLP</h2>
+<p>برای ارسال به Collector، Package زیر را اضافه کنید. سپس در هر سه محل AddConsoleExporter، Exporter مناسب OTLP را جایگزین کنید؛ افزودن آن فقط در WithTracing، Metric و Log را ارسال نمی‌کند.</p>
+<pre dir="ltr"><code>dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol</code></pre>
+<p>ابتدای فایل، <code dir="ltr">using OpenTelemetry.Exporter;</code> را اضافه کنید. در WithTracing، فراخوانی AddConsoleExporter را با این فراخوانی جایگزین کنید؛ در WithMetrics نیز کل AddConsoleExporter همراه Lambda مربوط به بازهٔ زمانی را با همین فراخوانی جایگزین کنید:</p>
+<pre dir="ltr"><code>.AddOtlpExporter(options =&gt;
+{
+    options.Endpoint = new Uri("http://localhost:4317");
+    options.Protocol = OtlpExportProtocol.Grpc;
+})</code></pre>
+<p>داخل builder.Logging.AddOpenTelemetry، خط options.AddConsoleExporter را با این قطعه جایگزین کنید:</p>
+<pre dir="ltr"><code>options.AddOtlpExporter(exporter =&gt;
+{
+    exporter.Endpoint = new Uri("http://localhost:4317");
+    exporter.Protocol = OtlpExportProtocol.Grpc;
+});</code></pre>
+<p>بعد از تغییر، Build و اجرا را تکرار کنید. Collector باید Signalهای ارسالی را بپذیرد. Metric به بازهٔ پیش‌فرض OTLP برمی‌گردد و ممکن است بلافاصله دیده نشود. در این نمونه، Endpoint و Protocol صریح انتخاب شده‌اند؛ در محیط واقعی می‌توان از تنظیمات پشتیبانی‌شده مانند OTEL_EXPORTER_OTLP_ENDPOINT و OTEL_EXPORTER_OTLP_PROTOCOL استفاده کرد. پورت رایج gRPC برابر 4317 و HTTP برابر 4318 است؛ عوض‌کردن پورت بدون تغییر Protocol کافی نیست. جزئیات در <a href="https://opentelemetry.io/docs/languages/dotnet/exporters/">راهنمای Exporterهای .NET</a> آمده است.</p>
+</section>
+<section>
+<h2>۸. Collector: تعریف جزء با فعال‌کردن آن فرق دارد</h2>
+<p><strong>Receiver</strong> دادهٔ ورودی Collector را دریافت می‌کند. <strong>Processor</strong> آن را پردازش می‌کند؛ مثلاً batch ارسال‌ها را گروه‌بندی می‌کند. <strong>Pipeline</strong> مسیر پردازش یک Signal از Receiver تا Exporter است. مثال زیر برای Collector نصب‌شده روی همان میزبان است و فقط داده را برای عیب‌یابی چاپ می‌کند:</p>
+<div class="code-head"><span>otelcol.yaml · آزمایش محلی</span><button type="button" data-copy-code>کپی کد</button></div>
+<pre dir="ltr"><code>receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:4317
+
+processors:
+  batch: {}
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]</code></pre>
+<p>برای اجرا باید نسخه‌ای از Collector شامل این مؤلفه‌ها نصب شده باشد. فایل را ذخیره و از پوشهٔ آن با executable در دسترس اجرا کنید؛ در ویندوز ممکن است نام فرمان otelcol.exe باشد:</p>
+<pre dir="ltr"><code>otelcol validate --config=otelcol.yaml
+otelcol --config=otelcol.yaml</code></pre>
+<p>صرف تعریف otlp یا debug آن‌ها را برای همهٔ Signalها فعال نمی‌کند؛ ارجاع در service.pipelines لازم است. این تنظیمات پایگاه داده و UI نمی‌سازند. برای Production باید مقصد ذخیره‌سازی، محدودیت منابع، سیاست صف و Retry، امنیت ارتباط و دسترسی را متناسب با محیط مشخص کنید. اگر Collector داخل Container باشد، Bind و آدرس مقصد را مطابق شبکه تنظیم کنید؛ localhost در هر Container به خودش اشاره می‌کند. ساختار فایل در <a href="https://opentelemetry.io/docs/collector/configuration/">مستندات پیکربندی Collector</a> آمده است.</p>
+</section>
+<section>
+<h2>۹. انتخاب دادهٔ مفید و کنترل هزینه</h2>
+<p><strong>Cardinality</strong> تعداد ترکیب‌های متمایز ویژگی‌هاست. اگر برای Metric هر OrderId یا TraceId را ثبت کنید، به‌ازای عملیات فراوان سری‌های جدا می‌سازید. ویژگی محدود مثل outcome با چند مقدار مشخص، کنترل‌پذیرتر است. شناسهٔ سفارش را در Log یا Span و با رعایت سیاست داده ثبت کنید.</p>
+<p><strong>Sampling</strong> انتخاب بخشی از Traceها برای ثبت است. این انتخاب، شمارش Metric را خودکار به همان نسبت کاهش نمی‌دهد و Logها را هم خودکار حذف نمی‌کند. برای هر Signal سیاست مناسب خودش را تنظیم کنید. اگر Trace نمونه‌برداری نشده باشد، ممکن است Log دارای Trace ID باشد ولی Trace کامل در Backend پیدا نشود.</p>
+<p>اطلاعات شخصی، Token و Body کامل را بدون نیاز وارد Telemetry نکنید. حذف داده در Collector جلوی انتقال اولیهٔ آن از برنامه تا Collector را نمی‌گیرد؛ بهتر است دادهٔ غیرضروری از ابتدا تولید نشود. از طرف دیگر، ثبت نکردن همه‌چیز نباید به حذف علت و نتیجهٔ عملیات مهم منجر شود؛ نام مرحله، نتیجه و اطلاعات لازم برای تشخیص مشکل را هدفمند انتخاب کنید.</p>
+<p>Export ممکن است با صف و Batch انجام شود. خاموش‌کردن ناگهانی Process می‌تواند دادهٔ ارسال‌نشده را از بین ببرد؛ پایان عادی Host به پایان عمر Providerها کمک می‌کند، اما تضمین تحویل در همهٔ شرایط نیست. Counter در حافظه نیز دفتر حساب سفارش‌ها نیست؛ برای آمار تجاری قطعی به دادهٔ پایدار و قرارداد پردازش کسب‌وکار رجوع کنید.</p>
+</section>
+<section>
+<h2>۱۰. عیب‌یابی و تمرین</h2>
+<table><thead><tr><th scope="col">مشکل</th><th scope="col">بررسی اول</th></tr></thead><tbody>
+<tr><td>Span سفارشی دیده نمی‌شود</td><td>تطابق نام ActivitySource و AddSource، وجود Provider و سیاست Sampling</td></tr>
+<tr><td>Metric دیده نمی‌شود</td><td>تطابق نام Meter و AddMeter، اجرای Add یا Record و انتظار برای بازهٔ Export</td></tr>
+<tr><td>Log Trace ID ندارد</td><td>فعال‌بودن Activity هنگام ثبت رخداد؛ Logهای شروع برنامه الزاماً Trace ندارند</td></tr>
+<tr><td>Console خروجی دارد ولی Collector ندارد</td><td>Exporter هر Signal، Endpoint، Protocol، Pipeline و دسترسی شبکه</td></tr>
+<tr><td>یک Log چند بار دیده می‌شود</td><td>Providerهای هم‌زمان و مسیرهای ارسال تکراری به یک مقصد</td></tr>
+</tbody></table>
+<p><strong>تمرین اول:</strong> پس از سه درخواست معتبر، یک درخواست با OrderId برابر صفر بفرستید. باید پاسخ 400 بگیرید، Counter همچنان ۳ بماند و Log تکمیل برای این درخواست ثبت نشود. Span ورودی HTTP ممکن است وجود داشته باشد، چون Instrumentation پیش از ورود به منطق Endpoint فعال است.</p>
+<p><strong>تمرین دوم:</strong> زمان Delay را دو برابر کنید و برنامه را Restart کنید. سه درخواست تازه بفرستید. انتظار داریم تعداد تکمیل دوباره ۳ باشد، ولی زمان مشاهده‌های Histogram و مدت Span داخلی بیشتر شود. این مقایسه تفاوت «چند بار اجرا شد» و «چقدر طول کشید» را نشان می‌دهد.</p>
+<p><strong>پرسش مرور:</strong> اگر فقط WithTracing را تنظیم کنیم، آیا تمام Logها و Metricها هم در Backend ظاهر می‌شوند؟ خیر؛ هر Signal مسیر ثبت، جمع‌آوری و Export خودش را دارد. برای مشاهدهٔ هر سه، تنظیمات و مقصد هر سه را بررسی کنید.</p>
+</section>
+      </div>
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a rel="prev" href="ch15-4.html">درس قبلی: <bdi>15.4 Distributed Tracing</bdi></a>
+        <a rel="next" href="ch17-1.html">درس بعدی: <bdi>17.1 JWT Fundamentals</bdi></a>
+      </nav>
+    </main>
+  </div>
+  <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+</html>
