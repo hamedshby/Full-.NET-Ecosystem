@@ -305,6 +305,249 @@ test-app:
               <li><a href="https://docs.gitlab.com/ci/yaml/">GitLab Docs — CI/CD YAML syntax reference</a></li>
             </ul>
           </section>`;
+
+  if (lesson.number === 2) return `
+          <section class="lesson-section lesson-intro" aria-labelledby="restore-start-title">
+            <p class="section-kicker">از رفتار Runner شروع کنیم</p>
+            <h2 id="restore-start-title">چرا پروژه بلافاصله بعد از Clone شدن Build نمی‌شود؟</h2>
+            <p>وقتی Runner یک Job تازه را شروع می‌کند، Source Code پروژه را دریافت می‌کند؛ اما Packageهای NuGet و خروجی‌های محلی پوشه‌های <code>obj</code> و <code>bin</code> معمولاً داخل Repository نیستند. فایل پروژه فقط اعلام می‌کند به چه Dependencyهایی نیاز داریم.</p>
+            <div class="code-block">
+              <div class="code-label"><span>Payment.Api.csproj</span><span>XML</span></div>
+              <pre dir="ltr"><code>&lt;Project Sdk="Microsoft.NET.Sdk.Web"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;
+  &lt;/PropertyGroup&gt;
+
+  &lt;ItemGroup&gt;
+    &lt;PackageReference Include="FluentValidation" Version="12.0.0" /&gt;
+  &lt;/ItemGroup&gt;
+&lt;/Project&gt;</code></pre>
+            </div>
+            <p>این فایل نام و Version Package را نگه می‌دارد، نه Binary آن را. بنابراین پیش از Compile باید گراف کامل Dependencyها Resolve شود. این مسئولیت <code>dotnet restore</code> است.</p>
+            <div class="process-flow" aria-label="جریان Restore و Build پروژه دات نت">
+              <span>Clone Repository</span><b aria-hidden="true">←</b><span>dotnet restore</span><b aria-hidden="true">←</b><span>project.assets.json</span><b aria-hidden="true">←</b><span>dotnet build</span><b aria-hidden="true">←</b><span>DLL و فایل‌های Build</span>
+            </div>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="restore-title">
+            <p class="section-kicker">مرحلهٔ اول</p>
+            <h2 id="restore-title"><code>dotnet restore</code> دقیقاً چه کاری انجام می‌دهد؟</h2>
+            <p><code>dotnet restore</code> از NuGet برای آماده‌کردن Dependencyهای پروژه استفاده می‌کند. Restore فقط Packageهای مستقیم را نمی‌بیند؛ Dependencyهای وابسته به آن Packageها را نیز Resolve می‌کند تا یک گراف سازگار با Target Framework پروژه ساخته شود.</p>
+            <div class="explanation-steps">
+              <article><span>۱</span><div><h3>پروژه و تنظیمات خوانده می‌شوند</h3><p>فایل‌های <code>.csproj</code>، Solution، Target Frameworkها، <code>PackageReference</code>ها و Sourceهای تعریف‌شده در <code>NuGet.Config</code> بررسی می‌شوند.</p></div></article>
+              <article><span>۲</span><div><h3>گراف Dependency Resolve می‌شود</h3><p>NuGet Versionهای لازم و سازگاری آن‌ها را محاسبه می‌کند. اگر یک Package به Package دیگری وابسته باشد، آن Dependency انتقالی نیز وارد گراف می‌شود.</p></div></article>
+              <article><span>۳</span><div><h3>Packageهای لازم فراهم می‌شوند</h3><p>NuGet ابتدا Cacheهای محلی را بررسی می‌کند و در صورت نیاز Package را از Source پیکربندی‌شده دریافت می‌کند. مسیر پیش‌فرض Global Packages Folder معمولاً پوشهٔ <code>.nuget/packages</code> کاربر است.</p></div></article>
+              <article><span>۴</span><div><h3>فایل Assets تولید می‌شود</h3><p>برای پروژه‌های مبتنی بر <code>PackageReference</code>، فایل <code>obj/project.assets.json</code> ساخته می‌شود. Build از این فایل می‌فهمد برای هر Target Framework و Runtime به کدام Assemblyها نیاز دارد.</p></div></article>
+            </div>
+            <aside class="lesson-note">
+              <strong>Restore چه کاری نمی‌کند؟</strong>
+              <span>Source Code را Compile نمی‌کند، خروجی نهایی برنامه را نمی‌سازد و PackageReference جدیدی به پروژه اضافه نمی‌کند. Restore وضعیت تعریف‌شده در فایل‌های پروژه را بازسازی می‌کند.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="build-title">
+            <p class="section-kicker">مرحلهٔ دوم</p>
+            <h2 id="build-title"><code>dotnet build</code> چه می‌سازد؟</h2>
+            <p><code>dotnet build</code> از MSBuild استفاده می‌کند تا پروژه، Project Referenceها و Source Code را Compile کند. نتیجه معمولاً شامل Assemblyهای IL با پسوند DLL، فایل‌های Symbol با پسوند PDB و Metadataهای Runtime مانند <code>.deps.json</code> و <code>.runtimeconfig.json</code> است.</p>
+            <div class="concept-grid command-comparison">
+              <article>
+                <span class="concept-mark">Restore</span>
+                <h3>Dependencyها را آماده می‌کند</h3>
+                <ul class="key-points">
+                  <li>ورودی اصلی: Project/Solution و NuGet Configuration</li>
+                  <li>خروجی مهم: <code>obj/project.assets.json</code></li>
+                  <li>Packageها را Resolve و در Cache محلی آماده می‌کند</li>
+                  <li>Source Code برنامه را Compile نمی‌کند</li>
+                </ul>
+              </article>
+              <article>
+                <span class="concept-mark">Build</span>
+                <h3>کد را Compile می‌کند</h3>
+                <ul class="key-points">
+                  <li>ورودی اصلی: Source Code، پروژه و گراف Dependency</li>
+                  <li>خروجی معمول: <code>bin/Release/net10.0/</code></li>
+                  <li>خطاهای Compiler و Analyzer را گزارش می‌کند</li>
+                  <li>به‌صورت پیش‌فرض Restore ضمنی هم انجام می‌دهد</li>
+                </ul>
+              </article>
+            </div>
+            <aside class="lesson-warning">
+              <strong>Build با Publish یکی نیست:</strong>
+              <span>Build صحت Compile و تولید Binaryهای پروژه را هدف می‌گیرد. برای آماده‌سازی خروجی قابل استقرار با فایل‌های مورد نیاز Host و تنظیم Deployment معمولاً از <code>dotnet publish</code> استفاده می‌شود.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="implicit-title">
+            <p class="section-kicker">رفتار مهم .NET CLI</p>
+            <h2 id="implicit-title">Restore صریح یا Restore ضمنی؟</h2>
+            <p>Commandهایی مانند <code>dotnet build</code> و <code>dotnet test</code> در صورت نیاز Restore را به‌صورت ضمنی اجرا می‌کنند. بنابراین روی کامپیوتر شخصی، Command زیر اغلب کافی است:</p>
+            <div class="code-block">
+              <div class="code-label"><span>Build همراه با Restore ضمنی</span><span>CLI</span></div>
+              <pre dir="ltr"><code>dotnet build PaymentService.sln --configuration Release</code></pre>
+            </div>
+            <p>در CI بهتر است این دو مسئولیت را صریح جدا کنیم. در این حالت اگر دریافت Dependency شکست بخورد، Log مرحلهٔ Restore علت را واضح‌تر نشان می‌دهد و Build بدون تکرار Restore اجرا می‌شود:</p>
+            <div class="code-block">
+              <div class="code-label"><span>Restore و Build صریح</span><span>CLI</span></div>
+              <pre dir="ltr"><code>dotnet restore PaymentService.sln
+dotnet build PaymentService.sln --configuration Release --no-restore</code></pre>
+            </div>
+            <aside class="lesson-note">
+              <strong>قاعدهٔ استفاده از <code>--no-restore</code>:</strong>
+              <span>این گزینه فقط زمانی درست است که Restore همان پروژه با SDK و فایل‌های Dependency مؤثر، قبلاً در همان Workspace با موفقیت انجام شده باشد. روی Runner تازه، حذف Restore می‌تواند باعث خطای نبودن فایل Assets شود.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="pipeline-build-title">
+            <p class="section-kicker">پیاده‌سازی در GitLab</p>
+            <h2 id="pipeline-build-title"><bdi>Build Job</bdi> برای یک Solution واقعی</h2>
+            <p>در این مرحله Restore و Build را داخل یک Job نگه می‌داریم تا هر دو Command در یک Workspace اجرا شوند. انتقال خروجی به Jobهای دیگر را در بخش Artifact بررسی می‌کنیم.</p>
+            <div class="code-block">
+              <div class="code-label"><span>.gitlab-ci.yml</span><span>YAML</span></div>
+              <pre dir="ltr"><code>stages:
+  - build
+
+build-app:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  script:
+    - dotnet --info
+    - dotnet restore PaymentService.sln
+    - dotnet build PaymentService.sln --configuration Release --no-restore
+  artifacts:
+    when: always
+    paths:
+      - "**/bin/Release/"
+    expire_in: 1 day</code></pre>
+            </div>
+            <div class="explanation-steps">
+              <article><span>۱</span><div><h3>Environment مشخص است</h3><p>Runner Job را با Docker Image حاوی .NET 10 SDK اجرا می‌کند؛ بنابراین ابزار Build مورد نیاز داخل Environment Job حضور دارد.</p></div></article>
+              <article><span>۲</span><div><h3>نسخهٔ واقعی SDK ثبت می‌شود</h3><p><code>dotnet --info</code> هنگام عیب‌یابی نشان می‌دهد کدام SDK، Runtime و سیستم‌عامل واقعاً استفاده شده است.</p></div></article>
+              <article><span>۳</span><div><h3>Dependencyها یک‌بار Restore می‌شوند</h3><p>اگر Feed خصوصی، Credential یا Package Version مشکل داشته باشد، Job در Command مربوط به Restore متوقف می‌شود.</p></div></article>
+              <article><span>۴</span><div><h3>Build در حالت Release انجام می‌شود</h3><p>گزینهٔ <code>--no-restore</code> مانع Restore تکراری می‌شود و خطاهای Compile یا Analyzer باعث شکست Job خواهند شد.</p></div></article>
+            </div>
+            <aside class="lesson-warning">
+              <strong>نکتهٔ امنیتی:</strong>
+              <span>Username، Password یا Token مربوط به Feed خصوصی را داخل Repository یا <code>NuGet.Config</code> Commit نکنید. Secret باید از GitLab CI/CD Variables یا Secret Management وارد Job شود و در Log چاپ نشود.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="repeatable-title">
+            <p class="section-kicker">قابل‌تکرار کردن Build</p>
+            <h2 id="repeatable-title">چگونه نتیجهٔ Local و CI را نزدیک نگه داریم؟</h2>
+            <p>یک Pipeline قابل اعتماد نباید به این جمله وابسته باشد که «روی سیستم من کار می‌کند». فایل‌ها و Versionهای مؤثر باید تا حد ممکن در Repository مشخص باشند.</p>
+            <dl class="definition-list">
+              <div><dt><span>۱</span><code>global.json</code></dt><dd>Version یا Roll-forward Policy مربوط به .NET SDK را مشخص می‌کند تا Developer و Runner از SDKهای ناسازگار استفاده نکنند.</dd></div>
+              <div><dt><span>۲</span><code>PackageReference</code></dt><dd>Version Dependencyهای مستقیم را در فایل پروژه یا مدیریت مرکزی Packageها ثبت می‌کند. Version شناور می‌تواند قابلیت بازتولید را کاهش دهد.</dd></div>
+              <div><dt><span>۳</span><code>packages.lock.json</code></dt><dd>در صورت فعال‌کردن Lock File، گراف Resolve‌شده را ثبت می‌کند. Restore با <code>--locked-mode</code> اجازه نمی‌دهد CI بی‌صدا Lock File ناسازگار را تغییر دهد.</dd></div>
+              <div><dt><span>۴</span><code>NuGet.Config</code></dt><dd>Sourceهای مورد اعتماد و رفتار NuGet را مشخص می‌کند. Secretهای Authentication باید خارج از فایل و از Variables امن تأمین شوند.</dd></div>
+            </dl>
+            <div class="code-block">
+              <div class="code-label"><span>Restore کنترل‌شده با Lock File</span><span>CLI</span></div>
+              <pre dir="ltr"><code>dotnet restore PaymentService.sln --locked-mode
+dotnet build PaymentService.sln -c Release --no-restore</code></pre>
+            </div>
+            <aside class="lesson-note">
+              <strong>پیش‌شرط:</strong>
+              <span><code>--locked-mode</code> زمانی استفاده می‌شود که Lock File معتبر قبلاً تولید و Commit شده باشد. افزودن این گزینه بدون آماده‌سازی Lock File راه‌حل جادویی برای تکرارپذیری نیست.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="cache-title">
+            <p class="section-kicker">Performance بدون تغییر معنا</p>
+            <h2 id="cache-title">Cache کردن Packageهای NuGet در Runner</h2>
+            <p>Runnerهای موقتی ممکن است در هر Job از Environment تازه‌ای شروع کنند. Cache می‌تواند Packageهای دانلودشده را بین اجراها نگه دارد تا Restore سریع‌تر شود، اما Cache منبع حقیقت نیست. اگر Cache وجود نداشته باشد، Restore باید همچنان از Sourceهای معتبر موفق شود.</p>
+            <div class="code-block">
+              <div class="code-label"><span>نمونهٔ Cache برای NuGet</span><span>YAML</span></div>
+              <pre dir="ltr"><code>variables:
+  NUGET_PACKAGES: "$CI_PROJECT_DIR/.nuget/packages"
+
+cache:
+  key:
+    files:
+      - packages.lock.json
+  paths:
+    - .nuget/packages/
+
+build-app:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  script:
+    - dotnet restore PaymentService.sln --locked-mode
+    - dotnet build PaymentService.sln -c Release --no-restore</code></pre>
+            </div>
+            <ul class="key-points">
+              <li><bdi>Cache</bdi> برای سریع‌ترکردن کار است و ممکن است پاک یا ناموجود باشد.</li>
+              <li><bdi>Artifact</bdi> خروجی مشخص یک Job است که Job بعدی یا کاربر به آن نیاز دارد.</li>
+              <li>کلید Cache باید با فایل‌های مؤثر بر Dependency هماهنگ باشد تا Cache قدیمی بی‌دلیل استفاده نشود.</li>
+            </ul>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="errors-title">
+            <p class="section-kicker">عیب‌یابی مرحله‌به‌مرحله</p>
+            <h2 id="errors-title">خطاهای رایج Restore و Build</h2>
+            <div class="table-wrap" role="region" aria-label="خطاهای رایج Restore و Build" tabindex="0">
+              <table class="diagnostic-table">
+                <thead><tr><th>نشانه</th><th>معنای محتمل</th><th>اولین بررسی</th></tr></thead>
+                <tbody>
+                  <tr><td><code>NU1101</code></td><td>Package در Sourceهای فعال پیدا نشده است.</td><td>نام و Version Package و فهرست Sourceهای NuGet را بررسی کنید.</td></tr>
+                  <tr><td><code>NU1301</code></td><td>Service Index یک Source قابل دریافت نیست.</td><td>Network، URL، TLS و Credential Feed خصوصی را بررسی کنید.</td></tr>
+                  <tr><td><code>NETSDK1004</code></td><td>فایل <code>project.assets.json</code> وجود ندارد.</td><td>Restore را در مسیر و Workspace درست اجرا کنید.</td></tr>
+                  <tr><td>SDK سازگار پیدا نشد</td><td>Image یا Runner نسخهٔ مورد انتظار پروژه را ندارد.</td><td>خروجی <code>dotnet --info</code> و فایل <code>global.json</code> را مقایسه کنید.</td></tr>
+                  <tr><td>Compiler Error</td><td>Source Code یا Project Reference قابل Compile نیست.</td><td>اولین Error واقعی را بخوانید؛ پیام‌های بعدی ممکن است پیامد همان Error باشند.</td></tr>
+                  <tr><td>Local موفق، CI ناموفق</td><td>Dependency پنهان به SDK، فایل، Environment Variable یا Cache سیستم محلی وجود دارد.</td><td>Command، Working Directory، SDK و فایل‌های Commit‌شده را با CI مقایسه کنید.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="code-block">
+              <div class="code-label"><span>Commandهای تشخیصی</span><span>CLI</span></div>
+              <pre dir="ltr"><code>dotnet --info
+dotnet restore PaymentService.sln --verbosity normal
+dotnet build PaymentService.sln -c Release --no-restore --verbosity minimal</code></pre>
+            </div>
+            <p>برای خطاهای پیچیدهٔ MSBuild می‌توان Binary Log تولید کرد، اما Log ممکن است شامل مسیرها، Propertyها و اطلاعات حساس Environment باشد. پیش از اشتراک‌گذاری باید محتوای آن بررسی و پاک‌سازی شود.</p>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="build-mistakes-title">
+            <p class="section-kicker">رفع سوءبرداشت‌ها</p>
+            <h2 id="build-mistakes-title">اشتباهات رایج</h2>
+            <div class="mistake-list">
+              <article><h3>Commit کردن پوشه‌های <code>bin</code> و <code>obj</code></h3><p>این پوشه‌ها خروجی‌های تولیدشده و وابسته به Build هستند؛ Source of Truth باید پروژه و Source Code باشد.</p></article>
+              <article><h3>استفاده از <code>--no-restore</code> روی Runner تازه</h3><p>اگر Assets آماده نشده باشند، Build نمی‌تواند Dependencyها را Resolve کند.</p></article>
+              <article><h3>فرض اینکه Cache همیشه وجود دارد</h3><p>Cache یک Optimization است. Pipeline باید با Cache خالی هم نتیجهٔ درست تولید کند.</p></article>
+              <article><h3>استفاده از SDK متفاوت در Local و CI</h3><p>تفاوت SDK می‌تواند Analyzer، Compiler یا رفتار MSBuild را تغییر دهد. <code>global.json</code> و Image مشخص این اختلاف را کاهش می‌دهند.</p></article>
+              <article><h3>قرار دادن Secret در فایل NuGet</h3><p>Credential باید از Variable امن وارد شود، نه اینکه همراه Source Code نگهداری شود.</p></article>
+              <article><h3>Deploy کردن مستقیم پوشهٔ Build</h3><p>برای برنامه‌هایی که منطق Publish دارند، خروجی Build لزوماً Package نهایی استقرار نیست.</p></article>
+            </div>
+          </section>
+
+          <section class="lesson-section lesson-summary" aria-labelledby="build-summary-title">
+            <p class="section-kicker">جمع‌بندی</p>
+            <h2 id="build-summary-title">پاسخ کوتاه برای مصاحبه</h2>
+            <blockquote>
+              <code>dotnet restore</code> Dependencyهای تعریف‌شده در پروژه را با NuGet Resolve می‌کند، Packageهای لازم را آماده می‌کند و فایل <code>obj/project.assets.json</code> را می‌سازد. سپس <code>dotnet build</code> با MSBuild پروژه و Dependencyهای آن را Compile می‌کند. چون Build به‌صورت پیش‌فرض Restore ضمنی دارد، در CI معمولاً Restore را صریح اجرا می‌کنیم و Build را با <code>--no-restore</code> ادامه می‌دهیم تا مرز مراحل و Log خطا روشن باشد.
+            </blockquote>
+            <h3>اکنون باید بتوانید توضیح دهید:</h3>
+            <ul class="key-points">
+              <li>چرا Runner تازه پیش از Build به Restore نیاز دارد.</li>
+              <li>فایل <code>project.assets.json</code> چه نقشی دارد.</li>
+              <li>چرا <code>dotnet build</code> می‌تواند Restore ضمنی انجام دهد.</li>
+              <li>چه زمانی استفاده از <code>--no-restore</code> درست یا اشتباه است.</li>
+              <li>چگونه SDK، Package Version، Lock File و Cache بر قابلیت تکرار Build اثر می‌گذارند.</li>
+            </ul>
+          </section>
+
+          <section class="lesson-section sources-section" aria-labelledby="build-sources-title">
+            <h2 id="build-sources-title">منابع رسمی</h2>
+            <ul>
+              <li><a href="https://learn.microsoft.com/dotnet/core/tools/dotnet-restore">Microsoft Learn — dotnet restore</a></li>
+              <li><a href="https://learn.microsoft.com/dotnet/core/tools/dotnet-build">Microsoft Learn — dotnet build</a></li>
+              <li><a href="https://learn.microsoft.com/nuget/consume-packages/package-restore">Microsoft Learn — NuGet Package Restore</a></li>
+              <li><a href="https://learn.microsoft.com/nuget/concepts/dependency-resolution">Microsoft Learn — NuGet dependency resolution</a></li>
+            </ul>
+          </section>`;
+
+  return '';
+
 }
 
 function renderLesson(lesson, index) {
