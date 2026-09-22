@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Environmentهای Dev، Stage و Production؛ بخشی از آموزش یک‌روزه CI/CD در GitLab.">
+  <title>Environmentهای Dev، Stage و Production | آموزش CI/CD در GitLab</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body class="lesson-page">
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری دوره">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>GitLab CI/CD</bdi></span>
+      <a class="back-link" href="../index.html">سرفصل‌های دوره</a>
+      <button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="true" aria-controls="course-sidebar">فهرست درس‌ها</button>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <div class="lesson-shell">
+    <aside id="course-sidebar" class="course-sidebar" data-current-lesson="6">
+      <div class="sidebar-heading">
+        <span>برنامهٔ یک‌روزه</span>
+        <strong>۱۰ بخش آموزشی</strong>
+      </div>
+      <nav aria-label="فهرست درس‌های دوره">
+        <ol>
+              <li><a href="ch1-1.html"><span>01</span>مفاهیم CI/CD، Pipeline، Stage، Job و Runner</a></li>
+              <li><a href="ch1-2.html"><span>02</span>Build و Restore پروژهٔ .NET</a></li>
+              <li><a href="ch1-3.html"><span>03</span>اجرای Unit Test در Pipeline</a></li>
+              <li><a href="ch1-4.html"><span>04</span>ساخت Docker Image</a></li>
+              <li><a href="ch1-5.html"><span>05</span>Push کردن Image به Docker Registry</a></li>
+              <li><a href="ch1-6.html" aria-current="page"><span>06</span>Environmentهای Dev، Stage و Production</a></li>
+              <li><a href="ch1-7.html"><span>07</span>Deploy خودکار</a></li>
+              <li><a href="ch1-8.html"><span>08</span>Variables، Secrets و Branch Rules</a></li>
+              <li><a href="ch1-9.html"><span>09</span>ساخت Pipeline واقعی برای .NET</a></li>
+              <li><a href="ch1-10.html"><span>10</span>Deploy در Kubernetes و مرور مصاحبه‌ای</a></li>
+        </ol>
+      </nav>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <article aria-labelledby="lesson-title">
+        <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../index.html">آموزش CI/CD در GitLab</a><span aria-hidden="true">/</span><span>بخش 6</span></nav>
+        <p class="lesson-time" dir="ltr">15:00–16:00</p>
+        <h1 id="lesson-title">Environmentهای Dev، Stage و Production</h1>
+        <div class="lesson-body" aria-label="محتوای درس">
+        </div>
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <a class="pager-previous" href="ch1-5.html"><span>درس قبلی</span><strong>Push کردن Image به Docker Registry</strong></a>
+          <a class="pager-next" href="ch1-7.html"><span>درس بعدی</span><strong>Deploy خودکار</strong></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

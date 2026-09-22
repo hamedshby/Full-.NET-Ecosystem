@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="مفاهیم CI/CD، Pipeline، Stage، Job و Runner؛ بخشی از آموزش یک‌روزه CI/CD در GitLab.">
+  <title>مفاهیم CI/CD، Pipeline، Stage، Job و Runner | آموزش CI/CD در GitLab</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../../styles.css">
+  <link rel="stylesheet" href="../course.css">
+  <script src="../../../script.js" defer></script>
+  <script src="../course-navigation.js" defer></script>
+</head>
+<body class="lesson-page">
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری دوره">
+      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>GitLab CI/CD</bdi></span>
+      <a class="back-link" href="../index.html">سرفصل‌های دوره</a>
+      <button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="true" aria-controls="course-sidebar">فهرست درس‌ها</button>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <div class="lesson-shell">
+    <aside id="course-sidebar" class="course-sidebar" data-current-lesson="1">
+      <div class="sidebar-heading">
+        <span>برنامهٔ یک‌روزه</span>
+        <strong>۱۰ بخش آموزشی</strong>
+      </div>
+      <nav aria-label="فهرست درس‌های دوره">
+        <ol>
+              <li><a href="ch1-1.html" aria-current="page"><span>01</span>مفاهیم CI/CD، Pipeline، Stage، Job و Runner</a></li>
+              <li><a href="ch1-2.html"><span>02</span>Build و Restore پروژهٔ .NET</a></li>
+              <li><a href="ch1-3.html"><span>03</span>اجرای Unit Test در Pipeline</a></li>
+              <li><a href="ch1-4.html"><span>04</span>ساخت Docker Image</a></li>
+              <li><a href="ch1-5.html"><span>05</span>Push کردن Image به Docker Registry</a></li>
+              <li><a href="ch1-6.html"><span>06</span>Environmentهای Dev، Stage و Production</a></li>
+              <li><a href="ch1-7.html"><span>07</span>Deploy خودکار</a></li>
+              <li><a href="ch1-8.html"><span>08</span>Variables، Secrets و Branch Rules</a></li>
+              <li><a href="ch1-9.html"><span>09</span>ساخت Pipeline واقعی برای .NET</a></li>
+              <li><a href="ch1-10.html"><span>10</span>Deploy در Kubernetes و مرور مصاحبه‌ای</a></li>
+        </ol>
+      </nav>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <article aria-labelledby="lesson-title">
+        <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../index.html">آموزش CI/CD در GitLab</a><span aria-hidden="true">/</span><span>بخش 1</span></nav>
+        <p class="lesson-time" dir="ltr">09:00–10:00</p>
+        <h1 id="lesson-title">مفاهیم CI/CD، Pipeline، Stage، Job و Runner</h1>
+        <div class="lesson-body" aria-label="محتوای درس">
+          <section class="lesson-section lesson-intro" aria-labelledby="start-title">
+            <p class="section-kicker">از یک رفتار قابل مشاهده شروع کنیم</p>
+            <h2 id="start-title">بعد از <bdi>git push</bdi> چه اتفاقی می‌افتد؟</h2>
+            <p>فرض کنید یک تغییر کوچک در پروژهٔ <bdi>ASP.NET Core</bdi> ایجاد کرده‌اید. بدون <bdi>CI/CD</bdi>، یک نفر باید کد را دریافت کند، Packageها را Restore کند، پروژه را Build کند، Testها را اجرا کند و در نهایت نسخهٔ جدید را روی Server قرار دهد. این فرایند دستی است؛ بنابراین ممکن است یک مرحله فراموش شود یا نتیجه روی کامپیوتر افراد مختلف یکسان نباشد.</p>
+            <div class="process-flow" aria-label="فرایند دستی انتشار نرم‌افزار">
+              <span>Push کد</span><b aria-hidden="true">←</b><span>Restore</span><b aria-hidden="true">←</b><span>Build</span><b aria-hidden="true">←</b><span>Test</span><b aria-hidden="true">←</b><span>Deploy</span>
+            </div>
+            <p><bdi>CI/CD</bdi> این زنجیره را به یک فرایند تعریف‌شده، قابل‌تکرار و تا حد ممکن خودکار تبدیل می‌کند. هدف فقط سریع‌ترشدن نیست؛ هدف این است که هر تغییر از کنترل‌های مشخصی عبور کند و نتیجهٔ اجرای آن ثبت و قابل مشاهده باشد.</p>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="ci-cd-title">
+            <p class="section-kicker">مفهوم اول</p>
+            <h2 id="ci-cd-title"><bdi>CI/CD</bdi> چیست؟</h2>
+            <div class="concept-grid">
+              <article>
+                <span class="concept-mark">CI</span>
+                <h3><bdi>Continuous Integration</bdi></h3>
+                <p>Developerها تغییرات خود را مرتب با Repository مشترک ادغام می‌کنند و سیستم پس از رویدادهایی مانند Push یا Merge Request، بررسی‌هایی مثل Build و Test را خودکار اجرا می‌کند.</p>
+                <p class="concept-result"><strong>نتیجهٔ قابل مشاهده:</strong> اگر تغییر جدید Compile نشود یا Test را خراب کند، Pipeline شکست می‌خورد و مشکل پیش از رسیدن به محیط بعدی دیده می‌شود.</p>
+              </article>
+              <article>
+                <span class="concept-mark">CD</span>
+                <h3><bdi>Continuous Delivery / Deployment</bdi></h3>
+                <p>در <bdi>Continuous Delivery</bdi>، نسخهٔ معتبر همیشه آمادهٔ انتشار است، اما ورود به Production می‌تواند نیازمند تأیید دستی باشد. در <bdi>Continuous Deployment</bdi>، نسخه‌ای که تمام کنترل‌ها را با موفقیت رد کرده است به‌صورت خودکار Deploy می‌شود.</p>
+                <p class="concept-result"><strong>نکته:</strong> خودکاربودن Build و Test به‌تنهایی به معنی Deploy خودکار در Production نیست.</p>
+              </article>
+            </div>
+            <aside class="lesson-note">
+              <strong>مدل ذهنی:</strong>
+              <span><bdi>CI</bdi> می‌پرسد «آیا این تغییر سالم و قابل ادغام است؟» و <bdi>CD</bdi> می‌پرسد «چگونه این خروجی سالم را با روشی کنترل‌شده به محیط مقصد برسانیم؟»</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="five-parts-title">
+            <p class="section-kicker">اجزای اصلی GitLab CI/CD</p>
+            <h2 id="five-parts-title">از <bdi>Pipeline</bdi> تا <bdi>Runner</bdi></h2>
+            <dl class="definition-list">
+              <div>
+                <dt><span>۱</span><bdi>Pipeline</bdi></dt>
+                <dd>کل فرایند خودکاری است که برای یک Commit، Merge Request، Schedule یا اجرای دستی ساخته می‌شود. Pipeline مجموعه‌ای از Jobهاست که در Stageها سازمان‌دهی شده‌اند.</dd>
+              </div>
+              <div>
+                <dt><span>۲</span><bdi>Stage</bdi></dt>
+                <dd>یک گروه منطقی و ترتیبی از Jobهاست؛ مانند <code>build</code>، <code>test</code> و <code>deploy</code>. در Pipeline پایه، Stageها به ترتیب اجرا می‌شوند و Stage بعدی معمولاً پس از موفقیت Stage قبلی آغاز می‌شود.</dd>
+              </div>
+              <div>
+                <dt><span>۳</span><bdi>Job</bdi></dt>
+                <dd>یک واحد اجرایی مستقل است که Commandهای مشخصی را انجام می‌دهد؛ برای مثال <code>dotnet build</code> یا <code>dotnet test</code>. هر Job دارای Log و وضعیت مستقل مانند Pending، Running، Passed یا Failed است.</dd>
+              </div>
+              <div>
+                <dt><span>۴</span><bdi>Runner</bdi></dt>
+                <dd>Agent اجرایی است که Job را از GitLab دریافت می‌کند، محیط اجرا را آماده می‌کند، Commandهای بخش <code>script</code> را اجرا می‌کند و نتیجه را به GitLab برمی‌گرداند. Runner می‌تواند توسط GitLab میزبانی شود یا روی Infrastructure خودتان نصب شده باشد.</dd>
+              </div>
+              <div>
+                <dt><span>۵</span><code>.gitlab-ci.yml</code></dt>
+                <dd>فایل Configuration در ریشهٔ Repository است که Pipeline، Stageها، Jobها و Commandها را با Syntax زبان YAML تعریف می‌کند. GitLab این فایل را می‌خواند، اما Commandهای آن روی Runner اجرا می‌شوند.</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="relationship-title">
+            <p class="section-kicker">رابطهٔ مفاهیم</p>
+            <h2 id="relationship-title">چه کسی چه کاری انجام می‌دهد؟</h2>
+            <div class="architecture-stack" role="img" aria-label="GitLab Pipeline را می‌سازد، Stageها ترتیب را مشخص می‌کنند، Jobها کارها را تعریف می‌کنند و Runner آن‌ها را اجرا می‌کند">
+              <div><strong>GitLab</strong><span>رویداد Push را دریافت می‌کند و Pipeline را می‌سازد</span></div>
+              <b aria-hidden="true">↓</b>
+              <div><strong>Pipeline</strong><span>فرایند کامل Build، Test و Deploy</span></div>
+              <b aria-hidden="true">↓</b>
+              <div><strong>Stage</strong><span>ترتیب گروه‌های کاری: build → test → deploy</span></div>
+              <b aria-hidden="true">↓</b>
+              <div><strong>Job</strong><span>Commandهای قابل اجرا مانند dotnet build</span></div>
+              <b aria-hidden="true">↓</b>
+              <div><strong>Runner</strong><span>ماشین یا محیطی که Commandها را واقعاً اجرا می‌کند</span></div>
+            </div>
+            <aside class="lesson-warning">
+              <strong>اشتباه رایج:</strong>
+              <span>GitLab Server الزاماً محل اجرای Build نیست. GitLab Job را زمان‌بندی می‌کند؛ Runner محاسبات واقعی را روی VM، Server، Docker Container یا Kubernetes انجام می‌دهد.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="yaml-title">
+            <p class="section-kicker">نمونهٔ کوچک اما واقعی</p>
+            <h2 id="yaml-title">یک <bdi>Pipeline</bdi> ساده برای پروژهٔ <bdi>.NET</bdi></h2>
+            <p>فایل زیر را با نام <code>.gitlab-ci.yml</code> در ریشهٔ Repository قرار می‌دهیم:</p>
+            <div class="code-block">
+              <div class="code-label"><span>.gitlab-ci.yml</span><span>YAML</span></div>
+              <pre dir="ltr"><code>stages:
+  - build
+  - test
+
+build-app:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  script:
+    - dotnet restore
+    - dotnet build --configuration Release --no-restore
+
+test-app:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:10.0
+  script:
+    - dotnet test --configuration Release</code></pre>
+            </div>
+            <div class="explanation-steps">
+              <article><span>۱</span><div><h3>Pipeline ساخته می‌شود</h3><p>Push شدن Commit می‌تواند باعث شود GitLab فایل Configuration را بخواند و دو Job به نام‌های <code>build-app</code> و <code>test-app</code> بسازد.</p></div></article>
+              <article><span>۲</span><div><h3>Stage اول اجرا می‌شود</h3><p>یک Runner مناسب Job اول را می‌گیرد، Docker Image مربوط به <bdi>.NET SDK</bdi> را آماده می‌کند و Commandهای Restore و Build را به‌ترتیب اجرا می‌کند.</p></div></article>
+              <article><span>۳</span><div><h3>شکست زودهنگام رخ می‌دهد</h3><p>اگر Build شکست بخورد، Stage بعدی در Pipeline پایه اجرا نمی‌شود. به این رفتار <bdi>Fail Fast</bdi> می‌گوییم؛ کد خراب نباید بی‌دلیل به مرحلهٔ بعد برسد.</p></div></article>
+              <article><span>۴</span><div><h3>Test اجرا می‌شود</h3><p>پس از موفقیت Stage اول، Runner Job مربوط به Test را اجرا می‌کند و نتیجه و Log آن در صفحهٔ Pipeline قابل مشاهده است.</p></div></article>
+            </div>
+            <aside class="lesson-note">
+              <strong>مرز این مثال:</strong>
+              <span>هر Job محیط مستقلی دارد. در درس‌های بعدی یاد می‌گیریم خروجی Build را با <bdi>Artifact</bdi> بین Jobها منتقل کنیم تا Test یا Deploy مجبور به تولید دوبارهٔ خروجی نباشد.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="parallel-title">
+            <p class="section-kicker">ترتیب و هم‌زمانی</p>
+            <h2 id="parallel-title"><bdi>Stage</bdi>ها ترتیبی‌اند؛ <bdi>Job</bdi>های یک Stage می‌توانند موازی باشند</h2>
+            <p>اگر دو Job در Stage برابر <code>test</code> داشته باشیم، Runnerهای آزاد می‌توانند آن‌ها را هم‌زمان اجرا کنند. این کار زمان Pipeline را کاهش می‌دهد، اما نباید بین این دو Job ترتیب پنهان فرض کنیم.</p>
+            <div class="parallel-example" aria-label="نمونه اجرای موازی Jobها">
+              <div><strong>build</strong><span>build-app</span></div>
+              <b aria-hidden="true">←</b>
+              <div class="parallel-jobs"><strong>test</strong><span>unit-tests</span><span>integration-tests</span></div>
+              <b aria-hidden="true">←</b>
+              <div><strong>deploy</strong><span>deploy-staging</span></div>
+            </div>
+            <ul class="key-points">
+              <li>Jobهای یک Stage مستقل‌اند و در صورت وجود Runner کافی می‌توانند موازی اجرا شوند.</li>
+              <li>Stage بعدی در حالت پایه منتظر موفقیت Jobهای Stage قبلی می‌ماند.</li>
+              <li>برای تعریف وابستگی مستقیم و اجرای زودتر Jobها می‌توان از <code>needs</code> استفاده کرد؛ این موضوع در Pipelineهای پیشرفته مهم می‌شود.</li>
+            </ul>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="runner-title">
+            <p class="section-kicker">نگاه دقیق‌تر به Runner</p>
+            <h2 id="runner-title">وقتی Job در وضعیت <bdi>Pending</bdi> می‌ماند</h2>
+            <p>Pending بودن طولانی Job معمولاً به معنی خراب‌بودن Commandهای داخل آن نیست؛ Job هنوز اجرا نشده است. GitLab باید Runner فعال و سازگاری پیدا کند که ظرفیت و Tagهای مورد نیاز Job را داشته باشد.</p>
+            <div class="runner-cards">
+              <article><h3><bdi>GitLab-hosted Runner</bdi></h3><p>Infrastructure آن توسط GitLab مدیریت می‌شود و برای شروع سریع و Jobهای استاندارد مناسب است.</p></article>
+              <article><h3><bdi>Self-managed Runner</bdi></h3><p>روی Infrastructure خودتان نصب می‌شود و برای شبکهٔ خصوصی، Configuration اختصاصی یا کنترل امنیتی بیشتر مناسب است.</p></article>
+            </div>
+            <p>Runner می‌تواند از Executorهای مختلف استفاده کند. برای مثال Docker executor هر Job را در Container اجرا می‌کند؛ در نتیجه Environment اجرای Build قابل‌تکرارتر و وابستگی آن به نرم‌افزارهای نصب‌شده روی Host کمتر می‌شود.</p>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="mistakes-title">
+            <p class="section-kicker">رفع سوءبرداشت‌ها</p>
+            <h2 id="mistakes-title">اشتباهات رایج</h2>
+            <div class="mistake-list">
+              <article><h3>Pipeline و Job یکی نیستند</h3><p>Pipeline کل جریان است؛ Job فقط یکی از واحدهای اجرایی درون آن است.</p></article>
+              <article><h3>Stage یک Server نیست</h3><p>Stage فقط گروه‌بندی و ترتیب منطقی Jobها را تعیین می‌کند. Runner محیط اجرای واقعی را فراهم می‌کند.</p></article>
+              <article><h3>وجود Runner کافی نیست</h3><p>Runner باید فعال، دارای ظرفیت و با Tagها و قابلیت‌های مورد نیاز Job سازگار باشد.</p></article>
+              <article><h3>Jobهای موازی حافظهٔ مشترک ندارند</h3><p>برای اشتراک خروجی باید از سازوکاری مانند Artifact یا Cache با هدف درست استفاده شود.</p></article>
+              <article><h3>CD همیشه Deploy مستقیم به Production نیست</h3><p>ممکن است انتشار Production یک Manual Job و نیازمند تأیید انسان باشد.</p></article>
+              <article><h3>سبزشدن Pipeline پایان مسئولیت نیست</h3><p>Monitoring، Rollback، Security و بررسی رفتار برنامه در محیط مقصد همچنان ضروری‌اند.</p></article>
+            </div>
+          </section>
+
+          <section class="lesson-section lesson-summary" aria-labelledby="summary-title">
+            <p class="section-kicker">جمع‌بندی</p>
+            <h2 id="summary-title">پاسخ کوتاه برای مصاحبه</h2>
+            <blockquote>
+              <bdi>CI/CD</bdi> روشی برای خودکارسازی Integration و Delivery نرم‌افزار است. در GitLab، فایل <code>.gitlab-ci.yml</code> یک Pipeline شامل Stageها و Jobها را تعریف می‌کند. Stageها ترتیب کلی را می‌سازند، Jobها Commandهای مستقل را مشخص می‌کنند و Runnerها آن Commandها را روی Infrastructure واقعی اجرا کرده و نتیجه را به GitLab گزارش می‌دهند.
+            </blockquote>
+            <h3>اکنون باید بتوانید توضیح دهید:</h3>
+            <ul class="key-points">
+              <li>CI چه مشکلی را حل می‌کند و با CD چه تفاوتی دارد.</li>
+              <li>Pipeline، Stage و Job چگونه به یکدیگر مرتبط‌اند.</li>
+              <li>چرا بدون Runner، Job اجرا نمی‌شود.</li>
+              <li>چرا Jobهای یک Stage می‌توانند موازی باشند.</li>
+              <li>پس از Push شدن کد، GitLab چگونه Build و Test را آغاز می‌کند.</li>
+            </ul>
+          </section>
+
+          <section class="lesson-section sources-section" aria-labelledby="sources-title">
+            <h2 id="sources-title">منابع رسمی</h2>
+            <ul>
+              <li><a href="https://docs.gitlab.com/ci/pipelines/">GitLab Docs — CI/CD pipelines</a></li>
+              <li><a href="https://docs.gitlab.com/ci/jobs/">GitLab Docs — CI/CD jobs</a></li>
+              <li><a href="https://docs.gitlab.com/ci/runners/">GitLab Docs — Runners</a></li>
+              <li><a href="https://docs.gitlab.com/ci/yaml/">GitLab Docs — CI/CD YAML syntax reference</a></li>
+            </ul>
+          </section>
+        </div>
+        <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+          <span></span>
+          <a class="pager-next" href="ch1-2.html"><span>درس بعدی</span><strong>Build و Restore پروژهٔ .NET</strong></a>
+        </nav>
+      </article>
+    </main>
+  </div>
+</body>
+</html>

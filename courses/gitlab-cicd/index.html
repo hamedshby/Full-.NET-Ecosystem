@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="سرفصل‌های آموزش یک‌روزه CI/CD در GitLab؛ از Build و Test پروژهٔ .NET تا Docker Registry و Deploy در Kubernetes.">
+  <title>آموزش یک‌روزه CI/CD در GitLab | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="course.css">
+  <script src="../../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#course-content">پرش به محتوای دوره</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری دوره">
+      <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>GitLab CI/CD</bdi></span>
+      <a class="back-link" href="../../index.html#courses">بازگشت به دوره‌ها</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <main id="course-content">
+    <section class="course-hero" aria-labelledby="course-title">
+      <div class="course-badge" aria-hidden="true">CI/CD</div>
+      <div>
+        <p class="eyebrow">مسیر فشرده و عملی DevOps برای توسعه‌دهندگان .NET</p>
+        <h1 id="course-title">آموزش یک‌روزه <bdi>CI/CD</bdi> در <bdi>GitLab</bdi></h1>
+        <p class="course-lead">از لحظهٔ Push شدن کد تا Build، Test، ساخت Docker Image، انتشار در Registry و Deploy در Kubernetes را در یک مسیر روشن دنبال کنید.</p>
+      </div>
+      <ul class="course-facts" aria-label="مشخصات دوره">
+        <li><strong>۱۰</strong><span>بخش</span></li>
+        <li><strong>۱</strong><span>روز آموزشی</span></li>
+        <li><strong>.NET</strong><span>پروژهٔ هدف</span></li>
+      </ul>
+    </section>
+
+    <section class="course-overview" aria-labelledby="overview-title">
+      <div class="section-heading">
+        <p class="eyebrow">برنامهٔ یادگیری</p>
+        <h2 id="overview-title">سرفصل‌های دوره</h2>
+        <p>هر بخش یک صفحهٔ مستقل دارد تا محتوای آموزشی آن به‌مرور تکمیل شود.</p>
+      </div>
+      <ol class="lesson-list">
+          <li>
+            <a href="lessons/ch1-1.html">
+              <span class="lesson-number">01</span>
+              <span class="lesson-copy"><strong>مفاهیم CI/CD، Pipeline، Stage، Job و Runner</strong><small dir="ltr">09:00–10:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-2.html">
+              <span class="lesson-number">02</span>
+              <span class="lesson-copy"><strong>Build و Restore پروژهٔ .NET</strong><small dir="ltr">10:00–11:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-3.html">
+              <span class="lesson-number">03</span>
+              <span class="lesson-copy"><strong>اجرای Unit Test در Pipeline</strong><small dir="ltr">11:00–12:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-4.html">
+              <span class="lesson-number">04</span>
+              <span class="lesson-copy"><strong>ساخت Docker Image</strong><small dir="ltr">12:00–13:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-5.html">
+              <span class="lesson-number">05</span>
+              <span class="lesson-copy"><strong>Push کردن Image به Docker Registry</strong><small dir="ltr">14:00–15:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-6.html">
+              <span class="lesson-number">06</span>
+              <span class="lesson-copy"><strong>Environmentهای Dev، Stage و Production</strong><small dir="ltr">15:00–16:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-7.html">
+              <span class="lesson-number">07</span>
+              <span class="lesson-copy"><strong>Deploy خودکار</strong><small dir="ltr">16:00–17:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-8.html">
+              <span class="lesson-number">08</span>
+              <span class="lesson-copy"><strong>Variables، Secrets و Branch Rules</strong><small dir="ltr">17:00–18:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-9.html">
+              <span class="lesson-number">09</span>
+              <span class="lesson-copy"><strong>ساخت Pipeline واقعی برای .NET</strong><small dir="ltr">18:00–19:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons/ch1-10.html">
+              <span class="lesson-number">10</span>
+              <span class="lesson-copy"><strong>Deploy در Kubernetes و مرور مصاحبه‌ای</strong><small dir="ltr">19:00–20:00</small></span>
+              <span class="lesson-arrow" aria-hidden="true">←</span>
+            </a>
+          </li>
+      </ol>
+    </section>
+  </main>
+  <footer class="course-footer">
+    <a href="../../index.html#courses">بازگشت به فهرست دوره‌ها</a>
+    <p>آکادمی دات‌نت؛ آموزش برای کار واقعی</p>
+  </footer>
+</body>
+</html>
