@@ -1,15 +1,232 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به How does Configuration work in ASP.NET Core?">
-  <title>How does Configuration work in ASP.NET Core? — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <meta name="description" content="پاسخ کامل و مصاحبه‌محور به توضیح Configuration در ASP.NET Core.">
+  <title>ASP.NET Core Configuration — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>Configuration in ASP.NET Core is a <strong>unified, provider-based system</strong> for supplying settings
+          to an application from many sources — <code>appsettings.json</code>, environment-specific JSON files,
+          environment variables, command-line arguments, user secrets, Azure Key Vault, and more. All of these
+          sources are merged into a single <code>IConfiguration</code> object, using a well-defined
+          <strong>override order</strong>: sources added later take precedence over sources added earlier.
+        </p>
+        <p>Configuration is <strong>hierarchical</strong> (sections and sub-sections), can be read directly via
+          <code>IConfiguration</code>, or — the recommended approach — bound strongly-typed to POCO classes and
+          consumed through the <strong>Options pattern</strong> (<code>IOptions&lt;T&gt;</code>,
+          <code>IOptionsSnapshot&lt;T&gt;</code>, <code>IOptionsMonitor&lt;T&gt;</code>).
+        </p>
+      </div>
+
+      <section>
+        <h4>Configuration یعنی چه؟</h4>
+        <p>هر Application در دنیای واقعی به مقادیری نیاز دارد که نباید داخل کد Hardcode شوند — مثل Connection String،
+          آدرس یک API خارجی، کلیدهای API، یا تنظیمات Logging. ASP.NET Core یک سیستم یکپارچه برای جمع‌آوری این مقادیر
+          از منابع مختلف فراهم می‌کند که به آن <bdi>Configuration System</bdi> می‌گویند.</p>
+        <p>نکتهٔ کلیدی این است که Configuration فقط محدود به یک فایل JSON نیست؛ بلکه از چند منبع مختلف خوانده و در
+          نهایت در یک شیء واحد به نام <code>IConfiguration</code> ترکیب می‌شود.</p>
+      </section>
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+        <p>Configuration را مانند چند لایهٔ شفاف روی هم تصور کنید. لایهٔ اول <code>appsettings.json</code> است، لایهٔ
+          بعدی <code>appsettings.Development.json</code>، بعد Environment Variables، و در آخر Command-line
+          Arguments. اگر یک Key در چند لایه تکرار شده باشد، مقدار لایهٔ بالاتر (که دیرتر اضافه شده) برنده می‌شود. این
+          یعنی می‌توانید یک مقدار پیش‌فرض در فایل تنظیم کنید و در Production یا هنگام Deploy، بدون تغییر کد، آن را از
+          طریق Environment Variable Override کنید.</p>
+      </section>
+
+      <section>
+        <h4>منابع پیش‌فرض Configuration و ترتیب آن‌ها</h4>
+        <p>وقتی از <code>WebApplication.CreateBuilder(args)</code> استفاده می‌کنید، این منابع به‌صورت خودکار و به
+          همین ترتیب اضافه می‌شوند (منابع پایین‌تر، اولویت بالاتر دارند):</p>
+        <div class="answer-table" role="region" aria-label="ترتیب منابع Configuration" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>ترتیب</th>
+                <th>منبع</th>
+                <th>توضیح</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>۱</td>
+                <td><code>appsettings.json</code></td>
+                <td>تنظیمات پایه و مشترک برای همهٔ Environmentها</td>
+              </tr>
+              <tr>
+                <td>۲</td>
+                <td><code>appsettings.{Environment}.json</code></td>
+                <td>Override بر اساس Environment جاری، مثل <code>Development</code> یا <code>Production</code></td>
+              </tr>
+              <tr>
+                <td>۳</td>
+                <td>User Secrets</td>
+                <td>فقط در Development؛ مقادیر حساس را خارج از کنترل نسخه نگه می‌دارد</td>
+              </tr>
+              <tr>
+                <td>۴</td>
+                <td>Environment Variables</td>
+                <td>مناسب برای تنظیمات Container و Deployment</td>
+              </tr>
+              <tr>
+                <td>۵</td>
+                <td>Command-line Arguments</td>
+                <td>بالاترین اولویت؛ معمولاً برای Override موقت هنگام اجرا</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>در Production معمولاً منابعی مثل Azure Key Vault، AWS Secrets Manager یا یک Configuration Server نیز به‌صورت
+          Custom Provider اضافه می‌شوند.</p>
+      </section>
+
+      <section>
+        <h4>خواندن مستقیم با IConfiguration</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Reading configuration directly"><code>var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+string? connectionString = builder.Configuration["ConnectionStrings:Default"];
+string? logLevel = builder.Configuration["Logging:LogLevel:Default"];
+
+app.Run();</code></pre>
+        <p>در این حالت، Key‌های تو در تو (Nested) با علامت <code>:</code> از هم جدا می‌شوند. این روش ساده است اما در
+          مقیاس بزرگ‌تر باعث پخش‌شدن Magic Stringها در کد می‌شود.</p>
+      </section>
+
+      <section>
+        <h4>روش پیشنهادی: Options Pattern</h4>
+        <p>به‌جای خواندن مستقیم مقادیر، بهترین شیوه این است که یک بخش از Configuration را به یک کلاس POCO Bind کنید:
+        </p>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Options pattern example"><code>public class SmtpOptions
+{
+    public string Host { get; set; } = string.Empty;
+    public int Port { get; set; }
+    public bool EnableSsl { get; set; }
+}
+
+// Program.cs
+builder.Services.Configure&lt;SmtpOptions&gt;(
+    builder.Configuration.GetSection("Smtp"));
+
+// در یک Service یا Controller
+public class MailService(IOptions&lt;SmtpOptions&gt; options)
+{
+    private readonly SmtpOptions _smtp = options.Value;
+}</code></pre>
+        <div class="answer-table" role="region" aria-label="مقایسهٔ IOptions، IOptionsSnapshot و IOptionsMonitor"
+          tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>Interface</th>
+                <th>Lifetime</th>
+                <th>رفتار در برابر تغییر Runtime</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>IOptions&lt;T&gt;</code></td>
+                <td>Singleton</td>
+                <td>مقدار یک‌بار در ابتدای اجرا خوانده می‌شود و تغییر نمی‌کند</td>
+              </tr>
+              <tr>
+                <td><code>IOptionsSnapshot&lt;T&gt;</code></td>
+                <td>Scoped</td>
+                <td>در هر Request مجدداً محاسبه می‌شود؛ برای مقادیر قابل تغییر مناسب است</td>
+              </tr>
+              <tr>
+                <td><code>IOptionsMonitor&lt;T&gt;</code></td>
+                <td>Singleton</td>
+                <td>تغییرات Runtime فایل را Live دنبال می‌کند و Event تغییر هم می‌دهد</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>افزودن یک Configuration Provider سفارشی</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Adding a custom configuration source"><code>var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables()
+    .AddCommandLine(args);</code></pre>
+        <p>هر متد <code>Add...</code> یک Provider جدید به زنجیرهٔ Configuration اضافه می‌کند؛ همان‌طور که در
+          Middleware Pipeline ترتیب ثبت اهمیت دارد، اینجا هم <strong>ترتیب فراخوانی این متدها، اولویت منابع را
+            مشخص می‌کند</strong>.</p>
+      </section>
+
+      <section>
+        <h4>چند نکتهٔ مهم دیگر</h4>
+        <ul>
+          <li><strong>reloadOnChange</strong>: بسیاری از Provider‌های JSON از این قابلیت پشتیبانی می‌کنند تا با تغییر
+            فایل روی دیسک، مقدار در حافظه هم به‌روزرسانی شود — بدون نیاز به Restart.</li>
+          <li><strong>Secrets Manager (User Secrets)</strong>: مخصوص Development است و مقادیر حساس مثل رمز عبور را
+            خارج از فایل‌های Commit‌شده در Git نگه می‌دارد.</li>
+          <li><strong>Validation</strong>: با استفاده از <code>ValidateDataAnnotations()</code> یا
+            <code>Validate()</code> روی <code>OptionsBuilder</code>، می‌توان از صحت مقادیر Configuration در زمان
+            Startup اطمینان حاصل کرد.
+          </li>
+          <li>Configuration به‌طور پیش‌فرض <strong>Case-Insensitive</strong> است و کلیدهای تو در تو با <code>:</code>
+            (یا در Environment Variables با <code>__</code>) جدا می‌شوند.</li>
+        </ul>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> یکی از سوالات رایج این است که «چرا Environment
+          Variable برای یک Nested Key باید به‌جای <code>:</code> از <code>__</code> استفاده کند؟» — دلیل آن این است
+          که بسیاری از سیستم‌عامل‌ها (مخصوصاً Linux) اجازهٔ استفاده از <code>:</code> در نام Environment Variable را
+          نمی‌دهند.</aside>
+      </section>
+
+      <section>
+        <h4>مثال واقعی</h4>
+        <p>فرض کنید یک Web API دارید که در Development باید به یک Database محلی وصل شود و در Production باید
+          Connection String را از یک Environment Variable امن بخواند، بدون هیچ تغییری در کد:</p>
+        <ul>
+          <li>در <code>appsettings.Development.json</code>: <code>ConnectionStrings:Default</code> به یک SQL Server
+            محلی اشاره دارد.</li>
+          <li>در Pipeline استقرار (CI/CD) یا Container، یک Environment Variable به نام
+            <code>ConnectionStrings__Default</code> با مقدار واقعی Production تنظیم می‌شود.
+          </li>
+          <li>چون Environment Variables بعد از فایل‌های JSON اضافه می‌شوند، در Production مقدار آن‌ها Override
+            می‌شود — بدون نیاز به تغییر یا Rebuild کد.</li>
+        </ul>
+        <p>این دقیقاً همان چیزی است که Configuration Layering در ASP.NET Core را قدرتمند می‌کند: یک تصمیم معماری برای
+          جدا نگه داشتن تنظیمات از کد و از Environment به Environment.</p>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p>Configuration در ASP.NET Core یک سیستم Layered و Provider-based است که مقادیر را از چندین منبع (JSON،
+          Environment Variables، Command-line، User Secrets و غیره) جمع‌آوری کرده و در یک <code>IConfiguration</code>
+          واحد ترکیب می‌کند؛ منابعی که دیرتر اضافه می‌شوند، اولویت بالاتری دارند. بهترین شیوهٔ مصرف آن، Bind کردن به
+          کلاس‌های POCO از طریق <bdi>Options Pattern</bdi> است (<code>IOptions</code>، <code>IOptionsSnapshot</code>،
+          <code>IOptionsMonitor</code>) که هم Type-Safety می‌دهد و هم امکان واکنش به تغییرات Runtime را فراهم می‌کند.
+          تسلط بر ترتیب منابع، تفاوت این سه Interface، و نحوهٔ افزودن Provider سفارشی، از مهارت‌های اصلی هر
+          توسعه‌دهندهٔ ASP.NET Core محسوب می‌شود.
+        </p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/configuration/">Configuration in ASP.NET
+          Core</a>
+        <a href="https://learn.microsoft.com/dotnet/core/extensions/options">Options Pattern</a>
+        <a href="https://learn.microsoft.com/aspnet/core/security/app-secrets">Safe Storage of App Secrets</a>
+      </footer>
+    </div>
   </main>
 </body>
+
 </html>

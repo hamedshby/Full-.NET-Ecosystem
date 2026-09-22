@@ -1,15 +1,215 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به Which HTTP status codes do you commonly use and when?">
-  <title>Which HTTP status codes do you commonly use and when? — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <meta name="description"
+    content="پاسخ کامل و مصاحبه‌محور به سوال Which HTTP status codes do you commonly use and when؟">
+  <title>HTTP Status Codes رایج در Web API — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>In a typical ASP.NET Core Web API, status codes fall into a small, predictable set. For
+          <strong>success</strong>: <code>200 OK</code> for a normal successful response, <code>201 Created</code>
+          after creating a resource, and <code>204 No Content</code> when the operation succeeds but there is
+          nothing to return (e.g. a delete or update). For <strong>client errors</strong>: <code>400 Bad
+            Request</code> for invalid input, <code>401 Unauthorized</code> when the caller isn't authenticated,
+          <code>403 Forbidden</code> when they're authenticated but not allowed, <code>404 Not Found</code> when
+          the resource doesn't exist, and <code>409 Conflict</code> for state conflicts such as duplicates or
+          concurrency issues.
+        </p>
+        <p>For <strong>server errors</strong>, <code>500 Internal Server Error</code> covers unexpected failures.
+          The key interview point is choosing the status code that matches the <em>semantics</em> of what happened,
+          not just returning <code>200</code> or <code>500</code> for everything.</p>
+      </div>
+
+      <section>
+        <h4>چرا انتخاب درست Status Code مهم است؟</h4>
+        <p>Status Code، اولین چیزی است که Client (چه یک Frontend، چه یک Service دیگر) برای تصمیم‌گیری دربارهٔ نحوهٔ
+          واکنش به یک Response نگاه می‌کند. اگر همیشه <code>200 OK</code> برگردانده شود و جزئیات خطا فقط در Body
+          باشد، Client مجبور می‌شود منطق پردازش خطا را به‌صورت دستی و شکننده پیاده‌سازی کند. انتخاب درست Status Code
+          یعنی معنای HTTP را به‌درستی حمل کردن، نه فقط برگرداندن یک عدد.</p>
+      </section>
+
+      <section>
+        <h4>۲xx — موفقیت</h4>
+        <div class="answer-table" role="region" aria-label="کدهای موفقیت" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>کد</th>
+                <th>کاربرد</th>
+                <th>مثال در ASP.NET Core</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>200 OK</code></td>
+                <td>درخواست با موفقیت پردازش شده و Body پاسخ برگردانده می‌شود</td>
+                <td><code>return Ok(dto);</code></td>
+              </tr>
+              <tr>
+                <td><code>201 Created</code></td>
+                <td>یک Resource جدید ساخته شده؛ معمولاً همراه با Header <code>Location</code></td>
+                <td><code>return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);</code></td>
+              </tr>
+              <tr>
+                <td><code>202 Accepted</code></td>
+                <td>درخواست پذیرفته شده اما پردازش آن Async/در پس‌زمینه است</td>
+                <td>صف‌بندی یک Background Job و بازگرداندن شناسهٔ پیگیری</td>
+              </tr>
+              <tr>
+                <td><code>204 No Content</code></td>
+                <td>عملیات موفق بوده اما چیزی برای برگرداندن در Body نیست</td>
+                <td><code>return NoContent();</code> برای Delete یا Update</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>۴xx — خطای سمت Client</h4>
+        <div class="answer-table" role="region" aria-label="کدهای خطای Client" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>کد</th>
+                <th>کاربرد</th>
+                <th>مثال در ASP.NET Core</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>400 Bad Request</code></td>
+                <td>ورودی نامعتبر است — خطای Validation، فرمت اشتباه، پارامتر ناقص</td>
+                <td><code>return BadRequest(ModelState);</code></td>
+              </tr>
+              <tr>
+                <td><code>401 Unauthorized</code></td>
+                <td>هویت کاربر مشخص نیست یا Token نامعتبر/منقضی است</td>
+                <td><code>return Unauthorized();</code> یا نتیجهٔ خودکار Middleware Authentication</td>
+              </tr>
+              <tr>
+                <td><code>403 Forbidden</code></td>
+                <td>هویت کاربر مشخص است، اما اجازهٔ دسترسی به این Resource را ندارد</td>
+                <td><code>return Forbid();</code></td>
+              </tr>
+              <tr>
+                <td><code>404 Not Found</code></td>
+                <td>Resource با شناسهٔ داده‌شده اصلاً وجود ندارد</td>
+                <td><code>return NotFound();</code></td>
+              </tr>
+              <tr>
+                <td><code>405 Method Not Allowed</code></td>
+                <td>Route وجود دارد اما این HTTP Method برای آن پشتیبانی نمی‌شود</td>
+                <td>معمولاً به‌صورت خودکار توسط Routing مدیریت می‌شود</td>
+              </tr>
+              <tr>
+                <td><code>409 Conflict</code></td>
+                <td>درخواست با وضعیت فعلی داده در تناقض است — رکورد تکراری، Concurrency Conflict</td>
+                <td><code>return Conflict("Email already exists.");</code></td>
+              </tr>
+              <tr>
+                <td><code>422 Unprocessable Entity</code></td>
+                <td>ساختار درخواست درست است اما از نظر معنایی/Business Rule نامعتبر است</td>
+                <td><code>return UnprocessableEntity(errors);</code></td>
+              </tr>
+              <tr>
+                <td><code>429 Too Many Requests</code></td>
+                <td>از حد مجاز Rate Limiting عبور شده است</td>
+                <td>Middleware مربوط به Rate Limiting در .NET</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>۵xx — خطای سمت Server</h4>
+        <div class="answer-table" role="region" aria-label="کدهای خطای Server" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>کد</th>
+                <th>کاربرد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>500 Internal Server Error</code></td>
+                <td>خطای پیش‌بینی‌نشده در Server — معمولاً توسط <code>UseExceptionHandler</code> گرفته و برگردانده
+                  می‌شود</td>
+              </tr>
+              <tr>
+                <td><code>502 Bad Gateway</code></td>
+                <td>Server به‌عنوان Proxy/Gateway، پاسخ نامعتبری از یک Upstream Service گرفته است</td>
+              </tr>
+              <tr>
+                <td><code>503 Service Unavailable</code></td>
+                <td>سرویس موقتاً در دسترس نیست — مثلاً در حال Restart یا زیر بار زیاد</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> ۵xx یعنی «مشکل از سمت ماست»، در حالی که ۴xx یعنی
+          «مشکل از سمت درخواست شماست». این تفاوت معنایی، اولین چیزی است که مصاحبه‌کننده‌ها معمولاً چک می‌کنند.</aside>
+      </section>
+
+      <section>
+        <h4>401 در برابر 403 — تفاوت پرتکرار در مصاحبه</h4>
+        <p><code>401 Unauthorized</code> یعنی سیستم نمی‌داند شما کی هستید — یا اصلاً Token نفرستاده‌اید، یا Token
+          نامعتبر/منقضی است. <code>403 Forbidden</code> یعنی سیستم دقیقاً می‌داند شما کی هستید، اما طبق قوانین
+          Authorization، اجازهٔ انجام این عملیات را ندارید. اشتباه گرفتن این دو یکی از رایج‌ترین اشتباهات عملی است.
+        </p>
+      </section>
+
+      <section>
+        <h4>مثال واقعی در یک Controller</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Status code usage example"><code>[HttpPost]
+public async Task&lt;IActionResult&gt; CreateOrder(CreateOrderDto dto)
+{
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);              // 400
+
+    var customer = await _customerRepo.GetByIdAsync(dto.CustomerId);
+    if (customer is null)
+        return NotFound($"Customer {dto.CustomerId} not found."); // 404
+
+    var duplicate = await _orderRepo.ExistsAsync(dto.OrderNumber);
+    if (duplicate)
+        return Conflict("Order number already exists.");          // 409
+
+    var order = await _orderService.CreateAsync(dto);
+    return CreatedAtAction(nameof(GetById), new { id = order.Id }, order); // 201
+}</code></pre>
+        <p>در این مثال، هر مسیر خروجی متناظر با معنای واقعی اتفاقی است که افتاده — نه یک عدد ثابت برای همهٔ حالت‌ها.</p>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p>در عمل، اکثر Web APIها به یک زیرمجموعهٔ کوچک از Status Codeها نیاز دارند: <code>200</code>، <code>201</code>
+          و <code>204</code> برای موفقیت؛ <code>400</code>، <code>401</code>، <code>403</code>، <code>404</code> و
+          <code>409</code> برای خطاهای رایج سمت Client؛ و <code>500</code> برای خطاهای پیش‌بینی‌نشدهٔ سمت Server. نکتهٔ
+          کلیدی این است که Status Code باید معنای دقیق اتفاق افتاده را منتقل کند تا Clientها بتوانند بدون حدس زدن،
+          رفتار درستی داشته باشند.
+        </p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://learn.microsoft.com/aspnet/core/web-api/">ASP.NET Core Web API</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status">HTTP response status codes — MDN</a>
+        <a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110 — HTTP Semantics</a>
+      </footer>
+    </div>
   </main>
 </body>
+
 </html>

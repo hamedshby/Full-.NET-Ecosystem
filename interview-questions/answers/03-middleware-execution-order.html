@@ -1,15 +1,173 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به What is Middleware? How does the execution order work?">
-  <title>What is Middleware? How does the execution order work? — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <meta name="description"
+    content="پاسخ کامل و مصاحبه‌محور به توضیح Middleware در ASP.NET Core و نحوهٔ کار ترتیب اجرا.">
+  <title>Middleware در ASP.NET Core و ترتیب اجرا — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>A <strong>middleware</strong> in ASP.NET Core is a small piece of code that sits in the request pipeline and
+          gets a chance to handle an incoming <code>HttpContext</code> before and/or after the rest of the pipeline
+          runs. Each middleware receives a reference to the <strong>next</strong> middleware in the chain and decides
+          whether to call it (pass the request forward) or short-circuit the pipeline (handle the request itself and
+          return without calling <code>next()</code>).</p>
+        <p>Middleware components run in <strong>exactly the order they are registered</strong> in
+          <code>Program.cs</code> — on the way in, top to bottom; on the way out, bottom to top — which is why
+          registration order is one of the most frequently misunderstood (and asked-about) topics in ASP.NET Core.</p>
+      </div>
+
+      <section>
+        <h4>Middleware یعنی چه؟</h4>
+        <p><bdi>Middleware</bdi> یک Component نرم‌افزاری کوچک و مستقل است که در مسیر پردازش هر Request در ASP.NET Core
+          قرار می‌گیرد. هر <bdi>Middleware</bdi> به شیء <code>HttpContext</code> دسترسی دارد، می‌تواند آن را بخواند یا
+          تغییر دهد، و سپس تصمیم می‌گیرد که آیا کنترل را به <bdi>Middleware</bdi> بعدی بدهد یا خودش پاسخ نهایی را تولید
+          کند.</p>
+        <p>از نظر فنی، هر <bdi>Middleware</bdi> چیزی نیست جز یک Delegate (یا کلاسی با متد <code>InvokeAsync</code>) با
+          این امضای ساده: «یک Request بگیر، کاری انجام بده، و در صورت نیاز به بعدی پاس بده».</p>
+      </section>
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+        <p><bdi>Middleware</bdi>ها را مثل حلقه‌های تودرتوی یک پیاز تصور کنید. Request از بیرونی‌ترین لایه وارد می‌شود و
+          لایه‌به‌لایه به سمت مرکز (Endpoint نهایی) پیش می‌رود. Response از همان لایه‌ها اما به‌ترتیب معکوس، از مرکز به
+          بیرون بازمی‌گردد. هر لایه هم روی مسیر رفت و هم روی مسیر برگشت می‌تواند کاری انجام دهد.</p>
+        <p>نکتهٔ کلیدی این است که هر <bdi>Middleware</bdi> کاملاً کنترل دارد که آیا اجازه دهد Request به لایهٔ داخلی‌تر
+          برسد یا نه — و همین ویژگی، پایهٔ مفهوم Short-circuiting است.</p>
+      </section>
+
+      <section>
+        <h4>ثبت Middleware در Program.cs</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Middleware registration example"><code>var app = builder.Build();
+
+app.UseExceptionHandler("/error"); // لایهٔ بیرونی‌ترین
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers(); // نزدیک‌ترین به مرکز
+
+app.Run();</code></pre>
+        <p>هر فراخوانی <code>app.Use...</code> یک <bdi>Middleware</bdi> جدید را به انتهای زنجیره اضافه می‌کند. ترتیب
+          فراخوانی این متدها در کد، دقیقاً همان ترتیبی است که در زمان اجرا رعایت می‌شود.</p>
+      </section>
+
+      <section>
+        <h4>ترتیب اجرا دقیقاً چطور کار می‌کند؟</h4>
+        <p>فرض کنید سه Middleware به نام‌های A، B و C به همین ترتیب ثبت شده‌اند. مسیر واقعی اجرا این‌گونه است:</p>
+        <ol>
+          <li>Request وارد A می‌شود → کد قبل از <code>next()</code> در A اجرا می‌شود.</li>
+          <li>A با فراخوانی <code>next()</code>، کنترل را به B می‌دهد → کد قبل از <code>next()</code> در B اجرا می‌شود.
+          </li>
+          <li>B با فراخوانی <code>next()</code>، کنترل را به C می‌دهد.</li>
+          <li>C آخرین Middleware است (یا Endpoint را اجرا می‌کند) و Response تولید می‌شود.</li>
+          <li>کنترل به B بازمی‌گردد و کد <strong>بعد از</strong> <code>next()</code> در B اجرا می‌شود.</li>
+          <li>در نهایت کنترل به A بازمی‌گردد و کد بعد از <code>next()</code> در A اجرا می‌شود.</li>
+        </ol>
+        <p>پس ترتیب اجرا روی Request به شکل <code>A → B → C</code> است، اما روی Response دقیقاً برعکس:
+          <code>C → B → A</code>.</p>
+      </section>
+
+      <section>
+        <h4>نوشتن یک Middleware سفارشی</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Custom middleware with short-circuit example"><code>app.Use(async (context, next) =>
+{
+    if (!context.Request.Headers.ContainsKey("X-Api-Key"))
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync("Missing API key");
+        return; // next() فراخوانی نمی‌شود؛ Pipeline اینجا متوقف می‌شود
+    }
+
+    await next(); // ادامهٔ مسیر به سمت Middleware بعدی
+
+    // این خط بعد از برگشت از بقیهٔ Pipeline اجرا می‌شود
+    context.Response.Headers.Append("X-Processed-By", "CustomMiddleware");
+});</code></pre>
+        <p>اگر شرط برقرار نباشد و <code>next()</code> فراخوانی نشود، هیچ‌کدام از Middlewareهای بعدی — و حتی Endpoint
+          نهایی — هرگز اجرا نخواهند شد. به این حالت <strong>Short-circuiting</strong> گفته می‌شود و برای سناریوهایی مثل
+          Authentication ناموفق، Rate Limiting، یا Health Check بسیار پرکاربرد است.</p>
+      </section>
+
+      <section>
+        <h4>سه سبک نوشتن Middleware</h4>
+        <div class="answer-table" role="region" aria-label="مقایسهٔ سبک‌های تعریف Middleware" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>سبک</th>
+                <th>توضیح</th>
+                <th>مناسب برای</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Inline Delegate</td>
+                <td>مستقیماً با <code>app.Use(async (context, next) => ...)</code> نوشته می‌شود</td>
+                <td>منطق ساده و کوتاه</td>
+              </tr>
+              <tr>
+                <td>کلاس Convention-based</td>
+                <td>کلاسی با Constructor (<code>RequestDelegate next</code>) و متد <code>InvokeAsync(HttpContext)</code>
+                </td>
+                <td>منطق پیچیده‌تر، تست‌پذیری بهتر</td>
+              </tr>
+              <tr>
+                <td><code>IMiddleware</code></td>
+                <td>پیاده‌سازی اینترفیس رسمی؛ از طریق DI Container ثبت و مدیریت می‌شود</td>
+                <td>Middlewareهایی با Dependencyهای تزریق‌شده و طول عمر مشخص</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>چند نکتهٔ مهم دربارهٔ ترتیب</h4>
+        <ul>
+          <li>ترتیب ثبت Middlewareها، ترتیب واقعی اجراست — نه ترتیب تعریف کلاس‌ها یا فایل‌ها، بلکه دقیقاً همان خطوطی که
+            در <code>Program.cs</code> نوشته شده‌اند.</li>
+          <li><code>UseAuthentication</code> باید همیشه قبل از <code>UseAuthorization</code> ثبت شود، وگرنه هویت کاربر
+            هنوز مشخص نشده در حالی که سیستم می‌خواهد دربارهٔ دسترسی تصمیم بگیرد.</li>
+          <li><code>UseRouting</code> باید قبل از هر Middleware‌ای بیاید که به Endpoint انتخاب‌شده نیاز دارد (مثل
+            Authorization بر اساس Policy مربوط به یک Endpoint خاص).</li>
+          <li>جابه‌جا کردن این ترتیب معمولاً خطا نمی‌دهد؛ به‌جایش رفتار نادرست و اشکالاتی مثل ۴۰۱/۴۰۳ غیرمنتظره یا
+            نادیده‌گرفته‌شدن یک Policy تولید می‌کند — به همین دلیل Debug کردن آن سخت‌تر از یک Exception معمولی است.</li>
+        </ul>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> اگر مصاحبه‌کننده بپرسد «اگر next() را صدا نزنیم چه
+          می‌شود؟»، پاسخ درست این است: بقیهٔ Pipeline اصلاً اجرا نمی‌شود و همان Middleware مسئول تولید Response نهایی
+          است — این دقیقاً همان مفهوم Short-circuit است.</aside>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p><bdi>Middleware</bdi> قطعه‌ای از کد است که در Request Pipeline قرار می‌گیرد، به <code>HttpContext</code>
+          دسترسی دارد و می‌تواند قبل و بعد از فراخوانی <code>next()</code> منطقی اجرا کند یا با ندادن کنترل به بعدی،
+          Pipeline را Short-circuit کند. ترتیب اجرا دقیقاً برابر با ترتیب ثبت در <code>Program.cs</code> است: روی مسیر
+          Request از بالا به پایین، و روی مسیر Response دقیقاً برعکس. رعایت‌نکردن این ترتیب — به‌خصوص بین Routing،
+          Authentication و Authorization — یکی از رایج‌ترین منابع باگ‌های پنهان در پروژه‌های واقعی ASP.NET Core است.</p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/middleware/">ASP.NET Core Middleware</a>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/middleware/write">Writing Custom Middleware</a>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/routing">Routing in ASP.NET Core</a>
+      </footer>
+    </div>
   </main>
 </body>
+
 </html>

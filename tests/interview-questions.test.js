@@ -72,13 +72,13 @@ test('the first accordion contains a complete international interview answer', (
   assert.doesNotMatch(firstCard, /پاسخ کامل این سوال در این قسمت قرار می‌گیرد/);
 });
 
-test('answer files 02 through 25 have an empty editable answer container', () => {
+test('answer files 03 through 25 have an empty editable answer container', () => {
   const files = fs.readdirSync(path.join(interviewRoot, 'answers'))
     .filter((file) => file.endsWith('.html'))
     .sort();
 
   assert.equal(files.length, 25);
-  files.slice(1).forEach((file) => {
+  files.slice(2).forEach((file) => {
     const html = fs.readFileSync(path.join(interviewRoot, 'answers', file), 'utf8');
     assert.match(html, /<main data-answer-content>/);
     assert.match(html, /<div class="answer-content"><\/div>/);

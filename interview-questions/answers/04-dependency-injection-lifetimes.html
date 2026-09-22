@@ -1,15 +1,188 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به What is Dependency Injection? Explain Singleton, Scoped & Transient.">
-  <title>What is Dependency Injection? Explain Singleton, Scoped & Transient. — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <meta name="description"
+    content="پاسخ کامل و مصاحبه‌محور به توضیح Dependency Injection و Service Lifetimes در ASP.NET Core.">
+  <title>Dependency Injection & Service Lifetimes — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p><strong>Dependency Injection (DI)</strong> is a design pattern in which a class receives its dependencies
+          from an external source rather than creating them itself. Instead of a class calling <code>new</code> on
+          the services it needs, those services are "injected" — usually through the constructor — by a
+          <strong>DI Container</strong> (the built-in <code>IServiceCollection</code> / <code>IServiceProvider</code>
+          in ASP.NET Core).
+        </p>
+        <p>When a service is registered, its <strong>lifetime</strong> determines how long a single instance of it
+          lives and is reused: <strong>Singleton</strong> (one instance for the whole application),
+          <strong>Scoped</strong> (one instance per HTTP request), and <strong>Transient</strong> (a new instance
+          every time it's requested). Choosing the wrong lifetime is one of the most common sources of bugs in
+          real-world ASP.NET Core applications.
+        </p>
+      </div>
+
+      <section>
+        <h4>Dependency Injection یعنی چه؟</h4>
+        <p>در برنامه‌نویسی سنتی، یک کلاس معمولاً وابستگی‌های خودش را مستقیماً می‌سازد؛ مثلاً یک Controller با
+          <code>new OrderService()</code> نمونه‌ای از سرویس موردنیازش را ایجاد می‌کند. این کار باعث می‌شود کلاس‌ها به
+          پیاده‌سازی خاصی از یک سرویس <bdi>Tightly Coupled</bdi> شوند و Test نوشتن یا تغییر پیاده‌سازی در آینده سخت
+          شود.
+        </p>
+        <p><bdi>Dependency Injection</bdi> این مشکل را با یک اصل ساده حل می‌کند: <strong>یک کلاس نباید مسئول ساختن
+            وابستگی‌های خودش باشد</strong>؛ در عوض، آن وابستگی‌ها از بیرون (معمولاً از طریق Constructor) به آن داده
+          می‌شوند. مسئولیت ساختن و مدیریت چرخهٔ حیات این وابستگی‌ها به یک <bdi>DI Container</bdi> سپرده می‌شود.</p>
+      </section>
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+        <p>تصور کنید به‌جای اینکه یک آشپز خودش برود و مواد اولیه را از بازار بخرد (بسازد)، یک تأمین‌کننده (Container)
+          مواد اولهٔ لازم را دقیقاً وقتی که لازم است برایش فراهم می‌کند. آشپز فقط می‌گوید «من به این مواد نیاز دارم»
+          و نگران نحوهٔ تهیهٔ آن‌ها نیست. این دقیقاً همان کاری‌ست که Constructor Injection انجام می‌دهد: کلاس فقط
+          وابستگی موردنیازش را در Constructor اعلام می‌کند، و Container مسئول تأمین آن است.</p>
+      </section>
+
+      <section>
+        <h4>ثبت و تزریق در Program.cs</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="DI registration example"><code>var builder = WebApplication.CreateBuilder(args);
+
+// ثبت وابستگی‌ها همراه با Lifetime آن‌ها
+builder.Services.AddSingleton&lt;ICacheService, MemoryCacheService&gt;();
+builder.Services.AddScoped&lt;IOrderRepository, OrderRepository&gt;();
+builder.Services.AddTransient&lt;IEmailSender, SmtpEmailSender&gt;();
+
+var app = builder.Build();
+app.MapControllers();
+app.Run();</code></pre>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Constructor injection example"><code>public class OrderController : ControllerBase
+{
+    private readonly IOrderRepository _repository;
+    private readonly IEmailSender _emailSender;
+
+    // وابستگی‌ها از طریق Constructor تزریق می‌شوند
+    public OrderController(IOrderRepository repository, IEmailSender emailSender)
+    {
+        _repository = repository;
+        _emailSender = emailSender;
+    }
+}</code></pre>
+        <p>در اینجا <code>OrderController</code> اصلاً نمی‌داند <code>OrderRepository</code> چگونه ساخته می‌شود یا چه
+          وابستگی‌های دیگری دارد؛ فقط به Interface تکیه می‌کند و Container بقیهٔ کار را انجام می‌دهد.</p>
+      </section>
+
+      <section>
+        <h4>سه نوع Lifetime</h4>
+        <div class="answer-table" role="region" aria-label="مقایسهٔ Singleton، Scoped و Transient" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>Lifetime</th>
+                <th>چرخهٔ حیات نمونه</th>
+                <th>مثال کاربرد مناسب</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Singleton</code></td>
+                <td>یک‌بار در کل عمر Application ساخته می‌شود و همان نمونه در همهٔ Requestها استفاده می‌شود</td>
+                <td>Configuration، Caching، Logging Factory، سرویس‌های بدون State</td>
+              </tr>
+              <tr>
+                <td><code>Scoped</code></td>
+                <td>یک نمونهٔ جدید به‌ازای هر HTTP Request ساخته می‌شود و در طول همان Request بازاستفاده می‌شود</td>
+                <td><code>DbContext</code> در Entity Framework، Repository ها، Unit of Work</td>
+              </tr>
+              <tr>
+                <td><code>Transient</code></td>
+                <td>هر بار که درخواست شود، یک نمونهٔ کاملاً جدید ساخته می‌شود — حتی چند بار در یک Request</td>
+                <td>سرویس‌های سبک و Stateless مثل Validator ها یا Mapper ها</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>چرا انتخاب Lifetime اهمیت حیاتی دارد؟</h4>
+        <ul>
+          <li><strong>Captive Dependency</strong>: اگر یک سرویس <code>Singleton</code> به یک سرویس <code>Scoped</code>
+            (مثل <code>DbContext</code>) وابسته باشد، آن <code>DbContext</code> در واقع برای همیشه زنده می‌ماند و بین
+            Requestهای مختلف به اشتراک گذاشته می‌شود — این باعث بروز خطاهای عجیب و Data Corruption می‌شود.</li>
+          <li><strong>DbContext همیشه Scoped است</strong>، چون Thread-Safe نیست و نباید بین چند Request هم‌زمان به
+            اشتراک گذاشته شود؛ ثبت آن به‌صورت Singleton یک اشتباه رایج و خطرناک است.</li>
+          <li><strong>Transient برای سرویس‌های سنگین مناسب نیست</strong>، چون هر بار Instance جدید ساخته می‌شود و اگر
+            ساخت آن هزینه‌بر باشد (مثلاً باز کردن یک Connection)، عملکرد برنامه افت می‌کند.</li>
+          <li>Container به‌صورت خودکار جلوی برخی ترکیب‌های نادرست را می‌گیرد؛ برای مثال تزریق یک سرویس Scoped داخل یک
+            سرویس Singleton، در حالت توسعه معمولاً با یک Exception واضح گزارش می‌شود.</li>
+        </ul>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> یک سؤال بسیار رایج این است: «اگر یک سرویس
+          Singleton به یک DbContext (که Scoped است) نیاز داشته باشد چه اتفاقی می‌افتد؟» جواب درست این است که این کار
+          باعث Captive Dependency می‌شود و به‌جای تزریق مستقیم <code>DbContext</code>، باید از
+          <code>IServiceScopeFactory</code> برای ساختن یک Scope جدید در زمان نیاز استفاده کرد.
+        </aside>
+      </section>
+
+      <section>
+        <h4>مسیر یک درخواست از دید DI Container</h4>
+        <ol>
+          <li>یک HTTP Request وارد Application می‌شود و ASP.NET Core یک <bdi>Scope</bdi> جدید برای آن باز می‌کند.</li>
+          <li>وقتی Controller ساخته می‌شود، Container به Constructor آن نگاه می‌کند و می‌فهمد چه Interfaceهایی نیاز
+            دارد.</li>
+          <li>برای هر وابستگی، Container بر اساس Lifetime ثبت‌شده تصمیم می‌گیرد: نمونهٔ موجود Singleton را برگرداند،
+            نمونهٔ Scoped مربوط به همین Request را بسازد یا بازاستفاده کند، یا یک نمونهٔ کاملاً جدید Transient بسازد.
+          </li>
+          <li>این فرآیند به‌صورت بازگشتی برای وابستگی‌های خودِ آن سرویس‌ها هم تکرار می‌شود (Constructor Injection
+            زنجیره‌ای).</li>
+          <li>پس از پایان Request، Scope بسته می‌شود و تمام نمونه‌های Scoped و Transient که Disposable بودند،
+            به‌صورت خودکار Dispose می‌شوند.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h4>مثال واقعی</h4>
+        <p>فرض کنید یک Web API دارید که با پایگاه‌داده کار می‌کند و همچنین یک سرویس Cache در حافظه برای تنظیمات عمومی
+          دارد. یک ثبت‌نام منطقی می‌تواند این باشد:</p>
+        <ul>
+          <li><code>AddSingleton&lt;IAppSettingsCache&gt;</code> چون تنظیمات در کل عمر Application ثابت و بدون
+            وابستگی به Request است.</li>
+          <li><code>AddScoped&lt;AppDbContext&gt;</code> و <code>AddScoped&lt;IOrderRepository&gt;</code> چون هر دو
+            باید در طول یک Request با هم سازگار و یکسان باشند.</li>
+          <li><code>AddTransient&lt;IOrderValidator&gt;</code> چون Validator سبک است، هیچ Stateای نگه نمی‌دارد و
+            ساخت مکرر آن هزینه‌ای ندارد.</li>
+        </ul>
+        <p>این نشان می‌دهد که انتخاب Lifetime فقط یک تنظیم فنی نیست؛ بلکه یک تصمیم معماری دربارهٔ این است که یک سرویس
+          چه رابطه‌ای با Request و با سایر سرویس‌ها دارد.</p>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p><bdi>Dependency Injection</bdi> الگویی است که در آن یک کلاس وابستگی‌های خود را از یک منبع بیرونی
+          (<bdi>DI Container</bdi>) دریافت می‌کند، نه اینکه خودش آن‌ها را بسازد؛ این کار باعث کاهش Coupling و افزایش
+          قابلیت Test و نگه‌داری کد می‌شود. در ASP.NET Core، هر سرویس با یکی از سه Lifetime ثبت می‌شود:
+          <code>Singleton</code> برای یک نمونهٔ ثابت در کل عمر Application، <code>Scoped</code> برای یک نمونه به‌ازای
+          هر Request (مانند <code>DbContext</code>)، و <code>Transient</code> برای ساخت یک نمونهٔ جدید در هر
+          درخواست. درک درست تفاوت این سه و خطرات ترکیب نادرست آن‌ها (به‌ویژه Captive Dependency) یکی از مهم‌ترین
+          مهارت‌های عملی توسعه‌دهندهٔ ASP.NET Core است.
+        </p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection">Dependency Injection in
+          ASP.NET Core</a>
+        <a href="https://learn.microsoft.com/dotnet/core/extensions/dependency-injection">.NET Dependency Injection
+          Guidelines</a>
+        <a href="https://learn.microsoft.com/dotnet/core/extensions/dependency-injection-usage">DI Usage Guidelines</a>
+      </footer>
+    </div>
   </main>
 </body>
+
 </html>

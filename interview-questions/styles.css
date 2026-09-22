@@ -312,6 +312,30 @@ h1 {
 .answer-content ol { margin: 0.65rem 0; padding-inline-start: 1.4rem; }
 .answer-content li + li { margin-top: 0.45rem; }
 .answer-content code { padding: 0.08rem 0.35rem; border: 1px solid var(--line); border-radius: 0.35rem; background: #071a30; color: #a9cdff; direction: ltr; }
+.answer-content pre {
+  max-width: 100%;
+  margin: 1rem 0;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: #071a30;
+  color: #dce8f7;
+  direction: ltr;
+  text-align: left;
+  font: 0.9rem/1.8 Consolas, "Cascadia Code", "Courier New", monospace;
+  white-space: pre;
+  tab-size: 4;
+}
+.answer-content pre code {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.answer-content pre:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
 
 .interview-short {
   padding: 1rem 1.1rem;

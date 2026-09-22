@@ -1,15 +1,169 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به Difference between PUT and PATCH?">
-  <title>Difference between PUT and PATCH? — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <meta name="description" content="پاسخ کامل و مصاحبه‌محور به تفاوت PUT و PATCH در طراحی API.">
+  <title>Difference between PUT and PATCH — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p><strong>PUT</strong> and <strong>PATCH</strong> are both HTTP methods used to update an existing resource,
+          but they differ in scope and semantics. <strong>PUT</strong> replaces the <em>entire</em> resource with the
+          representation sent in the request body — any field not included is expected to be removed or reset to its
+          default. <strong>PATCH</strong> applies a <em>partial</em> update, modifying only the fields specified,
+          leaving the rest of the resource untouched.</p>
+        <p>Another key distinction: <strong>PUT is idempotent by definition</strong> — sending the same PUT request
+          multiple times always results in the same resource state. <strong>PATCH is not guaranteed to be
+            idempotent</strong>, especially when the patch describes an operation (like incrementing a value) rather
+          than a final state.</p>
+      </div>
+
+      <section>
+        <h4>PUT یعنی چه؟</h4>
+        <p><bdi>PUT</bdi> برای جایگزین‌کردن کامل یک Resource استفاده می‌شود. وقتی یک Request از نوع PUT ارسال می‌کنید،
+          انتظار می‌رود کل Body، نمایانگر وضعیت نهایی و کامل آن Resource باشد. اگر فیلدی در Body نباشد، سرور معمولاً آن
+          را حذف یا به مقدار پیش‌فرض بازمی‌گرداند — دقیقاً مثل این‌که کل Object قدیمی را با Object جدید جایگزین کنید.
+        </p>
+        <p>به همین دلیل، PUT معمولاً برای عملیات <bdi>Create-or-Replace</bdi> هم به کار می‌رود: اگر Resource با آن Id
+          وجود نداشته باشد، بسیاری از APIها آن را می‌سازند؛ اگر وجود داشته باشد، آن را کامل جایگزین می‌کنند.</p>
+      </section>
+
+      <section>
+        <h4>PATCH یعنی چه؟</h4>
+        <p><bdi>PATCH</bdi> برای اعمال یک تغییر <bdi>جزئی</bdi> روی Resource استفاده می‌شود. فقط فیلدهایی که در Body
+          آمده‌اند تغییر می‌کنند و بقیهٔ فیلدها دست‌نخورده باقی می‌مانند. این یعنی Client لازم نیست کل Object را دوباره
+          بفرستد؛ فقط تفاوت‌ها (Delta) کافی است.</p>
+        <p>PATCH برای سناریوهایی مثل تغییر یک فیلد ساده (مثلاً فقط IsActive یا فقط Email) یا برای APIهایی با Payload
+          حجیم، بسیار کارآمدتر و شبکه‌دوستانه‌تر از PUT است.</p>
+      </section>
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+        <p>PUT را مثل این تصور کنید که کل فرم یک کاربر را پاک می‌کنید و از نو با اطلاعات جدید پر می‌کنید — هر فیلدی که
+          خالی بماند، در واقع خالی ثبت می‌شود. اما PATCH مثل این است که فقط یک خط از فرم را اصلاح کنید و بقیهٔ فرم
+          دست‌نخورده
+          بماند.</p>
+      </section>
+
+      <section>
+        <h4>مثال در ASP.NET Core Web API</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="PUT vs PATCH example"><code>// PUT: replaces the entire resource
+[HttpPut("{id}")]
+public IActionResult UpdateProduct(int id, ProductDto product)
+{
+    // product must contain ALL fields (Name, Price, Stock, ...)
+    // any omitted field is treated as its default value
+    _service.Replace(id, product);
+    return NoContent();
+}
+
+// PATCH: updates only the provided fields
+[HttpPatch("{id}")]
+public IActionResult PatchProduct(int id, JsonPatchDocument&lt;ProductDto&gt; patchDoc)
+{
+    var product = _service.GetById(id);
+    patchDoc.ApplyTo(product);
+    _service.Update(id, product);
+    return NoContent();
+}</code></pre>
+        <p>در ASP.NET Core، PATCH معمولاً با <code>JsonPatchDocument</code> (بر اساس استاندارد JSON Patch — RFC 6902)
+          یا با یک DTO جزئی (Partial DTO) که فیلدهای Nullable دارد، پیاده‌سازی می‌شود.</p>
+      </section>
+
+      <section>
+        <h4>مقایسهٔ کلی</h4>
+        <div class="answer-table" role="region" aria-label="مقایسهٔ PUT و PATCH" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>PUT</th>
+                <th>PATCH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>نوع بروزرسانی</td>
+                <td>کامل (Full Replace)</td>
+                <td>جزئی (Partial Update)</td>
+              </tr>
+              <tr>
+                <td>Body مورد انتظار</td>
+                <td>کل Resource</td>
+                <td>فقط فیلدهای تغییریافته یا لیست عملیات</td>
+              </tr>
+              <tr>
+                <td>Idempotency</td>
+                <td>همیشه Idempotent است</td>
+                <td>لزوماً Idempotent نیست</td>
+              </tr>
+              <tr>
+                <td>فرمت رایج Body</td>
+                <td>DTO کامل</td>
+                <td>JSON Patch (RFC 6902) یا DTO جزئی با Nullable</td>
+              </tr>
+              <tr>
+                <td>ریسک اصلی</td>
+                <td>حذف ناخواسهٔ فیلدهای ارسال‌نشده</td>
+                <td>پیچیدگی بیشتر در پیاده‌سازی و Validation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h4>چرا Idempotency اهمیت دارد؟</h4>
+        <ul>
+          <li><strong>PUT Idempotent است:</strong> چون کل Resource را با یک مقدار مشخص جایگزین می‌کند، ارسال چندبارهٔ
+            همان Request همیشه همان نتیجهٔ نهایی را تولید می‌کند.</li>
+          <li><strong>PATCH می‌تواند Idempotent نباشد:</strong> اگر PATCH یک عملیات نسبی توصیف کند (مثلاً «مقدار Stock
+            را یک واحد کم کن»)، اجرای چندبارهٔ آن نتیجه‌های متفاوتی می‌دهد. اما اگر PATCH یک مقدار نهایی مشخص را ست کند
+            (مثلاً «Email را برابر این مقدار قرار بده»)، می‌تواند Idempotent باشد.</li>
+          <li>این تفاوت در طراحی API، تأثیر مستقیم روی نحوهٔ Retry کردن Requestها توسط Client و Proxyها دارد.</li>
+        </ul>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> یک اشتباه رایج، استفاده از PUT برای بروزرسانی
+          جزئی است — یعنی فقط چند فیلد از DTO را ست کردن و بقیه را با مقدار پیش‌فرض ارسال کردن. این کار باعث Overwrite
+          ناخواستهٔ داده‌های موجود می‌شود و یکی از باگ‌های رایج در APIهای واقعی است.</aside>
+      </section>
+
+      <section>
+        <h4>چه زمانی از کدام استفاده کنیم؟</h4>
+        <ol>
+          <li>اگر Client کل Object جدید را در اختیار دارد و می‌خواهد وضعیت قبلی را کاملاً جایگزین کند → <bdi>PUT</bdi>.
+          </li>
+          <li>اگر Client فقط چند فیلد خاص را تغییر می‌دهد و نمی‌خواهد بقیهٔ Resource دست بخورد → <bdi>PATCH</bdi>.</li>
+          <li>اگر Payload حجیم است و Bandwidth اهمیت دارد (مثلاً اپلیکیشن موبایل) → <bdi>PATCH</bdi> معمولاً بهینه‌تر
+            است.</li>
+          <li>اگر سادگی پیاده‌سازی و پیش‌بینی‌پذیری مهم‌تر از بهینه‌سازی Payload است → <bdi>PUT</bdi> راحت‌تر و کم‌خطاتر
+            است.</li>
+        </ol>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p><bdi>PUT</bdi> برای جایگزینی کامل یک Resource استفاده می‌شود و همیشه Idempotent است؛ هر فیلدی که در Body
+          نیاید، از بین می‌رود یا به مقدار پیش‌فرض برمی‌گردد. <bdi>PATCH</bdi> برای اعمال یک تغییر جزئی روی Resource
+          به کار می‌رود، فقط فیلدهای مشخص‌شده را تغییر می‌دهد و لزوماً Idempotent نیست. انتخاب بین این دو به این بستگی
+          دارد که Client قرار است چه مقدار از Resource را در اختیار داشته باشد و ارسال کند: کل Object (PUT) یا فقط
+          تفاوت‌ها (PATCH).</p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT">MDN — HTTP PUT</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH">MDN — HTTP PATCH</a>
+        <a href="https://learn.microsoft.com/aspnet/core/web-api/jsonpatch">JSON Patch in ASP.NET Core Web API</a>
+      </footer>
+    </div>
   </main>
 </body>
+
 </html>

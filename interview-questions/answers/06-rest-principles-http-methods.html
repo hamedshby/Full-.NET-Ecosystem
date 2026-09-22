@@ -1,15 +1,225 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به Explain REST principles and HTTP methods.">
-  <title>Explain REST principles and HTTP methods. — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <meta name="description" content="پاسخ کامل و مصاحبه‌محور به توضیح اصول REST و متدهای HTTP.">
+  <title>REST Principles و HTTP Methods — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+      <div class="interview-short" dir="ltr" lang="en">
+        <p><strong>REST</strong> (Representational State Transfer) is an architectural style for designing networked
+          APIs around <strong>resources</strong> — things like <code>users</code> or <code>orders</code> — identified
+          by URIs. A REST API is <strong>stateless</strong>: each request carries all the information the server needs,
+          and the server keeps no client session between requests.</p>
+        <p>Clients interact with resources using a small, fixed set of <strong>HTTP methods</strong> (<code>GET</code>,
+          <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>), each with a well-defined
+          meaning, and the server returns representations of resources (usually JSON) along with a meaningful
+          <strong>HTTP status code</strong>.
+        </p>
+      </div>
+
+      <section>
+        <h4>REST یعنی چه؟</h4>
+        <p>REST یک سبک معماری برای طراحی API است، نه یک پروتکل یا استاندارد رسمی. ایدهٔ اصلی این است که هر چیزی در
+          سیستم — مثل یک کاربر، یک سفارش، یا یک محصول — به‌عنوان یک <bdi>Resource</bdi> در نظر گرفته می‌شود که یک آدرس
+          یکتا (URI) دارد، مثلاً <code>/api/orders/42</code>.</p>
+        <p>به‌جای اینکه برای هر عملیات یک Endpoint اختصاصی مثل <code>/getOrder</code> یا <code>/deleteOrder</code>
+          بسازیم، همان یک آدرس ثابت را داریم و نوع عملیات را با <bdi>HTTP Method</bdi> مشخص می‌کنیم.</p>
+      </section>
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+        <p>REST را مثل یک کتابخانه تصور کنید. هر کتاب یک شمارهٔ قفسهٔ ثابت (URI) دارد. شما برای «خواندن» کتاب
+          (<code>GET</code>)، «اضافه کردن» کتاب جدید (<code>POST</code>)، «جایگزین کردن کامل» یک کتاب
+          (<code>PUT</code>)، یا «برداشتن» کتاب (<code>DELETE</code>) از همان آدرس قفسه استفاده می‌کنید؛ فقط نوع
+          درخواستتان فرق می‌کند، نه آدرس.</p>
+      </section>
+
+      <section>
+        <h4>اصول اصلی REST</h4>
+        <ul>
+          <li><strong>Client-Server</strong>: جدا بودن مسئولیت Client (نمایش/تعامل) از Server (داده و منطق کسب‌وکار)،
+            که باعث می‌شود این دو مستقل از هم تکامل پیدا کنند.</li>
+          <li><strong>Statelessness</strong>: هر Request باید تمام اطلاعات لازم (مثل Token احراز هویت) را خودش حمل کند؛
+            Server هیچ Session‌ای بین Requestها نگه نمی‌دارد.</li>
+          <li><strong>Cacheability</strong>: پاسخ‌ها باید صریحاً مشخص کنند Cache-پذیر هستند یا نه، تا Performance بهتر
+            شود.</li>
+          <li><strong>Uniform Interface</strong>: یک قرارداد یکنواخت شامل شناسایی Resource با URI، دستکاری آن از طریق
+            Representation (مثل JSON)، پیام‌های خودتوضیح (Self-descriptive)، و در حالت ایده‌آل، HATEOAS.</li>
+          <li><strong>Layered System</strong>: Client نمی‌داند مستقیماً با Server اصلی صحبت می‌کند یا با یک لایهٔ
+            میانی مثل Load Balancer یا Gateway.</li>
+          <li><strong>Code on Demand (اختیاری)</strong>: امکان ارسال کد اجراشدنی (مثل JavaScript) از Server به Client،
+            که کمتر در APIهای معمول استفاده می‌شود.</li>
+        </ul>
+        <aside class="answer-note"><strong>نکتهٔ مصاحبه‌ای:</strong> <bdi>Statelessness</bdi> رایج‌ترین اصلی است که
+          دربارهٔ آن سؤال می‌شود؛ نکتهٔ کلیدی این است که این یعنی «بدون Session سمت Server»، نه اینکه سیستم اصلاً حالتی
+          ندارد (داده‌ها همچنان در دیتابیس State دارند).</aside>
+      </section>
+
+      <section>
+        <h4>متدهای اصلی HTTP</h4>
+        <div class="answer-table" role="region" aria-label="مقایسهٔ متدهای HTTP" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>متد</th>
+                <th>هدف</th>
+                <th>Idempotent؟</th>
+                <th>Safe؟</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GET</code></td>
+                <td>خواندن یک Resource یا لیستی از Resourceها، بدون تغییر در Server</td>
+                <td>بله</td>
+                <td>بله</td>
+              </tr>
+              <tr>
+                <td><code>POST</code></td>
+                <td>ایجاد یک Resource جدید (یا اجرای عملیاتی که در قالب CRUD ساده نمی‌گنجد)</td>
+                <td>خیر</td>
+                <td>خیر</td>
+              </tr>
+              <tr>
+                <td><code>PUT</code></td>
+                <td>جایگزینی کامل یک Resource موجود با مقدار جدید</td>
+                <td>بله</td>
+                <td>خیر</td>
+              </tr>
+              <tr>
+                <td><code>PATCH</code></td>
+                <td>اعمال تغییر جزئی (Partial Update) روی یک Resource موجود</td>
+                <td>معمولاً خیر</td>
+                <td>خیر</td>
+              </tr>
+              <tr>
+                <td><code>DELETE</code></td>
+                <td>حذف یک Resource مشخص</td>
+                <td>بله</td>
+                <td>خیر</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Safe</strong> یعنی متد هیچ تغییری در وضعیت Server ایجاد نمی‌کند. <strong>Idempotent</strong> یعنی
+          اجرای چندبارهٔ همان درخواست، نتیجهٔ نهایی یکسانی دارد — برای مثال، حذف یک Resource که از قبل حذف شده، باز هم
+          همان وضعیت «وجود ندارد» را نتیجه می‌دهد، پس <code>DELETE</code> Idempotent است، هرچند Safe نیست.</p>
+      </section>
+
+      <section>
+        <h4>مثال در ASP.NET Core Web API</h4>
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="ASP.NET Core REST controller example"><code>[ApiController]
+[Route("api/orders")]
+public class OrdersController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetAll() => Ok(_orders);
+
+    [HttpGet("{id}")]
+    public IActionResult GetById(int id)
+    {
+        var order = _repository.Find(id);
+        return order is null ? NotFound() : Ok(order);
+    }
+
+    [HttpPost]
+    public IActionResult Create(OrderDto dto)
+    {
+        var created = _repository.Add(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id}")]
+    public IActionResult Replace(int id, OrderDto dto)
+    {
+        _repository.Replace(id, dto);
+        return NoContent();
+    }
+
+    [HttpPatch("{id}")]
+    public IActionResult UpdatePartial(int id, JsonPatchDocument&lt;OrderDto&gt; patch)
+    {
+        _repository.ApplyPatch(id, patch);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult Delete(int id)
+    {
+        _repository.Remove(id);
+        return NoContent();
+    }
+}</code></pre>
+        <p>توجه کنید که آدرس Resource (<code>api/orders</code> یا <code>api/orders/{id}</code>) در همهٔ Actionها ثابت
+          است؛ فقط نوع عملیات با Attributeهای <code>[HttpGet]</code>، <code>[HttpPost]</code> و... مشخص می‌شود.</p>
+      </section>
+
+      <section>
+        <h4>کدهای وضعیت (Status Codes) مهم</h4>
+        <ul>
+          <li><strong>200 OK</strong>: درخواست موفق بوده و پاسخی برگردانده شده (مناسب <code>GET</code>،
+            <code>PUT</code>،
+            <code>PATCH</code>).
+          </li>
+          <li><strong>201 Created</strong>: Resource جدیدی ساخته شده؛ معمولاً همراه با Header <code>Location</code>
+            (مناسب <code>POST</code>).</li>
+          <li><strong>204 No Content</strong>: عملیات موفق بوده اما بدنه‌ای برای برگرداندن وجود ندارد (مناسب
+            <code>DELETE</code> یا <code>PUT</code>).
+          </li>
+          <li><strong>400 Bad Request</strong>: ورودی نامعتبر یا ناقص است.</li>
+          <li><strong>401 Unauthorized</strong> / <strong>403 Forbidden</strong>: به‌ترتیب یعنی کاربر شناسایی نشده، یا
+            شناسایی شده اما اجازهٔ دسترسی ندارد.</li>
+          <li><strong>404 Not Found</strong>: Resource درخواست‌شده وجود ندارد.</li>
+          <li><strong>409 Conflict</strong>: درخواست با وضعیت فعلی Resource تناقض دارد (مثلاً ایجاد رکورد تکراری).</li>
+          <li><strong>500 Internal Server Error</strong>: خطای پیش‌بینی‌نشده در سمت Server.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h4>چند نکتهٔ کاربردی طراحی REST</h4>
+        <ul>
+          <li>URIها باید <strong>اسم Resource</strong> باشند نه فعل: <code>/orders</code> درست است، نه
+            <code>/getOrders</code>.
+          </li>
+          <li>از <strong>جمع (Plural)</strong> برای نام Resourceها استفاده کنید: <code>/orders</code>، نه
+            <code>/order</code>.
+          </li>
+          <li>روابط تودرتو را با Nesting نشان دهید: <code>/customers/5/orders</code> برای سفارش‌های مشتری شماره ۵.</li>
+          <li>از Query String برای فیلتر، مرتب‌سازی و صفحه‌بندی استفاده کنید:
+            <code>/orders?status=pending&amp;page=2</code>.
+          </li>
+          <li>Versioning را از ابتدا در نظر بگیرید، مثلاً <code>/api/v1/orders</code>، تا تغییرات آینده Breaking Change
+            ایجاد نکنند.</li>
+        </ul>
+      </section>
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+        <p><bdi>REST</bdi> یک سبک معماری است که API را حول محور <bdi>Resource</bdi>ها طراحی می‌کند و بر اصولی مثل
+          <bdi>Statelessness</bdi>، <bdi>Uniform Interface</bdi> و <bdi>Cacheability</bdi> استوار است. متدهای HTTP
+          (<code>GET</code>، <code>POST</code>، <code>PUT</code>، <code>PATCH</code>، <code>DELETE</code>) عملیات
+          استاندارد روی Resourceها را مشخص می‌کنند، و هرکدام ویژگی‌های خاص خود از نظر <bdi>Safe</bdi> و
+          <bdi>Idempotent</bdi> بودن دارند. طراحی خوب REST یعنی URIهای معنادار، استفادهٔ درست از متدها و کدهای وضعیت،
+          و رعایت Statelessness — نکاتی که هم در مصاحبه و هم در پروژه‌های واقعی ASP.NET Core اهمیت زیادی دارند.
+        </p>
+      </section>
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+        <a href="https://learn.microsoft.com/aspnet/core/web-api/">ASP.NET Core Web API</a>
+        <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods">HTTP Methods — MDN</a>
+        <a href="https://restfulapi.net/">RESTful API Design Guide</a>
+      </footer>
+    </div>
   </main>
 </body>
+
 </html>
