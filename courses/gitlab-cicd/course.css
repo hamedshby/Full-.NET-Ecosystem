@@ -674,6 +674,44 @@ body {
   border-bottom: 0;
 }
 
+.layer-stack {
+  width: min(100%, 42rem);
+  margin: 1.5rem auto;
+  display: grid;
+  gap: .45rem;
+}
+
+.layer-stack div {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .8rem;
+  padding: .8rem 1rem;
+  border: 1px solid var(--cicd-border);
+  border-radius: .8rem;
+  background: color-mix(in srgb, var(--cicd-accent) 6%, var(--surface));
+}
+
+.layer-stack div:nth-child(2n) {
+  margin-inline: 1rem;
+}
+
+.layer-stack span {
+  width: 2rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: .55rem;
+  background: var(--cicd-accent);
+  color: #fff;
+  font-weight: 900;
+}
+
+.layer-stack small {
+  color: var(--muted);
+  text-align: end;
+}
+
 .lesson-pager {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -768,6 +806,19 @@ button:focus-visible {
   .lesson-warning,
   .architecture-stack > div {
     grid-template-columns: 1fr;
+  }
+
+  .layer-stack div {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .layer-stack div:nth-child(2n) {
+    margin-inline: 0;
+  }
+
+  .layer-stack small {
+    grid-column: 2;
+    text-align: start;
   }
 
   .course-footer {

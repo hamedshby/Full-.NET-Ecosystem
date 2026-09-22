@@ -62,6 +62,260 @@
         <p class="lesson-time" dir="ltr">12:00–13:00</p>
         <h1 id="lesson-title">ساخت Docker Image</h1>
         <div class="lesson-body" aria-label="محتوای درس">
+          <section class="lesson-section lesson-intro" aria-labelledby="docker-start-title">
+            <p class="section-kicker">از خروجی Build تا واحد قابل اجرا</p>
+            <h2 id="docker-start-title"><bdi>Docker Image</bdi> چه مشکلی را حل می‌کند؟</h2>
+            <p>خروجی <code>dotnet publish</code> فایل‌های برنامه را آماده می‌کند، اما هنوز باید بدانیم برنامه با کدام Runtime، فایل‌ها، User و Command اجرا شود. Docker Image این قرارداد اجرایی را به‌صورت یک Package لایه‌ای و قابل‌انتقال نگه می‌دارد.</p>
+            <div class="concept-grid">
+              <article>
+                <span class="concept-mark">Image</span>
+                <h3>Template فقط‌خواندنی</h3>
+                <p>مجموعه‌ای از Layerها، فایل‌های برنامه، Runtime و Metadata اجرای آن است. Image ساخته و Tagگذاری می‌شود و می‌توان آن را در Registry ذخیره کرد.</p>
+              </article>
+              <article>
+                <span class="concept-mark">Container</span>
+                <h3>نمونهٔ در حال اجرا</h3>
+                <p>وقتی Image را با <code>docker run</code> اجرا می‌کنیم، Docker یک Container با لایهٔ نوشتنی، Process، Network و Resourceهای Runtime ایجاد می‌کند.</p>
+              </article>
+            </div>
+            <div class="process-flow" aria-label="جریان ساخت و اجرای Docker Image">
+              <span>Source Code</span><b aria-hidden="true">←</b><span>Dockerfile</span><b aria-hidden="true">←</b><span>docker build</span><b aria-hidden="true">←</b><span>Docker Image</span><b aria-hidden="true">←</b><span>docker run</span><b aria-hidden="true">←</b><span>Container</span>
+            </div>
+            <aside class="lesson-note">
+              <strong>مدل ذهنی:</strong>
+              <span>Image را مانند Class و Container را مانند Object در نظر بگیرید. از یک Image ثابت می‌توان چند Container مستقل ساخت.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="dockerfile-title">
+            <p class="section-kicker">دستور ساخت Image</p>
+            <h2 id="dockerfile-title"><bdi>Dockerfile</bdi> چیست؟</h2>
+            <p>Dockerfile یک فایل متنی شامل Instructionهای ساخت Image است. Docker آن‌ها را به‌ترتیب اجرا می‌کند و نتیجهٔ بسیاری از Instructionها را به‌صورت Layer نگه می‌دارد.</p>
+            <div class="table-wrap" role="region" aria-label="دستورهای مهم Dockerfile" tabindex="0">
+              <table class="diagnostic-table">
+                <thead><tr><th>Instruction</th><th>نقش</th><th>نکته</th></tr></thead>
+                <tbody>
+                  <tr><td><code>FROM</code></td><td>Base Image یا Stage جدید را تعریف می‌کند.</td><td>در Multi-stage Build چند بار استفاده می‌شود.</td></tr>
+                  <tr><td><code>WORKDIR</code></td><td>Working Directory دستورهای بعدی را مشخص می‌کند.</td><td>مسیرهای نسبی <code>RUN</code> و <code>COPY</code> از اینجا محاسبه می‌شوند.</td></tr>
+                  <tr><td><code>COPY</code></td><td>فایل را از Build Context به Image می‌آورد.</td><td>فقط به فایل‌های داخل Context دسترسی دارد.</td></tr>
+                  <tr><td><code>RUN</code></td><td>هنگام Build یک Command اجرا می‌کند.</td><td>نتیجه وارد Layer Image می‌شود.</td></tr>
+                  <tr><td><code>USER</code></td><td>User اجرای Instructionهای بعدی و Process نهایی را تعیین می‌کند.</td><td>برای Runtime از User غیر Root استفاده کنید.</td></tr>
+                  <tr><td><code>EXPOSE</code></td><td>Port مورد انتظار برنامه را مستند می‌کند.</td><td>به‌تنهایی Port را روی Host منتشر نمی‌کند.</td></tr>
+                  <tr><td><code>ENTRYPOINT</code></td><td>Process اصلی Container را مشخص می‌کند.</td><td>برای برنامهٔ .NET معمولاً <code>dotnet App.dll</code> است.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="context-title">
+            <p class="section-kicker">مرزی که اغلب باعث خطا می‌شود</p>
+            <h2 id="context-title"><bdi>Build Context</bdi> چیست؟</h2>
+            <p>آخرین Argument در Command ساخت، Build Context را تعیین می‌کند. در Command زیر، نقطه یعنی Repository فعلی Context است. Instructionهای <code>COPY</code> فقط می‌توانند فایل‌های همین Context را ببینند:</p>
+            <div class="code-block">
+              <div class="code-label"><span>ساخت با Dockerfile داخل زیرپوشه</span><span>CLI</span></div>
+              <pre dir="ltr"><code>docker build   --file src/Payment.Api/Dockerfile   --tag payment-api:local   .</code></pre>
+            </div>
+            <p>مسیر Dockerfile با <code>--file</code> مشخص شده، اما مسیرهای <code>COPY</code> همچنان نسبت به ریشهٔ Context یعنی نقطهٔ پایانی تفسیر می‌شوند.</p>
+            <aside class="lesson-warning">
+              <strong>خطای رایج:</strong>
+              <span>اگر Context را روی <code>src/Payment.Api</code> قرار دهید، Dockerfile دیگر نمی‌تواند Projectهای مشترک بیرون آن پوشه را Copy کند. Context باید فقط به‌اندازهٔ نیاز بزرگ باشد، نه کوچک‌تر و نه کل دیسک.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="multistage-title">
+            <p class="section-kicker">الگوی Production برای ASP.NET Core</p>
+            <h2 id="multistage-title"><bdi>Multi-stage Dockerfile</bdi> برای .NET 10</h2>
+            <p>SDK برای Restore، Compile و Publish لازم است، اما نباید ابزارهای Build را وارد Image نهایی کنیم. Stage اول با Image کامل SDK برنامه را Publish می‌کند و Stage نهایی فقط خروجی Publish را داخل Image کوچک‌تر ASP.NET Runtime قرار می‌دهد.</p>
+            <div class="code-block">
+              <div class="code-label"><span>src/Payment.Api/Dockerfile</span><span>Dockerfile</span></div>
+              <pre dir="ltr"><code># syntax=docker/dockerfile:1
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY ["src/Payment.Api/Payment.Api.csproj", "src/Payment.Api/"]
+COPY ["src/Payment.Core/Payment.Core.csproj", "src/Payment.Core/"]
+RUN dotnet restore "src/Payment.Api/Payment.Api.csproj"
+
+COPY . .
+RUN dotnet publish "src/Payment.Api/Payment.Api.csproj"     --configuration Release     --output /app/publish     --no-restore     /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+USER $APP_UID
+ENTRYPOINT ["dotnet", "Payment.Api.dll"]</code></pre>
+            </div>
+            <div class="explanation-steps">
+              <article><span>۱</span><div><h3>Stage ساخت از SDK استفاده می‌کند</h3><p>Image نوع <code>sdk</code> شامل .NET CLI، Compiler و MSBuild است و برای Restore و Publish طراحی شده است.</p></div></article>
+              <article><span>۲</span><div><h3>فایل‌های پروژه زودتر Copy می‌شوند</h3><p>تا وقتی <code>.csproj</code>ها تغییر نکرده‌اند، Layer مربوط به Restore می‌تواند از Build Cache استفاده شود؛ تغییر یک فایل C# نباید همیشه Download Packageها را تکرار کند.</p></div></article>
+              <article><span>۳</span><div><h3>Source Code بعد از Restore وارد می‌شود</h3><p><code>COPY . .</code> تمام فایل‌های مجاز Context را وارد Stage ساخت می‌کند و سپس Publish با Configuration برابر Release انجام می‌شود.</p></div></article>
+              <article><span>۴</span><div><h3>Stage نهایی فقط Runtime دارد</h3><p>Image نوع <code>aspnet</code> برای اجرای ASP.NET Core بهینه شده و SDK یا Source Code را حمل نمی‌کند؛ در نتیجه Image نهایی کوچک‌تر و سطح حمله محدودتر است.</p></div></article>
+              <article><span>۵</span><div><h3>Process با User غیر Root اجرا می‌شود</h3><p>Imageهای رسمی جدید .NET متغیر <code>APP_UID</code> را برای User داخلی فراهم می‌کنند. این کار ریسک اجرای Process برنامه با دسترسی Root را کاهش می‌دهد.</p></div></article>
+            </div>
+            <aside class="lesson-note">
+              <strong>اگر Project Reference بیشتری دارید:</strong>
+              <span>پیش از Restore باید فایل <code>.csproj</code> هر Project مورد نیاز را با همان ساختار مسیر Copy کنید؛ وگرنه Restore نمی‌تواند گراف Projectها را کامل Evaluate کند.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="dockerignore-title">
+            <p class="section-kicker">Context کوچک‌تر، Build سریع‌تر و امن‌تر</p>
+            <h2 id="dockerignore-title">فایل <code>.dockerignore</code></h2>
+            <p>Docker پیش از ارسال Context به Builder، الگوهای <code>.dockerignore</code> را اعمال می‌کند. فایل‌های غیرضروری نه‌تنها Build را کند می‌کنند، بلکه ممکن است ناخواسته وارد Context یا Layerهای Image شوند.</p>
+            <div class="code-block">
+              <div class="code-label"><span>.dockerignore</span><span>Text</span></div>
+              <pre dir="ltr"><code>**/bin/
+**/obj/
+**/TestResults/
+.git/
+.vs/
+.idea/
+*.user
+*.suo
+.env
+.env.*
+README.md</code></pre>
+            </div>
+            <ul class="key-points">
+              <li>پوشه‌های <code>bin</code> و <code>obj</code> باید داخل Container تولید شوند، نه از سیستم Developer کپی شوند.</li>
+              <li>پوشهٔ <code>.git</code> معمولاً برای Build برنامه لازم نیست و Context را بزرگ می‌کند.</li>
+              <li>فایل‌های Secret مانند <code>.env</code> نباید وارد Context شوند؛ حذف آن‌ها فقط با Dockerfile کافی نیست.</li>
+              <li>اگر Build به فایل خاصی نیاز دارد، آن را اشتباهی Ignore نکنید.</li>
+            </ul>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="layers-title">
+            <p class="section-kicker">چرا ترتیب Instructionها مهم است؟</p>
+            <h2 id="layers-title"><bdi>Layer</bdi> و <bdi>Build Cache</bdi></h2>
+            <p>Docker Image از Layerهای متوالی ساخته می‌شود. Builder می‌تواند Layer بدون تغییر را از Cache بردارد، اما وقتی ورودی یک Instruction تغییر کند، آن Layer و Layerهای بعد از آن دوباره ساخته می‌شوند.</p>
+            <div class="layer-stack" aria-label="لایه‌های Docker Image دات نت">
+              <div><span>۵</span><strong>ENTRYPOINT و Metadata</strong><small>تغییر کم‌هزینه</small></div>
+              <div><span>۴</span><strong>خروجی Publish برنامه</strong><small>با تغییر Source دوباره ساخته می‌شود</small></div>
+              <div><span>۳</span><strong>Restore Packageها</strong><small>تا تغییر Project File قابل Cache است</small></div>
+              <div><span>۲</span><strong>ASP.NET Runtime</strong><small>Base Image نهایی</small></div>
+              <div><span>۱</span><strong>Filesystem پایهٔ Linux</strong><small>پایهٔ Layerها</small></div>
+            </div>
+            <aside class="lesson-warning">
+              <strong>الگوی ضعیف:</strong>
+              <span>اگر پیش از <code>dotnet restore</code> از <code>COPY . .</code> استفاده کنید، تغییر هر فایل Source می‌تواند Cache مربوط به Restore را باطل کند. Project Fileها را جداگانه و زودتر Copy کنید.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="tag-title">
+            <p class="section-kicker">هویت Image</p>
+            <h2 id="tag-title"><bdi>Repository</bdi>، <bdi>Tag</bdi> و <bdi>Digest</bdi></h2>
+            <div class="code-block">
+              <div class="code-label"><span>نام کامل یک Image</span><span>Text</span></div>
+              <pre dir="ltr"><code>registry.example.com/payments/payment-api:4f2a93c</code></pre>
+            </div>
+            <dl class="definition-list">
+              <div><dt><span>۱</span>Registry</dt><dd><code>registry.example.com</code> مکانی است که Image در آن ذخیره و دریافت می‌شود.</dd></div>
+              <div><dt><span>۲</span>Repository</dt><dd><code>payments/payment-api</code> مسیر منطقی Image در Registry است.</dd></div>
+              <div><dt><span>۳</span>Tag</dt><dd><code>4f2a93c</code> یک Label قابل خواندن و قابل تغییر است. Commit SHA انتخاب مناسبی برای Traceability است.</dd></div>
+              <div><dt><span>۴</span>Digest</dt><dd>شناسهٔ محتوایی و تغییرناپذیر Image مانند <code>sha256:...</code> است. دو Image با Content متفاوت Digest یکسان ندارند.</dd></div>
+            </dl>
+            <aside class="lesson-warning">
+              <strong>از <code>latest</code> به‌تنهایی استفاده نکنید:</strong>
+              <span>Tag قابل جابه‌جایی است و نمی‌گوید دقیقاً کدام Commit Deploy شده است. Image را حداقل با Commit SHA Tag کنید؛ در محیط‌های حساس، Digest دقیق را نیز ثبت یا Pin کنید.</span>
+            </aside>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="build-command-title">
+            <p class="section-kicker">ساخت و بررسی محلی</p>
+            <h2 id="build-command-title">اجرای <code>docker build</code></h2>
+            <div class="code-block">
+              <div class="code-label"><span>Build، Inspect و Run</span><span>CLI</span></div>
+              <pre dir="ltr"><code>docker build   --pull   --file src/Payment.Api/Dockerfile   --tag payment-api:local   .
+
+docker image inspect payment-api:local
+
+docker run --rm   --name payment-api   --publish 8080:8080   payment-api:local</code></pre>
+            </div>
+            <ul class="key-points">
+              <li><code>--pull</code> Builder را وادار می‌کند نسخهٔ تازه‌تر Base Image مربوط به Tag را بررسی کند؛ برای بازتولید دقیق می‌توان Base Image را با Digest Pin کرد.</li>
+              <li><code>--file</code> مسیر Dockerfile را تعیین می‌کند و نقطهٔ انتهایی، Context را روی ریشهٔ Repository قرار می‌دهد.</li>
+              <li><code>--tag</code> یک نام محلی قابل استفاده برای Inspect و Run می‌سازد.</li>
+              <li><code>--publish 8080:8080</code> Port میزبان را به Port Container وصل می‌کند؛ Instruction نوع <code>EXPOSE</code> به‌تنهایی این اتصال را ایجاد نمی‌کند.</li>
+            </ul>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="gitlab-docker-title">
+            <p class="section-kicker">ساخت Image در Pipeline</p>
+            <h2 id="gitlab-docker-title"><bdi>GitLab Job</bdi> برای ساخت Docker Image</h2>
+            <p>این مثال یک Self-managed Runner با Shell executor و Docker Engine آماده را فرض می‌کند. Runner با Tag برابر <code>docker-builder</code> مشخص شده است. این Job فقط Image را می‌سازد و بررسی می‌کند؛ Push در بخش بعدی انجام می‌شود.</p>
+            <div class="code-block">
+              <div class="code-label"><span>.gitlab-ci.yml</span><span>YAML</span></div>
+              <pre dir="ltr"><code>stages:
+  - docker
+
+build-container-image:
+  stage: docker
+  tags:
+    - docker-builder
+  variables:
+    IMAGE_TAG: "$CI_PROJECT_NAME:$CI_COMMIT_SHA"
+  before_script:
+    - docker version
+    - docker info
+  script:
+    - docker build
+      --pull
+      --file src/Payment.Api/Dockerfile
+      --tag "$IMAGE_TAG"
+      .
+    - docker image inspect "$IMAGE_TAG"</code></pre>
+            </div>
+            <aside class="lesson-warning">
+              <strong>Runner باید برای Docker آماده شده باشد:</strong>
+              <span>وجود Docker CLI در Job کافی نیست؛ Job باید به یک Builder یا Docker daemon مجاز دسترسی داشته باشد. Shell executor، Docker-in-Docker، Socket Binding و Rootless BuildKit مدل‌های متفاوتی با Trade-offهای امنیتی متفاوت هستند.</span>
+            </aside>
+            <p>دادن دسترسی Docker daemon یا Privileged Mode به Job سطح دسترسی بالایی ایجاد می‌کند. Runnerهای Build Image باید Isolated و فقط برای Projectهای مورد اعتماد باشند. در محیط‌هایی که Privileged Mode مجاز نیست، GitLab استفاده از گزینه‌هایی مانند Rootless BuildKit یا Buildah را پشتیبانی می‌کند.</p>
+          </section>
+
+          <section class="lesson-section" aria-labelledby="docker-security-title">
+            <p class="section-kicker">امنیت و قابلیت تکرار</p>
+            <h2 id="docker-security-title">Image فقط وقتی قابل اعتماد است که ورودی‌هایش کنترل شوند</h2>
+            <div class="mistake-list">
+              <article><h3>Secret در <code>ARG</code> یا <code>ENV</code></h3><p>Secret ممکن است در History، Layer یا Metadata باقی بماند. برای Secret زمان Build از Secret Mountهای BuildKit و Variableهای محافظت‌شده استفاده کنید.</p></article>
+              <article><h3>SDK در Image نهایی</h3><p>Image نهایی بزرگ‌تر می‌شود و ابزارهای غیرضروری بیشتری در Production قرار می‌گیرند. Multi-stage Build فقط خروجی Publish را منتقل می‌کند.</p></article>
+              <article><h3>اجرای برنامه با Root</h3><p>در صورت آسیب‌پذیری برنامه، Process دسترسی بیشتری داخل Container خواهد داشت. User غیر Root اصل امن‌تری است.</p></article>
+              <article><h3>Base Image بدون Version</h3><p>Tagهایی مانند <code>latest</code> می‌توانند بدون تغییر Dockerfile به محتوای دیگری اشاره کنند. Version و در صورت نیاز Digest را Pin کنید.</p></article>
+              <article><h3>Context بزرگ</h3><p>سرعت Build کاهش می‌یابد و احتمال ورود فایل حساس بالا می‌رود. از <code>.dockerignore</code> و Context محدود استفاده کنید.</p></article>
+              <article><h3>معماری CPU اشتباه</h3><p>Image ساخته‌شده برای <code>amd64</code> لزوماً روی Node نوع <code>arm64</code> اجرا نمی‌شود. Platform مقصد را در Build و Deploy در نظر بگیرید.</p></article>
+            </div>
+          </section>
+
+          <section class="lesson-section lesson-summary" aria-labelledby="docker-summary-title">
+            <p class="section-kicker">جمع‌بندی</p>
+            <h2 id="docker-summary-title">پاسخ کوتاه برای مصاحبه</h2>
+            <blockquote>
+              Docker Image یک Package فقط‌خواندنی و لایه‌ای از برنامه، Runtime و Metadata اجراست. برای پروژهٔ ASP.NET Core از Multi-stage Dockerfile استفاده می‌کنیم: Stage اول با Image نوع SDK برنامه را Restore و Publish می‌کند و Stage نهایی فقط خروجی Publish را داخل Image کوچک‌تر ASP.NET Runtime قرار می‌دهد. سپس Image را با Tag یکتا مانند Commit SHA می‌سازیم تا هر خروجی به Source Code مشخصی قابل ردیابی باشد.
+            </blockquote>
+            <h3>اکنون باید بتوانید توضیح دهید:</h3>
+            <ul class="key-points">
+              <li>تفاوت Image و Container چیست.</li>
+              <li>Build Context چگونه روی Instruction نوع <code>COPY</code> اثر می‌گذارد.</li>
+              <li>چرا Multi-stage Build برای .NET مناسب است.</li>
+              <li>چگونه ترتیب Instructionها روی Build Cache اثر می‌گذارد.</li>
+              <li>چرا <code>.dockerignore</code>، User غیر Root و Tag یکتا مهم‌اند.</li>
+              <li>Runner برای اجرای <code>docker build</code> به چه Infrastructureای نیاز دارد.</li>
+            </ul>
+          </section>
+
+          <section class="lesson-section sources-section" aria-labelledby="docker-sources-title">
+            <h2 id="docker-sources-title">منابع رسمی</h2>
+            <ul>
+              <li><a href="https://docs.docker.com/build/concepts/dockerfile/">Docker Docs — Dockerfile overview</a></li>
+              <li><a href="https://docs.docker.com/build/concepts/context/">Docker Docs — Build context و .dockerignore</a></li>
+              <li><a href="https://docs.docker.com/build/building/multi-stage/">Docker Docs — Multi-stage builds</a></li>
+              <li><a href="https://learn.microsoft.com/aspnet/core/host-and-deploy/docker/building-net-docker-images?view=aspnetcore-10.0">Microsoft Learn — ASP.NET Core Docker images</a></li>
+              <li><a href="https://docs.gitlab.com/ci/docker/using_docker_build/">GitLab Docs — Build Docker images</a></li>
+              <li><a href="https://docs.gitlab.com/ci/docker/using_buildkit/">GitLab Docs — BuildKit</a></li>
+            </ul>
+          </section>
         </div>
         <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
           <a class="pager-previous" href="ch1-3.html"><span>درس قبلی</span><strong>اجرای Unit Test در Pipeline</strong></a>
