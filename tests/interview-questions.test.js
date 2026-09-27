@@ -23,6 +23,20 @@ test('the interview landing presents section one as a collection card', () => {
   assert.ok(fs.existsSync(sectionPath));
 });
 
+test('the interview landing can switch between the same modern and classic themes as home', () => {
+  const landing = fs.readFileSync(landingPath, 'utf8');
+  const styles = fs.readFileSync(path.join(interviewRoot, 'styles.css'), 'utf8');
+
+  assert.match(landing, /localStorage\.getItem\('dotnet-academy-home-theme'\)/);
+  assert.match(landing, /dataset\.homeTheme\s*=\s*storedHomeTheme === 'classic' \? 'classic' : 'modern'/);
+  assert.match(landing, /id="home-theme-toggle"/);
+  assert.match(landing, /data-home-theme-label/);
+  assert.match(landing, /<script src="\.\.\/home-theme\.js" defer><\/script>/);
+  assert.match(styles, /\[data-home-theme="modern"\]/);
+  assert.match(styles, /\[data-home-theme="classic"\]\s*\{[^}]*color-scheme:\s*light/);
+  assert.match(styles, /\[data-home-theme="classic"\]\s+\.collection-card\s*\{/);
+});
+
 test('section one renders 25 self-contained question-and-answer accordions', () => {
   const section = fs.readFileSync(sectionPath, 'utf8');
   const cards = section.match(/<details class="qa-card">/g) ?? [];
