@@ -179,16 +179,16 @@ h1 {
 
 .collection-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .collection-card {
-  min-height: 27rem;
+  min-height: 22rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: clamp(1.35rem, 3vw, 2rem);
+  gap: 1.1rem;
+  padding: clamp(1.1rem, 2vw, 1.5rem);
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 1.25rem;
@@ -214,26 +214,26 @@ h1 {
 
 .collection-index {
   color: rgb(136 187 255 / 42%);
-  font: 900 3rem/1 "Segoe UI", sans-serif;
+  font: 900 2.5rem/1 "Segoe UI", sans-serif;
 }
 
 .collection-kicker { margin: 0 0 0.35rem; color: #87baff; font-weight: 800; }
-.collection-card h3 { max-width: 28rem; margin: 0; font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.45; }
-.collection-card h3 + p { margin: 0.75rem 0 0; color: var(--muted); }
+.collection-card h3 { max-width: 28rem; margin: 0; font-size: clamp(1.2rem, 1.65vw, 1.55rem); line-height: 1.45; }
+.collection-card h3 + p { margin: 0.6rem 0 0; color: var(--muted); }
 
 .collection-meta {
   margin: auto 0 0;
-  padding: 1rem 0;
+  padding: 0.8rem 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   list-style: none;
   border-block: 1px solid var(--line);
 }
 
-.collection-meta li { display: grid; gap: 0.1rem; padding-inline: 0.75rem; }
+.collection-meta li { display: grid; gap: 0.1rem; padding-inline: 0.45rem; }
 .collection-meta li + li { border-inline-start: 1px solid var(--line); }
-.collection-meta strong { color: #fff; font-size: 0.92rem; }
-.collection-meta span { color: var(--muted); font-size: 0.75rem; }
+.collection-meta strong { color: #fff; font-size: 0.85rem; }
+.collection-meta span { color: var(--muted); font-size: 0.72rem; }
 
 .card-action,
 .answer-link {
@@ -429,6 +429,24 @@ h1 {
   line-height: 1.75;
 }
 
+.interview-translation {
+  margin-top: 0.65rem;
+  padding: 0.85rem 1.1rem 1rem;
+  border-inline-start: 0.25rem solid #78aef7;
+  border-radius: 0.7rem;
+  background: rgb(74 145 242 / 8%);
+  color: #dbeafe;
+  line-height: 1.9;
+}
+
+.interview-translation p { margin: 0; }
+.interview-translation .translation-label {
+  margin-bottom: 0.3rem;
+  color: #8fbdff;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
 .answer-note {
   margin-top: 0.9rem;
   padding: 0.75rem 0.9rem;
@@ -463,9 +481,12 @@ h1 {
   outline-offset: 3px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1050px) {
+  .collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
   .collection-grid { grid-template-columns: 1fr; }
-  .collection-card { min-height: 25rem; }
 }
 
 @media (max-width: 760px) {

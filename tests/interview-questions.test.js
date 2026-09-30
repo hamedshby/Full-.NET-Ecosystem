@@ -7,6 +7,7 @@ const root = path.join(__dirname, '..');
 const interviewRoot = path.join(root, 'interview-questions');
 const landingPath = path.join(interviewRoot, 'index.html');
 const sectionPath = path.join(interviewRoot, 'section-1.html');
+const oopSectionPath = path.join(interviewRoot, 'section-2.html');
 const firstAnswerPath = path.join(interviewRoot, 'answers', '01-dotnet-core-vs-framework.html');
 
 test('interview questions are linked from the home navigation', () => {
@@ -21,6 +22,19 @@ test('the interview landing presents section one as a collection card', () => {
   assert.match(landing, /سوالات بخش اول/);
   assert.match(landing, /<strong>۲۵<\/strong><span>سوال<\/span>/);
   assert.ok(fs.existsSync(sectionPath));
+});
+
+test('the interview landing presents the ChatGPT OOP collection as a second card', () => {
+  const landing = fs.readFileSync(landingPath, 'utf8');
+  const cards = landing.match(/class="collection-card"/g) ?? [];
+
+  assert.equal(cards.length, 2);
+  assert.match(landing, /class="collection-card" href="section-2\.html"/);
+  assert.match(landing, /سوالات مصاحبه OOP از چت جی پی تی/);
+  assert.match(landing, /<strong>۳۱<\/strong><span>سوال<\/span>/);
+  assert.match(landing, /<strong>۹<\/strong><span>دسته<\/span>/);
+  assert.match(landing, /<span class="collection-count">۲ مجموعه<\/span>/);
+  assert.ok(fs.existsSync(oopSectionPath));
 });
 
 test('the interview landing can switch between the same modern and classic themes as home', () => {
@@ -66,6 +80,77 @@ test('section one keeps collection navigation without a right sidebar', () => {
   assert.doesNotMatch(section, /<aside class="chapter-sidebar"/);
   assert.doesNotMatch(section, /بخش‌های سوالات/);
   assert.match(section, /<a class="back-link" href="index\.html">همهٔ مجموعه‌ها<\/a>/);
+});
+
+test('the OOP collection renders all 31 questions from both PDFs in nine topic groups', () => {
+  const section = fs.readFileSync(oopSectionPath, 'utf8');
+  const cards = section.match(/<details class="qa-card">/g) ?? [];
+  const answerSources = [...section.matchAll(/data-answer-src="(oop-answers\/[^\"]+\.html)"/g)]
+    .map((match) => match[1]);
+
+  assert.equal(cards.length, 31);
+  assert.equal(answerSources.length, 31);
+  assert.equal(new Set(answerSources).size, 31);
+  assert.match(section, /Classes, Objects, State, and Encapsulation/);
+  assert.match(section, /Inheritance and Polymorphism/);
+  assert.match(section, /Abstraction, Interfaces, and Composition/);
+  assert.match(section, /Dependency Injection in \.NET/);
+  assert.match(section, /Encapsulation vs Abstraction/);
+  assert.match(section, /Object Relationships/);
+  assert.match(section, /Design Quality/);
+  assert.match(section, /Equality and Hashing/);
+  assert.match(section, /Value Types, Reference Types, and Records/);
+  assert.match(section, /What is the difference between a class and an object\?/);
+  assert.match(section, /What is the difference between Encapsulation and Abstraction\?/);
+  assert.match(section, /What is the difference between Association, Aggregation, and Composition in OOP\?/);
+  assert.match(section, /What is the difference between record class and record struct in C#\?/);
+
+  answerSources.forEach((source) => {
+    assert.ok(fs.existsSync(path.join(interviewRoot, source)), `missing OOP answer source: ${source}`);
+  });
+});
+
+test('every OOP answer contains the interview answer from the PDF', () => {
+  const files = fs.readdirSync(path.join(interviewRoot, 'oop-answers'))
+    .filter((file) => file.endsWith('.html'))
+    .sort();
+
+  assert.equal(files.length, 31);
+  files.forEach((file) => {
+    const html = fs.readFileSync(path.join(interviewRoot, 'oop-answers', file), 'utf8');
+    assert.match(html, /<main data-answer-content>/);
+    assert.match(html, /class="interview-short"/);
+    assert.match(html, /class="answer-note"/);
+    assert.doesNotMatch(html, /<div class="answer-content"><\/div>/);
+  });
+
+  const bankAccount = fs.readFileSync(path.join(interviewRoot, 'oop-answers', '04-bank-account-encapsulation.html'), 'utf8');
+  const scopedSingleton = fs.readFileSync(path.join(interviewRoot, 'oop-answers', '18-scoped-inside-singleton.html'), 'utf8');
+  assert.match(bankAccount, /public void Withdraw\(decimal amount\)/);
+  assert.match(scopedSingleton, /IServiceScopeFactory/);
+});
+
+test('every OOP interview answer shows one Persian translation below the English answer', () => {
+  const files = fs.readdirSync(path.join(interviewRoot, 'oop-answers'))
+    .filter((file) => file.endsWith('.html'))
+    .sort();
+
+  assert.equal(files.length, 31);
+  files.forEach((file) => {
+    const html = fs.readFileSync(path.join(interviewRoot, 'oop-answers', file), 'utf8');
+    const englishAnswerIndex = html.indexOf('class="interview-short"');
+    const persianTranslationIndex = html.indexOf('class="interview-translation"');
+
+    assert.ok(englishAnswerIndex >= 0, `missing English interview answer: ${file}`);
+    assert.ok(persianTranslationIndex > englishAnswerIndex, `Persian translation must follow the English answer: ${file}`);
+    assert.equal((html.match(/class="interview-translation"/g) ?? []).length, 1, `expected one Persian translation: ${file}`);
+    assert.match(html, /class="interview-translation" lang="fa" dir="rtl"/);
+  });
+
+  const firstAnswer = fs.readFileSync(path.join(interviewRoot, 'oop-answers', '01-class-vs-object.html'), 'utf8');
+  const lastAnswer = fs.readFileSync(path.join(interviewRoot, 'oop-answers', '31-record-class-vs-record-struct.html'), 'utf8');
+  assert.match(firstAnswer, /نمونه‌ای از آن <bdi>Class<\/bdi> در زمان اجرا/);
+  assert.match(lastAnswer, /یکی <bdi>Reference Type<\/bdi> و دیگری <bdi>Value Type<\/bdi> است/);
 });
 
 test('the first accordion contains a complete international interview answer', () => {

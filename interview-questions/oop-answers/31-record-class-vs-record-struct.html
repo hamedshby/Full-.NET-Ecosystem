@@ -1,0 +1,10 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p><code>record class</code> is a reference type, while <code>record struct</code> is a value type. Both provide generated value-based equality, but their copy semantics differ: a record class variable copies a reference, while a record struct copies its value.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p><code>record class</code> یک <bdi>Reference Type</bdi> و <code>record struct</code> یک <bdi>Value Type</bdi> است. هر دو <bdi>Value-based Equality</bdi> تولیدشده دارند، اما <bdi>Copy Semantics</bdi> آن‌ها متفاوت است: متغیر <code>record class</code> یک Reference را کپی می‌کند، درحالی‌که <code>record struct</code> مقدارش را کپی می‌کند.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Record class and record struct example"><code>public record Person(string Name);
+public record struct Point(int X, int Y);</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> هر دو <bdi>Record</bdi> هستند و Equality مناسب تولید می‌کنند، اما یکی <bdi>Reference Type</bdi> و دیگری <bdi>Value Type</bdi> است.</aside>
+  </div>
+</main>

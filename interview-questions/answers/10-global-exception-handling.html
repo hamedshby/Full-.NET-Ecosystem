@@ -1,15 +1,905 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به How do you handle global exception handling in Web API?">
+  <meta name="description"
+    content="پاسخ کامل و مصاحبه‌محور به نحوه پیاده‌سازی Global Exception Handling در ASP.NET Core Web API.">
   <title>How do you handle global exception handling in Web API? — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>
+          In ASP.NET Core Web API, I usually handle exceptions globally instead of adding
+          try-catch blocks to every controller action. I use a centralized exception handler,
+          such as custom middleware or <code>IExceptionHandler</code>, to catch unhandled exceptions
+          from the request pipeline.
+        </p>
+
+        <p>
+          The handler logs the exception, maps known exception types to appropriate HTTP status codes,
+          and returns a consistent error response, preferably using <code>ProblemDetails</code>.
+          For example, a validation exception may return 400, a not-found exception 404,
+          a conflict exception 409, and unexpected exceptions 500.
+        </p>
+
+        <p>
+          In production, I avoid exposing stack traces or internal exception messages to the client.
+          Detailed information should be logged internally, while the API returns a safe and predictable
+          error contract.
+        </p>
+      </div>
+
+
+      <section>
+        <h4>Global Exception Handling چیست؟</h4>
+
+        <p>
+          در یک Web API، ممکن است Exception در بخش‌های مختلفی مثل Controller، Application Service،
+          Repository یا حتی Infrastructure رخ دهد.
+        </p>
+
+        <p>
+          اگر در هر Action یک <code>try-catch</code> جداگانه بنویسیم، کد تکراری، شلوغ و سخت برای نگهداری می‌شود.
+        </p>
+
+        <p>
+          برای همین بهتر است Exceptionهای مدیریت‌نشده را در یک نقطه مرکزی از Pipeline بگیریم و
+          Response استاندارد و یکسانی به Client برگردانیم.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>چرا نباید در همه Controllerها try-catch بنویسیم؟</h4>
+
+        <p>
+          استفاده از <code>try-catch</code> در تمام Actionها معمولاً باعث تکرار منطق Handling می‌شود.
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Repeated try catch example"><code>[HttpGet("{id}")]
+public async Task&lt;IActionResult&gt; Get(int id)
+{
+    try
+    {
+        var product = await _service.GetByIdAsync(id);
+        return Ok(product);
+    }
+    catch (ProductNotFoundException ex)
+    {
+        return NotFound(ex.Message);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, "Internal Server Error");
+    }
+}</code></pre>
+
+        <p>
+          اگر ده‌ها Endpoint داشته باشیم، همین منطق بارها تکرار می‌شود.
+        </p>
+
+        <p>
+          در نتیجه بهتر است Controller فقط مسئول دریافت Request و برگرداندن Result باشد
+          و Exception Handling در یک لایه مرکزی انجام شود.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>روش‌های رایج Global Exception Handling</h4>
+
+        <p>
+          در ASP.NET Core چند روش رایج برای مدیریت Exception به‌صورت سراسری وجود دارد:
+        </p>
+
+        <ul>
+          <li>استفاده از Custom Exception Middleware</li>
+          <li>استفاده از <code>UseExceptionHandler</code></li>
+          <li>استفاده از <code>IExceptionHandler</code> در نسخه‌های جدید ASP.NET Core</li>
+          <li>استفاده از Exception Filter در MVC</li>
+        </ul>
+
+        <p>
+          در پروژه‌های جدید، استفاده از <code>IExceptionHandler</code> یا
+          Exception Handling Middleware معمولاً انتخاب تمیز و مناسبی است.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>رویکرد پیشنهادی با IExceptionHandler</h4>
+
+        <p>
+          در نسخه‌های جدید ASP.NET Core می‌توان Exception Handling را با
+          <code>IExceptionHandler</code> به‌صورت متمرکز پیاده‌سازی کرد.
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Global exception handler example"><code>public sealed class GlobalExceptionHandler
+    : IExceptionHandler
+{
+    private readonly ILogger&lt;GlobalExceptionHandler&gt; _logger;
+
+    public GlobalExceptionHandler(
+        ILogger&lt;GlobalExceptionHandler&gt; logger)
+    {
+        _logger = logger;
+    }
+
+    public async ValueTask&lt;bool&gt; TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken)
+    {
+        _logger.LogError(
+            exception,
+            "Unhandled exception occurred.");
+
+        var statusCode = exception switch
+        {
+            ValidationException => StatusCodes.Status400BadRequest,
+            NotFoundException => StatusCodes.Status404NotFound,
+            ConflictException => StatusCodes.Status409Conflict,
+            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            _ => StatusCodes.Status500InternalServerError
+        };
+
+        var problemDetails = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = GetTitle(statusCode),
+            Detail = statusCode == 500
+                ? "An unexpected error occurred."
+                : exception.Message,
+            Instance = httpContext.Request.Path
+        };
+
+        httpContext.Response.StatusCode = statusCode;
+
+        await httpContext.Response.WriteAsJsonAsync(
+            problemDetails,
+            cancellationToken);
+
+        return true;
+    }
+
+    private static string GetTitle(int statusCode)
+    {
+        return statusCode switch
+        {
+            400 => "Bad Request",
+            401 => "Unauthorized",
+            404 => "Resource Not Found",
+            409 => "Conflict",
+            _ => "Internal Server Error"
+        };
+    }
+}</code></pre>
+      </section>
+
+
+      <section>
+        <h4>ثبت Exception Handler</h4>
+
+        <p>
+          بعد از ساخت Handler باید آن را در DI Container ثبت کنیم.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>builder.Services.AddExceptionHandler&lt;GlobalExceptionHandler&gt;();
+builder.Services.AddProblemDetails();</code></pre>
+
+        <p>
+          سپس Middleware مربوط به Exception Handling را به Pipeline اضافه می‌کنیم:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>app.UseExceptionHandler();</code></pre>
+
+        <p>
+          از این نقطه به بعد، Exceptionهای مدیریت‌نشده‌ای که در Pipeline بالا می‌آیند
+          می‌توانند توسط Global Handler پردازش شوند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مسیر Exception در Pipeline</h4>
+
+        <p>
+          اگر برای مثال یک Service چنین Exceptionی ایجاد کند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>public async Task&lt;Product&gt; GetProductAsync(int id)
+{
+    var product = await _repository.GetByIdAsync(id);
+
+    if (product is null)
+        throw new NotFoundException(
+            $"Product with id {id} was not found.");
+
+    return product;
+}</code></pre>
+
+        <p>
+          Controller لازم نیست Exception را بگیرد:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[HttpGet("{id}")]
+public async Task&lt;ActionResult&lt;Product&gt;&gt; Get(int id)
+{
+    var product = await _service.GetProductAsync(id);
+
+    return Ok(product);
+}</code></pre>
+
+        <p>
+          Exception از Service به سمت بالا حرکت می‌کند تا Global Exception Handler آن را دریافت کند.
+        </p>
+
+        <p>
+          سپس Handler آن را به یک HTTP Response مناسب تبدیل می‌کند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Exception Mapping چیست؟</h4>
+
+        <p>
+          یکی از وظایف مهم Global Exception Handler تبدیل Exceptionهای مختلف
+          به HTTP Status Code مناسب است.
+        </p>
+
+        <div class="answer-table" role="region" aria-label="Exception to HTTP status mapping" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>Exception</th>
+                <th>Status Code</th>
+                <th>معنی</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>ValidationException</td>
+                <td>400</td>
+                <td>ورودی Request نامعتبر است</td>
+              </tr>
+
+              <tr>
+                <td>UnauthorizedAccessException</td>
+                <td>401</td>
+                <td>Authentication معتبر نیست</td>
+              </tr>
+
+              <tr>
+                <td>ForbiddenException</td>
+                <td>403</td>
+                <td>کاربر اجازه دسترسی ندارد</td>
+              </tr>
+
+              <tr>
+                <td>NotFoundException</td>
+                <td>404</td>
+                <td>Resource پیدا نشده است</td>
+              </tr>
+
+              <tr>
+                <td>ConflictException</td>
+                <td>409</td>
+                <td>درخواست با وضعیت فعلی Resource تداخل دارد</td>
+              </tr>
+
+              <tr>
+                <td>Exception</td>
+                <td>500</td>
+                <td>خطای غیرمنتظره سمت Server</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مصاحبه‌ای:</strong>
+          نباید همه Exceptionها را به <code>500</code> تبدیل کنیم.
+          Exceptionهای شناخته‌شده باید به Status Code معنادار تبدیل شوند.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>چرا ProblemDetails مناسب است؟</h4>
+
+        <p>
+          برای اینکه Error Responseهای API ساختار ثابتی داشته باشند، بهتر است از
+          <code>ProblemDetails</code> استفاده کنیم.
+        </p>
+
+        <p>
+          نمونهٔ Response می‌تواند به این شکل باشد:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>{
+  "type": "https://httpstatuses.com/404",
+  "title": "Resource Not Found",
+  "status": 404,
+  "detail": "Product with id 100 was not found.",
+  "instance": "/api/products/100"
+}</code></pre>
+
+        <p>
+          در این حالت Client می‌تواند بدون وابستگی به متن‌های تصادفی Exception،
+          یک Error Contract مشخص داشته باشد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Response استاندارد خطا چه مزیتی دارد؟</h4>
+
+        <p>
+          داشتن یک ساختار استاندارد برای Error Response چند مزیت مهم دارد:
+        </p>
+
+        <ul>
+          <li>رفتار تمام Endpointها یکسان می‌شود.</li>
+          <li>Frontend یا Consumer راحت‌تر Errorها را پردازش می‌کند.</li>
+          <li>Logging و Monitoring ساده‌تر می‌شود.</li>
+          <li>تغییر ساختار Error در یک نقطه انجام می‌شود.</li>
+          <li>اطلاعات داخلی سیستم به شکل کنترل‌شده‌تری به Client نمایش داده می‌شود.</li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>آیا باید Exception Message را به Client برگردانیم؟</h4>
+
+        <p>
+          بستگی به نوع Exception دارد.
+        </p>
+
+        <p>
+          برای Exceptionهای شناخته‌شده مثل Validation یا Not Found، می‌توان یک Message کنترل‌شده
+          و مناسب برای Client برگرداند.
+        </p>
+
+        <p>
+          اما برای Exceptionهای غیرمنتظره بهتر است متن اصلی Exception، Stack Trace،
+          Database Error یا جزئیات داخلی Server به Client نمایش داده نشود.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>Detail = statusCode == 500
+    ? "An unexpected error occurred."
+    : exception.Message;</code></pre>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ امنیتی:</strong>
+          برگرداندن Stack Trace، Connection String، SQL Error یا اطلاعات داخلی سیستم
+          می‌تواند Information Disclosure ایجاد کند.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>Logging در Global Exception Handler</h4>
+
+        <p>
+          Global Exception Handler مکان مناسبی برای Log کردن Exceptionهای مدیریت‌نشده است.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>_logger.LogError(
+    exception,
+    "Unhandled exception occurred while processing {Method} {Path}",
+    httpContext.Request.Method,
+    httpContext.Request.Path);</code></pre>
+
+        <p>
+          در سیستم‌های Production بهتر است همراه Exception اطلاعاتی مثل موارد زیر هم ثبت شوند:
+        </p>
+
+        <ul>
+          <li>Request Path</li>
+          <li>HTTP Method</li>
+          <li>TraceId یا CorrelationId</li>
+          <li>UserId در صورت وجود</li>
+          <li>Service Name</li>
+          <li>Exception Type</li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>TraceId چه کاربردی دارد؟</h4>
+
+        <p>
+          در سیستم‌های Distributed، مخصوصاً Microserviceها، بهتر است Error Response یک
+          <bdi>TraceId</bdi> یا <bdi>CorrelationId</bdi> داشته باشد.
+        </p>
+
+        <p>
+          Client می‌تواند این شناسه را برای تیم پشتیبانی ارسال کند و توسعه‌دهنده
+          با همان شناسه Log مربوط به Request را پیدا کند.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>problemDetails.Extensions["traceId"] =
+    Activity.Current?.Id
+    ?? httpContext.TraceIdentifier;</code></pre>
+
+        <p>
+          Response می‌تواند شبیه این باشد:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>{
+  "title": "Internal Server Error",
+  "status": 500,
+  "detail": "An unexpected error occurred.",
+  "traceId": "00-a12b34c56d..."
+}</code></pre>
+      </section>
+
+
+      <section>
+        <h4>Business Exception چیست؟</h4>
+
+        <p>
+          بعضی Exceptionها نشان‌دهنده خرابی فنی نیستند؛ بلکه یک Rule تجاری رعایت نشده است.
+        </p>
+
+        <p>
+          برای مثال در سیستم پرداخت:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>if (account.Balance &lt; amount)
+{
+    throw new InsufficientBalanceException(
+        "Account balance is not sufficient.");
+}</code></pre>
+
+        <p>
+          این Exception لزوماً نباید به <code>500</code> تبدیل شود،
+          چون Server خراب نشده است؛ Request از نظر Business Rule قابل انجام نیست.
+        </p>
+
+        <p>
+          بسته به Contract سیستم، می‌توان آن را به Status Code مناسب مثل
+          <code>400</code>، <code>409</code> یا کد دیگری که برای API تعریف شده تبدیل کرد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>آیا برای هر خطا Exception ایجاد کنیم؟</h4>
+
+        <p>
+          خیر. Exception باید برای شرایط استثنایی یا شکست یک Operation استفاده شود،
+          نه برای کنترل جریان عادی برنامه.
+        </p>
+
+        <p>
+          برای مثال اگر جستجوی اختیاری هیچ نتیجه‌ای نداشته باشد،
+          ممکن است برگرداندن یک Result خالی منطقی‌تر از Throw کردن Exception باشد.
+        </p>
+
+        <p>
+          اما اگر Use Case انتظار دارد Resource حتماً وجود داشته باشد و نبودن آن باعث شکست Operation شود،
+          یک <code>NotFoundException</code> می‌تواند منطقی باشد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Exception Filter و Middleware چه تفاوتی دارند؟</h4>
+
+        <div class="answer-table" role="region" aria-label="Exception filter versus middleware" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>Middleware / IExceptionHandler</th>
+                <th>Exception Filter</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>سطح اجرا</td>
+                <td>HTTP Pipeline</td>
+                <td>MVC Pipeline</td>
+              </tr>
+
+              <tr>
+                <td>دامنه پوشش</td>
+                <td>وسیع‌تر</td>
+                <td>Controller و Actionهای MVC</td>
+              </tr>
+
+              <tr>
+                <td>مناسب برای Global Handling</td>
+                <td>بسیار مناسب</td>
+                <td>مناسب در سناریوهای MVC-specific</td>
+              </tr>
+
+              <tr>
+                <td>وابستگی به MVC</td>
+                <td>کمتر</td>
+                <td>بیشتر</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          به همین دلیل برای Error Handling عمومی Web API معمولاً Middleware یا
+          <code>IExceptionHandler</code> انتخاب عمومی‌تری است.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>نمونه با Custom Middleware</h4>
+
+        <p>
+          روش کلاسیک دیگر، ساخت Custom Middleware است.
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Custom exception middleware example"><code>public sealed class ExceptionHandlingMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger&lt;ExceptionHandlingMiddleware&gt; _logger;
+
+    public ExceptionHandlingMiddleware(
+        RequestDelegate next,
+        ILogger&lt;ExceptionHandlingMiddleware&gt; logger)
+    {
+        _next = next;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Unhandled exception occurred.");
+
+            await HandleExceptionAsync(
+                context,
+                exception);
+        }
+    }
+
+    private static async Task HandleExceptionAsync(
+        HttpContext context,
+        Exception exception)
+    {
+        var statusCode = exception switch
+        {
+            NotFoundException
+                => StatusCodes.Status404NotFound,
+
+            ValidationException
+                => StatusCodes.Status400BadRequest,
+
+            ConflictException
+                => StatusCodes.Status409Conflict,
+
+            _
+                => StatusCodes.Status500InternalServerError
+        };
+
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = statusCode == 500
+                ? "Internal Server Error"
+                : exception.GetType().Name,
+
+            Detail = statusCode == 500
+                ? "An unexpected error occurred."
+                : exception.Message
+        };
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+}</code></pre>
+
+        <p>
+          سپس Middleware را در Pipeline ثبت می‌کنیم:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>app.UseMiddleware&lt;ExceptionHandlingMiddleware&gt;();</code></pre>
+      </section>
+
+
+      <section>
+        <h4>ترتیب Middleware اهمیت دارد؟</h4>
+
+        <p>
+          بله. Exception Handling Middleware باید به اندازه کافی در ابتدای Pipeline قرار بگیرد
+          تا بتواند Exceptionهای Middlewareها و Endpointهای بعد از خودش را Catch کند.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>app.UseExceptionHandler();
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();</code></pre>
+
+        <p>
+          Middleware فقط می‌تواند Exceptionهایی را Catch کند که در Middlewareهای بعد از خودش رخ می‌دهند.
+        </p>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مصاحبه‌ای:</strong>
+          Middleware Pipeline در ASP.NET Core به شکل زنجیره‌ای است.
+          Exception Handling Middleware باید قبل از بخش‌هایی قرار بگیرد که قصد داریم Exceptionهایشان را مدیریت کنیم.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>Validation Errorها را چطور مدیریت کنیم؟</h4>
+
+        <p>
+          همه Validation Errorها الزاماً Exception نیستند.
+        </p>
+
+        <p>
+          برای مثال در Controllerهایی که از <code>[ApiController]</code> استفاده می‌کنند،
+          خطاهای Model Validation معمولاً قبل از اجرای Action به‌صورت خودکار به
+          <code>400 Bad Request</code> تبدیل می‌شوند.
+        </p>
+
+        <p>
+          اما اگر در Application Layer از Validation Library یا Validation Service استفاده کنیم
+          و ValidationException ایجاد شود، می‌توان آن را در Global Exception Handler مدیریت کرد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Cancellation را نباید به‌عنوان Error معمولی در نظر گرفت</h4>
+
+        <p>
+          اگر Client اتصال را قطع کند یا Request Cancel شود، ممکن است
+          <code>OperationCanceledException</code> یا <code>TaskCanceledException</code> ایجاد شود.
+        </p>
+
+        <p>
+          در بسیاری از سیستم‌ها این مورد نباید مانند یک Server Error واقعی با Severity بالا Log شود.
+        </p>
+
+        <p>
+          بنابراین بهتر است Cancellation را از Exceptionهای واقعی تفکیک کنیم.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>catch (OperationCanceledException)
+    when (context.RequestAborted.IsCancellationRequested)
+{
+    // Client cancelled the request.
+}</code></pre>
+      </section>
+
+
+      <section>
+        <h4>در Production چه اطلاعاتی نباید برگردانیم؟</h4>
+
+        <p>
+          در محیط Production نباید اطلاعات فنی حساس را داخل Error Response قرار دهیم.
+        </p>
+
+        <ul>
+          <li>Stack Trace</li>
+          <li>Database Connection String</li>
+          <li>SQL Query</li>
+          <li>File System Path</li>
+          <li>Server Information</li>
+          <li>Secret و Token</li>
+          <li>جزئیات داخلی Exceptionهای Infrastructure</li>
+        </ul>
+
+        <p>
+          این اطلاعات باید در Logging System ثبت شوند، نه اینکه برای Client ارسال شوند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>یک معماری تمیز برای Exception Handling</h4>
+
+        <p>
+          یک جریان مناسب در سیستم می‌تواند به این شکل باشد:
+        </p>
+
+        <ol>
+          <li>Domain یا Application Layer یک Exception معنادار ایجاد می‌کند.</li>
+
+          <li>Exception بدون Catch غیرضروری به سمت API Layer حرکت می‌کند.</li>
+
+          <li>Global Exception Handler آن را دریافت می‌کند.</li>
+
+          <li>Exception در Logging System ثبت می‌شود.</li>
+
+          <li>نوع Exception به HTTP Status Code مناسب Mapping می‌شود.</li>
+
+          <li>یک <code>ProblemDetails</code> استاندارد ساخته می‌شود.</li>
+
+          <li>اطلاعات حساس حذف می‌شوند.</li>
+
+          <li>TraceId به Response اضافه می‌شود.</li>
+
+          <li>Response استاندارد به Client برگردانده می‌شود.</li>
+        </ol>
+      </section>
+
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+
+        <p>
+          Global Exception Handler را می‌توان مثل آخرین دروازهٔ کنترل خطا در API تصور کرد.
+        </p>
+
+        <p>
+          هر بخشی از سیستم ممکن است یک مشکل ایجاد کند، اما به‌جای اینکه هر بخش تصمیم بگیرد
+          چه Responseی به Client بدهد، Exception را به نقطه مرکزی می‌فرستد.
+        </p>
+
+        <p>
+          آن نقطه مرکزی تصمیم می‌گیرد خطا چگونه Log شود، چه Status Code داشته باشد
+          و Client چه Responseای دریافت کند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>اشتباهات رایج در Exception Handling</h4>
+
+        <ul>
+          <li>
+            استفاده از <code>try-catch</code> در تمام Controllerها
+          </li>
+
+          <li>
+            برگرداندن تمام Exceptionها با Status Code برابر 500
+          </li>
+
+          <li>
+            برگرداندن مستقیم <code>exception.Message</code> برای Exceptionهای ناشناخته
+          </li>
+
+          <li>
+            ارسال Stack Trace به Client
+          </li>
+
+          <li>
+            Log نکردن Exceptionهای غیرمنتظره
+          </li>
+
+          <li>
+            Log کردن یک Exception چند بار در لایه‌های مختلف
+          </li>
+
+          <li>
+            استفاده از Exception برای کنترل جریان عادی برنامه
+          </li>
+
+          <li>
+            نداشتن Error Contract یکسان بین Endpointها
+          </li>
+
+          <li>
+            نداشتن TraceId یا CorrelationId در سیستم‌های Distributed
+          </li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>نکات مهم مصاحبه‌ای</h4>
+
+        <ul>
+          <li>
+            در Web API بهتر است Exception Handling در یک نقطه مرکزی انجام شود.
+          </li>
+
+          <li>
+            در ASP.NET Core می‌توان از <code>IExceptionHandler</code>،
+            Middleware یا <code>UseExceptionHandler</code> استفاده کرد.
+          </li>
+
+          <li>
+            در Handler بهتر است Exceptionهای شناخته‌شده به HTTP Status Code مناسب Mapping شوند.
+          </li>
+
+          <li>
+            برای Error Response استاندارد، استفاده از <code>ProblemDetails</code> انتخاب مناسبی است.
+          </li>
+
+          <li>
+            در Production نباید Stack Trace یا جزئیات داخلی Exception برای Client ارسال شود.
+          </li>
+
+          <li>
+            Exceptionهای غیرمنتظره باید Log شوند و معمولاً پاسخ 500 دریافت می‌کنند.
+          </li>
+
+          <li>
+            در سیستم‌های Distributed بهتر است TraceId یا CorrelationId در Log و Response وجود داشته باشد.
+          </li>
+
+          <li>
+            در Controller بهتر است از <code>try-catch</code>های تکراری جلوگیری شود.
+          </li>
+        </ul>
+      </section>
+
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+
+        <p>
+          در ASP.NET Core Web API، برای مدیریت Exceptionها معمولاً از یک Global Exception Handler
+          مثل <code>IExceptionHandler</code> یا یک Middleware مرکزی استفاده می‌کنم،
+          تا مجبور نباشم در تمام Controllerها <code>try-catch</code> تکراری بنویسم.
+        </p>
+
+        <p>
+          Handler Exception را Log می‌کند، نوع آن را به HTTP Status Code مناسب تبدیل می‌کند
+          و یک Response استاندارد مثل <code>ProblemDetails</code> به Client برمی‌گرداند.
+          برای مثال Validation Error می‌تواند 400، Resource پیدا نشده 404،
+          Conflict برابر 409 و Exception غیرمنتظره برابر 500 باشد.
+        </p>
+
+        <p>
+          در Production جزئیات داخلی مثل Stack Trace و Database Error برای Client ارسال نمی‌شوند.
+          این اطلاعات فقط Log می‌شوند و بهتر است یک TraceId هم در Response وجود داشته باشد
+          تا بتوان Request را در Logging یا Distributed Tracing پیدا کرد.
+        </p>
+      </section>
+
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+
+        <a href="https://learn.microsoft.com/aspnet/core/fundamentals/error-handling">
+          Microsoft Learn — Handle errors in ASP.NET Core
+        </a>
+
+        <a href="https://learn.microsoft.com/dotnet/api/microsoft.aspnetcore.diagnostics.iexceptionhandler">
+          Microsoft Learn — IExceptionHandler
+        </a>
+
+        <a href="https://learn.microsoft.com/aspnet/core/web-api/handle-errors">
+          Microsoft Learn — Handle errors in ASP.NET Core Web APIs
+        </a>
+
+        <a href="https://www.rfc-editor.org/rfc/rfc9457">
+          RFC 9457 — Problem Details for HTTP APIs
+        </a>
+      </footer>
+
+    </div>
   </main>
 </body>
+
 </html>

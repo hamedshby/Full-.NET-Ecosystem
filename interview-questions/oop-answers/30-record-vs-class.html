@@ -1,0 +1,13 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>A record is useful for data-centric types where value-based equality is important. Records are commonly used with immutable-style designs, but they are not required to be immutable. A normal class uses reference-based equality by default unless equality is customized.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p><bdi>Record</bdi> برای Typeهای Data-centric مناسب است که <bdi>Value-based Equality</bdi> در آن‌ها اهمیت دارد. <bdi>Record</bdi>ها معمولاً در طراحی‌های Immutable-style استفاده می‌شوند، اما اجباری نیست که Immutable باشند. یک <bdi>Class</bdi> معمولی، تا زمانی که Equality شخصی‌سازی نشده باشد، به‌صورت پیش‌فرض از <bdi>Reference-based Equality</bdi> استفاده می‌کند.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Record value equality example"><code>public record Person(string Name, int Age);
+
+var p1 = new Person("Hamed", 40);
+var p2 = new Person("Hamed", 40);
+Console.WriteLine(p1 == p2); // true</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> هدف اصلی <bdi>Record</bdi> فقط Immutable بودن نیست؛ <bdi>Value Equality</bdi> و <bdi>Data-centric Modeling</bdi> مهم‌ترند.</aside>
+  </div>
+</main>

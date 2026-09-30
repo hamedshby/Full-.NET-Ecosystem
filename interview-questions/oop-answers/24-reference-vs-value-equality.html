@@ -1,0 +1,15 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>Reference equality checks whether two references point to the same object instance. Value equality checks whether two objects are logically equal based on their values, even if they are different instances.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p><bdi>Reference Equality</bdi> بررسی می‌کند که آیا دو Reference به یک نمونهٔ واحد از <bdi>Object</bdi> اشاره می‌کنند یا نه. <bdi>Value Equality</bdi> بررسی می‌کند که آیا دو <bdi>Object</bdi> بر اساس مقادیرشان از نظر منطقی برابرند، حتی اگر نمونه‌های متفاوتی باشند.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Reference equality example"><code>var a = new Person { Name = "Hamed" };
+var b = a;
+ReferenceEquals(a, b); // true
+
+var x = new Person { Name = "Hamed" };
+var y = new Person { Name = "Hamed" };
+ReferenceEquals(x, y); // false</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> کپی‌کردن یک Reference با <bdi>Equality</bdi> یکی نیست؛ <bdi>Equality</bdi> دربارهٔ مقایسه است، نه صرفاً Assignment.</aside>
+  </div>
+</main>

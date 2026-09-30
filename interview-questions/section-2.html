@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="۳۱ پرسش و پاسخ مصاحبهٔ OOP و .NET دربارهٔ Encapsulation، Inheritance، Polymorphism، Composition، Equality، Struct و Record.">
+  <title>سوالات مصاحبه OOP از چت جی پی تی | آکادمی دات‌نت</title>
+  <link rel="stylesheet" href="styles.css?v=20260928">
+  <script src="answers.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#questions">پرش به سوالات</a>
+  <header class="page-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html">آکادمی دات‌نت</a>
+      <a class="back-link" href="index.html">همهٔ مجموعه‌ها</a>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <main id="questions">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="index.html">سوالات مصاحبه</a><span aria-hidden="true">/</span><span>بخش دوم</span></nav>
+      <p class="eyebrow">سوالات بخش دوم</p>
+      <h1>سوالات مصاحبه OOP از چت جی پی تی</h1>
+      <p class="intro">این مجموعه شامل ۳۱ پرسش و پاسخ کوتاه و مناسب مصاحبه است. برای دیدن پاسخ، ترجمهٔ فارسی، مثال کد و نکتهٔ هر سؤال، روی آن کلیک کنید.</p>
+
+      <section class="question-group" aria-labelledby="classes-title">
+        <header class="group-heading"><h2 id="classes-title" dir="ltr">Classes, Objects, State, and Encapsulation</h2><span>6 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">01</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between a class and an object?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/01-class-vs-object.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">02</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between a field and a property, and why do we usually avoid public fields?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/02-field-vs-property.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">03</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is a constructor, and how can it help create an object in a valid state?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/03-constructor-valid-state.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">04</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">How would you redesign BankAccount so Balance cannot become negative?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/04-bank-account-encapsulation.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">05</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">Why use public decimal Balance { get; private set; } instead of a public setter?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/05-private-set.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">06</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">Should checking Balance &gt;= amount be the responsibility of the service or the BankAccount domain object?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/06-business-rule-ownership.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="inheritance-title">
+        <header class="group-heading"><h2 id="inheritance-title" dir="ltr">Inheritance and Polymorphism</h2><span>4 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">07</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is inheritance, and what does CardPayment inherit from Payment?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/07-inheritance.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">08</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between private, protected, and public?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/08-access-modifiers.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">09</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What will be printed by Payment payment = new CardPayment(); payment.Pay(); and why?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/09-runtime-polymorphism.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">10</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between overloading and overriding?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/10-overloading-vs-overriding.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="abstraction-title">
+        <header class="group-heading"><h2 id="abstraction-title" dir="ltr">Abstraction, Interfaces, and Composition</h2><span>5 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">11</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is abstraction, and why use an abstract Payment class?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/11-abstraction.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">12</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between an interface and an abstract class?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/12-interface-vs-abstract-class.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">13</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">When would you choose an interface instead of an abstract class?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/13-choose-interface.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">14</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">For Car and Engine, should Car inherit Engine or contain Engine?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/14-composition-vs-inheritance.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">15</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">For OrderService and EmailService, is inheritance or composition better?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/15-composition-safer.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="di-title">
+        <header class="group-heading"><h2 id="di-title" dir="ltr">Dependency Injection in .NET</h2><span>3 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">16</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is Dependency Injection, and why is it useful in .NET applications?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/16-dependency-injection.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">17</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between Transient, Scoped, and Singleton?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/17-di-lifetimes.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">18</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is wrong with injecting a Scoped service into a Singleton service?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/18-scoped-inside-singleton.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="comparison-title">
+        <header class="group-heading"><h2 id="comparison-title" dir="ltr">Encapsulation vs Abstraction</h2><span>1 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">19</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between Encapsulation and Abstraction?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/19-encapsulation-vs-abstraction.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="relationships-title">
+        <header class="group-heading"><h2 id="relationships-title" dir="ltr">Object Relationships</h2><span>1 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">20</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between Association, Aggregation, and Composition in OOP?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/20-association-aggregation-composition.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="design-quality-title">
+        <header class="group-heading"><h2 id="design-quality-title" dir="ltr">Design Quality</h2><span>3 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">21</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is cohesion in OOP, and why is high cohesion good?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/21-cohesion.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">22</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is coupling in OOP, and why do we usually prefer low coupling?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/22-coupling.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">23</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">Why do we usually want high cohesion and low coupling in software design?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/23-high-cohesion-low-coupling.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="equality-title">
+        <header class="group-heading"><h2 id="equality-title" dir="ltr">Equality and Hashing</h2><span>3 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">24</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between reference equality and value equality in C#?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/24-reference-vs-value-equality.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">25</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between == and Equals() in C#?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/25-operator-vs-equals.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">26</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">Why should we override GetHashCode() when we override Equals()?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/26-gethashcode-with-equals.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+
+      <section class="question-group" aria-labelledby="type-semantics-title">
+        <header class="group-heading"><h2 id="type-semantics-title" dir="ltr">Value Types, Reference Types, and Records</h2><span>5 سوال</span></header>
+        <div class="qa-list">
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">27</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between value types and reference types in C#?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/27-value-vs-reference-type.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">28</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between a class and a struct in C#?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/28-class-vs-struct.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">29</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">When would you choose a struct instead of a class in C#?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/29-when-to-use-struct.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">30</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between a record and a class in C#?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/30-record-vs-class.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+          <details class="qa-card"><summary class="question-pane"><span class="question-number" aria-hidden="true">31</span><span class="question-copy"><span class="question-title" dir="ltr" lang="en">What is the difference between record class and record struct in C#?</span></span><span class="accordion-icon" aria-hidden="true"></span></summary><div class="answer-pane"><div class="answer-loader" data-answer-src="oop-answers/31-record-class-vs-record-struct.html" aria-live="polite"><p class="answer-loading">پاسخ با بازشدن این سوال بارگذاری می‌شود.</p></div></div></details>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

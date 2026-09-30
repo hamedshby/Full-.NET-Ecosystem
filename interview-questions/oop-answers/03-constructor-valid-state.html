@@ -1,0 +1,19 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>A constructor is a special member of a class with the same name as the class and no return type. We use it to initialize an object. It can receive parameters, validate them, and ensure that the object starts in a valid state.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p><bdi>Constructor</bdi> عضو ویژه‌ای از <bdi>Class</bdi> است که نامی یکسان با <bdi>Class</bdi> دارد و <bdi>Return Type</bdi> ندارد. از آن برای مقداردهی اولیهٔ <bdi>Object</bdi> استفاده می‌کنیم. <bdi>Constructor</bdi> می‌تواند Parameter دریافت کند، آن‌ها را اعتبارسنجی کند و مطمئن شود که <bdi>Object</bdi> از ابتدا در یک <bdi>State</bdi> معتبر ساخته می‌شود.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Constructor validation example"><code>public Payment(decimal amount, string referenceNumber)
+{
+    if (amount &lt;= 0)
+        throw new ArgumentOutOfRangeException(nameof(amount));
+
+    if (string.IsNullOrWhiteSpace(referenceNumber))
+        throw new ArgumentException("Reference number is required.");
+
+    Amount = amount;
+    ReferenceNumber = referenceNumber;
+}</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> <bdi>Constructor</bdi> می‌تواند از همان لحظهٔ ساخت، قوانین اولیه را <bdi>enforce</bdi> کند.</aside>
+  </div>
+</main>

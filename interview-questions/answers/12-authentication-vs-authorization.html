@@ -1,15 +1,860 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به Authentication vs Authorization?">
-  <title>Authentication vs Authorization? — پاسخ مصاحبه | آکادمی دات‌نت</title>
+  <meta name="description"
+    content="پاسخ کامل و مصاحبه‌محور به تفاوت Authentication و Authorization در ASP.NET Core Web API.">
+  <title>Authentication vs Authorization — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>
+          <strong>Authentication</strong> answers the question
+          <strong>"Who are you?"</strong>, while <strong>Authorization</strong>
+          answers <strong>"What are you allowed to do?"</strong>.
+        </p>
+
+        <p>
+          Authentication happens first. The system verifies the user's identity,
+          for example by validating a username and password, cookie, API key,
+          or JWT access token. If authentication succeeds, ASP.NET Core creates
+          a <code>ClaimsPrincipal</code> representing the authenticated user.
+        </p>
+
+        <p>
+          Authorization happens after authentication. It uses information such as
+          roles, claims, permissions, or policies to determine whether that user
+          is allowed to access a specific endpoint or resource.
+        </p>
+      </div>
+
+
+      <section>
+        <h4>Authentication چیست؟</h4>
+
+        <p>
+          در <bdi>Authentication</bdi> هدف این است که سیستم مشخص کند کاربر واقعاً چه کسی است.
+        </p>
+
+        <p>
+          یعنی سؤال اصلی این است:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>Who are you?</code></pre>
+
+        <p>
+          برای مثال وقتی کاربر Username و Password وارد می‌کند، سیستم اطلاعات او را بررسی می‌کند.
+          اگر اطلاعات صحیح باشد، هویت کاربر تأیید می‌شود.
+        </p>
+
+        <p>
+          در Web API، Authentication می‌تواند با روش‌های مختلف انجام شود؛ برای مثال:
+        </p>
+
+        <ul>
+          <li>Username و Password</li>
+          <li>JWT Bearer Token</li>
+          <li>Cookie Authentication</li>
+          <li>API Key</li>
+          <li>OAuth 2.0 و OpenID Connect</li>
+          <li>Client Certificate</li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>Authorization چیست؟</h4>
+
+        <p>
+          بعد از اینکه هویت کاربر مشخص شد، <bdi>Authorization</bdi> بررسی می‌کند که این کاربر
+          اجازه انجام چه کارهایی را دارد.
+        </p>
+
+        <p>
+          سؤال اصلی Authorization این است:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>What are you allowed to do?</code></pre>
+
+        <p>
+          برای مثال ممکن است دو کاربر هر دو Login کرده باشند،
+          اما فقط یکی از آن‌ها Role مربوط به <code>Admin</code> داشته باشد.
+        </p>
+
+        <p>
+          در این حالت هر دو Authentication شده‌اند،
+          ولی فقط کاربر Admin برای عملیات خاص Authorization می‌شود.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مثال ساده</h4>
+
+        <p>
+          فرض کنید یک سیستم بانکی داریم.
+        </p>
+
+        <p>
+          ابتدا کاربر وارد سیستم می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>Username: hamed
+Password: ********</code></pre>
+
+        <p>
+          سیستم Username و Password را بررسی می‌کند.
+          این مرحله <bdi>Authentication</bdi> است.
+        </p>
+
+        <p>
+          سپس کاربر درخواست زیر را ارسال می‌کند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>DELETE /api/users/100</code></pre>
+
+        <p>
+          سیستم بررسی می‌کند که آیا کاربر اجازه حذف User را دارد یا نه.
+          این مرحله <bdi>Authorization</bdi> است.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مقایسهٔ کلی</h4>
+
+        <div class="answer-table" role="region" aria-label="Authentication versus Authorization" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>ویژگی</th>
+                <th>Authentication</th>
+                <th>Authorization</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>سؤال اصلی</td>
+                <td>کاربر چه کسی است؟</td>
+                <td>کاربر چه کاری اجازه دارد انجام دهد؟</td>
+              </tr>
+
+              <tr>
+                <td>زمان اجرا</td>
+                <td>اول</td>
+                <td>بعد از Authentication</td>
+              </tr>
+
+              <tr>
+                <td>هدف</td>
+                <td>تأیید هویت</td>
+                <td>بررسی مجوز دسترسی</td>
+              </tr>
+
+              <tr>
+                <td>نمونه</td>
+                <td>Login یا Token Validation</td>
+                <td>Role، Permission یا Policy Check</td>
+              </tr>
+
+              <tr>
+                <td>نتیجه</td>
+                <td>Authenticated User</td>
+                <td>Allow یا Deny</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section>
+        <h4>ترتیب Authentication و Authorization</h4>
+
+        <p>
+          Authentication همیشه باید قبل از Authorization انجام شود.
+        </p>
+
+        <p>
+          ترتیب کلی به شکل زیر است:
+        </p>
+
+        <ol>
+          <li>Client یک Request ارسال می‌کند.</li>
+
+          <li>سیستم Credential یا Token را دریافت می‌کند.</li>
+
+          <li>Authentication اطلاعات هویتی را بررسی می‌کند.</li>
+
+          <li>اگر معتبر باشد، User Identity ساخته می‌شود.</li>
+
+          <li>Claimهای کاربر در دسترس قرار می‌گیرند.</li>
+
+          <li>Authorization بررسی می‌کند آیا کاربر اجازه دسترسی دارد یا نه.</li>
+
+          <li>اگر مجاز باشد، Endpoint اجرا می‌شود.</li>
+
+          <li>اگر مجاز نباشد، Request رد می‌شود.</li>
+        </ol>
+      </section>
+
+
+      <section>
+        <h4>Authentication در ASP.NET Core</h4>
+
+        <p>
+          در ASP.NET Core ابتدا Authentication Scheme را مشخص می‌کنیم.
+        </p>
+
+        <p>
+          برای مثال در JWT Authentication:
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Authentication configuration"><code>builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer =
+                    builder.Configuration["Jwt:Issuer"],
+
+                ValidAudience =
+                    builder.Configuration["Jwt:Audience"],
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]!))
+            };
+    });</code></pre>
+
+        <p>
+          سپس Authentication Middleware به Pipeline اضافه می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>app.UseAuthentication();</code></pre>
+      </section>
+
+
+      <section>
+        <h4>بعد از Authentication چه اتفاقی می‌افتد؟</h4>
+
+        <p>
+          اگر Authentication موفق باشد، ASP.NET Core اطلاعات User را داخل
+          <code>HttpContext.User</code> قرار می‌دهد.
+        </p>
+
+        <p>
+          این Object معمولاً از نوع <code>ClaimsPrincipal</code> است.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>var user = HttpContext.User;
+
+var username = User.Identity?.Name;
+
+var userId =
+    User.FindFirst(ClaimTypes.NameIdentifier)?.Value;</code></pre>
+
+        <p>
+          از این لحظه سیستم هویت کاربر را می‌شناسد،
+          اما هنوز باید مشخص شود که کاربر اجازه انجام Operation موردنظر را دارد یا نه.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>ClaimsPrincipal چیست؟</h4>
+
+        <p>
+          در ASP.NET Core، بعد از Authentication معمولاً اطلاعات کاربر در قالب
+          <code>ClaimsPrincipal</code> نمایش داده می‌شود.
+        </p>
+
+        <p>
+          این Object شامل Identity و Claimهای مربوط به User است.
+        </p>
+
+        <p>
+          برای مثال:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>UserId = 100
+Username = hamed
+Role = Admin
+Permission = users.delete
+Permission = users.read</code></pre>
+
+        <p>
+          Authorization می‌تواند از همین اطلاعات برای تصمیم‌گیری استفاده کند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Authorization با [Authorize]</h4>
+
+        <p>
+          ساده‌ترین حالت Authorization در ASP.NET Core استفاده از
+          <code>[Authorize]</code> است.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[Authorize]
+[HttpGet("profile")]
+public IActionResult GetProfile()
+{
+    return Ok();
+}</code></pre>
+
+        <p>
+          در این حالت هر کاربری که Authentication شده باشد می‌تواند Endpoint را اجرا کند.
+        </p>
+
+        <p>
+          کاربر Anonymous اجازه دسترسی ندارد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Role-based Authorization</h4>
+
+        <p>
+          می‌توانیم دسترسی را براساس Role محدود کنیم.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[Authorize(Roles = "Admin")]
+[HttpDelete("{id}")]
+public IActionResult DeleteUser(int id)
+{
+    ...
+}</code></pre>
+
+        <p>
+          در این حالت تنها Authentication کافی نیست.
+          کاربر باید علاوه بر Authentication، Role برابر <code>Admin</code> هم داشته باشد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Claim-based Authorization</h4>
+
+        <p>
+          Authorization می‌تواند بر اساس Claim نیز انجام شود.
+        </p>
+
+        <p>
+          برای مثال ممکن است کاربر Claim زیر را داشته باشد:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>permission = payments.refund</code></pre>
+
+        <p>
+          سپس سیستم بررسی می‌کند که آیا این Claim برای Operation موردنظر وجود دارد یا نه.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Policy-based Authorization</h4>
+
+        <p>
+          در پروژه‌های بزرگ‌تر معمولاً استفاده از Policy انعطاف بیشتری نسبت به
+          Role-based Authorization دارد.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        "CanRefundPayment",
+        policy =>
+        {
+            policy.RequireClaim(
+                "permission",
+                "payments.refund");
+        });
+});</code></pre>
+
+        <p>
+          سپس می‌توان Policy را روی Endpoint استفاده کرد:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[Authorize(Policy = "CanRefundPayment")]
+[HttpPost("{id}/refund")]
+public IActionResult RefundPayment(long id)
+{
+    ...
+}</code></pre>
+
+        <p>
+          این روش باعث می‌شود قوانین Authorization از Controller جدا شوند
+          و قابلیت نگهداری سیستم بهتر شود.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Permission-based Authorization</h4>
+
+        <p>
+          در بسیاری از سیستم‌های Enterprise، استفاده مستقیم از Role کافی نیست.
+        </p>
+
+        <p>
+          برای مثال به‌جای اینکه بگوییم فقط Admin اجازه Refund دارد،
+          می‌توانیم Permission دقیق‌تری تعریف کنیم:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>payments.read
+payments.create
+payments.refund
+payments.cancel</code></pre>
+
+        <p>
+          سپس Roleهای مختلف می‌توانند مجموعه متفاوتی از Permissionها داشته باشند.
+        </p>
+
+        <p>
+          این رویکرد انعطاف بیشتری نسبت به Hard-code کردن Role داخل Controller دارد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Authentication Failure چه Status Code دارد؟</h4>
+
+        <p>
+          اگر User Authentication نشده باشد یا Token معتبر نباشد،
+          معمولاً پاسخ زیر برگردانده می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>401 Unauthorized</code></pre>
+
+        <p>
+          برای مثال:
+        </p>
+
+        <ul>
+          <li>Token ارسال نشده است.</li>
+          <li>Token منقضی شده است.</li>
+          <li>Signature معتبر نیست.</li>
+          <li>Credential اشتباه است.</li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>Authorization Failure چه Status Code دارد؟</h4>
+
+        <p>
+          اگر User Authentication شده باشد ولی اجازه دسترسی به Resource را نداشته باشد،
+          معمولاً پاسخ زیر برگردانده می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>403 Forbidden</code></pre>
+
+        <p>
+          یعنی سیستم می‌داند User چه کسی است،
+          ولی User مجوز لازم برای Operation موردنظر را ندارد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>تفاوت 401 و 403</h4>
+
+        <div class="answer-table" role="region" aria-label="401 versus 403" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>Status Code</th>
+                <th>وضعیت</th>
+                <th>معنی</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>401 Unauthorized</td>
+                <td>Authentication Failure</td>
+                <td>User به‌درستی احراز هویت نشده است</td>
+              </tr>
+
+              <tr>
+                <td>403 Forbidden</td>
+                <td>Authorization Failure</td>
+                <td>User احراز هویت شده ولی Permission لازم را ندارد</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مصاحبه‌ای:</strong>
+          اگر JWT نامعتبر یا Expired باشد معمولاً 401 دریافت می‌کنیم؛
+          اما اگر JWT معتبر باشد و User Permission لازم را نداشته باشد معمولاً 403 دریافت می‌کنیم.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>Middleware Order</h4>
+
+        <p>
+          در ASP.NET Core ترتیب Authentication و Authorization Middleware اهمیت دارد.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();</code></pre>
+
+        <p>
+          ابتدا Authentication باید User را شناسایی کند و
+          <code>HttpContext.User</code> را بسازد.
+        </p>
+
+        <p>
+          سپس Authorization از اطلاعات همان User برای بررسی Permission استفاده می‌کند.
+        </p>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مهم:</strong>
+          اگر ترتیب این دو Middleware اشتباه باشد، Authorization اطلاعات Authentication
+          موردنیاز خود را در اختیار نخواهد داشت.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>مثال End-to-End با JWT</h4>
+
+        <p>
+          فرض کنید User ابتدا Login می‌کند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>POST /api/auth/login
+
+{
+  "username": "hamed",
+  "password": "..."
+}</code></pre>
+
+        <p>
+          اگر Credential معتبر باشد، Server یک JWT صادر می‌کند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs..."
+}</code></pre>
+
+        <p>
+          Client در Request بعدی Token را ارسال می‌کند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</code></pre>
+
+        <p>
+          Authentication Middleware ابتدا Token را Validate می‌کند.
+        </p>
+
+        <p>
+          سپس ClaimsPrincipal ساخته می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>UserId = 100
+Role = PaymentOperator
+Permission = payments.read
+Permission = payments.refund</code></pre>
+
+        <p>
+          بعد Authorization بررسی می‌کند که آیا Endpoint موردنظر به Permission
+          <code>payments.refund</code> نیاز دارد یا نه.
+        </p>
+
+        <p>
+          اگر User این Permission را داشته باشد، Request اجازه اجرا می‌گیرد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>آیا Authentication به معنی Authorization است؟</h4>
+
+        <p>
+          خیر. این یکی از اشتباهات رایج است.
+        </p>
+
+        <p>
+          Authentication فقط ثابت می‌کند User چه کسی است.
+          این به این معنی نیست که User اجازه انجام همه عملیات سیستم را دارد.
+        </p>
+
+        <p>
+          برای مثال یک Customer و یک Admin هر دو می‌توانند Authentication شوند،
+          ولی سطح دسترسی آن‌ها متفاوت است.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>آیا Authorization بدون Authentication ممکن است؟</h4>
+
+        <p>
+          در بیشتر Endpointهای محافظت‌شده، ابتدا باید User Authentication شود تا بتوانیم
+          Authorization را بر اساس Identity او انجام دهیم.
+        </p>
+
+        <p>
+          اما بعضی Ruleهای دسترسی می‌توانند برای Anonymous User نیز تعریف شوند.
+          برای مثال یک Endpoint عمومی ممکن است با <code>[AllowAnonymous]</code> قابل دسترسی باشد.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[AllowAnonymous]
+[HttpPost("login")]
+public IActionResult Login(LoginRequest request)
+{
+    ...
+}</code></pre>
+      </section>
+
+
+      <section>
+        <h4>Resource-based Authorization چیست؟</h4>
+
+        <p>
+          گاهی Permission فقط به Role یا Claim وابسته نیست و باید خود Resource هم بررسی شود.
+        </p>
+
+        <p>
+          برای مثال ممکن است User فقط اجازه ویرایش Transactionهایی را داشته باشد
+          که متعلق به Client خودش هستند.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>if (transaction.ClientId != currentUser.ClientId)
+{
+    return Forbid();
+}</code></pre>
+
+        <p>
+          این نوع بررسی را می‌توان با Resource-based Authorization و
+          <code>IAuthorizationService</code> نیز پیاده‌سازی کرد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Authentication و Authorization در Microservices</h4>
+
+        <p>
+          در معماری Microservices معمولاً Authentication در Identity Provider یا Authentication Service
+          انجام می‌شود و یک Access Token صادر می‌شود.
+        </p>
+
+        <p>
+          سپس Serviceهای مختلف Token را Validate کرده و بر اساس Claimها و Permissionها
+          Authorization انجام می‌دهند.
+        </p>
+
+        <p>
+          برای مثال:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>Client
+   |
+   | Login
+   v
+Identity Service
+   |
+   | Access Token
+   v
+Client
+   |
+   | Bearer Token
+   v
+API Gateway
+   |
+   v
+Payment Service
+   |
+   v
+Authorization</code></pre>
+
+        <p>
+          در این معماری مهم است که تمام Serviceها Issuer و Signing Key معتبر را بشناسند
+          یا از یک Identity Provider قابل اعتماد استفاده کنند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+
+        <p>
+          یک ساختمان اداری را تصور کنید.
+        </p>
+
+        <p>
+          در ورودی ساختمان، کارت شناسایی شما بررسی می‌شود تا مشخص شود چه کسی هستید.
+          این مرحله Authentication است.
+        </p>
+
+        <p>
+          بعد از ورود، برای واردشدن به اتاق سرور کارت شما دوباره بررسی می‌شود
+          تا مشخص شود آیا اجازه ورود به آن اتاق را دارید یا نه.
+          این مرحله Authorization است.
+        </p>
+
+        <p>
+          بنابراین ممکن است اجازه ورود به ساختمان را داشته باشید،
+          ولی اجازه ورود به تمام اتاق‌ها را نداشته باشید.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>اشتباهات رایج</h4>
+
+        <ul>
+          <li>
+            یکی دانستن Authentication و Authorization
+          </li>
+
+          <li>
+            بررسی Permission قبل از مشخص‌شدن Identity کاربر
+          </li>
+
+          <li>
+            استفاده از 401 به‌جای 403 برای User احراز هویت‌شده
+          </li>
+
+          <li>
+            Hard-code کردن Roleها در تمام Controllerها
+          </li>
+
+          <li>
+            نداشتن Policy یا Permission مناسب برای سیستم‌های بزرگ
+          </li>
+
+          <li>
+            اعتماد به اطلاعات ارسال‌شده از Client برای Authorization
+          </li>
+
+          <li>
+            اشتباه قراردادن ترتیب <code>UseAuthentication</code> و
+            <code>UseAuthorization</code>
+          </li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>نکات مهم مصاحبه‌ای</h4>
+
+        <ul>
+          <li>
+            در Authentication مشخص می‌کنیم User چه کسی است.
+          </li>
+
+          <li>
+            در Authorization مشخص می‌کنیم User چه کاری اجازه دارد انجام دهد.
+          </li>
+
+          <li>
+            Authentication قبل از Authorization انجام می‌شود.
+          </li>
+
+          <li>
+            بعد از Authentication موفق، ASP.NET Core معمولاً یک
+            <code>ClaimsPrincipal</code> داخل <code>HttpContext.User</code> قرار می‌دهد.
+          </li>
+
+          <li>
+            Authorization می‌تواند بر اساس Role، Claim، Permission، Policy یا Resource انجام شود.
+          </li>
+
+          <li>
+            برای Authentication ناموفق معمولاً پاسخ 401 استفاده می‌شود.
+          </li>
+
+          <li>
+            برای User احراز هویت‌شده‌ای که Permission لازم ندارد معمولاً پاسخ 403 استفاده می‌شود.
+          </li>
+
+          <li>
+            در Pipeline باید <code>UseAuthentication</code> قبل از
+            <code>UseAuthorization</code> قرار بگیرد.
+          </li>
+        </ul>
+      </section>
+
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+
+        <p>
+          در ASP.NET Core، <bdi>Authentication</bdi> مشخص می‌کند User چه کسی است،
+          در حالی که <bdi>Authorization</bdi> مشخص می‌کند آن User چه کاری اجازه دارد انجام دهد.
+        </p>
+
+        <p>
+          ابتدا Authentication با بررسی Credential، Cookie یا Token انجام می‌شود.
+          اگر موفق باشد، Framework یک <code>ClaimsPrincipal</code> ساخته و آن را در
+          <code>HttpContext.User</code> قرار می‌دهد.
+        </p>
+
+        <p>
+          سپس Authorization با استفاده از Role، Claim، Permission، Policy یا خود Resource
+          تصمیم می‌گیرد که User اجازه دسترسی به Endpoint موردنظر را دارد یا نه.
+        </p>
+
+        <p>
+          بنابراین جریان کلی به شکل
+          <bdi>Request → Authentication → Identity / ClaimsPrincipal → Authorization → Endpoint</bdi>
+          است.
+        </p>
+      </section>
+
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+
+        <a href="https://learn.microsoft.com/aspnet/core/security/authentication/">
+          Microsoft Learn — Authentication in ASP.NET Core
+        </a>
+
+        <a href="https://learn.microsoft.com/aspnet/core/security/authorization/introduction">
+          Microsoft Learn — Authorization in ASP.NET Core
+        </a>
+
+        <a href="https://learn.microsoft.com/aspnet/core/security/authorization/claims">
+          Microsoft Learn — Claims-based Authorization
+        </a>
+
+        <a href="https://learn.microsoft.com/aspnet/core/security/authorization/policies">
+          Microsoft Learn — Policy-based Authorization
+        </a>
+      </footer>
+
+    </div>
   </main>
 </body>
+
 </html>

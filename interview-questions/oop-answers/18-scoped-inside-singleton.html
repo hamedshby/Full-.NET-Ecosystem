@@ -1,0 +1,10 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>A Singleton should not directly capture a Scoped dependency because the shorter-lived dependency can effectively live as long as the Singleton. This is called a captive dependency. Usually the lifetimes should be redesigned; when appropriate, IServiceScopeFactory can create an explicit scope.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p>یک <bdi>Singleton</bdi> نباید مستقیماً یک Dependency از نوع <bdi>Scoped</bdi> را نگه دارد، زیرا آن Dependency کوتاه‌عمر عملاً ممکن است به‌اندازهٔ <bdi>Singleton</bdi> زنده بماند. به این وضعیت <bdi>Captive Dependency</bdi> گفته می‌شود. معمولاً باید Lifetimeها دوباره طراحی شوند؛ در صورت نیاز، <code>IServiceScopeFactory</code> می‌تواند یک Scope صریح ایجاد کند.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Explicit dependency injection scope example"><code>using var scope = _scopeFactory.CreateScope();
+var dbContext = scope.ServiceProvider.GetRequiredService&lt;MyDbContext&gt;();</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> این خطا را معمولاً <bdi>DI Container</bdi> هنگام <bdi>Runtime</bdi> یا <bdi>Validation</bdi> تشخیص می‌دهد؛ نه <bdi>Compile Time</bdi>.</aside>
+  </div>
+</main>

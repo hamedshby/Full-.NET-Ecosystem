@@ -1,0 +1,20 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>If Pay is virtual in Payment and overridden in CardPayment, Card Payment will be printed. The reference type is Payment, but the runtime object is CardPayment, so the overridden implementation is selected at runtime. This is runtime polymorphism.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p>اگر <code>Pay</code> در <code>Payment</code> به‌صورت <bdi>virtual</bdi> تعریف و در <code>CardPayment</code> <bdi>override</bdi> شده باشد، عبارت <bdi>Card Payment</bdi> چاپ می‌شود. Type مربوط به Reference برابر <code>Payment</code> است، اما <bdi>Object</bdi> واقعی در Runtime از نوع <code>CardPayment</code> است؛ بنابراین پیاده‌سازی <bdi>override</bdi>شده در Runtime انتخاب می‌شود. این همان <bdi>Runtime Polymorphism</bdi> است.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Runtime polymorphism example"><code>public class Payment
+{
+    public virtual void Pay() =&gt; Console.WriteLine("Payment");
+}
+
+public class CardPayment : Payment
+{
+    public override void Pay() =&gt; Console.WriteLine("Card Payment");
+}
+
+Payment payment = new CardPayment();
+payment.Pay(); // Card Payment</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> نوع <bdi>Reference</bdi> و نوع واقعی <bdi>Runtime</bdi> می‌توانند متفاوت باشند.</aside>
+  </div>
+</main>

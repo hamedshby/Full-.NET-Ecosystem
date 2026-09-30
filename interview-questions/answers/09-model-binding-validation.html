@@ -1,15 +1,562 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به How does Model Binding & Model Validation work?">
+  <meta name="description"
+    content="پاسخ کامل و مصاحبه‌محور به نحوه کار Model Binding و Model Validation در ASP.NET Core.">
   <title>How does Model Binding & Model Validation work? — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>
+          <strong>Model Binding</strong> in ASP.NET Core is the process of reading data from an HTTP request,
+          such as route values, query strings, form fields, headers, or the request body, and converting that
+          data into action method parameters or .NET objects.
+        </p>
+
+        <p>
+          After binding, <strong>Model Validation</strong> checks whether the created model satisfies the
+          validation rules defined by attributes such as <code>[Required]</code>, <code>[Range]</code>,
+          or custom validators. Any binding or validation errors are stored in <code>ModelState</code>.
+        </p>
+
+        <p>
+          When using <code>[ApiController]</code>, ASP.NET Core automatically returns
+          <strong>HTTP 400 Bad Request</strong> if the model is invalid, so we usually don't need to manually
+          check <code>ModelState.IsValid</code>.
+        </p>
+      </div>
+
+
+      <section>
+        <h4>Model Binding چیست؟</h4>
+
+        <p>
+          در ASP.NET Core، فرآیند <bdi>Model Binding</bdi> مسئول تبدیل اطلاعات خام موجود در HTTP Request
+          به پارامترهای قابل استفاده در Controller یا Endpoint است.
+        </p>
+
+        <p>
+          برای مثال فرض کنید چنین Actionی داریم:
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Model binding example"><code>[HttpGet("{id}")]
+public IActionResult GetProduct(int id, string? category)
+{
+    ...
+}</code></pre>
+
+        <p>
+          اگر Request زیر ارسال شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>GET /api/products/10?category=mobile</code></pre>
+
+        <p>
+          در این حالت، سیستم Model Binding مقدار <code>10</code> را از Route می‌خواند و به پارامتر
+          <code>id</code> تبدیل می‌کند. همچنین مقدار <code>mobile</code> را از Query String می‌خواند و در
+          پارامتر <code>category</code> قرار می‌دهد.
+        </p>
+
+        <p>
+          بنابراین، Controller لازم نیست خودش Request را Parse کند؛ این کار توسط Framework انجام می‌شود.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Model Binding داده را از کجا می‌خواند؟</h4>
+
+        <p>
+          در ASP.NET Core، داده‌های ورودی می‌توانند از بخش‌های مختلف Request خوانده شوند:
+        </p>
+
+        <ul>
+          <li>
+            از <bdi>Route Values</bdi>، مانند <code>/products/10</code>
+          </li>
+
+          <li>
+            از <bdi>Query String</bdi>، مانند <code>?page=2&amp;pageSize=20</code>
+          </li>
+
+          <li>
+            از <bdi>Request Body</bdi>، معمولاً برای JSON
+          </li>
+
+          <li>
+            از <bdi>Form Data</bdi>، مانند فرم‌های HTML یا Multipart Form
+          </li>
+
+          <li>
+            از <bdi>Headers</bdi>
+          </li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>Attributeهای مهم Model Binding</h4>
+
+        <p>
+          برای مشخص‌کردن صریح منبع داده می‌توانیم از Attributeهای زیر استفاده کنیم:
+        </p>
+
+        <div class="answer-table" role="region" aria-label="Model Binding attributes" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>منبع داده</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><code>[FromRoute]</code></td>
+                <td>خواندن از Route</td>
+              </tr>
+
+              <tr>
+                <td><code>[FromQuery]</code></td>
+                <td>خواندن از Query String</td>
+              </tr>
+
+              <tr>
+                <td><code>[FromBody]</code></td>
+                <td>خواندن از Request Body</td>
+              </tr>
+
+              <tr>
+                <td><code>[FromForm]</code></td>
+                <td>خواندن از Form Data</td>
+              </tr>
+
+              <tr>
+                <td><code>[FromHeader]</code></td>
+                <td>خواندن از HTTP Header</td>
+              </tr>
+
+              <tr>
+                <td><code>[FromServices]</code></td>
+                <td>دریافت Dependency از DI Container</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section>
+        <h4>مثال Model Binding با DTO</h4>
+
+        <p>
+          برای Requestهای پیچیده معمولاً به‌جای دریافت چند پارامتر جداگانه، از DTO استفاده می‌کنیم.
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="DTO model binding example"><code>public class CreateProductRequest
+{
+    public string Name { get; set; } = null!;
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+}
+
+[HttpPost]
+public IActionResult Create([FromBody] CreateProductRequest request)
+{
+    ...
+}</code></pre>
+
+        <p>
+          حالا اگر Client چنین JSONی ارسال کند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>{
+  "name": "Laptop",
+  "price": 1500,
+  "stock": 10
+}</code></pre>
+
+        <p>
+          ابتدا JSON توسط Input Formatter خوانده و Deserialize می‌شود و سپس یک نمونه از
+          <code>CreateProductRequest</code> ساخته می‌شود.
+        </p>
+
+        <p>
+          در ASP.NET Core، این کار معمولاً با <code>System.Text.Json</code> انجام می‌شود.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Model Validation چیست؟</h4>
+
+        <p>
+          بعد از اینکه Model Binding داده را به یک Object دات‌نت تبدیل کرد، مرحله
+          <bdi>Model Validation</bdi> شروع می‌شود.
+        </p>
+
+        <p>
+          در این مرحله، Framework بررسی می‌کند که داده‌های ورودی قوانین Validation تعریف‌شده روی مدل را رعایت می‌کنند یا
+          نه.
+        </p>
+
+        <p>
+          رایج‌ترین روش تعریف Validation استفاده از <bdi>Data Annotations</bdi> است.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مثال Validation با Data Annotation</h4>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Model validation example"><code>public class CreateProductRequest
+{
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = null!;
+
+    [Range(1, 100000)]
+    public decimal Price { get; set; }
+
+    [Range(0, 10000)]
+    public int Stock { get; set; }
+}</code></pre>
+
+        <p>
+          در این مثال، نام محصول اجباری است، طول آن نمی‌تواند بیشتر از 100 کاراکتر باشد،
+          قیمت باید در محدوده تعیین‌شده باشد و مقدار Stock هم نمی‌تواند خارج از محدوده تعریف‌شده قرار بگیرد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>ModelState چیست؟</h4>
+
+        <p>
+          تمام خطاهایی که در مراحل Model Binding و Model Validation رخ می‌دهند داخل
+          <code>ModelState</code> ذخیره می‌شوند.
+        </p>
+
+        <p>
+          برای مثال اگر کاربر برای یک فیلد عددی مقدار غیرعددی ارسال کند، خطای Binding ایجاد می‌شود.
+          اگر مقدار عددی معتبر باشد ولی قانون <code>[Range]</code> را نقض کند، خطای Validation ایجاد می‌شود.
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="ModelState example"><code>[HttpPost]
+public IActionResult Create(CreateProductRequest request)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    return Ok();
+}</code></pre>
+      </section>
+
+
+      <section>
+        <h4>تفاوت Binding Error و Validation Error</h4>
+
+        <p>
+          این دو مفهوم به هم مرتبط هستند، ولی دقیقاً یکسان نیستند.
+        </p>
+
+        <div class="answer-table" role="region" aria-label="Binding and validation errors" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>نوع خطا</th>
+                <th>مثال</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Binding Error</td>
+                <td>ارسال رشته <code>"abc"</code> برای یک فیلد از نوع <code>int</code></td>
+              </tr>
+
+              <tr>
+                <td>Validation Error</td>
+                <td>ارسال مقدار <code>-10</code> برای فیلدی که دارای <code>[Range(0, 100)]</code> است</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          در خطای Binding، Framework نتوانسته داده ورودی را به نوع موردنظر تبدیل کند.
+          اما در خطای Validation، تبدیل انجام شده است ولی مقدار تولیدشده قوانین مدل را نقض کرده است.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>نقش [ApiController]</h4>
+
+        <p>
+          زمانی که Controller با Attribute زیر مشخص شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+}</code></pre>
+
+        <p>
+          رفتارهای مفیدی به‌صورت خودکار فعال می‌شوند که یکی از مهم‌ترین آن‌ها
+          <bdi>Automatic Model Validation</bdi> است.
+        </p>
+
+        <p>
+          اگر Model معتبر نباشد، Framework قبل از اجرای Action معمولاً پاسخ
+          <code>400 Bad Request</code> برمی‌گرداند.
+        </p>
+
+        <p>
+          بنابراین معمولاً دیگر لازم نیست داخل هر Action چنین کدی بنویسیم:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>if (!ModelState.IsValid)
+{
+    return BadRequest(ModelState);
+}</code></pre>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مصاحبه‌ای:</strong>
+          در Web APIهای مدرن ASP.NET Core که از <code>[ApiController]</code> استفاده می‌کنند،
+          بررسی دستی <code>ModelState.IsValid</code> معمولاً لازم نیست.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>ترتیب کلی اجرای Request</h4>
+
+        <p>
+          یک مدل ذهنی ساده از فرآیند اجرای Request به این شکل است:
+        </p>
+
+        <ol>
+          <li>Request وارد ASP.NET Core Pipeline می‌شود.</li>
+
+          <li>Routing مشخص می‌کند کدام Endpoint یا Action باید اجرا شود.</li>
+
+          <li>Model Binding داده‌ها را از Route، Query، Body یا سایر منابع می‌خواند.</li>
+
+          <li>داده‌ها به Typeهای دات‌نت یا DTO تبدیل می‌شوند.</li>
+
+          <li>Model Validation روی Object تولیدشده اجرا می‌شود.</li>
+
+          <li>خطاهای Binding و Validation داخل <code>ModelState</code> ذخیره می‌شوند.</li>
+
+          <li>
+            در صورت استفاده از <code>[ApiController]</code>، اگر Model نامعتبر باشد،
+            معمولاً پاسخ 400 به‌صورت خودکار برگردانده می‌شود.
+          </li>
+
+          <li>اگر Model معتبر باشد، Action اجرا می‌شود.</li>
+        </ol>
+      </section>
+
+
+      <section>
+        <h4>مثال کامل</h4>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Full model binding and validation example"><code>public class CreateUserRequest
+{
+    [Required]
+    [MaxLength(100)]
+    public string Name { get; set; } = null!;
+
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = null!;
+
+    [Range(18, 120)]
+    public int Age { get; set; }
+}
+
+[ApiController]
+[Route("api/users")]
+public class UsersController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult Create([FromBody] CreateUserRequest request)
+    {
+        return Ok(request);
+    }
+}</code></pre>
+
+        <p>
+          اگر Client چنین Requestی بفرستد:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>{
+  "name": "",
+  "email": "invalid-email",
+  "age": 10
+}</code></pre>
+
+        <p>
+          ابتدا Body به <code>CreateUserRequest</code> تبدیل می‌شود. سپس Validation اجرا می‌شود و چند خطا ایجاد می‌شود:
+        </p>
+
+        <ul>
+          <li>مقدار Name معتبر نیست.</li>
+          <li>فرمت Email صحیح نیست.</li>
+          <li>مقدار Age خارج از Range مجاز است.</li>
+        </ul>
+
+        <p>
+          به دلیل وجود <code>[ApiController]</code>، معمولاً Action اجرا نمی‌شود و Framework مستقیماً پاسخ
+          <code>400 Bad Request</code> برمی‌گرداند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>آیا Validation فقط با Data Annotation انجام می‌شود؟</h4>
+
+        <p>
+          خیر. برای Validation روش‌های مختلفی وجود دارد.
+        </p>
+
+        <ul>
+          <li>استفاده از Data Annotation مانند <code>[Required]</code> و <code>[Range]</code></li>
+          <li>استفاده از Custom Validation Attribute</li>
+          <li>پیاده‌سازی <code>IValidatableObject</code></li>
+          <li>استفاده از Libraryهایی مثل FluentValidation</li>
+          <li>پیاده‌سازی Business Validation در Service یا Domain Layer</li>
+        </ul>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مهم معماری:</strong>
+          Model Validation معمولاً برای بررسی صحت ورودی HTTP مناسب است،
+          اما Business Ruleهای اصلی نباید فقط به Validation Attributeهای Controller وابسته باشند.
+          قوانین مهم Domain بهتر است در لایه Domain یا Application نیز enforce شوند.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>Model Validation و Business Validation چه تفاوتی دارند؟</h4>
+
+        <div class="answer-table" role="region" aria-label="Model validation versus business validation" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>نوع</th>
+                <th>مثال</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Model Validation</td>
+                <td>Email اجباری است، طول Name حداکثر 100 است، Age باید عدد مثبت باشد.</td>
+              </tr>
+
+              <tr>
+                <td>Business Validation</td>
+                <td>کاربر اجازه برداشت بیش از موجودی حساب را ندارد.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          بنابراین، Validation مربوط به شکل و ساختار Request معمولاً در API Layer انجام می‌شود،
+          اما Ruleهای تجاری مهم باید در لایه مناسب Business یا Domain بررسی شوند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>نکات مهم مصاحبه‌ای</h4>
+
+        <ul>
+          <li>
+            در ASP.NET Core، Model Binding قبل از اجرای Action انجام می‌شود.
+          </li>
+
+          <li>
+            بعد از Binding، Model Validation اجرا می‌شود.
+          </li>
+
+          <li>
+            خطاهای هر دو مرحله در <code>ModelState</code> قرار می‌گیرند.
+          </li>
+
+          <li>
+            هنگام استفاده از <code>[ApiController]</code>، Model نامعتبر معمولاً به‌صورت خودکار پاسخ
+            <code>400 Bad Request</code> ایجاد می‌کند.
+          </li>
+
+          <li>
+            برای Complex Typeها در Web API، Body معمولاً با JSON Deserialize می‌شود.
+          </li>
+
+          <li>
+            برای مشخص‌کردن صریح منبع داده می‌توان از Attributeهایی مانند
+            <code>[FromRoute]</code>، <code>[FromQuery]</code> و <code>[FromBody]</code> استفاده کرد.
+          </li>
+
+          <li>
+            قوانین Business مهم نباید فقط به Data Annotation وابسته باشند.
+          </li>
+        </ul>
+      </section>
+
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+
+        <p>
+          در ASP.NET Core، <bdi>Model Binding</bdi> داده‌های HTTP Request را از منابعی مثل Route،
+          Query String، Body، Form و Header می‌خواند و آن‌ها را به پارامترهای Action یا Objectهای دات‌نت تبدیل می‌کند.
+          بعد از آن، <bdi>Model Validation</bdi> قوانین تعریف‌شده روی Model را بررسی می‌کند.
+          خطاهای هر دو مرحله داخل <code>ModelState</code> ذخیره می‌شوند.
+        </p>
+
+        <p>
+          در Controllerهایی که از <code>[ApiController]</code> استفاده می‌کنند، اگر Model نامعتبر باشد،
+          ASP.NET Core معمولاً قبل از اجرای Action به‌صورت خودکار پاسخ
+          <code>400 Bad Request</code> برمی‌گرداند.
+        </p>
+      </section>
+
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+
+        <a href="https://learn.microsoft.com/aspnet/core/mvc/models/model-binding">
+          Microsoft Learn — Model Binding in ASP.NET Core
+        </a>
+
+        <a href="https://learn.microsoft.com/aspnet/core/mvc/models/validation">
+          Microsoft Learn — Model Validation in ASP.NET Core
+        </a>
+
+        <a href="https://learn.microsoft.com/aspnet/core/web-api/">
+          Microsoft Learn — ASP.NET Core Web API
+        </a>
+      </footer>
+
+    </div>
   </main>
 </body>
+
 </html>

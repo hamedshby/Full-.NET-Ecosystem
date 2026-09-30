@@ -1,15 +1,792 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="پاسخ مصاحبه‌ای به How does JWT authentication work end-to-end?">
+  <meta name="description"
+    content="پاسخ کامل و مصاحبه‌محور به نحوه کار JWT Authentication از ابتدا تا انتها در ASP.NET Core.">
   <title>How does JWT authentication work end-to-end? — پاسخ مصاحبه | آکادمی دات‌نت</title>
   <link rel="stylesheet" href="../styles.css">
 </head>
+
 <body class="standalone-answer">
   <main data-answer-content>
-    <div class="answer-content"></div>
+    <div class="answer-content">
+
+      <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+
+      <div class="interview-short" dir="ltr" lang="en">
+        <p>
+          <strong>JWT authentication</strong> usually starts when a user sends credentials such as
+          username and password to a login endpoint. The server validates the credentials and,
+          if they are correct, creates a signed JWT containing claims such as the user's ID,
+          roles, and token expiration time.
+        </p>
+
+        <p>
+          The client stores the token and sends it with subsequent requests in the
+          <code>Authorization</code> header using the <code>Bearer</code> scheme.
+          On every protected request, the server validates the token's signature,
+          expiration time, issuer, and audience. If the token is valid, ASP.NET Core
+          creates a <code>ClaimsPrincipal</code> and the request is considered authenticated.
+        </p>
+
+        <p>
+          Authentication answers <strong>"Who is the user?"</strong>, while authorization
+          answers <strong>"What is this user allowed to do?"</strong>. Authorization can then
+          use claims, roles, or policies to decide whether the user can access the endpoint.
+        </p>
+      </div>
+
+
+      <section>
+        <h4>JWT Authentication چیست؟</h4>
+
+        <p>
+          در احراز هویت مبتنی بر <bdi>JWT</bdi>، بعد از اینکه کاربر با موفقیت وارد سیستم شد،
+          سرور یک Token امضاشده برای او تولید می‌کند.
+        </p>
+
+        <p>
+          این Token معمولاً شامل اطلاعاتی دربارهٔ کاربر است؛ برای مثال شناسهٔ کاربر،
+          Roleها، Permissionها یا اطلاعات دیگری که به آن‌ها <bdi>Claim</bdi> گفته می‌شود.
+        </p>
+
+        <p>
+          در درخواست‌های بعدی، Client دیگر لازم نیست Username و Password را دوباره ارسال کند.
+          به‌جای آن، JWT را همراه Request می‌فرستد و Server اعتبار Token را بررسی می‌کند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>ساختار کلی JWT</h4>
+
+        <p>
+          هر JWT معمولاً از سه بخش تشکیل می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>Header.Payload.Signature</code></pre>
+
+        <p>
+          این سه بخش با نقطه از یکدیگر جدا می‌شوند.
+        </p>
+
+        <div class="answer-table" role="region" aria-label="JWT structure" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>بخش</th>
+                <th>وظیفه</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Header</td>
+                <td>مشخص‌کردن نوع Token و Algorithm امضا</td>
+              </tr>
+
+              <tr>
+                <td>Payload</td>
+                <td>نگهداری Claimها و اطلاعات Token</td>
+              </tr>
+
+              <tr>
+                <td>Signature</td>
+                <td>بررسی اینکه Token تغییر نکرده و توسط صادرکننده معتبر ساخته شده است</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section>
+        <h4>مرحله اول: Login Request</h4>
+
+        <p>
+          فرآیند معمولاً با ارسال Username و Password به Endpoint مربوط به Login شروع می‌شود.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>POST /api/auth/login
+
+{
+  "username": "hamed",
+  "password": "mypassword"
+}</code></pre>
+
+        <p>
+          سرور اطلاعات کاربر را بررسی می‌کند و Password دریافتی را با Password ذخیره‌شده مقایسه می‌کند.
+        </p>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ امنیتی:</strong>
+          در Database نباید Password خام ذخیره شود. معمولاً Password به‌صورت Hash شده و با Salt مناسب نگهداری می‌شود.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>مرحله دوم: بررسی Credentials</h4>
+
+        <p>
+          در Server معمولاً Service مربوط به Authentication کاربر را از Database پیدا می‌کند
+          و اعتبار Username و Password را بررسی می‌کند.
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="Credential validation example"><code>public async Task&lt;User?&gt; ValidateUserAsync(
+    string username,
+    string password)
+{
+    var user = await _userRepository.GetByUsernameAsync(username);
+
+    if (user is null)
+        return null;
+
+    var isValid = _passwordHasher.Verify(
+        password,
+        user.PasswordHash);
+
+    return isValid ? user : null;
+}</code></pre>
+
+        <p>
+          اگر Credentials اشتباه باشند، معمولاً پاسخ <code>401 Unauthorized</code> برگردانده می‌شود.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مرحله سوم: ساخت JWT</h4>
+
+        <p>
+          بعد از احراز هویت موفق، Server یک JWT ایجاد می‌کند.
+        </p>
+
+        <p>
+          داخل Payload معمولاً Claimهایی شبیه موارد زیر قرار می‌گیرند:
+        </p>
+
+        <ul>
+          <li>شناسهٔ کاربر با Claimهایی مانند <code>sub</code> یا <code>NameIdentifier</code></li>
+          <li>نام کاربر</li>
+          <li>Roleهای کاربر</li>
+          <li>Permissionها</li>
+          <li>زمان صدور Token</li>
+          <li>زمان انقضای Token</li>
+          <li>Issuer و Audience</li>
+        </ul>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="JWT generation example"><code>var claims = new[]
+{
+    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+    new Claim(ClaimTypes.Name, user.Username),
+    new Claim(ClaimTypes.Role, user.Role)
+};
+
+var key = new SymmetricSecurityKey(
+    Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
+
+var credentials = new SigningCredentials(
+    key,
+    SecurityAlgorithms.HmacSha256);
+
+var token = new JwtSecurityToken(
+    issuer: configuration["Jwt:Issuer"],
+    audience: configuration["Jwt:Audience"],
+    claims: claims,
+    expires: DateTime.UtcNow.AddMinutes(30),
+    signingCredentials: credentials);
+
+var accessToken =
+    new JwtSecurityTokenHandler().WriteToken(token);</code></pre>
+      </section>
+
+
+      <section>
+        <h4>Signature چه کاری انجام می‌دهد؟</h4>
+
+        <p>
+          بخش Signature برای اطمینان از Integrity Token استفاده می‌شود.
+        </p>
+
+        <p>
+          یعنی Server هنگام دریافت Token می‌تواند بررسی کند که Payload یا Header از زمان صدور Token تغییر نکرده باشند.
+        </p>
+
+        <p>
+          برای مثال اگر یک مهاجم مقدار Role را از <code>User</code> به <code>Admin</code> تغییر دهد،
+          Signature دیگر معتبر نخواهد بود و Server باید Token را Reject کند.
+        </p>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مصاحبه‌ای:</strong>
+          JWT معمولاً <bdi>Signed</bdi> است، نه <bdi>Encrypted</bdi>.
+          بنابراین Payload را می‌توان Decode کرد و نباید اطلاعات حساس مثل Password یا اطلاعات محرمانه داخل آن قرار داد.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>مرحله چهارم: ارسال Token به Client</h4>
+
+        <p>
+          بعد از ساخته‌شدن Token، Server آن را در Response به Client برمی‌گرداند.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "expiresIn": 1800
+}</code></pre>
+
+        <p>
+          Client سپس Token را برای Requestهای بعدی نگهداری می‌کند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مرحله پنجم: ارسال JWT در Requestهای بعدی</h4>
+
+        <p>
+          برای دسترسی به Endpointهای محافظت‌شده، Client معمولاً JWT را داخل Header زیر ارسال می‌کند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</code></pre>
+
+        <p>
+          عبارت <code>Bearer</code> یعنی Client با داشتن این Token اجازه درخواست Authentication را دارد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>مرحله ششم: Authentication Middleware</h4>
+
+        <p>
+          در ASP.NET Core، Middleware مربوط به Authentication درخواست را بررسی می‌کند.
+        </p>
+
+        <p>
+          معمولاً Authentication با چنین تنظیماتی اضافه می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en" tabindex="0" aria-label="JWT authentication configuration"><code>builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidIssuer =
+                    builder.Configuration["Jwt:Issuer"],
+
+                ValidAudience =
+                    builder.Configuration["Jwt:Audience"],
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            builder.Configuration["Jwt:Key"]!))
+            };
+    });</code></pre>
+
+        <p>
+          همچنین در Pipeline معمولاً Middlewareهای زیر وجود دارند:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>app.UseAuthentication();
+app.UseAuthorization();</code></pre>
+      </section>
+
+
+      <section>
+        <h4>مرحله هفتم: Token Validation</h4>
+
+        <p>
+          وقتی JWT دریافت می‌شود، Server چند بررسی مهم روی آن انجام می‌دهد.
+        </p>
+
+        <div class="answer-table" role="region" aria-label="JWT validation checks" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>بررسی</th>
+                <th>هدف</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Signature</td>
+                <td>اطمینان از اینکه Token تغییر نکرده است</td>
+              </tr>
+
+              <tr>
+                <td>Expiration</td>
+                <td>بررسی اینکه Token منقضی نشده باشد</td>
+              </tr>
+
+              <tr>
+                <td>Issuer</td>
+                <td>بررسی اینکه Token توسط Server معتبر صادر شده باشد</td>
+              </tr>
+
+              <tr>
+                <td>Audience</td>
+                <td>بررسی اینکه Token برای این API صادر شده باشد</td>
+              </tr>
+
+              <tr>
+                <td>Signing Key</td>
+                <td>اعتبارسنجی Signature با Key معتبر</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <section>
+        <h4>اگر Token معتبر باشد چه اتفاقی می‌افتد؟</h4>
+
+        <p>
+          اگر JWT معتبر باشد، ASP.NET Core از Claimهای داخل Token یک
+          <code>ClaimsIdentity</code> و سپس یک <code>ClaimsPrincipal</code> می‌سازد.
+        </p>
+
+        <p>
+          این Object داخل <code>HttpContext.User</code> قرار می‌گیرد.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>var userId =
+    User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+var username = User.Identity?.Name;
+
+var isAdmin = User.IsInRole("Admin");</code></pre>
+
+        <p>
+          بنابراین Controller یا Service می‌تواند اطلاعات کاربر فعلی را از Claimها بخواند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Authentication و Authorization چه تفاوتی دارند؟</h4>
+
+        <p>
+          در یک سیستم JWT، Authentication و Authorization دو مسئولیت متفاوت دارند.
+        </p>
+
+        <div class="answer-table" role="region" aria-label="Authentication versus authorization" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>مفهوم</th>
+                <th>سؤال اصلی</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Authentication</td>
+                <td>این کاربر چه کسی است؟</td>
+              </tr>
+
+              <tr>
+                <td>Authorization</td>
+                <td>این کاربر اجازه انجام چه کاری را دارد؟</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          یعنی ابتدا JWT Authentication هویت کاربر را مشخص می‌کند و بعد Authorization بررسی می‌کند
+          که آیا کاربر اجازه دسترسی به Resource موردنظر را دارد یا نه.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>استفاده از [Authorize]</h4>
+
+        <p>
+          برای محافظت از Endpoint معمولاً از Attribute زیر استفاده می‌کنیم:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[Authorize]
+[HttpGet("profile")]
+public IActionResult GetProfile()
+{
+    return Ok();
+}</code></pre>
+
+        <p>
+          در این حالت فقط Requestهایی که Authentication موفق داشته باشند اجازه اجرای Action را دارند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Authorization بر اساس Role</h4>
+
+        <p>
+          می‌توانیم دسترسی را به Role خاص محدود کنیم:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[Authorize(Roles = "Admin")]
+[HttpDelete("{id}")]
+public IActionResult DeleteUser(int id)
+{
+    ...
+}</code></pre>
+
+        <p>
+          در این مثال فقط کاربری که Claim مربوط به Role برابر <code>Admin</code> داشته باشد اجازه دسترسی دارد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>Authorization بر اساس Policy</h4>
+
+        <p>
+          برای سیستم‌های پیچیده‌تر بهتر است به‌جای وابستگی مستقیم به Roleها از Policy استفاده شود.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        "CanDeleteUser",
+        policy =>
+        {
+            policy.RequireClaim(
+                "permission",
+                "users.delete");
+        });
+});</code></pre>
+
+        <p>
+          سپس Policy روی Endpoint استفاده می‌شود:
+        </p>
+
+        <pre dir="ltr" lang="en"><code>[Authorize(Policy = "CanDeleteUser")]
+[HttpDelete("{id}")]
+public IActionResult DeleteUser(int id)
+{
+    ...
+}</code></pre>
+
+        <p>
+          این روش برای Permission-based Authorization انعطاف بیشتری دارد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>401 و 403 چه تفاوتی دارند؟</h4>
+
+        <p>
+          این تفاوت یکی از سؤال‌های بسیار رایج مصاحبه است.
+        </p>
+
+        <div class="answer-table" role="region" aria-label="401 versus 403" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>Status Code</th>
+                <th>معنی</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>401 Unauthorized</td>
+                <td>Authentication انجام نشده یا Token معتبر نیست</td>
+              </tr>
+
+              <tr>
+                <td>403 Forbidden</td>
+                <td>کاربر Authentication شده ولی Permission لازم را ندارد</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="answer-note">
+          <strong>نکتهٔ مصاحبه‌ای:</strong>
+          نام <code>401 Unauthorized</code> ممکن است کمی گمراه‌کننده باشد؛
+          از نظر مفهومی این Status بیشتر مربوط به شکست Authentication است،
+          در حالی که <code>403 Forbidden</code> مربوط به شکست Authorization است.
+        </aside>
+      </section>
+
+
+      <section>
+        <h4>JWT چرا Stateless محسوب می‌شود؟</h4>
+
+        <p>
+          یکی از مزایای مهم JWT این است که Server معمولاً برای اعتبارسنجی هر Request
+          نیاز ندارد Session کاربر را در Memory یا Database نگهداری کند.
+        </p>
+
+        <p>
+          اطلاعات موردنیاز داخل خود Token قرار دارد و Server می‌تواند با بررسی Signature و Claimها
+          اعتبار آن را تعیین کند.
+        </p>
+
+        <p>
+          به همین دلیل JWT برای سیستم‌های Distributed و Microservice مناسب است،
+          چون چند Instance مختلف می‌توانند با Signing Key مشترک Token را Validate کنند.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>اما Stateless بودن چه مشکلی ایجاد می‌کند؟</h4>
+
+        <p>
+          یکی از چالش‌های اصلی JWT این است که Token صادرشده تا زمان Expire شدن معمولاً معتبر باقی می‌ماند.
+        </p>
+
+        <p>
+          برای مثال اگر کاربر Logout کند یا دسترسی او در سیستم حذف شود، JWT موجود ممکن است تا زمان انقضا
+          همچنان قابل استفاده باشد.
+        </p>
+
+        <p>
+          برای حل این مشکل می‌توان از روش‌هایی مانند موارد زیر استفاده کرد:
+        </p>
+
+        <ul>
+          <li>کوتاه نگه‌داشتن عمر Access Token</li>
+          <li>استفاده از Refresh Token</li>
+          <li>استفاده از Token Revocation List در سناریوهای خاص</li>
+          <li>استفاده از Token Version برای باطل‌کردن Tokenهای قبلی</li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>Access Token و Refresh Token</h4>
+
+        <p>
+          در بسیاری از سیستم‌های واقعی، Access Token عمر کوتاهی دارد؛ برای مثال 15 یا 30 دقیقه.
+        </p>
+
+        <p>
+          در کنار آن یک <bdi>Refresh Token</bdi> با عمر طولانی‌تر صادر می‌شود.
+        </p>
+
+        <p>
+          وقتی Access Token منقضی شود، Client می‌تواند Refresh Token را برای دریافت Access Token جدید ارسال کند،
+          بدون اینکه کاربر دوباره Username و Password وارد کند.
+        </p>
+
+        <pre dir="ltr" lang="en"><code>POST /api/auth/refresh
+
+{
+  "refreshToken": "..."
+}</code></pre>
+      </section>
+
+
+      <section>
+        <h4>چرا Access Token باید کوتاه‌عمر باشد؟</h4>
+
+        <p>
+          اگر Access Token دزدیده شود، مهاجم تا زمان انقضای Token می‌تواند از آن استفاده کند.
+        </p>
+
+        <p>
+          بنابراین هرچه Lifetime Token کوتاه‌تر باشد، بازهٔ زمانی سوءاستفاده از Token سرقت‌شده کمتر می‌شود.
+        </p>
+
+        <p>
+          Refresh Token معمولاً کنترل‌شده‌تر است و امکان Revocation آن در Server وجود دارد.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>جریان کامل JWT Authentication</h4>
+
+        <p>
+          جریان End-to-End را می‌توان به این ترتیب خلاصه کرد:
+        </p>
+
+        <ol>
+          <li>کاربر Username و Password را به Login Endpoint ارسال می‌کند.</li>
+
+          <li>Server اطلاعات کاربر را از Database دریافت می‌کند.</li>
+
+          <li>Password بررسی می‌شود.</li>
+
+          <li>اگر Credentials معتبر باشند، Server یک JWT ایجاد می‌کند.</li>
+
+          <li>Claimهایی مانند UserId، Role و Permission داخل Token قرار می‌گیرند.</li>
+
+          <li>Token با Secret Key یا Private Key امضا می‌شود.</li>
+
+          <li>Token به Client برگردانده می‌شود.</li>
+
+          <li>Client Token را نگهداری می‌کند.</li>
+
+          <li>در Requestهای بعدی Token داخل Header مربوط به Authorization ارسال می‌شود.</li>
+
+          <li>Authentication Middleware Token را Extract می‌کند.</li>
+
+          <li>Signature، Expiration، Issuer و Audience بررسی می‌شوند.</li>
+
+          <li>اگر Token معتبر باشد، ClaimsPrincipal ساخته می‌شود.</li>
+
+          <li>اطلاعات کاربر داخل <code>HttpContext.User</code> قرار می‌گیرد.</li>
+
+          <li>Authorization بررسی می‌کند که کاربر اجازه دسترسی دارد یا نه.</li>
+
+          <li>اگر دسترسی مجاز باشد، Endpoint اجرا می‌شود.</li>
+        </ol>
+      </section>
+
+
+      <section>
+        <h4>مدل ذهنی ساده</h4>
+
+        <p>
+          JWT را می‌توان شبیه یک کارت ورود دیجیتال تصور کرد.
+        </p>
+
+        <p>
+          ابتدا مسئول امنیت هویت شما را بررسی می‌کند و یک کارت امضاشده به شما می‌دهد.
+          بعد از آن برای ورود به بخش‌های مختلف ساختمان، دیگر Password را نمی‌گویید؛ کارت را نشان می‌دهید.
+        </p>
+
+        <p>
+          سیستم ابتدا بررسی می‌کند کارت جعلی نباشد و منقضی نشده باشد.
+          سپس اطلاعات روی کارت را می‌خواند تا مشخص کند شما چه کسی هستید و به چه بخش‌هایی اجازه ورود دارید.
+        </p>
+      </section>
+
+
+      <section>
+        <h4>اشتباهات رایج در JWT Authentication</h4>
+
+        <ul>
+          <li>قرار دادن Password یا اطلاعات محرمانه داخل Payload</li>
+
+          <li>استفاده از Secret Key ضعیف</li>
+
+          <li>نداشتن Expiration برای Token</li>
+
+          <li>استفاده از Access Token با Lifetime بسیار طولانی</li>
+
+          <li>غیرفعال‌کردن بررسی Issuer یا Audience بدون دلیل</li>
+
+          <li>نگهداری ناامن Token در Client</li>
+
+          <li>اعتماد کامل به Claimها بدون Validation صحیح Signature</li>
+
+          <li>نداشتن استراتژی مناسب برای Refresh Token و Revocation</li>
+        </ul>
+      </section>
+
+
+      <section>
+        <h4>نکات مهم مصاحبه‌ای</h4>
+
+        <ul>
+          <li>
+            در JWT Authentication، Server ابتدا Credentials را بررسی کرده و سپس Token صادر می‌کند.
+          </li>
+
+          <li>
+            در Requestهای بعدی، Client معمولاً Token را با Bearer Scheme ارسال می‌کند.
+          </li>
+
+          <li>
+            در Server، فقط Decode کردن JWT کافی نیست و Signature باید Validate شود.
+          </li>
+
+          <li>
+            در ASP.NET Core، Authentication Middleware بعد از Validation یک ClaimsPrincipal می‌سازد.
+          </li>
+
+          <li>
+            در سیستم، Authentication هویت کاربر را مشخص می‌کند و Authorization مجوزهای او را بررسی می‌کند.
+          </li>
+
+          <li>
+            در حالت معمول، پاسخ 401 برای Authentication ناموفق و پاسخ 403 برای Authorization ناموفق استفاده می‌شود.
+          </li>
+
+          <li>
+            در طراحی امن، Access Token بهتر است عمر کوتاه داشته باشد و در صورت نیاز از Refresh Token استفاده شود.
+          </li>
+
+          <li>
+            در JWT، Payload رمزنگاری‌شده نیست و نباید اطلاعات حساس داخل آن قرار بگیرد.
+          </li>
+        </ul>
+      </section>
+
+
+      <section class="interview-summary">
+        <h4>جمع‌بندی نهایی برای مصاحبه</h4>
+
+        <p>
+          در JWT Authentication، کاربر ابتدا Credentials خود را برای Login ارسال می‌کند.
+          Server بعد از بررسی آن‌ها یک JWT امضاشده شامل Claimهایی مانند UserId، Role و Expiration تولید می‌کند.
+          Client این Token را دریافت کرده و در Requestهای بعدی آن را داخل Authorization Header با Bearer Scheme ارسال
+          می‌کند.
+        </p>
+
+        <p>
+          در Server، Authentication Middleware ابتدا Signature، Expiration، Issuer و Audience را Validate می‌کند.
+          اگر Token معتبر باشد، از Claimهای آن یک <code>ClaimsPrincipal</code> ساخته شده و در
+          <code>HttpContext.User</code> قرار می‌گیرد.
+          سپس Authorization بر اساس Role، Claim یا Policy تصمیم می‌گیرد که کاربر اجازه دسترسی به Endpoint را دارد یا نه.
+        </p>
+
+        <p>
+          بنابراین جریان اصلی به شکل
+          <bdi>Login → Validate Credentials → Generate JWT → Send Token → Validate Token → Build ClaimsPrincipal →
+            Authorization</bdi>
+          است.
+        </p>
+      </section>
+
+
+      <footer class="answer-sources">
+        <strong>منابع رسمی:</strong>
+
+        <a href="https://learn.microsoft.com/aspnet/core/security/authentication/">
+          Microsoft Learn — Authentication in ASP.NET Core
+        </a>
+
+        <a href="https://learn.microsoft.com/aspnet/core/security/authorization/introduction">
+          Microsoft Learn — Authorization in ASP.NET Core
+        </a>
+
+        <a href="https://datatracker.ietf.org/doc/html/rfc7519">
+          RFC 7519 — JSON Web Token
+        </a>
+
+        <a href="https://datatracker.ietf.org/doc/html/rfc6750">
+          RFC 6750 — Bearer Token Usage
+        </a>
+      </footer>
+
+    </div>
   </main>
 </body>
+
 </html>

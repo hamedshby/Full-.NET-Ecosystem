@@ -1,0 +1,28 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>Keep the setter private and expose methods such as Deposit and Withdraw. Those methods validate the requested operation before changing Balance. This keeps the object in a valid state and prevents external code from bypassing business rules.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p><bdi>setter</bdi> را <bdi>private</bdi> نگه می‌داریم و متدهایی مانند <code>Deposit</code> و <code>Withdraw</code> ارائه می‌کنیم. این متدها پیش از تغییر <code>Balance</code>، عملیات درخواستی را اعتبارسنجی می‌کنند. در نتیجه <bdi>Object</bdi> در <bdi>State</bdi> معتبر باقی می‌ماند و کد بیرونی نمی‌تواند <bdi>Business Rule</bdi>ها را دور بزند.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Encapsulated BankAccount example"><code>public class BankAccount
+{
+    public decimal Balance { get; private set; }
+
+    public void Deposit(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        Balance += amount;
+    }
+
+    public void Withdraw(decimal amount)
+    {
+        if (amount &lt;= 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        if (amount &gt; Balance)
+            throw new InvalidOperationException("Insufficient balance.");
+        Balance -= amount;
+    }
+}</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> به‌جای <code>set</code> مستقیم، تغییر <bdi>State</bdi> از مسیر متدهای معنی‌دار دامنه انجام می‌شود.</aside>
+  </div>
+</main>

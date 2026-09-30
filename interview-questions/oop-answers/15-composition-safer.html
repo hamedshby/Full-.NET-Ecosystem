@@ -1,0 +1,17 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>Composition is better. OrderService should depend on an IEmailService rather than inherit from EmailService. This reduces coupling, improves flexibility, and allows the dependency to be replaced or mocked easily.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p><bdi>Composition</bdi> گزینهٔ بهتر است. <code>OrderService</code> باید به <code>IEmailService</code> وابسته باشد، نه اینکه از <code>EmailService</code> ارث‌بری کند. این کار <bdi>Coupling</bdi> را کاهش می‌دهد، انعطاف‌پذیری را بیشتر می‌کند و امکان جایگزینی یا <bdi>Mock</bdi> کردن Dependency را فراهم می‌سازد.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Composition with dependency abstraction example"><code>public class OrderService
+{
+    private readonly IEmailService _emailService;
+
+    public OrderService(IEmailService emailService)
+    {
+        _emailService = emailService;
+    }
+}</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> کاهش <bdi>Coupling</bdi> در این مثال بیشتر از ترکیب <bdi>Composition</bdi> با <bdi>Dependency on Abstraction</bdi> به دست می‌آید.</aside>
+  </div>
+</main>

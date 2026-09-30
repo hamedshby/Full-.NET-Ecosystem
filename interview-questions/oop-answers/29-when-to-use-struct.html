@@ -1,0 +1,19 @@
+<main data-answer-content>
+  <div class="answer-content">
+    <p class="pane-label">پاسخ کوتاه مناسب مصاحبه</p>
+    <div class="interview-short" dir="ltr" lang="en"><p>Use a struct for small, value-like data that does not need object identity or class inheritance. Structs are often a good fit when value semantics are more natural, and they are commonly designed to be immutable.</p></div>
+    <div class="interview-translation" lang="fa" dir="rtl"><p class="translation-label">ترجمهٔ فارسی</p><p>برای داده‌های کوچک و <bdi>Value-like</bdi> که به <bdi>Object Identity</bdi> یا Class Inheritance نیاز ندارند، از <bdi>Struct</bdi> استفاده کنید. وقتی <bdi>Value Semantics</bdi> طبیعی‌تر باشد، <bdi>Struct</bdi> معمولاً انتخاب مناسبی است و اغلب به‌شکل Immutable طراحی می‌شود.</p></div>
+    <pre dir="ltr" lang="en" tabindex="0" aria-label="Readonly struct example"><code>public readonly struct Point
+{
+    public int X { get; }
+    public int Y { get; }
+
+    public Point(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+}</code></pre>
+    <aside class="answer-note"><strong>نکته:</strong> کوچک‌بودن داده به‌تنهایی کافی نیست؛ <bdi>Value-like</bdi> بودن و نداشتن Identity مهم‌تر است.</aside>
+  </div>
+</main>
