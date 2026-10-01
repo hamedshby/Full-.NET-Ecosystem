@@ -1,0 +1,185 @@
+@import url("../gitlab-cicd/course.css");
+
+:root {
+  --cicd-accent: #c4550b;
+  --cicd-accent-strong: #9a3c06;
+  --cicd-warm: #f97316;
+}
+
+.rabbitmq-hero {
+  margin-block: 1.5rem 2.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--cicd-border);
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, var(--cicd-surface), var(--surface));
+}
+
+.rabbitmq-hero h1 {
+  margin-block: .5rem 1rem;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+}
+
+.rabbitmq-page .lesson-content {
+  min-width: 0;
+}
+
+.rabbitmq-page .lesson-section {
+  scroll-margin-top: 7rem;
+}
+
+.rabbitmq-page h3 {
+  margin-block: 1.75rem .65rem;
+  line-height: 1.8;
+}
+
+.study-meta,
+.study-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem 1.25rem;
+  margin-block: 1.25rem;
+}
+
+.study-meta {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.study-status,
+.future-status {
+  width: fit-content;
+  padding: .35rem .75rem;
+  border: 1px solid var(--cicd-border);
+  border-radius: .65rem;
+  background: var(--cicd-surface);
+  color: var(--cicd-accent-strong);
+  font-weight: 800;
+}
+
+.source-download {
+  margin: .75rem;
+  padding: .8rem;
+  border-top: 1px solid var(--line);
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem !important;
+  color: var(--ink) !important;
+}
+
+.message-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  margin-block: 1.5rem;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: .9rem;
+}
+
+.message-flow span {
+  max-width: 100%;
+  padding: .65rem .8rem;
+  border: 1px solid var(--cicd-border);
+  border-radius: .65rem;
+  background: var(--cicd-surface);
+  overflow-wrap: anywhere;
+}
+
+.message-flow b {
+  color: var(--cicd-accent);
+}
+
+.rabbitmq-page .code-block {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.rabbitmq-page pre {
+  max-width: 100%;
+  overflow-x: auto;
+  text-align: left;
+  direction: ltr;
+}
+
+.rabbitmq-page :not(pre) > code {
+  direction: ltr;
+  unicode-bidi: isolate;
+  overflow-wrap: anywhere;
+}
+
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: .85rem;
+}
+
+.rabbitmq-page .diagnostic-table {
+  min-width: 0;
+}
+
+.diagnostic-table caption {
+  padding: .85rem 1rem;
+  color: var(--muted);
+  text-align: start;
+  font-size: .85rem;
+}
+
+.diagnostic-table td:first-child {
+  direction: ltr;
+  unicode-bidi: isolate;
+  min-width: 9rem;
+}
+
+.future-section {
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border: 1px dashed var(--cicd-border);
+  border-radius: 1rem;
+  background: var(--cicd-surface);
+}
+
+.future-topics {
+  padding-inline-start: 1.5rem;
+  line-height: 2;
+}
+
+.future-topics li + li {
+  margin-top: .55rem;
+}
+
+.study-source {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  line-height: 2;
+}
+
+.study-source h2 {
+  font-size: 1.1rem;
+}
+
+[data-theme="dark"] .study-status,
+[data-theme="dark"] .future-status {
+  color: #fdba74;
+}
+
+@media (max-width: 760px) {
+  .rabbitmq-page .lesson-section {
+    scroll-margin-top: 6rem;
+  }
+
+  .rabbitmq-page .diagnostic-table th,
+  .rabbitmq-page .diagnostic-table td {
+    padding: .65rem;
+    font-size: .85rem;
+  }
+
+  .rabbitmq-page .diagnostic-table td:first-child {
+    min-width: 7rem;
+  }
+}

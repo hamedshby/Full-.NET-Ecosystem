@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="یادداشت‌های یادگیری RabbitMQ با .NET؛ از مفاهیم پایه تا Direct Exchange، Ack و Nack و گزینهٔ mandatory، بر اساس جزوهٔ RabbitMQ_01.">
+  <title>یادگیری RabbitMQ | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="course.css">
+  <script src="../../script.js" defer></script>
+  <script src="../gitlab-cicd/course-navigation.js" defer></script>
+</head>
+<body class="lesson-page rabbitmq-page">
+  <a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری RabbitMQ">
+      <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name"><bdi>RabbitMQ</bdi></span>
+      <a class="back-link" href="../../index.html#courses">بازگشت به دوره‌ها</a>
+      <button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="true" aria-controls="course-sidebar">فهرست مطالب</button>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <div class="lesson-shell">
+    <aside id="course-sidebar" class="course-sidebar" data-current-lesson="rabbitmq">
+      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>RabbitMQ</bdi> با <bdi>.NET</bdi></strong><span>تا mandatory در Direct Exchange</span></div>
+      <nav aria-label="فهرست مطالب RabbitMQ">
+        <ol>
+          <li><a href="#basics"><span>۰۱</span>مفاهیم پایه</a></li>
+          <li><a href="#dotnet-setup"><span>۰۲</span>آماده‌سازی پروژه‌های .NET</a></li>
+          <li><a href="#topology"><span>۰۳</span>ساخت توپولوژی Direct Exchange</a></li>
+          <li><a href="#publishing"><span>۰۴</span>ارسال Message از Producer</a></li>
+          <li><a href="#consuming"><span>۰۵</span>ساخت Consumer</a></li>
+          <li><a href="#ack-nack"><span>۰۶</span>Ack، Nack و رفتار خطا</a></li>
+          <li><a href="#routing"><span>۰۷</span>مسیریابی و mandatory</a></li>
+          <li><a href="#producer-code"><span>۰۸</span>کد کامل Producer</a></li>
+          <li><a href="#consumer-code"><span>۰۹</span>کد کامل Consumer</a></li>
+          <li><a href="#review"><span>۱۰</span>مرور سریع مفاهیم</a></li>
+          <li><a href="#next-steps"><span>۱۱</span>ادامهٔ یادگیری</a></li>
+        </ol>
+      </nav>
+      <a class="source-download" href="../../books/RabbitMQ_01.pdf" download>دریافت جزوهٔ اصلی <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <article aria-labelledby="course-title">
+        <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html#courses">دوره‌ها</a><span aria-hidden="true">/</span><span>RabbitMQ</span></nav>
+        <section class="rabbitmq-hero" aria-labelledby="course-title">
+          <p class="eyebrow">از پایه تا کاربرد، همراه با .NET</p>
+          <h1 id="course-title">یادگیری <bdi>RabbitMQ</bdi></h1>
+          <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از ارتباط سرویس‌ها با Message Broker تا مسیریابی پیام در Direct Exchange.</p>
+          <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۱۱ بخش · جزوهٔ ۱۱ صفحه‌ای</span><span>RabbitMQ.Client 7.x</span></div>
+          <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>به گزینهٔ <code>mandatory</code> رسیده‌ایم. مبحث <bdi>Direct Exchange</bdi> هنوز تمام نشده است و مطالب بعدی به‌مرور اضافه می‌شوند.</span></aside>
+          <div class="study-actions"><a class="button-link" href="#basics">شروع مطالعه</a><a href="../../books/RabbitMQ_01.pdf">مشاهدهٔ PDF اصلی</a></div>
+        </section>
+        <div class="lesson-body">
+          <section id="basics" class="lesson-section" data-source-section="1" aria-labelledby="basics-title">
+            <p class="section-kicker">بخش ۱ · صفحات ۱ و ۲ جزوه</p>
+            <h2 id="basics-title">مفاهیم پایهٔ <bdi>RabbitMQ</bdi></h2>
+            <h3>۱. RabbitMQ چیست؟</h3>
+            <p>فرض کنید پرداخت موفق شده است و باید برای کاربر اعلان ارسال شود. سرویس پرداخت می‌تواند یک پیام منتشر کند و سرویس اعلان بعداً آن را دریافت و پردازش کند. <bdi>RabbitMQ</bdi> یک <bdi>Message Broker</bdi> است؛ واسطه‌ای که پیام را از یک برنامه می‌گیرد و برای مصرف توسط برنامهٔ دیگر مدیریت می‌کند. در این مسیر، سرویس‌ها مجبور نیستند همیشه مستقیماً و هم‌زمان با یکدیگر ارتباط برقرار کنند.</p>
+            <div class="message-flow" dir="ltr" role="img" aria-label="پیام از سرویس پرداخت به RabbitMQ و سپس به سرویس اعلان می‌رود"><span>Payment Service</span><b aria-hidden="true">→</b><span>RabbitMQ</span><b aria-hidden="true">→</b><span>Notification Service</span></div>
+            <h3>۲. Message چیست؟</h3>
+            <p><bdi>Message</bdi> همان داده‌ای است که بین سرویس‌ها جابه‌جا می‌شود؛ مثلاً شناسهٔ پرداخت، شناسهٔ کاربر، مبلغ و وضعیت تراکنش. این نمونه فقط شکل اطلاعات را نشان می‌دهد؛ ارسال و دریافت مدل‌های <bdi>JSON</bdi> در ادامهٔ یادگیری بررسی خواهد شد.</p>
+            <div class="code-block"><div class="code-label"><span>نمونهٔ اطلاعات پرداخت</span><span>JSON</span></div><pre dir="ltr"><code>{
+  "paymentId": 123,
+  "userId": 45,
+  "amount": 250000,
+  "status": "Paid"
+}</code></pre></div>
+            <div class="concept-grid">
+              <article><h3>۳. Producer</h3><p>سرویسی که <bdi>Message</bdi> را می‌سازد و آن را منتشر می‌کند. در این مثال، <bdi>Payment Service</bdi> نقش <bdi>Producer</bdi> را دارد.</p></article>
+              <article><h3>۴. Consumer</h3><p>سرویسی که <bdi>Message</bdi> را دریافت می‌کند و بر اساس آن کاری انجام می‌دهد. در این مثال، <bdi>Notification Service</bdi> نقش <bdi>Consumer</bdi> را دارد.</p></article>
+            </div>
+            <h3>۵. Queue چیست؟</h3>
+            <p><bdi>Queue</bdi> محل نگهداری پیام‌ها تا زمان دریافت توسط <bdi>Consumer</bdi> است. وقتی سرویس اعلان در دسترس نیست، صف می‌تواند پیام را نگه دارد تا بعداً مصرف شود؛ طول عمر صف و پیام به تنظیمات آن‌ها وابسته است.</p>
+            <div class="code-block"><pre dir="ltr"><code>Producer → [ Queue: Message1 | Message2 | Message3 ] → Consumer</code></pre></div>
+            <h3>۶. Exchange چیست؟</h3>
+            <p><bdi>Exchange</bdi> مسئول مسیریابی پیام به صف‌های مناسب است. <bdi>Producer</bdi> پیام را به <bdi>Exchange</bdi> می‌فرستد و قوانین مسیریابی تعیین می‌کنند کدام <bdi>Queue</bdi> پیام را دریافت کند.</p>
+            <div class="message-flow" dir="ltr" role="img" aria-label="مسیر پیام: Producer، Exchange، Queue و Consumer"><span>Producer</span><b aria-hidden="true">→</b><span>Exchange</span><b aria-hidden="true">→</b><span>Queue</span><b aria-hidden="true">→</b><span>Consumer</span></div>
+            <h3>۷. Binding چیست؟</h3>
+            <p><bdi>Binding</bdi> رابطهٔ مسیریابی میان <bdi>Exchange</bdi> و <bdi>Queue</bdi> است. در <bdi>Direct Exchange</bdi> این رابطه یک کلید دارد که برای تطبیق با کلید پیام استفاده می‌شود.</p>
+            <h3>۸. Routing Key چیست؟</h3>
+            <p><bdi>Routing Key</bdi> یک مقدار متنی است که <bdi>Producer</bdi> همراه پیام می‌فرستد؛ مثلاً <code>payment.success</code>. <bdi>Exchange</bdi> بسته به نوع خود از این کلید برای انتخاب مقصد استفاده می‌کند.</p>
+            <h3>۹. Direct Exchange چیست؟</h3>
+            <p>در <bdi>Direct Exchange</bdi>، پیام به هر صفی می‌رسد که <bdi>Binding Key</bdi> آن دقیقاً برابر <bdi>Routing Key</bdi> پیام باشد. اگر دو مقدار متفاوت باشند، آن <bdi>Binding</bdi> منطبق نیست.</p>
+            <div class="code-block"><pre dir="ltr"><code>Routing Key = payment.success
+Binding Key = payment.success
+Result: Match → Queue receives message</code></pre></div>
+            <h3>۱۰. اشارهٔ کوتاه به Fanout Exchange</h3>
+            <p><bdi>Fanout Exchange</bdi> پیام را بدون توجه به <bdi>Routing Key</bdi> به تمام صف‌های متصل به خود می‌فرستد. این مفهوم در جزوه فقط معرفی شده است؛ تمرکز فعلی روی <bdi>Direct Exchange</bdi> است.</p>
+          </section>
+
+          <section id="dotnet-setup" class="lesson-section" data-source-section="2" aria-labelledby="setup-title">
+            <p class="section-kicker">بخش ۲ · صفحات ۲ و ۳ جزوه</p>
+            <h2 id="setup-title">آماده‌سازی پروژه‌های <bdi>.NET</bdi></h2>
+            <h3>۱۱. یک Solution و دو برنامه</h3>
+            <p>دو <bdi>Console Application</bdi> مستقل می‌سازیم؛ یکی برای ارسال پیام و دیگری برای دریافت آن. برای اجرای نمونه‌ها باید <bdi>.NET SDK</bdi> نصب باشد و یک <bdi>RabbitMQ Broker</bdi> روی <code>localhost:5672</code> در دسترس باشد. کد جزوه از APIهای <bdi>RabbitMQ.Client 7.x</bdi> استفاده می‌کند.</p>
+            <div class="code-block"><div class="code-label"><span>ساخت پروژه‌ها و نصب Client</span><span>CLI</span></div><pre dir="ltr"><code>dotnet new sln -n RabbitMqDirectDemo
+dotnet new console -n Payment.Producer
+dotnet new console -n Notification.Consumer
+dotnet sln add Payment.Producer
+dotnet sln add Notification.Consumer
+
+dotnet add Payment.Producer package RabbitMQ.Client --version 7.*
+dotnet add Notification.Consumer package RabbitMQ.Client --version 7.*</code></pre></div>
+            <p>هر دو پروژه به Package نیاز دارند، چون هر دو با <bdi>Broker</bdi> ارتباط برقرار می‌کنند. در جزوه دستور <code>dotnet add package RabbitMQ.Client</code> آمده است؛ اینجا نام پروژه هم مشخص شده تا دستور از پوشهٔ <bdi>Solution</bdi> قابل استفاده باشد.</p>
+            <h3>۱۲. ConnectionFactory و Connection</h3>
+            <div class="code-block"><pre dir="ltr"><code>var factory = new ConnectionFactory
+{
+    HostName = "localhost"
+};
+
+using var connection = await factory.CreateConnectionAsync();</code></pre></div>
+            <p><code>ConnectionFactory</code> تنظیمات اتصال مثل آدرس <bdi>Broker</bdi>، نام کاربری، رمز عبور، <bdi>Port</bdi> و <bdi>VirtualHost</bdi> را نگه می‌دارد. ساختن این شیء اتصال را باز نمی‌کند؛ <code>CreateConnectionAsync</code> اتصال واقعی را ایجاد می‌کند.</p>
+            <p>برای هر پیام یک <bdi>Connection</bdi> جدید نمی‌سازیم. ایجاد اتصال <bdi>TCP</bdi> هزینه دارد و معمولاً اتصال را برای استفادهٔ طولانی‌تر باز نگه می‌داریم.</p>
+            <h3>۱۳. Channel چیست؟</h3>
+            <div class="code-block"><pre dir="ltr"><code>using var channel = await connection.CreateChannelAsync();</code></pre></div>
+            <p><bdi>Channel</bdi> یک ارتباط منطقی روی <bdi>Connection</bdi> است. بیشتر عملیات، مثل تعریف <bdi>Exchange</bdi> و <bdi>Queue</bdi>، ارسال پیام و ثبت <bdi>Consumer</bdi> از طریق آن انجام می‌شوند. این ساختار اجازه می‌دهد برای هر عملیات یک اتصال <bdi>TCP</bdi> تازه باز نکنیم.</p>
+          </section>
+
+          <section id="topology" class="lesson-section" data-source-section="3" aria-labelledby="topology-title">
+            <p class="section-kicker">بخش ۳ · صفحات ۳ و ۴ جزوه</p>
+            <h2 id="topology-title">ساخت توپولوژی <bdi>Direct Exchange</bdi></h2>
+            <p>توپولوژی در این مثال یعنی یک <bdi>Exchange</bdi>، یک <bdi>Queue</bdi> و رابطهٔ <bdi>Binding</bdi> بین آن‌ها.</p>
+            <h3>۱۴. Declare کردن Exchange</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.ExchangeDeclareAsync(
+    exchange: "payment.direct",
+    type: ExchangeType.Direct
+);</code></pre></div>
+            <p>این دستور مطمئن می‌شود <bdi>Exchange</bdi> با نام <code>payment.direct</code> و نوع <code>Direct</code> وجود دارد. اگر قبلاً با مشخصات سازگار تعریف شده باشد، همان استفاده می‌شود.</p>
+            <aside class="lesson-warning"><strong>مشخصات باید سازگار باشند</strong><span>نمی‌توان یک نام را یک بار با نوع <code>Direct</code> و بار دیگر با نوع <code>Fanout</code> تعریف کرد. تعریف مجدد منابع با مشخصات ناسازگار خطا ایجاد می‌کند.</span></aside>
+            <h3>۱۵. Declare کردن Queue</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.QueueDeclareAsync(
+    queue: "payment.notification.queue",
+    durable: true,
+    exclusive: false,
+    autoDelete: false,
+    arguments: null
+);</code></pre></div>
+            <p>اگر صفی با این نام و مشخصات وجود نداشته باشد، ساخته می‌شود؛ اگر وجود داشته باشد، مشخصات باید با تعریف قبلی سازگار باشند.</p>
+            <dl class="definition-list">
+              <div><dt>۱۶. <code>durable</code></dt><dd>با <code>durable: true</code> خود صف برای باقی‌ماندن بعد از <bdi>Restart</bdi> شدن <bdi>Broker</bdi> تعریف می‌شود. این گزینه به‌تنهایی پیام‌های صف را ماندگار نمی‌کند.</dd></div>
+              <div><dt>۱۷. <code>exclusive</code></dt><dd>با <code>exclusive: true</code> صف به اتصال ایجادکننده وابسته است؛ استفاده از آن به همان <bdi>Connection</bdi> محدود می‌شود و با بسته‌شدن اتصال حذف می‌شود. برای صف اصلی پرداخت از <code>false</code> استفاده می‌کنیم.</dd></div>
+              <div><dt>۱۸. <code>autoDelete</code></dt><dd>صفی با <code>autoDelete: true</code> که قبلاً <bdi>Consumer</bdi> داشته است، پس از جداشدن آخرین <bdi>Consumer</bdi> حذف می‌شود. در این مثال مقدار <code>false</code> است تا با قطع‌شدن <bdi>Consumer</bdi> صف حذف نشود.</dd></div>
+              <div><dt>۱۹. <code>arguments</code></dt><dd>برای تنظیمات اضافی صف استفاده می‌شود. وقتی تنظیم اضافه نداریم، مقدار <code>null</code> می‌دهیم. برای مثال <code>x-message-ttl</code> مدت مجاز ماندن پیام در صف را بر حسب میلی‌ثانیه مشخص می‌کند.</dd></div>
+            </dl>
+            <div class="code-block"><pre dir="ltr"><code>var arguments = new Dictionary&lt;string, object?&gt;
+{
+    ["x-message-ttl"] = 60000
+};</code></pre></div>
+            <p>این مثال مقدار ۶۰ ثانیه را نشان می‌دهد و در صف اصلی جزوه استفاده نشده است. <code>x-message-ttl</code> مربوط به انقضای پیام است؛ برای انقضای خود صف تنظیم جداگانه‌ای مثل <code>x-expires</code> وجود دارد.</p>
+            <h3>۲۰. ساخت Binding</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.QueueBindAsync(
+    queue: "payment.notification.queue",
+    exchange: "payment.direct",
+    routingKey: "payment.success"
+);</code></pre></div>
+            <p>از این لحظه، پیام‌هایی که با <bdi>Routing Key</bdi> برابر <code>payment.success</code> به این <bdi>Direct Exchange</bdi> برسند، به صف <code>payment.notification.queue</code> مسیریابی می‌شوند.</p>
+          </section>
+
+          <section id="publishing" class="lesson-section" data-source-section="4" aria-labelledby="publishing-title">
+            <p class="section-kicker">بخش ۴ · صفحات ۴ و ۵ جزوه</p>
+            <h2 id="publishing-title">ارسال <bdi>Message</bdi> از <bdi>Producer</bdi></h2>
+            <h3>۲۱. تبدیل Message به بایت</h3>
+            <div class="code-block"><pre dir="ltr"><code>var message = "Payment 123 succeeded";
+var body = Encoding.UTF8.GetBytes(message);</code></pre></div>
+            <p>بدنهٔ پیام در <bdi>RabbitMQ</bdi> بایت است. پس داده‌ای مثل متن یا <bdi>JSON</bdi> باید پیش از ارسال به بایت تبدیل شود. در این مثال از <bdi>UTF-8</bdi> استفاده می‌کنیم و <bdi>Consumer</bdi> هم با همان Encoding متن را بازسازی می‌کند.</p>
+            <h3>۲۲. Publish کردن Message</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.BasicPublishAsync(
+    exchange: "payment.direct",
+    routingKey: "payment.success",
+    body: body
+);</code></pre></div>
+            <p><code>exchange</code> مقصد اولیهٔ پیام است، <code>routingKey</code> کلید لازم برای یافتن <bdi>Binding</bdi> منطبق است و <code>body</code> محتوای واقعی پیام را نگه می‌دارد.</p>
+            <h3>۲۳. Durable Queue و Persistent Message</h3>
+            <p>ماندگاری صف و ماندگاری پیام دو تنظیم جدا هستند. برای علامت‌گذاری پیام به‌عنوان <bdi>Persistent</bdi> از <code>BasicProperties</code> استفاده می‌کنیم.</p>
+            <div class="code-block"><pre dir="ltr"><code>var properties = new BasicProperties
+{
+    Persistent = true
+};
+
+await channel.BasicPublishAsync(
+    exchange: "payment.direct",
+    routingKey: "payment.success",
+    basicProperties: properties,
+    body: body
+);</code></pre></div>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>دو تنظیم با دو مسئولیت متفاوت</caption><thead><tr><th scope="col">تنظیم</th><th scope="col">معنی</th></tr></thead><tbody><tr><td><code>durable: true</code></td><td>خود صف پس از Restart شدن Broker باقی می‌ماند.</td></tr><tr><td><code>Persistent = true</code></td><td>پیام با حالت Persistent منتشر می‌شود؛ ماندگاری آن نیازمند صف Durable هم هست.</td></tr></tbody></table></div>
+            <aside class="lesson-note"><strong>مرز این مرحله از آموزش</strong><span><bdi>Persistent</bdi> بودن پیام تضمین کامل تحویل یا پردازش نیست. برای اطمینان سمت <bdi>Publisher</bdi>، مبحث <bdi>Publisher Confirms</bdi> در ادامه بررسی می‌شود. همچنین <bdi>Exchange</bdi> در نمونهٔ جزوه با تنظیم پیش‌فرض غیر Durable تعریف شده است؛ ماندگاری صف به معنی ماندگاری Exchange و مسیر آن نیست.</span></aside>
+          </section>
+
+          <section id="consuming" class="lesson-section" data-source-section="5" aria-labelledby="consuming-title">
+            <p class="section-kicker">بخش ۵ · صفحات ۵ و ۶ جزوه</p>
+            <h2 id="consuming-title">ساخت <bdi>Consumer</bdi></h2>
+            <h3>۲۴. اتصال مستقل Consumer</h3>
+            <p>برنامهٔ دریافت‌کننده اتصال و <bdi>Channel</bdi> خودش را می‌سازد. هر دو برنامه به یک <bdi>Broker</bdi> متصل می‌شوند، ولی اتصال مشترکی در حافظه ندارند.</p>
+            <div class="code-block"><pre dir="ltr"><code>var factory = new ConnectionFactory { HostName = "localhost" };
+using var connection = await factory.CreateConnectionAsync();
+using var channel = await connection.CreateChannelAsync();</code></pre></div>
+            <h3>۲۵. Declare کردن Queue در Consumer</h3>
+            <p>دریافت‌کننده هم صف را با همان مشخصات تعریف می‌کند تا اگر زودتر اجرا شد، صف موجود باشد. این کار فقط صف را آماده می‌کند؛ <bdi>Exchange</bdi> و <bdi>Binding</bdi> در نمونهٔ فعلی توسط <bdi>Producer</bdi> ساخته می‌شوند.</p>
+            <div class="code-block"><pre dir="ltr"><code>await channel.QueueDeclareAsync(
+    queue: "payment.notification.queue",
+    durable: true,
+    exclusive: false,
+    autoDelete: false,
+    arguments: null
+);</code></pre></div>
+            <h3>۲۶. ساخت AsyncEventingBasicConsumer</h3>
+            <div class="code-block"><pre dir="ltr"><code>var consumer = new AsyncEventingBasicConsumer(channel);</code></pre></div>
+            <p>این شیء دریافت asynchronous پیام را پشتیبانی می‌کند و رویدادی به نام <code>ReceivedAsync</code> دارد. ساختن شیء به‌تنهایی دریافت پیام از صف را آغاز نمی‌کند.</p>
+            <h3>۲۷. رویداد ReceivedAsync</h3>
+            <div class="code-block"><pre dir="ltr"><code>consumer.ReceivedAsync += async (model, ea) =&gt;
+{
+    Console.WriteLine("Message received");
+    await Task.CompletedTask;
+};</code></pre></div>
+            <p>این <bdi>Handler</bdi> زمانی اجرا می‌شود که پیام به <bdi>Consumer</bdi> تحویل داده شود. در این قطعه هنوز فقط دریافت را در Console اعلام می‌کنیم.</p>
+            <h3>۲۸. خواندن بدنهٔ Message</h3>
+            <div class="code-block"><pre dir="ltr"><code>var body = ea.Body.ToArray();
+var message = Encoding.UTF8.GetString(body);</code></pre></div>
+            <p>در زمان اجرای <code>ReceivedAsync</code> پیام قبلاً به <bdi>Handler</bdi> تحویل شده است. <code>ToArray</code> بدنه را کپی می‌کند و <code>GetString</code> بایت‌ها را به متن تبدیل می‌کند. در Client نسخهٔ ۷، دادهٔ بدنه باید پیش از پایان Handler خوانده یا کپی شود.</p>
+            <h3>۲۹. ثبت Consumer روی Queue</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.BasicConsumeAsync(
+    queue: "payment.notification.queue",
+    autoAck: true,
+    consumer: consumer
+);</code></pre></div>
+            <p><code>BasicConsumeAsync</code> دریافت‌کننده را روی صف ثبت می‌کند. مقدار <code>autoAck: true</code> اولین حالت معرفی‌شده در جزوه است؛ در بخش بعد آن را به تأیید دستی تغییر می‌دهیم.</p>
+          </section>
+
+          <section id="ack-nack" class="lesson-section" data-source-section="6" aria-labelledby="ack-title">
+            <p class="section-kicker">بخش ۶ · صفحات ۶ و ۷ جزوه</p>
+            <h2 id="ack-title"><bdi>Ack</bdi>، <bdi>Nack</bdi> و رفتار خطا</h2>
+            <h3>۳۰. مفهوم autoAck</h3>
+            <p>با <code>autoAck: true</code>، <bdi>Broker</bdi> پیام ارسالی به Consumer را تأییدشده در نظر می‌گیرد و منتظر تمام‌شدن پردازش برنامه نمی‌ماند. اگر برنامه پس از تحویل و پیش از پایان پردازش متوقف شود، احتمال از دست رفتن پیام وجود دارد.</p>
+            <p>با <code>autoAck: false</code>، تأیید را خود برنامه پس از موفقیت پردازش ارسال می‌کند.</p>
+            <div class="code-block"><pre dir="ltr"><code>await channel.BasicConsumeAsync(
+    queue: "payment.notification.queue",
+    autoAck: false,
+    consumer: consumer
+);</code></pre></div>
+            <h3>۳۱. BasicAckAsync</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.BasicAckAsync(
+    deliveryTag: ea.DeliveryTag,
+    multiple: false
+);</code></pre></div>
+            <p><bdi>Ack</bdi> موفقیت پردازش پیام را اعلام می‌کند. <code>DeliveryTag</code> شناسهٔ تحویل روی همان <bdi>Channel</bdi> است و <code>multiple: false</code> یعنی فقط همین تحویل تأیید شود. تأیید باید روی Channel دریافت‌کنندهٔ پیام ارسال شود.</p>
+            <h3>۳۲. BasicNackAsync</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.BasicNackAsync(
+    deliveryTag: ea.DeliveryTag,
+    multiple: false,
+    requeue: true
+);</code></pre></div>
+            <p><bdi>Nack</bdi> ناموفق‌بودن پردازش را اعلام می‌کند. با <code>requeue: true</code> پیام برای امکان دریافت دوباره به صف برمی‌گردد.</p>
+            <h3>۳۳. تفاوت requeue: true و requeue: false</h3>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>پس از ردکردن پیام چه اتفاقی می‌افتد؟</caption><thead><tr><th scope="col">تنظیم</th><th scope="col">رفتار</th></tr></thead><tbody><tr><td><code>requeue: true</code></td><td>پیام به صف اصلی برمی‌گردد و می‌تواند دوباره تحویل داده شود.</td></tr><tr><td><code>requeue: false</code></td><td>پیام به صف اصلی برنمی‌گردد؛ در صورت تنظیم Dead Letter به مسیر آن می‌رود و در غیر این صورت کنار گذاشته می‌شود.</td></tr></tbody></table></div>
+            <aside class="lesson-warning"><strong>حلقهٔ Redelivery</strong><span>اگر دادهٔ پیام خراب باشد و هر بار شکست بخورد، <code>requeue: true</code> بدون محدودیت می‌تواند دریافت دوبارهٔ بی‌پایان ایجاد کند. کد فعلی آموزشی است؛ <bdi>Retry</bdi> محدود و <bdi>Dead Letter Queue</bdi> هنوز به آن اضافه نشده‌اند.</span></aside>
+          </section>
+
+          <section id="routing" class="lesson-section" data-source-section="7" aria-labelledby="routing-title">
+            <p class="section-kicker">بخش ۷ · صفحات ۷ و ۸ جزوه</p>
+            <h2 id="routing-title">رفتار <bdi>Direct Exchange</bdi> در چند مسیر</h2>
+            <h3>۳۴. چند Queue با Routing Keyهای متفاوت</h3>
+            <div class="code-block"><pre dir="ltr"><code>payment.success → payment.notification.queue
+payment.failed  → payment.failed.queue</code></pre></div>
+            <p>اگر پیام با <code>payment.failed</code> منتشر شود، صفی آن را دریافت می‌کند که <bdi>Binding Key</bdi> منطبق داشته باشد. صف مربوط به <code>payment.success</code> از این Binding پیام نمی‌گیرد.</p>
+            <h3>۳۵. یک Routing Key برای چند Queue</h3>
+            <div class="code-block"><pre dir="ltr"><code>Queue A → payment.success
+Queue B → payment.success
+Queue C → payment.failed
+
+Publish: payment.success
+Result: Queue A + Queue B</code></pre></div>
+            <p>هر دو صف A و B نسخه‌ای از پیام را دریافت می‌کنند، چون هر دو <bdi>Binding</bdi> منطبق دارند. <bdi>Direct Exchange</bdi> الزاماً پیام را فقط به یک صف نمی‌فرستد.</p>
+            <h3>۳۶. پیام Unroutable</h3>
+            <p>اگر هیچ <bdi>Binding</bdi> با کلید پیام تطابق نداشته باشد، پیام وارد هیچ صفی نمی‌شود. مثلاً وقتی فقط کلیدهای <code>payment.success</code> و <code>payment.failed</code> تعریف شده‌اند، پیام با کلید <code>payment.refund</code> مقصدی ندارد. در حالت پیش‌فرض و بدون سازوکار دیگری، این پیام کنار گذاشته می‌شود.</p>
+            <h3>۳۷. گزینهٔ mandatory</h3>
+            <div class="code-block"><pre dir="ltr"><code>await channel.BasicPublishAsync(
+    exchange: "payment.direct",
+    routingKey: "payment.refund",
+    mandatory: true,
+    basicProperties: properties,
+    body: body
+);</code></pre></div>
+            <p>با <code>mandatory: true</code> اگر پیام به هیچ صفی مسیریابی نشود، <bdi>RabbitMQ</bdi> آن را از مسیر <code>basic.return</code> به <bdi>Publisher</bdi> برمی‌گرداند. این گزینه به معنی پردازش موفق پیام توسط <bdi>Consumer</bdi> نیست.</p>
+            <aside class="lesson-note"><strong>تا اینجا خوانده شده</strong><span>رفتار <code>mandatory</code> معرفی شده است، اما <bdi>Handler</bdi> رویداد <code>BasicReturnAsync</code> هنوز در آموزش پیاده‌سازی نشده است. مدیریت پیام برگشتی نقطهٔ شروع ادامهٔ مطالعه خواهد بود.</span></aside>
+          </section>
+
+          <section id="producer-code" class="lesson-section" data-source-section="8" aria-labelledby="producer-title">
+            <p class="section-kicker">بخش ۸ · صفحات ۸ و ۹ جزوه</p>
+            <h2 id="producer-title">کد کامل <bdi>Producer</bdi> تا نقطهٔ فعلی</h2>
+            <p>این کد را در <code>Payment.Producer/Program.cs</code> قرار دهید. این برنامه توپولوژی را آماده می‌کند و پیام موفقیت پرداخت را منتشر می‌کند.</p>
+            <div class="code-block"><div class="code-label"><span>Payment.Producer/Program.cs</span><span>C#</span></div><pre dir="ltr"><code>using RabbitMQ.Client;
+using System.Text;
+
+var factory = new ConnectionFactory
+{
+    HostName = "localhost"
+};
+
+using var connection = await factory.CreateConnectionAsync();
+using var channel = await connection.CreateChannelAsync();
+
+await channel.ExchangeDeclareAsync(
+    exchange: "payment.direct",
+    type: ExchangeType.Direct
+);
+
+await channel.QueueDeclareAsync(
+    queue: "payment.notification.queue",
+    durable: true,
+    exclusive: false,
+    autoDelete: false,
+    arguments: null
+);
+
+await channel.QueueBindAsync(
+    queue: "payment.notification.queue",
+    exchange: "payment.direct",
+    routingKey: "payment.success"
+);
+
+var message = "Payment 123 succeeded";
+var body = Encoding.UTF8.GetBytes(message);
+
+var properties = new BasicProperties
+{
+    Persistent = true
+};
+
+await channel.BasicPublishAsync(
+    exchange: "payment.direct",
+    routingKey: "payment.success",
+    mandatory: true,
+    basicProperties: properties,
+    body: body
+);
+
+Console.WriteLine($"Sent: {message}");
+Console.ReadLine();</code></pre></div>
+            <p>پیام با کلید <code>payment.success</code> به صف اعلان می‌رود. <code>Console.ReadLine</code> برنامه را باز نگه می‌دارد؛ خروجی <code>Sent</code> به‌تنهایی اثبات دریافت یا پردازش پیام نیست.</p>
+            <aside class="lesson-note"><strong>وضعیت نمونه</strong><span><code>mandatory</code> فعال است، ولی Handler پیام برگشتی و <bdi>Publisher Confirms</bdi> هنوز در نمونهٔ جزوه وجود ندارند.</span></aside>
+          </section>
+
+          <section id="consumer-code" class="lesson-section" data-source-section="9" aria-labelledby="consumer-title">
+            <p class="section-kicker">بخش ۹ · صفحات ۹ و ۱۰ جزوه</p>
+            <h2 id="consumer-title">کد کامل <bdi>Consumer</bdi> تا نقطهٔ فعلی</h2>
+            <p>این کد را در <code>Notification.Consumer/Program.cs</code> قرار دهید. نمونهٔ فعلی متن پیام را نمایش می‌دهد و بعد از اجرای بخش پردازش، تأیید دستی می‌فرستد.</p>
+            <div class="code-block"><div class="code-label"><span>Notification.Consumer/Program.cs</span><span>C#</span></div><pre dir="ltr"><code>using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
+
+var factory = new ConnectionFactory
+{
+    HostName = "localhost"
+};
+
+using var connection = await factory.CreateConnectionAsync();
+using var channel = await connection.CreateChannelAsync();
+
+await channel.QueueDeclareAsync(
+    queue: "payment.notification.queue",
+    durable: true,
+    exclusive: false,
+    autoDelete: false,
+    arguments: null
+);
+
+var consumer = new AsyncEventingBasicConsumer(channel);
+
+consumer.ReceivedAsync += async (model, ea) =&gt;
+{
+    try
+    {
+        var body = ea.Body.ToArray();
+        var message = Encoding.UTF8.GetString(body);
+
+        Console.WriteLine($"Received: {message}");
+
+        // Business operation
+
+        await channel.BasicAckAsync(
+            deliveryTag: ea.DeliveryTag,
+            multiple: false
+        );
+    }
+    catch
+    {
+        await channel.BasicNackAsync(
+            deliveryTag: ea.DeliveryTag,
+            multiple: false,
+            requeue: true
+        );
+    }
+};
+
+await channel.BasicConsumeAsync(
+    queue: "payment.notification.queue",
+    autoAck: false,
+    consumer: consumer
+);
+
+Console.WriteLine("Waiting for messages...");
+Console.ReadLine();</code></pre></div>
+            <p>در نمونهٔ جزوه، محل عملیات کسب‌وکار با Comment مشخص شده است؛ فعلاً ارسال واقعی اعلان پیاده‌سازی نشده است. اگر پردازش در این بخش خطا بدهد، <bdi>Nack</bdi> با <code>requeue: true</code> ارسال می‌شود.</p>
+            <h3>اجرای نمونه در دو Terminal</h3>
+            <p>با Broker فعال، ابتدا Consumer را اجرا کنید و باز نگه دارید. سپس Producer را در Terminal دیگری اجرا کنید.</p>
+            <div class="code-block"><div class="code-label"><span>Terminal 1</span><span>CLI</span></div><pre dir="ltr"><code>dotnet run --project Notification.Consumer</code></pre></div>
+            <div class="code-block"><div class="code-label"><span>Terminal 2</span><span>CLI</span></div><pre dir="ltr"><code>dotnet run --project Payment.Producer</code></pre></div>
+            <div class="code-block"><div class="code-label"><span>خروجی مورد انتظار</span><span>Console</span></div><pre dir="ltr"><code>// Producer
+Sent: Payment 123 succeeded
+
+// Consumer
+Waiting for messages...
+Received: Payment 123 succeeded</code></pre></div>
+            <p>در اجرای تمیز، Consumer بعد از ساخته‌شدن Binding توسط Producer پیام را دریافت می‌کند. اگر از قبل پیام‌هایی در صف باشند، ممکن است خروجی بیشتری ببینید.</p>
+          </section>
+
+          <section id="review" class="lesson-section" data-source-section="10" aria-labelledby="review-title">
+            <p class="section-kicker">بخش ۱۰ · صفحات ۱۰ و ۱۱ جزوه</p>
+            <h2 id="review-title">مرور سریع برای مصاحبه</h2>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>مفاهیم خوانده‌شده در یک نگاه</caption><thead><tr><th scope="col">مفهوم</th><th scope="col">معنی</th></tr></thead><tbody>
+              <tr><td>RabbitMQ</td><td>Message Broker برای انتقال و مدیریت پیام بین سرویس‌ها.</td></tr>
+              <tr><td>Producer</td><td>برنامه‌ای که پیام را منتشر می‌کند.</td></tr>
+              <tr><td>Consumer</td><td>برنامه‌ای که پیام را دریافت و پردازش می‌کند.</td></tr>
+              <tr><td>Queue</td><td>محل نگهداری پیام تا دریافت توسط Consumer.</td></tr>
+              <tr><td>Exchange</td><td>مسئول مسیریابی پیام به Queueها.</td></tr>
+              <tr><td>Binding</td><td>رابطهٔ مسیریابی بین Exchange و Queue.</td></tr>
+              <tr><td>Routing Key</td><td>کلیدی که Producer همراه پیام می‌فرستد.</td></tr>
+              <tr><td>Direct Exchange</td><td>ارسال پیام به صف‌هایی که Binding Key آن‌ها دقیقاً با Routing Key تطابق دارد.</td></tr>
+              <tr><td>Connection</td><td>اتصال شبکه‌ای اصلی به Broker؛ معمولاً با طول عمر طولانی.</td></tr>
+              <tr><td>Channel</td><td>ارتباط منطقی روی Connection برای انجام عملیات RabbitMQ.</td></tr>
+              <tr><td>durable</td><td>تنظیم ماندگاری خود صف پس از Restart شدن Broker.</td></tr>
+              <tr><td>Persistent</td><td>انتشار پیام با حالت ماندگار؛ به‌تنهایی تضمین کامل تحویل نیست.</td></tr>
+              <tr><td>Ack</td><td>تأیید موفقیت پردازش پیام در حالت تأیید دستی.</td></tr>
+              <tr><td>Nack</td><td>ردکردن پیام پس از ناموفق‌بودن پردازش.</td></tr>
+              <tr><td>requeue</td><td>تعیین می‌کند پیام ردشده به صف اصلی برگردد یا نه.</td></tr>
+              <tr><td>mandatory</td><td>در نبود مقصد، پیام را از مسیر basic.return به Publisher برمی‌گرداند.</td></tr>
+            </tbody></table></div>
+          </section>
+
+          <section id="next-steps" class="lesson-section future-section" data-source-section="11" aria-labelledby="next-title">
+            <p class="section-kicker">بخش ۱۱ · صفحهٔ ۱۱ جزوه</p>
+            <h2 id="next-title">ادامهٔ یادگیری <bdi>Direct Exchange</bdi></h2>
+            <p class="future-status">هنوز مطالعه نشده · برنامهٔ ادامهٔ مسیر</p>
+            <p>این موارد همان فهرست ادامهٔ جزوه هستند. محتوای آموزشی آن‌ها پس از مطالعه، به این بخش اضافه خواهد شد.</p>
+            <ol class="future-topics">
+              <li>مدیریت پیام برگشتی با <bdi>BasicReturn</bdi> و <code>mandatory</code>.</li>
+              <li><bdi>Publisher Confirms</bdi> برای بررسی پذیرش پیام توسط Broker.</li>
+              <li><bdi>Prefetch</bdi> و <bdi>QoS</bdi> برای کنترل پیام‌های <bdi>Unacked</bdi>.</li>
+              <li>چند <bdi>Consumer</bdi> روی یک <bdi>Queue</bdi> و رفتار توزیع پیام‌ها.</li>
+              <li><bdi>Retry</bdi> محدود و جلوگیری از <bdi>Redelivery Loop</bdi>.</li>
+              <li><bdi>Dead Letter Exchange</bdi> و <bdi>Dead Letter Queue</bdi>.</li>
+              <li>ارسال مدل‌های واقعی به صورت <bdi>JSON</bdi> و <bdi>Deserialize</bdi> در Consumer.</li>
+              <li><bdi>Idempotency</bdi> برای جلوگیری از اجرای دوبارهٔ عملیات کسب‌وکار.</li>
+              <li>جمع‌بندی <bdi>Direct Exchange</bdi> با یک نمونهٔ کاربردی کامل.</li>
+            </ol>
+          </section>
+        </div>
+        <footer class="study-source" aria-label="منابع مطالعه">
+          <h2>منبع این یادداشت‌ها</h2>
+          <p>محتوای این صفحه از جزوهٔ <a href="../../books/RabbitMQ_01.pdf"><bdi>RabbitMQ_01.pdf</bdi></a> تنظیم شده است. ترتیب مباحث و نقطهٔ توقف مطالعه حفظ شده‌اند.</p>
+          <p>برای بررسی جزئیات فنی: <a href="https://www.rabbitmq.com/client-libraries/dotnet-api-guide">راهنمای رسمی .NET Client</a>، <a href="https://www.rabbitmq.com/docs/exchanges">Exchanges</a>، <a href="https://www.rabbitmq.com/docs/queues">Queues</a> و <a href="https://www.rabbitmq.com/docs/confirms">Acknowledgements</a>.</p>
+          <a href="#course-title">بازگشت به ابتدای یادداشت‌ها ↑</a>
+        </footer>
+      </article>
+    </main>
+  </div>
+  <footer class="course-footer"><span>آکادمی دات‌نت · یادداشت‌های RabbitMQ</span><a href="../../index.html#courses">بازگشت به صفحهٔ اصلی</a></footer>
+</body>
+</html>
