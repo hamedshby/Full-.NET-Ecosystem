@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="سرفصل‌های آموزش یک‌روزه CI/CD در GitLab؛ از Build و Test پروژهٔ .NET تا Docker Registry و Deploy در Kubernetes.">
-  <title>آموزش یک‌روزه CI/CD در GitLab | آکادمی دات‌نت</title>
+  <meta name="description" content="یادداشت‌های آموزش CI/CD در GitLab با .NET؛ مفاهیم پایه، Runner، Artifact، Variables، Environment و مثال Pipeline بر اساس CI-CD-01.">
+  <title>آموزش CI/CD در GitLab | آکادمی دات‌نت</title>
   <script>
     (() => {
       document.documentElement.classList.add('js');
@@ -12,125 +12,411 @@
       try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
       const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
-        ? storedTheme
-        : systemDark ? 'dark' : 'light';
+        ? storedTheme : systemDark ? 'dark' : 'light';
     })();
   </script>
   <link rel="stylesheet" href="../../styles.css">
-  <link rel="stylesheet" href="course.css">
+  <link rel="stylesheet" href="study.css">
   <script src="../../script.js" defer></script>
+  <script src="../gitlab-cicd/course-navigation.js" defer></script>
 </head>
-<body>
-  <a class="skip-link" href="#course-content">پرش به محتوای دوره</a>
+<body class="lesson-page gitlab-study-page" data-study-notes="gitlab-cicd">
+  <a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
   <header class="course-header">
-    <nav class="course-nav" aria-label="ناوبری دوره">
+    <nav class="course-nav" aria-label="ناوبری GitLab CI/CD">
       <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
       <span class="course-name"><bdi>GitLab CI/CD</bdi></span>
       <a class="back-link" href="../../index.html#courses">بازگشت به دوره‌ها</a>
+      <button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="true" aria-controls="course-sidebar">فهرست مطالب</button>
       <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
         <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
         <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
       </button>
     </nav>
   </header>
-  <main id="course-content">
-    <section class="course-hero" aria-labelledby="course-title">
-      <div class="course-badge" aria-hidden="true">CI/CD</div>
-      <div>
-        <p class="eyebrow">مسیر فشرده و عملی DevOps برای توسعه‌دهندگان .NET</p>
-        <h1 id="course-title">آموزش یک‌روزه <bdi>CI/CD</bdi> در <bdi>GitLab</bdi></h1>
-        <p class="course-lead">از لحظهٔ Push شدن کد تا Build، Test، ساخت Docker Image، انتشار در Registry و Deploy در Kubernetes را در یک مسیر روشن دنبال کنید.</p>
-      </div>
-      <ul class="course-facts" aria-label="مشخصات دوره">
-        <li><strong>۱۰</strong><span>بخش</span></li>
-        <li><strong>۱</strong><span>روز آموزشی</span></li>
-        <li><strong>.NET</strong><span>پروژهٔ هدف</span></li>
-      </ul>
-    </section>
+  <div class="lesson-shell">
+    <aside id="course-sidebar" class="course-sidebar" data-current-lesson="gitlab-study">
+      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>GitLab CI/CD</bdi> با <bdi>.NET</bdi></strong><span>تا Pipeline جمع‌بندی و مرور مفاهیم</span></div>
+      <nav aria-label="فهرست مطالب GitLab CI/CD"><ol><li><a href="#ci-cd"><span>۰۱</span>CI/CD چیست؟</a></li>
+<li><a href="#pipeline-stage-job"><span>۰۲</span>Pipeline، Stage و Job</a></li>
+<li><a href="#fail-fast"><span>۰۳</span>Fail Fast</a></li>
+<li><a href="#runner"><span>۰۴</span>GitLab Runner</a></li>
+<li><a href="#job-image"><span>۰۵</span>Docker Image برای محیط Job</a></li>
+<li><a href="#build-publish"><span>۰۶</span>تفاوت dotnet build و dotnet publish</a></li>
+<li><a href="#artifacts"><span>۰۷</span>Artifact</a></li>
+<li><a href="#cache"><span>۰۸</span>تفاوت Cache و Artifact</a></li>
+<li><a href="#expire-in"><span>۰۹</span>expire_in برای Artifact</a></li>
+<li><a href="#rules"><span>۱۰</span>rules</a></li>
+<li><a href="#manual"><span>۱۱</span>when: manual</a></li>
+<li><a href="#needs"><span>۱۲</span>needs</a></li>
+<li><a href="#allow-failure"><span>۱۳</span>allow_failure</a></li>
+<li><a href="#before-after"><span>۱۴</span>before_script و after_script</a></li>
+<li><a href="#extends"><span>۱۵</span>extends و Template مشترک</a></li>
+<li><a href="#include"><span>۱۶</span>include</a></li>
+<li><a href="#variables"><span>۱۷</span>CI/CD Variables و Secretها</a></li>
+<li><a href="#environments"><span>۱۸</span>Environment در CI/CD</a></li>
+<li><a href="#environment-variables"><span>۱۹</span>Environment-specific Variables</a></li>
+<li><a href="#full-flow"><span>۲۰</span>Flow مفهومی کامل تا اینجا</a></li>
+<li><a href="#summary-pipeline"><span>۲۱</span>نمونهٔ جمع‌بندی Pipeline</a></li>
+<li><a href="#quick-review"><span>۲۲</span>مرور خیلی سریع</a></li>
+<li><a href="#next-steps"><span>۲۳</span>ادامهٔ یادگیری</a></li>
+<li><a href="#interview-review"><span>۲۴</span>پاسخ‌های کوتاه برای مرور و مصاحبه</a></li></ol></nav>
+      <a class="source-download" href="../../books/CI-CD-01.pdf" download>دریافت جزوهٔ اصلی <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <article aria-labelledby="course-title">
+        <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html#courses">دوره‌ها</a><span aria-hidden="true">/</span><span>GitLab CI/CD</span></nav>
+        <section class="gitlab-study-hero" aria-labelledby="course-title">
+  <p class="eyebrow">یادگیری مرحله‌به‌مرحله، همراه با .NET</p>
+  <h1 id="course-title">آموزش <bdi>CI/CD</bdi> در <bdi>GitLab</bdi></h1>
+  <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از مفاهیم پایه تا تنظیم Jobها، Variables و Environment و یک Pipeline جمع‌بندی.</p>
+  <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۲۴ بخش آموزشی</span><span>.NET + GitLab + Docker concepts</span></div>
+  <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>مفاهیم اصلی و Syntaxهای این مرحله مرور شده‌اند. ساخت Docker Image، Push به Registry و Deploy واقعی هنوز در ادامهٔ مسیر قرار دارند و مطالب به‌مرور تکمیل می‌شوند.</span></aside>
+  <div class="study-actions"><a class="button-link" href="#ci-cd">شروع مطالعه</a><a href="../../books/CI-CD-01.pdf">مشاهدهٔ PDF اصلی</a></div>
+</section>
+        <div class="lesson-body">
+<section id="ci-cd" class="lesson-section" data-source-section="1" aria-labelledby="ci-cd-title"><p class="section-kicker">بخش ۱</p><h2 id="ci-cd-title">CI/CD چیست؟</h2>
+<p>فرض کنید تغییری در پروژهٔ .NET داده‌اید. بعد از <code>git push</code>، به جای اجرای دستی Restore، Build و Test، یک فرایند تعریف‌شده این مراحل را اجرا می‌کند و نتیجه را نشان می‌دهد. <bdi>CI/CD</bdi> برای خودکارسازی فرایند اعتبارسنجی و تحویل نرم‌افزار استفاده می‌شود.</p>
+<div class="code-block"><div class="code-label"><span>مسیر کلی تغییر کد</span><span>Flow</span></div><pre dir="ltr"><code>Developer → git push → GitLab Pipeline
+                         ├─ Restore
+                         ├─ Build
+                         ├─ Test
+                         ├─ Publish / Package
+                         └─ Deploy</code></pre></div>
+<h3>CI یا Continuous Integration</h3><p>تغییرات مرتب در کد مشترک ادغام می‌شوند و سیستم با بررسی‌هایی مثل Restore، Build و Test، ناسالم‌بودن تغییر را زود تشخیص می‌دهد. Pipeline باید برای رویدادهایی مثل Push یا Merge Request تنظیم شده باشد.</p>
+<div class="code-block"><div class="code-label"><span>دستورهای پایهٔ CI</span><span>CLI</span></div><pre dir="ltr"><code>dotnet restore
+dotnet build
+dotnet test</code></pre></div>
+<h3>CD یا Continuous Delivery / Deployment</h3>
+<div class="table-wrap"><table class="diagnostic-table"><caption>تفاوت دو روش تحویل</caption><thead><tr><th scope="col">مفهوم</th><th scope="col">رفتار</th></tr></thead><tbody><tr><td>Continuous Delivery</td><td>نسخه مراحل بررسی را گذرانده و آمادهٔ انتشار است. ورود به Production می‌تواند به تأیید دستی نیاز داشته باشد.</td></tr><tr><td>Continuous Deployment</td><td>نسخه‌ای که تمام کنترل‌ها را با موفقیت گذرانده است به صورت خودکار به Production می‌رود.</td></tr></tbody></table></div>
+</section>
+<section id="pipeline-stage-job" class="lesson-section" data-source-section="2" aria-labelledby="pipeline-stage-job-title"><p class="section-kicker">بخش ۲</p><h2 id="pipeline-stage-job-title">Pipeline، Stage و Job</h2>
+<p>برای فهم فایل <code>.gitlab-ci.yml</code> ابتدا سه لایه را بشناسیم: کل فرایند، مراحل منطقی و کارهای اجرایی.</p>
+<div class="table-wrap"><table class="diagnostic-table"><caption>ساختار GitLab CI</caption><thead><tr><th scope="col">مفهوم</th><th scope="col">معنی</th></tr></thead><tbody><tr><td>Pipeline</td><td>کل فرایند CI/CD از شروع تا پایان.</td></tr><tr><td>Stage</td><td>مرحله‌ای منطقی مثل build، test یا deploy.</td></tr><tr><td>Job</td><td>یک کار مشخص داخل Stage که دستورهای آن اجرا می‌شوند.</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-label"><span>تعریف Stageها و دو Job</span><span>YAML</span></div><pre dir="ltr"><code>stages:
+  - build
+  - test
+  - deploy
 
-    <section class="course-overview" aria-labelledby="overview-title">
-      <div class="section-heading">
-        <p class="eyebrow">برنامهٔ یادگیری</p>
-        <h2 id="overview-title">سرفصل‌های دوره</h2>
-        <p>هر بخش یک صفحهٔ مستقل دارد تا محتوای آموزشی آن به‌مرور تکمیل شود.</p>
-      </div>
-      <ol class="lesson-list">
-          <li>
-            <a href="lessons/ch1-1.html">
-              <span class="lesson-number">01</span>
-              <span class="lesson-copy"><strong>مفاهیم CI/CD، Pipeline، Stage، Job و Runner</strong><small dir="ltr">09:00–10:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-2.html">
-              <span class="lesson-number">02</span>
-              <span class="lesson-copy"><strong>Build و Restore پروژهٔ .NET</strong><small dir="ltr">10:00–11:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-3.html">
-              <span class="lesson-number">03</span>
-              <span class="lesson-copy"><strong>اجرای Unit Test در Pipeline</strong><small dir="ltr">11:00–12:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-4.html">
-              <span class="lesson-number">04</span>
-              <span class="lesson-copy"><strong>ساخت Docker Image</strong><small dir="ltr">12:00–13:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-5.html">
-              <span class="lesson-number">05</span>
-              <span class="lesson-copy"><strong>Push کردن Image به Docker Registry</strong><small dir="ltr">14:00–15:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-6.html">
-              <span class="lesson-number">06</span>
-              <span class="lesson-copy"><strong>Environmentهای Dev، Stage و Production</strong><small dir="ltr">15:00–16:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-7.html">
-              <span class="lesson-number">07</span>
-              <span class="lesson-copy"><strong>Deploy خودکار</strong><small dir="ltr">16:00–17:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-8.html">
-              <span class="lesson-number">08</span>
-              <span class="lesson-copy"><strong>Variables، Secrets و Branch Rules</strong><small dir="ltr">17:00–18:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-9.html">
-              <span class="lesson-number">09</span>
-              <span class="lesson-copy"><strong>ساخت Pipeline واقعی برای .NET</strong><small dir="ltr">18:00–19:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-          <li>
-            <a href="lessons/ch1-10.html">
-              <span class="lesson-number">10</span>
-              <span class="lesson-copy"><strong>Deploy در Kubernetes و مرور مصاحبه‌ای</strong><small dir="ltr">19:00–20:00</small></span>
-              <span class="lesson-arrow" aria-hidden="true">←</span>
-            </a>
-          </li>
-      </ol>
-    </section>
-  </main>
-  <footer class="course-footer">
-    <a href="../../index.html#courses">بازگشت به فهرست دوره‌ها</a>
-    <p>آکادمی دات‌نت؛ آموزش برای کار واقعی</p>
-  </footer>
+build-job:
+  stage: build
+  script:
+    - dotnet build
+
+unit-test:
+  stage: test
+  script:
+    - dotnet test</code></pre></div>
+<p>دو Job در یک Stage، با ظرفیت Runner کافی و نبود وابستگی محدودکننده، می‌توانند موازی اجرا شوند؛ مثلاً Unit Test و Integration Test در Stage مربوط به test.</p>
+<div class="code-block"><div class="code-label"><span>اجرای موازی تست‌ها</span><span>Flow</span></div><pre dir="ltr"><code>          ┌─ Unit Test ─────────┐
+Build ────┤                    ├─ Deploy
+          └─ Integration Test ─┘</code></pre></div>
+</section>
+<section id="fail-fast" class="lesson-section" data-source-section="3" aria-labelledby="fail-fast-title"><p class="section-kicker">بخش ۳</p><h2 id="fail-fast-title">Fail Fast</h2>
+<p>وقتی مرحلهٔ ضروری شکست می‌خورد، ادامهٔ انتشار نتیجهٔ ناسالم منطقی نیست. <bdi>Fail Fast</bdi> یعنی خطا را زود تشخیص دهیم و مراحل وابسته را بدون دلیل ادامه ندهیم؛ معمولاً اگر Test شکست بخورد، Deploy نباید انجام شود.</p>
+<div class="code-block"><div class="code-label"><span>نتیجهٔ یک Pipeline ناموفق</span><span>Result</span></div><pre dir="ltr"><code>Build              OK
+Unit Test          OK
+Integration Test   FAILED
+Deploy             SKIPPED</code></pre></div>
+<p>این رفتار به تنظیمات Pipeline وابسته است. Jobهای معمولی پس از موفقیت مراحل قبلی اجرا می‌شوند؛ تنظیماتی مثل <code>allow_failure</code> یا <code>when</code> می‌توانند این رفتار را تغییر دهند.</p>
+</section>
+<section id="runner" class="lesson-section" data-source-section="4" aria-labelledby="runner-title"><p class="section-kicker">بخش ۴</p><h2 id="runner-title">GitLab Runner</h2>
+<p>GitLab کارها را مدیریت و زمان‌بندی می‌کند، اما <bdi>Runner</bdi> Agentی است که Jobها را واقعاً اجرا می‌کند؛ برای مثال دستور <code>dotnet build</code> در محیط اجرای آن انجام می‌شود.</p>
+<div class="code-block"><div class="code-label"><span>چه کسی دستورها را اجرا می‌کند؟</span><span>Flow</span></div><pre dir="ltr"><code>GitLab → Runner → dotnet restore
+                 → dotnet build
+                 → dotnet test</code></pre></div>
+<p>Runner می‌تواند روی Server یا VM نصب باشد و بسته به Executor، Job را در Shell، Docker Container یا Kubernetes Pod اجرا کند. اگر ابزار موردنیاز در محیط Job نباشد، دستور شکست می‌خورد؛ مثلاً بدون .NET SDK، اجرای <code>dotnet build</code> ممکن نیست.</p>
+</section>
+<section id="job-image" class="lesson-section" data-source-section="5" aria-labelledby="job-image-title"><p class="section-kicker">بخش ۵</p><h2 id="job-image-title">Docker Image برای محیط Job</h2>
+<p>برای محیطی قابل‌تکرار، می‌توان Image موردنیاز Job را مشخص کرد. در این مثال محیط از قبل .NET SDK دارد.</p>
+<div class="code-block"><div class="code-label"><span>محیط اجرای Build</span><span>YAML</span></div><pre dir="ltr"><code>build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet restore
+    - dotnet build</code></pre></div>
+<aside class="lesson-note"><strong>پیش‌نیاز اجرای مثال</strong><span>کلید <code>image</code> باید توسط Executor پشتیبانی شود؛ مثل Docker یا Kubernetes. Shell Executor با این کلید خودبه‌خود Container نمی‌سازد. این مثال فقط انتخاب محیط Job است؛ ساخت Docker Image برنامه هنوز در ادامهٔ مسیر قرار دارد.</span></aside>
+</section>
+<section id="build-publish" class="lesson-section" data-source-section="6" aria-labelledby="build-publish-title"><p class="section-kicker">بخش ۶</p><h2 id="build-publish-title">تفاوت dotnet build و dotnet publish</h2>
+<div class="table-wrap"><table class="diagnostic-table"><caption>Compile کردن یا آماده‌کردن خروجی انتشار؟</caption><thead><tr><th scope="col">دستور</th><th scope="col">کاربرد</th></tr></thead><tbody><tr><td>dotnet build</td><td>پروژه را Compile می‌کند و خطاهای Build را مشخص می‌کند.</td></tr><tr><td>dotnet publish</td><td>خروجی مناسب اجرا و Deploy، شامل برنامه و فایل‌های موردنیاز آن را آماده می‌کند.</td></tr></tbody></table></div>
+<p><code>dotnet publish</code> به صورت پیش‌فرض Restore و Build هم انجام می‌دهد. برای جلوگیری از کار تکراری می‌توان از گزینه‌های مربوط استفاده کرد، اما فقط وقتی فایل‌های موردنیاز از قبل در همان محیط وجود دارند.</p>
+<div class="code-block"><div class="code-label"><span>دستورهای یک اجرای محلی متوالی</span><span>CLI</span></div><pre dir="ltr"><code>dotnet restore
+dotnet build -c Release --no-restore
+dotnet test -c Release --no-build
+dotnet publish MyApi/MyApi.csproj -c Release -o publish</code></pre></div>
+<aside class="lesson-note"><strong>مرز بین Jobها</strong><span>این توالی در یک محیط مشترک معنا دارد. Jobهای جدا معمولاً Workspace مستقل دارند؛ <code>--no-build</code> فقط وقتی مناسب است که خروجی Build در Job تست موجود باشد. صرفاً تمام‌شدن Job قبلی آن فایل‌ها را منتقل نمی‌کند.</span></aside>
+<p>نام Stage قراردادی است. اجرای Publish در Stageی به نام build ممکن است، ولی جداکردن مراحل build، test و publish خوانایی فرایند را بهتر می‌کند.</p>
+</section>
+<section id="artifacts" class="lesson-section" data-source-section="7" aria-labelledby="artifacts-title"><p class="section-kicker">بخش ۷</p><h2 id="artifacts-title">Artifact</h2>
+<p><bdi>Artifact</bdi> خروجی ذخیره‌شدهٔ یک Job است که کاربر یا Job بعدی می‌تواند آن را دریافت کند. مثلاً پوشهٔ <code>publish/</code> می‌تواند خروجی قابل Deploy باشد.</p>
+<div class="code-block"><div class="code-label"><span>نگهداری خروجی Publish</span><span>YAML</span></div><pre dir="ltr"><code>build:
+  stage: build
+  script:
+    - dotnet publish MyApi/MyApi.csproj -c Release -o publish
+  artifacts:
+    paths:
+      - publish/</code></pre></div>
+<p>مسیر Artifact نسبت به پوشهٔ پروژهٔ Job تعریف می‌شود. Build output، فایل‌های Publish و نتیجهٔ Test از نمونه‌های رایج Artifact هستند. فرمان Publish فایل‌ها را می‌سازد و بخش <code>artifacts</code> نگهداری آن‌ها در GitLab را مشخص می‌کند.</p>
+</section>
+<section id="cache" class="lesson-section" data-source-section="8" aria-labelledby="cache-title"><p class="section-kicker">بخش ۸</p><h2 id="cache-title">تفاوت Cache و Artifact</h2>
+<p><bdi>Cache</bdi> برای کاهش کار تکراری است؛ مثلاً استفادهٔ دوباره از Packageهای دانلودشدهٔ NuGet می‌تواند Restore را سریع‌تر کند. <bdi>Artifact</bdi> برای نگه‌داشتن خروجی یک Job است.</p>
+<div class="table-wrap"><table class="diagnostic-table"><caption>دو هدف متفاوت</caption><thead><tr><th scope="col">Artifact</th><th scope="col">Cache</th></tr></thead><tbody><tr><td>خروجی یک Job برای استفادهٔ بعدی.</td><td>کاهش دانلود یا محاسبات تکراری.</td></tr><tr><td>مثال: publish/ یا test-results/.</td><td>مثال: پوشهٔ Packageهای NuGet.</td></tr><tr><td>برای انتقال خروجی لازم به Job بعدی طراحی می‌شود.</td><td>برای سرعت است و نباید تنها راه رسیدن به فایل ضروری باشد.</td></tr></tbody></table></div>
+<p>در این مرحله مفهوم Cache معرفی شده است. تنظیم عملی آن در GitLab هنوز در فهرست ادامهٔ یادگیری قرار دارد.</p>
+</section>
+<section id="expire-in" class="lesson-section" data-source-section="9" aria-labelledby="expire-in-title"><p class="section-kicker">بخش ۹</p><h2 id="expire-in-title">expire_in برای Artifact</h2>
+<p>با <code>expire_in</code> مدت نگهداری Artifact را مشخص می‌کنیم. در مثال زیر، زمان نگهداری دو روز است.</p>
+<div class="code-block"><div class="code-label"><span>مدت نگهداری خروجی</span><span>YAML</span></div><pre dir="ltr"><code>artifacts:
+  paths:
+    - publish/
+  expire_in: 2 days</code></pre></div>
+<p>مقدارهایی مثل <code>3 hours</code> و <code>1 week</code> هم قابل استفاده‌اند. پس از پایان مدت، Artifact واجد حذف می‌شود؛ تنظیم نگهداری Artifact آخرین Pipeline موفق می‌تواند باعث باقی‌ماندن آن شود.</p>
+</section>
+<section id="rules" class="lesson-section" data-source-section="10" aria-labelledby="rules-title"><p class="section-kicker">بخش ۱۰</p><h2 id="rules-title">rules</h2>
+<p>با <code>rules</code> مشخص می‌کنیم Job با چه شرطی وارد Pipeline شود و چه ویژگی‌هایی بگیرد. نمونهٔ ساده، محدودکردن Job انتشار به Branch اصلی است.</p>
+<div class="code-block"><div class="code-label"><span>Job فقط روی main</span><span>YAML</span></div><pre dir="ltr"><code>deploy:
+  stage: deploy
+  script:
+    - echo &quot;Deploying...&quot;
+  rules:
+    - if: '$CI_COMMIT_BRANCH == &quot;main&quot;'</code></pre></div>
+<p>در Branch دیگر این شرط برقرار نیست و Job اضافه نمی‌شود. قواعد فقط برای Branch نیستند؛ می‌توان شرط‌های Tag یا Merge Request را هم تعریف کرد. بررسی پیشرفتهٔ آن‌ها در ادامه انجام می‌شود.</p>
+<p>دستور <code>echo</code> در این مثال فقط نمایش پیام است و برنامه‌ای را Deploy نمی‌کند.</p>
+</section>
+<section id="manual" class="lesson-section" data-source-section="11" aria-labelledby="manual-title"><p class="section-kicker">بخش ۱۱</p><h2 id="manual-title">when: manual</h2>
+<p>وقتی اجرای Job باید با اقدام کاربر شروع شود، از <code>when: manual</code> استفاده می‌کنیم؛ مثلاً برای تأیید انتشار در Production.</p>
+<div class="code-block"><div class="code-label"><span>انتشار با اقدام دستی</span><span>YAML</span></div><pre dir="ltr"><code>deploy-production:
+  stage: deploy
+  script:
+    - echo &quot;Deploy to production&quot;
+  rules:
+    - if: '$CI_COMMIT_BRANCH == &quot;main&quot;'
+  when: manual</code></pre></div>
+<p><code>rules</code> مشخص می‌کند Job تحت چه شرطی در Pipeline حضور داشته باشد؛ <code>when: manual</code> مشخص می‌کند اجرا به اقدام دستی نیاز دارد.</p>
+<aside class="lesson-note"><strong>دستی‌بودن با مسدودکردن Pipeline متفاوت است</strong><span>وقتی <code>when: manual</code> بیرون rules نوشته شود، Job به صورت پیش‌فرض اختیاری است. برای اینکه Pipeline منتظر اجرای موفق آن بماند، <code>allow_failure: false</code> را مشخص کنید. نمونهٔ جمع‌بندی این تنظیم را صریح دارد.</span></aside>
+</section>
+<section id="needs" class="lesson-section" data-source-section="12" aria-labelledby="needs-title"><p class="section-kicker">بخش ۱۲</p><h2 id="needs-title">needs</h2>
+<p><code>needs</code> وابستگی مستقیم بین Jobها را مشخص می‌کند. یک Job پس از پایان موفق Jobهای موردنیازش می‌تواند شروع شود، حتی اگر Jobهای نامرتبط Stage قبلی هنوز تمام نشده باشند.</p>
+<div class="code-block"><div class="code-label"><span>وابستگی تست به Build</span><span>YAML</span></div><pre dir="ltr"><code>build:
+  stage: build
+  script:
+    - dotnet build
+
+test:
+  stage: test
+  needs:
+    - build
+  script:
+    - dotnet test</code></pre></div>
+<div class="table-wrap"><table class="diagnostic-table"><caption>ترتیب کلی یا وابستگی مستقیم؟</caption><thead><tr><th scope="col">stages</th><th scope="col">needs</th></tr></thead><tbody><tr><td>ترتیب کلی مراحل را تعریف می‌کند.</td><td>وابستگی مستقیم Jobها را تعریف می‌کند.</td></tr><tr><td>به صورت پیش‌فرض اجرای Stage به Stage می‌سازد.</td><td>می‌تواند شروع Job را بدون انتظار برای کل Stage قبلی ممکن کند.</td></tr></tbody></table></div>
+<p>Artifact داده و خروجی را نگه می‌دارد؛ needs وابستگی و زمان‌بندی را تعریف می‌کند و می‌تواند دریافت Artifact از Jobهای موردنیاز را هم کنترل کند. بدون ذخیرهٔ Artifact در Job قبلی، needs خروجی Buildی برای دریافت ایجاد نمی‌کند.</p>
+</section>
+<section id="allow-failure" class="lesson-section" data-source-section="13" aria-labelledby="allow-failure-title"><p class="section-kicker">بخش ۱۳</p><h2 id="allow-failure-title">allow_failure</h2>
+<p>گاهی شکست یک بررسی نباید کل Pipeline را متوقف کند. با <code>allow_failure: true</code> اجازه می‌دهیم Pipeline با وجود شکست آن Job ادامه پیدا کند.</p>
+<div class="code-block"><div class="code-label"><span>نمونهٔ مفهومی بررسی اختیاری</span><span>YAML</span></div><pre dir="ltr"><code>security-scan:
+  stage: test
+  script:
+    - run-security-scan
+  allow_failure: true</code></pre></div>
+<p><code>run-security-scan</code> نام نمونه است؛ در پروژهٔ واقعی باید ابزار اسکن و دستور آن موجود باشند. این تنظیم فقط وقتی مناسب است که سیاست تیم اجازهٔ ادامه پس از شکست آن بررسی را بدهد. برای Test یا بررسی حیاتی، بدون دلیل از آن استفاده نکنید.</p>
+</section>
+<section id="before-after" class="lesson-section" data-source-section="14" aria-labelledby="before-after-title"><p class="section-kicker">بخش ۱۴</p><h2 id="before-after-title">before_script و after_script</h2>
+<h3>before_script</h3><p>دستورهای <code>before_script</code> پیش از script اصلی Job اجرا می‌شوند و برای آماده‌سازی محیط مناسب‌اند.</p>
+<div class="code-block"><div class="code-label"><span>آماده‌سازی محیط</span><span>YAML</span></div><pre dir="ltr"><code>build:
+  stage: build
+  before_script:
+    - echo &quot;Preparing environment&quot;
+    - dotnet --info
+  script:
+    - dotnet restore
+    - dotnet build</code></pre></div>
+<h3>after_script</h3><p>دستورهای <code>after_script</code> بعد از script برای پاک‌سازی یا جمع‌کردن Logها مناسب‌اند. در شکست معمول script نیز اجرا می‌شوند؛ اجرای آن‌ها در تمام انواع شکست یا Timeout تضمین‌شده نیست.</p>
+<div class="code-block"><div class="code-label"><span>پاک‌سازی در محیط Linux Job</span><span>YAML</span></div><pre dir="ltr"><code>test:
+  stage: test
+  script:
+    - dotnet test
+  after_script:
+    - echo &quot;Cleaning temporary files&quot;
+    - rm -rf temp/</code></pre></div>
+<div class="code-block"><div class="code-label"><span>ترتیب مراحل Job</span><span>Flow</span></div><pre dir="ltr"><code>before_script → script → after_script</code></pre></div>
+<p>after_script در Shell جداگانه اجرا می‌شود؛ متغیرهایی که فقط در script با export ساخته‌اید، الزاماً در آن موجود نیستند. پاک‌سازی در این مثال محدود به پوشهٔ موقت همان Job است.</p>
+</section>
+<section id="extends" class="lesson-section" data-source-section="15" aria-labelledby="extends-title"><p class="section-kicker">بخش ۱۵</p><h2 id="extends-title">extends و Template مشترک</h2>
+<p>وقتی چند Job تنظیمات یکسان دارند، آن‌ها را در یک Template قرار می‌دهیم و با <code>extends</code> دوباره استفاده می‌کنیم. نامی که با نقطه آغاز می‌شود یک Hidden Job است و خودش به عنوان Job اجرایی اجرا نمی‌شود.</p>
+<div class="code-block"><div class="code-label"><span>اشتراک تنظیمات .NET</span><span>YAML</span></div><pre dir="ltr"><code>.common-dotnet:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  before_script:
+    - dotnet --info
+
+build:
+  extends: .common-dotnet
+  stage: build
+  script:
+    - dotnet build
+
+test:
+  extends: .common-dotnet
+  stage: test
+  script:
+    - dotnet test</code></pre></div>
+<p>هر دو Job از Image و before_script مشترک استفاده می‌کنند، ولی script خودشان را دارند. این کار از تکرار تنظیمات جلوگیری می‌کند.</p>
+</section>
+<section id="include" class="lesson-section" data-source-section="16" aria-labelledby="include-title"><p class="section-kicker">بخش ۱۶</p><h2 id="include-title">include</h2>
+<p>اگر <code>.gitlab-ci.yml</code> بزرگ شود، می‌توان تنظیمات را بین چند فایل YAML تقسیم کرد و با <code>include</code> آن‌ها را به تنظیمات Pipeline اضافه کرد.</p>
+<div class="code-block"><div class="code-label"><span>فایل اصلی .gitlab-ci.yml</span><span>YAML</span></div><pre dir="ltr"><code>include:
+  - local: 'ci/build.yml'
+  - local: 'ci/test.yml'
+  - local: 'ci/deploy.yml'</code></pre></div>
+<div class="code-block"><div class="code-label"><span>ساختار فایل‌ها</span><span>Files</span></div><pre dir="ltr"><code>.gitlab-ci.yml
+ci/
+  build.yml
+  test.yml
+  deploy.yml</code></pre></div>
+<p>فایل‌های local باید در همان Repository و Ref وجود داشته باشند. <code>extends</code> برای اشتراک تنظیمات میان Jobهاست؛ <code>include</code> برای ترکیب فایل‌های تنظیمات است. این دو می‌توانند در یک Pipeline کنار هم استفاده شوند.</p>
+</section>
+<section id="variables" class="lesson-section" data-source-section="17" aria-labelledby="variables-title"><p class="section-kicker">بخش ۱۷</p><h2 id="variables-title">CI/CD Variables و Secretها</h2>
+<p>مقدارهایی مثل Password، Token و Connection String را مستقیم در فایل YAML ننویسید. آن‌ها را در تنظیمات CI/CD Variables پروژه تعریف کنید و در Job از نام Variable استفاده کنید.</p>
+<div class="code-block"><div class="code-label"><span>استفاده از نام Variable بدون چاپ مقدار</span><span>YAML</span></div><pre dir="ltr"><code>check-configuration:
+  stage: test
+  script:
+    - test -n &quot;$DB_PASSWORD&quot;</code></pre></div>
+<p>این نمونهٔ Shell فقط بررسی می‌کند مقدار خالی نباشد؛ اگر مقدار خالی باشد Job شکست می‌خورد. در اجرای واقعی، برنامه یا ابزار مقصد Variable را می‌خواند. برای نمایش مفهوم، Secret را با echo چاپ نمی‌کنیم.</p>
+<div class="table-wrap"><table class="diagnostic-table"><caption>دو تنظیم مستقل</caption><thead><tr><th scope="col">تنظیم</th><th scope="col">معنی</th></tr></thead><tbody><tr><td>Masked Variable</td><td>GitLab تلاش می‌کند مقدار Variable را هنگام ظاهرشدن در Log پنهان کند.</td></tr><tr><td>Protected Variable</td><td>دسترسی به Variable را به Pipelineهای مجاز Refهای Protected محدود می‌کند.</td></tr></tbody></table></div>
+<p>برای Secretهای Production معمولاً هر دو تنظیم لازم‌اند. Masking جایگزین خودداری از چاپ Secret یا بررسی script نیست؛ تغییر شکل مقدار یا دستور مخرب می‌تواند آن را افشا کند.</p>
+</section>
+<section id="environments" class="lesson-section" data-source-section="18" aria-labelledby="environments-title"><p class="section-kicker">بخش ۱۸</p><h2 id="environments-title">Environment در CI/CD</h2>
+<p><bdi>Environment</bdi> مقصد اجرای نسخهٔ برنامه است. نام‌گذاری محیط به GitLab کمک می‌کند Deploymentهای مربوط به آن را ثبت و نمایش دهد.</p>
+<div class="table-wrap"><table class="diagnostic-table"><caption>محیط‌های رایج</caption><thead><tr><th scope="col">Environment</th><th scope="col">کاربرد</th></tr></thead><tbody><tr><td>Development</td><td>توسعه و تست اولیه.</td></tr><tr><td>Staging</td><td>بررسی نسخه پیش از انتشار نهایی.</td></tr><tr><td>Production</td><td>محیط واقعی کاربران.</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-label"><span>نام‌گذاری مقصد Deploy</span><span>YAML</span></div><pre dir="ltr"><code>deploy-staging:
+  stage: deploy
+  script:
+    - echo &quot;Deploy to staging&quot;
+  environment:
+    name: staging
+
+deploy-production:
+  stage: deploy
+  script:
+    - echo &quot;Deploy to production&quot;
+  environment:
+    name: production</code></pre></div>
+<p>کلید environment به‌تنهایی فایل‌ها را روی Server منتقل نمی‌کند. در این مثال script فقط پیام چاپ می‌کند؛ Deploy واقعی باید با دستور مناسب محیط مقصد پیاده‌سازی شود.</p>
+</section>
+<section id="environment-variables" class="lesson-section" data-source-section="19" aria-labelledby="environment-variables-title"><p class="section-kicker">بخش ۱۹</p><h2 id="environment-variables-title">Environment-specific Variables</h2>
+<p>یک نام Variable می‌تواند برای محیط‌های مختلف مقدار متفاوت داشته باشد. مثلاً <code>API_URL</code> در Staging و Production به آدرس یکسان اشاره نمی‌کند.</p>
+<div class="code-block"><div class="code-label"><span>یک نام و دو مقدار متناسب با محیط</span><span>Example</span></div><pre dir="ltr"><code>API_URL
+  staging    → https://staging.example.com
+  production → https://api.example.com</code></pre></div>
+<p>در تنظیمات GitLab، Variableها را با Environment Scope مناسب تعریف می‌کنیم. Jobی که <code>environment.name</code> آن staging است، مقدار منطبق با staging را دریافت می‌کند و script می‌تواند همچنان از نام ثابت <code>$API_URL</code> استفاده کند.</p>
+<p>این تنظیم جدا از Masked و Protected است: Scope محیط مناسب را انتخاب می‌کند، Masked مربوط به Log است و Protected مربوط به Refهای مجاز است.</p>
+</section>
+<section id="full-flow" class="lesson-section" data-source-section="20" aria-labelledby="full-flow-title"><p class="section-kicker">بخش ۲۰</p><h2 id="full-flow-title">Flow مفهومی کامل تا اینجا</h2>
+<p>حالا اجزای معرفی‌شده را کنار هم بگذاریم. تغییر کد وارد Repository می‌شود، Pipeline آن را بررسی می‌کند، خروجی انتشار تولید می‌شود و در نهایت یک Job انتشار می‌تواند نسخه را به محیط مقصد ببرد.</p>
+<div class="code-block"><div class="code-label"><span>مسیر مفهومی از Push تا محیط مقصد</span><span>Flow</span></div><pre dir="ltr"><code>Developer → git push → GitLab Repository
+                              ↓
+                           Pipeline
+                              ├─ Restore
+                              ├─ Build
+                              ├─ Test
+                              ├─ Publish → Artifact
+                              ├─ Docker / Package step
+                              └─ Deploy to Environment
+                                  ├─ Development
+                                  ├─ Staging
+                                  └─ Production</code></pre></div>
+<p>این شکل، جای Docker و Deploy را در مسیر نشان می‌دهد. ساخت عملی Image، ارسال به Registry و انتشار واقعی هنوز در ادامهٔ مطالعه هستند.</p>
+</section>
+<section id="summary-pipeline" class="lesson-section" data-source-section="21" aria-labelledby="summary-pipeline-title"><p class="section-kicker">بخش ۲۱</p><h2 id="summary-pipeline-title">نمونهٔ جمع‌بندی Pipeline</h2>
+<p>این نمونهٔ آموزشی، Stageها، Template مشترک، needs، Artifact و انتشار دستی روی main را کنار هم نشان می‌دهد. برای اجرا باید Repository شامل Solution و پروژهٔ <code>MyApi/MyApi.csproj</code> باشد و Runner از Image پشتیبانی کند.</p>
+<div class="code-block"><div class="code-label"><span>.gitlab-ci.yml</span><span>YAML</span></div><pre dir="ltr"><code>stages:
+  - build
+  - test
+  - publish
+  - deploy
+
+.common-dotnet:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  before_script:
+    - dotnet --info
+
+build:
+  extends: .common-dotnet
+  stage: build
+  script:
+    - dotnet restore
+    - dotnet build -c Release --no-restore
+
+test:
+  extends: .common-dotnet
+  stage: test
+  needs:
+    - build
+  script:
+    - dotnet test -c Release
+
+publish:
+  extends: .common-dotnet
+  stage: publish
+  needs:
+    - test
+  script:
+    - dotnet publish MyApi/MyApi.csproj -c Release -o publish
+  artifacts:
+    paths:
+      - publish/
+    expire_in: 2 days
+
+deploy-production:
+  extends: .common-dotnet
+  stage: deploy
+  needs:
+    - publish
+  script:
+    - echo &quot;Deploy to production&quot;
+  environment:
+    name: production
+  rules:
+    - if: '$CI_COMMIT_BRANCH == &quot;main&quot;'
+  when: manual
+  allow_failure: false</code></pre></div>
+<h3>این نمونه چه نتیجه‌ای دارد؟</h3><p>اگر Build یا Test شکست بخورد، مسیر انتشار جلو نمی‌رود. Publish پوشهٔ خروجی را می‌سازد و به عنوان Artifact ذخیره می‌کند. Job آخر فقط روی main ظاهر می‌شود و منتظر اجرای دستی می‌ماند؛ script آن فعلاً فقط پیام چاپ می‌کند.</p>
+<aside class="lesson-note"><strong>اصلاح اجرایی نمونهٔ جزوه</strong><span>در جزوه، Job تست از <code>--no-build</code> استفاده می‌کند، ولی خروجی Build را به Job تست منتقل نمی‌کند. اینجا Test در محیط خودش Build می‌کند تا به فایل‌های Job قبلی وابسته نباشد. بهینه‌سازی با انتقال خروجی و Artifact در ادامه بررسی می‌شود. تنظیم <code>allow_failure: false</code> نیز انتظار برای Job دستی را صریح می‌کند.</span></aside>
+<p>ساخت Docker Image، Push به Registry و Deploy واقعی در این YAML وجود ندارند؛ این نمونه جمع‌بندی نقطهٔ فعلی مطالعه است.</p>
+</section>
+<section id="quick-review" class="lesson-section" data-source-section="22" aria-labelledby="quick-review-title"><p class="section-kicker">بخش ۲۲</p><h2 id="quick-review-title">مرور خیلی سریع</h2>
+<div class="table-wrap"><table class="diagnostic-table"><caption>مفاهیم خوانده‌شده در یک نگاه</caption><thead><tr><th scope="col">موضوع</th><th scope="col">معنی کوتاه</th></tr></thead><tbody><tr><td>CI</td><td>Restore، Build و Test برای اعتبارسنجی تغییرات.</td></tr><tr><td>Continuous Delivery</td><td>نسخه آمادهٔ انتشار است؛ Production می‌تواند نیازمند اقدام دستی باشد.</td></tr><tr><td>Continuous Deployment</td><td>انتشار نسخهٔ معتبر در Production هم خودکار است.</td></tr><tr><td>Pipeline / Stage / Job</td><td>کل فرایند / مرحلهٔ منطقی / کار اجرایی.</td></tr><tr><td>Runner</td><td>Agent و محیط اجرای Jobها.</td></tr><tr><td>Artifact / Cache</td><td>نگهداری خروجی / کاهش کار و دانلود تکراری.</td></tr><tr><td>rules / when: manual</td><td>شرط حضور Job / شروع با اقدام دستی.</td></tr><tr><td>needs</td><td>وابستگی مستقیم بین Jobها.</td></tr><tr><td>allow_failure</td><td>اجازهٔ ادامهٔ Pipeline با وجود شکست Job.</td></tr><tr><td>before_script / after_script</td><td>آماده‌سازی پیش از script / کارهای پس از script.</td></tr><tr><td>extends / include</td><td>اشتراک تنظیمات Jobها / ترکیب فایل‌های تنظیمات.</td></tr><tr><td>expire_in</td><td>مدت نگهداری Artifact.</td></tr><tr><td>Masked / Protected</td><td>پنهان‌سازی مقدار در Log / محدودکردن دسترسی بر اساس Ref مجاز.</td></tr><tr><td>Environment</td><td>مقصد Deploy مثل staging یا production.</td></tr></tbody></table></div>
+</section>
+<section id="next-steps" class="lesson-section future-section" data-source-section="23" aria-labelledby="next-steps-title"><p class="section-kicker">بخش ۲۳</p><h2 id="next-steps-title">ادامهٔ یادگیری</h2>
+<p class="future-status">هنوز مطالعه نشده · برنامهٔ ادامهٔ مسیر</p>
+<p>این موضوع‌ها در جزوه به عنوان ادامهٔ مسیر معرفی شده‌اند و آموزش عملی آن‌ها هنوز کامل نشده است.</p>
+<ol class="future-topics">
+  <li>تنظیم عملی <bdi>Cache</bdi> در GitLab.</li>
+  <li><code>dependencies</code> و رابطهٔ دقیق آن با <code>artifacts</code> و <code>needs</code>.</li>
+  <li>ساخت <bdi>Docker Image</bdi> داخل Pipeline.</li>
+  <li>Push کردن Image به <bdi>Registry</bdi>.</li>
+  <li>Deploy واقعی به Environmentهای مختلف.</li>
+  <li>قواعد پیشرفتهٔ Branch، Tag و Merge Request.</li>
+  <li>مدیریت Secretها و Variables در سناریوی واقعی.</li>
+  <li><bdi>Rollback</bdi> در صورت ناموفق‌بودن انتشار.</li>
+  <li>ساخت Pipeline کامل .NET از صفر تا Deploy.</li>
+  <li>مرور عمیق‌تر پرسش‌های مصاحبهٔ CI/CD.</li>
+</ol>
+</section>
+<section id="interview-review" class="lesson-section" data-source-section="24" aria-labelledby="interview-review-title"><p class="section-kicker">بخش ۲۴</p><h2 id="interview-review-title">پاسخ‌های کوتاه برای مرور و مصاحبه</h2>
+<dl class="definition-list">
+<div><dt>Runner چه کاری می‌کند؟</dt><dd>Job را در محیط اجرایی مناسب اجرا می‌کند و نتیجه را به GitLab گزارش می‌دهد.</dd></div>
+<div><dt>Artifact چه تفاوتی با Cache دارد؟</dt><dd>Artifact خروجی یک Job را نگه می‌دارد؛ Cache برای کاهش کار تکراری مثل دانلود NuGet Packageهاست.</dd></div>
+<div><dt>Stage و Job چه تفاوتی دارند؟</dt><dd>Stage یک مرحلهٔ منطقی است؛ Job کار واقعی داخل آن مرحله است. چند Job در یک Stage می‌توانند با ظرفیت Runner کافی موازی اجرا شوند.</dd></div>
+<div><dt>rules و when: manual چه تفاوتی دارند؟</dt><dd>rules شرایط حضور و ویژگی‌های Job را تعریف می‌کند؛ when: manual اجرای آن را به اقدام کاربر وابسته می‌کند.</dd></div>
+<div><dt>needs چه چیزی را مشخص می‌کند؟</dt><dd>وابستگی مستقیم یک Job به Jobهای دیگر را تعریف می‌کند؛ خودش خروجی Build تولید یا ذخیره نمی‌کند.</dd></div>
+<div><dt>build و publish چه تفاوتی دارند؟</dt><dd>Build کد را Compile می‌کند؛ Publish خروجی مناسب اجرا و انتشار را آماده می‌کند.</dd></div>
+<div><dt>Masked و Protected چه تفاوتی دارند؟</dt><dd>Masked به پنهان‌سازی مقدار در Log مربوط است؛ Protected به محدودکردن دسترسی بر اساس Refهای مجاز مربوط است.</dd></div>
+</dl>
+</section>
+        </div>
+        <footer class="study-source" aria-label="منابع مطالعه"><h2>منبع این یادداشت‌ها</h2><p>محتوای این صفحه بر اساس <a href="../../books/CI-CD-01.pdf"><bdi>CI-CD-01.pdf</bdi></a> تنظیم شده است. ترتیب موضوع‌ها و مرز مطالب خوانده‌شده حفظ شده‌اند؛ نکته‌های اجرایی مثال‌ها در همان بخش توضیح داده شده‌اند.</p><p>برای بررسی جزئیات فنی: <a href="https://docs.gitlab.com/ci/yaml/">مرجع رسمی YAML در GitLab</a>، <a href="https://docs.gitlab.com/ci/variables/">CI/CD Variables</a> و <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test">راهنمای dotnet test</a>.</p><a href="#course-title">بازگشت به ابتدای یادداشت‌ها ↑</a></footer>
+      </article>
+    </main>
+  </div>
+  <footer class="course-footer"><span>آکادمی دات‌نت · یادداشت‌های GitLab CI/CD</span><a href="../../index.html#courses">بازگشت به صفحهٔ اصلی</a></footer>
 </body>
 </html>

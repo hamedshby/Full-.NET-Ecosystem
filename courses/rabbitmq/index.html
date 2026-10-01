@@ -61,13 +61,13 @@
           <p class="eyebrow">از پایه تا کاربرد، همراه با .NET</p>
           <h1 id="course-title">یادگیری <bdi>RabbitMQ</bdi></h1>
           <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از ارتباط سرویس‌ها با Message Broker تا مسیریابی پیام در Direct Exchange.</p>
-          <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۱۱ بخش · جزوهٔ ۱۱ صفحه‌ای</span><span>RabbitMQ.Client 7.x</span></div>
+          <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۱۱ بخش آموزشی</span><span>RabbitMQ.Client 7.x</span></div>
           <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>به گزینهٔ <code>mandatory</code> رسیده‌ایم. مبحث <bdi>Direct Exchange</bdi> هنوز تمام نشده است و مطالب بعدی به‌مرور اضافه می‌شوند.</span></aside>
           <div class="study-actions"><a class="button-link" href="#basics">شروع مطالعه</a><a href="../../books/RabbitMQ_01.pdf">مشاهدهٔ PDF اصلی</a></div>
         </section>
         <div class="lesson-body">
           <section id="basics" class="lesson-section" data-source-section="1" aria-labelledby="basics-title">
-            <p class="section-kicker">بخش ۱ · صفحات ۱ و ۲ جزوه</p>
+            <p class="section-kicker">بخش ۱</p>
             <h2 id="basics-title">مفاهیم پایهٔ <bdi>RabbitMQ</bdi></h2>
             <h3>۱. RabbitMQ چیست؟</h3>
             <p>فرض کنید پرداخت موفق شده است و باید برای کاربر اعلان ارسال شود. سرویس پرداخت می‌تواند یک پیام منتشر کند و سرویس اعلان بعداً آن را دریافت و پردازش کند. <bdi>RabbitMQ</bdi> یک <bdi>Message Broker</bdi> است؛ واسطه‌ای که پیام را از یک برنامه می‌گیرد و برای مصرف توسط برنامهٔ دیگر مدیریت می‌کند. در این مسیر، سرویس‌ها مجبور نیستند همیشه مستقیماً و هم‌زمان با یکدیگر ارتباط برقرار کنند.</p>
@@ -104,7 +104,7 @@ Result: Match → Queue receives message</code></pre></div>
           </section>
 
           <section id="dotnet-setup" class="lesson-section" data-source-section="2" aria-labelledby="setup-title">
-            <p class="section-kicker">بخش ۲ · صفحات ۲ و ۳ جزوه</p>
+            <p class="section-kicker">بخش ۲</p>
             <h2 id="setup-title">آماده‌سازی پروژه‌های <bdi>.NET</bdi></h2>
             <h3>۱۱. یک Solution و دو برنامه</h3>
             <p>دو <bdi>Console Application</bdi> مستقل می‌سازیم؛ یکی برای ارسال پیام و دیگری برای دریافت آن. برای اجرای نمونه‌ها باید <bdi>.NET SDK</bdi> نصب باشد و یک <bdi>RabbitMQ Broker</bdi> روی <code>localhost:5672</code> در دسترس باشد. کد جزوه از APIهای <bdi>RabbitMQ.Client 7.x</bdi> استفاده می‌کند.</p>
@@ -132,7 +132,7 @@ using var connection = await factory.CreateConnectionAsync();</code></pre></div>
           </section>
 
           <section id="topology" class="lesson-section" data-source-section="3" aria-labelledby="topology-title">
-            <p class="section-kicker">بخش ۳ · صفحات ۳ و ۴ جزوه</p>
+            <p class="section-kicker">بخش ۳</p>
             <h2 id="topology-title">ساخت توپولوژی <bdi>Direct Exchange</bdi></h2>
             <p>توپولوژی در این مثال یعنی یک <bdi>Exchange</bdi>، یک <bdi>Queue</bdi> و رابطهٔ <bdi>Binding</bdi> بین آن‌ها.</p>
             <h3>۱۴. Declare کردن Exchange</h3>
@@ -172,7 +172,7 @@ using var connection = await factory.CreateConnectionAsync();</code></pre></div>
           </section>
 
           <section id="publishing" class="lesson-section" data-source-section="4" aria-labelledby="publishing-title">
-            <p class="section-kicker">بخش ۴ · صفحات ۴ و ۵ جزوه</p>
+            <p class="section-kicker">بخش ۴</p>
             <h2 id="publishing-title">ارسال <bdi>Message</bdi> از <bdi>Producer</bdi></h2>
             <h3>۲۱. تبدیل Message به بایت</h3>
             <div class="code-block"><pre dir="ltr"><code>var message = "Payment 123 succeeded";
@@ -203,7 +203,7 @@ await channel.BasicPublishAsync(
           </section>
 
           <section id="consuming" class="lesson-section" data-source-section="5" aria-labelledby="consuming-title">
-            <p class="section-kicker">بخش ۵ · صفحات ۵ و ۶ جزوه</p>
+            <p class="section-kicker">بخش ۵</p>
             <h2 id="consuming-title">ساخت <bdi>Consumer</bdi></h2>
             <h3>۲۴. اتصال مستقل Consumer</h3>
             <p>برنامهٔ دریافت‌کننده اتصال و <bdi>Channel</bdi> خودش را می‌سازد. هر دو برنامه به یک <bdi>Broker</bdi> متصل می‌شوند، ولی اتصال مشترکی در حافظه ندارند.</p>
@@ -243,7 +243,7 @@ var message = Encoding.UTF8.GetString(body);</code></pre></div>
           </section>
 
           <section id="ack-nack" class="lesson-section" data-source-section="6" aria-labelledby="ack-title">
-            <p class="section-kicker">بخش ۶ · صفحات ۶ و ۷ جزوه</p>
+            <p class="section-kicker">بخش ۶</p>
             <h2 id="ack-title"><bdi>Ack</bdi>، <bdi>Nack</bdi> و رفتار خطا</h2>
             <h3>۳۰. مفهوم autoAck</h3>
             <p>با <code>autoAck: true</code>، <bdi>Broker</bdi> پیام ارسالی به Consumer را تأییدشده در نظر می‌گیرد و منتظر تمام‌شدن پردازش برنامه نمی‌ماند. اگر برنامه پس از تحویل و پیش از پایان پردازش متوقف شود، احتمال از دست رفتن پیام وجود دارد.</p>
@@ -272,7 +272,7 @@ var message = Encoding.UTF8.GetString(body);</code></pre></div>
           </section>
 
           <section id="routing" class="lesson-section" data-source-section="7" aria-labelledby="routing-title">
-            <p class="section-kicker">بخش ۷ · صفحات ۷ و ۸ جزوه</p>
+            <p class="section-kicker">بخش ۷</p>
             <h2 id="routing-title">رفتار <bdi>Direct Exchange</bdi> در چند مسیر</h2>
             <h3>۳۴. چند Queue با Routing Keyهای متفاوت</h3>
             <div class="code-block"><pre dir="ltr"><code>payment.success → payment.notification.queue
@@ -301,7 +301,7 @@ Result: Queue A + Queue B</code></pre></div>
           </section>
 
           <section id="producer-code" class="lesson-section" data-source-section="8" aria-labelledby="producer-title">
-            <p class="section-kicker">بخش ۸ · صفحات ۸ و ۹ جزوه</p>
+            <p class="section-kicker">بخش ۸</p>
             <h2 id="producer-title">کد کامل <bdi>Producer</bdi> تا نقطهٔ فعلی</h2>
             <p>این کد را در <code>Payment.Producer/Program.cs</code> قرار دهید. این برنامه توپولوژی را آماده می‌کند و پیام موفقیت پرداخت را منتشر می‌کند.</p>
             <div class="code-block"><div class="code-label"><span>Payment.Producer/Program.cs</span><span>C#</span></div><pre dir="ltr"><code>using RabbitMQ.Client;
@@ -357,7 +357,7 @@ Console.ReadLine();</code></pre></div>
           </section>
 
           <section id="consumer-code" class="lesson-section" data-source-section="9" aria-labelledby="consumer-title">
-            <p class="section-kicker">بخش ۹ · صفحات ۹ و ۱۰ جزوه</p>
+            <p class="section-kicker">بخش ۹</p>
             <h2 id="consumer-title">کد کامل <bdi>Consumer</bdi> تا نقطهٔ فعلی</h2>
             <p>این کد را در <code>Notification.Consumer/Program.cs</code> قرار دهید. نمونهٔ فعلی متن پیام را نمایش می‌دهد و بعد از اجرای بخش پردازش، تأیید دستی می‌فرستد.</p>
             <div class="code-block"><div class="code-label"><span>Notification.Consumer/Program.cs</span><span>C#</span></div><pre dir="ltr"><code>using RabbitMQ.Client;
@@ -431,7 +431,7 @@ Received: Payment 123 succeeded</code></pre></div>
           </section>
 
           <section id="review" class="lesson-section" data-source-section="10" aria-labelledby="review-title">
-            <p class="section-kicker">بخش ۱۰ · صفحات ۱۰ و ۱۱ جزوه</p>
+            <p class="section-kicker">بخش ۱۰</p>
             <h2 id="review-title">مرور سریع برای مصاحبه</h2>
             <div class="table-wrap"><table class="diagnostic-table"><caption>مفاهیم خوانده‌شده در یک نگاه</caption><thead><tr><th scope="col">مفهوم</th><th scope="col">معنی</th></tr></thead><tbody>
               <tr><td>RabbitMQ</td><td>Message Broker برای انتقال و مدیریت پیام بین سرویس‌ها.</td></tr>
@@ -454,7 +454,7 @@ Received: Payment 123 succeeded</code></pre></div>
           </section>
 
           <section id="next-steps" class="lesson-section future-section" data-source-section="11" aria-labelledby="next-title">
-            <p class="section-kicker">بخش ۱۱ · صفحهٔ ۱۱ جزوه</p>
+            <p class="section-kicker">بخش ۱۱</p>
             <h2 id="next-title">ادامهٔ یادگیری <bdi>Direct Exchange</bdi></h2>
             <p class="future-status">هنوز مطالعه نشده · برنامهٔ ادامهٔ مسیر</p>
             <p>این موارد همان فهرست ادامهٔ جزوه هستند. محتوای آموزشی آن‌ها پس از مطالعه، به این بخش اضافه خواهد شد.</p>

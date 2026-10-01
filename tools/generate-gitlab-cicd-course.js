@@ -877,7 +877,9 @@ ${lessonLinks('', lesson.number)}
 }
 
 fs.mkdirSync(lessonRoot, { recursive: true });
-fs.writeFileSync(path.join(courseRoot, 'index.html'), renderLanding(), 'utf8');
+const landingPath = path.join(courseRoot, 'index.html');
+const hasStudyNotes = fs.existsSync(landingPath) && fs.readFileSync(landingPath, 'utf8').includes('data-study-notes="gitlab-cicd"');
+if (!hasStudyNotes) fs.writeFileSync(landingPath, renderLanding(), 'utf8');
 lessons.forEach((lesson, index) => {
   fs.writeFileSync(path.join(lessonRoot, `ch1-${lesson.number}.html`), renderLesson(lesson, index), 'utf8');
 });
