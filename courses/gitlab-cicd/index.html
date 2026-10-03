@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="یادداشت‌های آموزش CI/CD در GitLab با .NET؛ مفاهیم پایه، Runner، Artifact، Variables، Environment و مثال Pipeline بر اساس CI-CD-01.">
+  <meta name="description" content="یادداشت‌های آموزش CI/CD در GitLab با .NET؛ از مفاهیم پایه و Artifact تا Cache عملی، Container Registry، Deploy و Rollback بر اساس CI-CD-01 و CI-CD-02.">
   <title>آموزش CI/CD در GitLab | آکادمی دات‌نت</title>
   <script>
     (() => {
@@ -36,7 +36,7 @@
   </header>
   <div class="lesson-shell">
     <aside id="course-sidebar" class="course-sidebar" data-current-lesson="gitlab-study">
-      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>GitLab CI/CD</bdi> با <bdi>.NET</bdi></strong><span>تا Pipeline جمع‌بندی و مرور مفاهیم</span></div>
+      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>GitLab CI/CD</bdi> با <bdi>.NET</bdi></strong><span>از Pipeline تا Deploy و Rollback</span></div>
       <nav aria-label="فهرست مطالب GitLab CI/CD"><ol><li><a href="#ci-cd"><span>۰۱</span>CI/CD چیست؟</a></li>
 <li><a href="#pipeline-stage-job"><span>۰۲</span>Pipeline، Stage و Job</a></li>
 <li><a href="#fail-fast"><span>۰۳</span>Fail Fast</a></li>
@@ -60,8 +60,24 @@
 <li><a href="#summary-pipeline"><span>۲۱</span>نمونهٔ جمع‌بندی Pipeline</a></li>
 <li><a href="#quick-review"><span>۲۲</span>مرور خیلی سریع</a></li>
 <li><a href="#next-steps"><span>۲۳</span>ادامهٔ یادگیری</a></li>
-<li><a href="#interview-review"><span>۲۴</span>پاسخ‌های کوتاه برای مرور و مصاحبه</a></li></ol></nav>
-      <a class="source-download" href="../../books/CI-CD-01.pdf" download>دریافت جزوهٔ اصلی <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+<li><a href="#interview-review"><span>۲۴</span>پاسخ‌های کوتاه برای مرور و مصاحبه</a></li>
+<li><a href="#nuget-cache"><span>۲۵</span>Cache عملی برای NuGet</a></li>
+<li><a href="#artifact-dependencies"><span>۲۶</span>dependencies برای Artifact</a></li>
+<li><a href="#needs-artifacts"><span>۲۷</span>دریافت Artifact با needs</a></li>
+<li><a href="#docker-build"><span>۲۸</span>ساخت Docker Image در Pipeline</a></li>
+<li><a href="#registry-push"><span>۲۹</span>Push به Container Registry</a></li>
+<li><a href="#commit-sha-tags"><span>۳۰</span>Tag مبتنی بر Commit SHA</a></li>
+<li><a href="#deploy-tested-image"><span>۳۱</span>Deploy همان Image تست‌شده</a></li>
+<li><a href="#rollback-image"><span>۳۲</span>Rollback با Image قبلی</a></li>
+<li><a href="#promote-image"><span>۳۳</span>Promote بین Environmentها</a></li>
+<li><a href="#branch-deploy-rules"><span>۳۴</span>rules برای Branchها</a></li>
+<li><a href="#delivery-flow"><span>۳۵</span>Flow کامل بخش دوم</a></li>
+<li><a href="#part-two-review"><span>۳۶</span>مرور سریع بخش دوم</a></li>
+<li><a href="#part-two-interview"><span>۳۷</span>پاسخ‌های مصاحبه‌ای بخش دوم</a></li></ol></nav>
+      <div class="source-downloads" aria-label="دریافت جزوه‌ها">
+        <a class="source-download" href="../../books/CI-CD-01.pdf" download>دریافت جزوهٔ اول <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+        <a class="source-download" href="../../books/CI-CD-02.pdf" download>دریافت جزوهٔ دوم <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+      </div>
     </aside>
     <main id="lesson-content" class="lesson-content">
       <article aria-labelledby="course-title">
@@ -69,10 +85,10 @@
         <section class="gitlab-study-hero" aria-labelledby="course-title">
   <p class="eyebrow">یادگیری مرحله‌به‌مرحله، همراه با .NET</p>
   <h1 id="course-title">آموزش <bdi>CI/CD</bdi> در <bdi>GitLab</bdi></h1>
-  <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از مفاهیم پایه تا تنظیم Jobها، Variables و Environment و یک Pipeline جمع‌بندی.</p>
-  <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۲۴ بخش آموزشی</span><span>.NET + GitLab + Docker concepts</span></div>
-  <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>مفاهیم اصلی و Syntaxهای این مرحله مرور شده‌اند. ساخت Docker Image، Push به Registry و Deploy واقعی هنوز در ادامهٔ مسیر قرار دارند و مطالب به‌مرور تکمیل می‌شوند.</span></aside>
-  <div class="study-actions"><a class="button-link" href="#ci-cd">شروع مطالعه</a><a href="../../books/CI-CD-01.pdf">مشاهدهٔ PDF اصلی</a></div>
+  <p class="course-lead">از مفاهیم پایه و تنظیم Jobها تا Cache عملی، ساخت و Push کردن Docker Image، Deploy همان نسخه در Environmentها و Rollback.</p>
+  <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۳۷ بخش آموزشی</span><span>.NET + GitLab + Docker concepts</span></div>
+  <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>مطالب دو جزوه تا مسیر کامل Restore، Build، Test، ساخت Image، Push به Registry، Deploy و Rollback پوشش داده شده‌اند. جزئیات عمیق‌تر DevOps همچنان ادامهٔ مسیر هستند.</span></aside>
+  <div class="study-actions"><a class="button-link" href="#ci-cd">شروع مطالعه</a><a href="../../books/CI-CD-01.pdf">مشاهدهٔ PDF اول</a><a href="../../books/CI-CD-02.pdf">مشاهدهٔ PDF دوم</a></div>
 </section>
         <div class="lesson-body">
 <section id="ci-cd" class="lesson-section" data-source-section="1" aria-labelledby="ci-cd-title"><p class="section-kicker">بخش ۱</p><h2 id="ci-cd-title">CI/CD چیست؟</h2>
@@ -135,7 +151,7 @@ Deploy             SKIPPED</code></pre></div>
   script:
     - dotnet restore
     - dotnet build</code></pre></div>
-<aside class="lesson-note"><strong>پیش‌نیاز اجرای مثال</strong><span>کلید <code>image</code> باید توسط Executor پشتیبانی شود؛ مثل Docker یا Kubernetes. Shell Executor با این کلید خودبه‌خود Container نمی‌سازد. این مثال فقط انتخاب محیط Job است؛ ساخت Docker Image برنامه هنوز در ادامهٔ مسیر قرار دارد.</span></aside>
+<aside class="lesson-note"><strong>پیش‌نیاز اجرای مثال</strong><span>کلید <code>image</code> باید توسط Executor پشتیبانی شود؛ مثل Docker یا Kubernetes. Shell Executor با این کلید خودبه‌خود Container نمی‌سازد. این مثال فقط انتخاب محیط Job است؛ ساخت Docker Image برنامه در <a href="#docker-build">بخش ۲۸</a> بررسی می‌شود.</span></aside>
 </section>
 <section id="build-publish" class="lesson-section" data-source-section="6" aria-labelledby="build-publish-title"><p class="section-kicker">بخش ۶</p><h2 id="build-publish-title">تفاوت dotnet build و dotnet publish</h2>
 <div class="table-wrap"><table class="diagnostic-table"><caption>Compile کردن یا آماده‌کردن خروجی انتشار؟</caption><thead><tr><th scope="col">دستور</th><th scope="col">کاربرد</th></tr></thead><tbody><tr><td>dotnet build</td><td>پروژه را Compile می‌کند و خطاهای Build را مشخص می‌کند.</td></tr><tr><td>dotnet publish</td><td>خروجی مناسب اجرا و Deploy، شامل برنامه و فایل‌های موردنیاز آن را آماده می‌کند.</td></tr></tbody></table></div>
@@ -161,7 +177,7 @@ dotnet publish MyApi/MyApi.csproj -c Release -o publish</code></pre></div>
 <section id="cache" class="lesson-section" data-source-section="8" aria-labelledby="cache-title"><p class="section-kicker">بخش ۸</p><h2 id="cache-title">تفاوت Cache و Artifact</h2>
 <p><bdi>Cache</bdi> برای کاهش کار تکراری است؛ مثلاً استفادهٔ دوباره از Packageهای دانلودشدهٔ NuGet می‌تواند Restore را سریع‌تر کند. <bdi>Artifact</bdi> برای نگه‌داشتن خروجی یک Job است.</p>
 <div class="table-wrap"><table class="diagnostic-table"><caption>دو هدف متفاوت</caption><thead><tr><th scope="col">Artifact</th><th scope="col">Cache</th></tr></thead><tbody><tr><td>خروجی یک Job برای استفادهٔ بعدی.</td><td>کاهش دانلود یا محاسبات تکراری.</td></tr><tr><td>مثال: publish/ یا test-results/.</td><td>مثال: پوشهٔ Packageهای NuGet.</td></tr><tr><td>برای انتقال خروجی لازم به Job بعدی طراحی می‌شود.</td><td>برای سرعت است و نباید تنها راه رسیدن به فایل ضروری باشد.</td></tr></tbody></table></div>
-<p>در این مرحله مفهوم Cache معرفی شده است. تنظیم عملی آن در GitLab هنوز در فهرست ادامهٔ یادگیری قرار دارد.</p>
+<p>در این مرحله تفاوت مفهومی Cache و Artifact معرفی می‌شود؛ پیکربندی عملی Cache برای NuGet در <a href="#nuget-cache">بخش ۲۵</a> ادامه پیدا می‌کند.</p>
 </section>
 <section id="expire-in" class="lesson-section" data-source-section="9" aria-labelledby="expire-in-title"><p class="section-kicker">بخش ۹</p><h2 id="expire-in-title">expire_in برای Artifact</h2>
 <p>با <code>expire_in</code> مدت نگهداری Artifact را مشخص می‌کنیم. در مثال زیر، زمان نگهداری دو روز است.</p>
@@ -386,19 +402,14 @@ deploy-production:
 <div class="table-wrap"><table class="diagnostic-table"><caption>مفاهیم خوانده‌شده در یک نگاه</caption><thead><tr><th scope="col">موضوع</th><th scope="col">معنی کوتاه</th></tr></thead><tbody><tr><td>CI</td><td>Restore، Build و Test برای اعتبارسنجی تغییرات.</td></tr><tr><td>Continuous Delivery</td><td>نسخه آمادهٔ انتشار است؛ Production می‌تواند نیازمند اقدام دستی باشد.</td></tr><tr><td>Continuous Deployment</td><td>انتشار نسخهٔ معتبر در Production هم خودکار است.</td></tr><tr><td>Pipeline / Stage / Job</td><td>کل فرایند / مرحلهٔ منطقی / کار اجرایی.</td></tr><tr><td>Runner</td><td>Agent و محیط اجرای Jobها.</td></tr><tr><td>Artifact / Cache</td><td>نگهداری خروجی / کاهش کار و دانلود تکراری.</td></tr><tr><td>rules / when: manual</td><td>شرط حضور Job / شروع با اقدام دستی.</td></tr><tr><td>needs</td><td>وابستگی مستقیم بین Jobها.</td></tr><tr><td>allow_failure</td><td>اجازهٔ ادامهٔ Pipeline با وجود شکست Job.</td></tr><tr><td>before_script / after_script</td><td>آماده‌سازی پیش از script / کارهای پس از script.</td></tr><tr><td>extends / include</td><td>اشتراک تنظیمات Jobها / ترکیب فایل‌های تنظیمات.</td></tr><tr><td>expire_in</td><td>مدت نگهداری Artifact.</td></tr><tr><td>Masked / Protected</td><td>پنهان‌سازی مقدار در Log / محدودکردن دسترسی بر اساس Ref مجاز.</td></tr><tr><td>Environment</td><td>مقصد Deploy مثل staging یا production.</td></tr></tbody></table></div>
 </section>
 <section id="next-steps" class="lesson-section future-section" data-source-section="23" aria-labelledby="next-steps-title"><p class="section-kicker">بخش ۲۳</p><h2 id="next-steps-title">ادامهٔ یادگیری</h2>
-<p class="future-status">هنوز مطالعه نشده · برنامهٔ ادامهٔ مسیر</p>
-<p>این موضوع‌ها در جزوه به عنوان ادامهٔ مسیر معرفی شده‌اند و آموزش عملی آن‌ها هنوز کامل نشده است.</p>
+<p class="future-status">به‌روزرسانی‌شده با جزوهٔ دوم</p>
+<p>موضوع‌های عملی این فهرست در جزوهٔ دوم مطالعه شده‌اند و از <a href="#nuget-cache">بخش ۲۵</a> به بعد آموزش داده می‌شوند. ادامهٔ مسیر پس از این دو جزوه روی موضوع‌های عمیق‌تر متمرکز است.</p>
 <ol class="future-topics">
-  <li>تنظیم عملی <bdi>Cache</bdi> در GitLab.</li>
-  <li><code>dependencies</code> و رابطهٔ دقیق آن با <code>artifacts</code> و <code>needs</code>.</li>
-  <li>ساخت <bdi>Docker Image</bdi> داخل Pipeline.</li>
-  <li>Push کردن Image به <bdi>Registry</bdi>.</li>
-  <li>Deploy واقعی به Environmentهای مختلف.</li>
-  <li>قواعد پیشرفتهٔ Branch، Tag و Merge Request.</li>
-  <li>مدیریت Secretها و Variables در سناریوی واقعی.</li>
-  <li><bdi>Rollback</bdi> در صورت ناموفق‌بودن انتشار.</li>
-  <li>ساخت Pipeline کامل .NET از صفر تا Deploy.</li>
-  <li>مرور عمیق‌تر پرسش‌های مصاحبهٔ CI/CD.</li>
+  <li>Pipelineهای چندپروژه‌ای و Parent-child Pipelineها.</li>
+  <li>Protected Environment، Approval و Deployment Safety.</li>
+  <li>ساخت Image بدون Privileged Mode با BuildKit یا Buildah.</li>
+  <li>Observability، Health Check و Rollback خودکار.</li>
+  <li>مدیریت Secretها با Secret Manager و Tokenهای کوتاه‌عمر.</li>
 </ol>
 </section>
 <section id="interview-review" class="lesson-section" data-source-section="24" aria-labelledby="interview-review-title"><p class="section-kicker">بخش ۲۴</p><h2 id="interview-review-title">پاسخ‌های کوتاه برای مرور و مصاحبه</h2>
@@ -412,8 +423,177 @@ deploy-production:
 <div><dt>Masked و Protected چه تفاوتی دارند؟</dt><dd>Masked به پنهان‌سازی مقدار در Log مربوط است؛ Protected به محدودکردن دسترسی بر اساس Refهای مجاز مربوط است.</dd></div>
 </dl>
 </section>
+<section id="nuget-cache" class="lesson-section" data-source-section="25" aria-labelledby="nuget-cache-title"><p class="section-kicker">بخش ۲۵ · جزوهٔ دوم، موضوع ۱</p><h2 id="nuget-cache-title">پیکربندی عملی Cache برای NuGet</h2>
+<p>هر Job معمولاً در محیطی تازه شروع می‌شود. اگر مسیر Packageهای NuGet را داخل پوشهٔ پروژه قرار دهیم، GitLab Runner می‌تواند آن مسیر را پس از Job ذخیره و در اجرای بعدی بازیابی کند. در نتیجه <code>dotnet restore</code> فقط Packageهای غایب یا تغییریافته را دانلود می‌کند.</p>
+<div class="code-block"><div class="code-label"><span>Cache وابستگی‌های NuGet</span><span>.gitlab-ci.yml</span></div><pre dir="ltr"><code>variables:
+  NUGET_PACKAGES: &quot;$CI_PROJECT_DIR/.nuget/packages&quot;
+
+cache:
+  key: &quot;nuget-$CI_COMMIT_REF_SLUG&quot;
+  paths:
+    - .nuget/packages/
+
+restore:
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet restore</code></pre></div>
+<p>کلید Cache تعیین می‌کند چه اجراهایی بتوانند محتوا را به اشتراک بگذارند. کلید مبتنی بر Branch از تداخل Branchها جلوگیری می‌کند. در پروژه‌هایی که Lock File دارند، می‌توان کلید را از <code>packages.lock.json</code> ساخت تا با تغییر وابستگی‌ها Cache جدیدی ایجاد شود.</p>
+<aside class="lesson-note"><strong>Cache تضمین نیست</strong><span>Runner ممکن است Cache قبلی را پیدا نکند یا آن را پاک کرده باشد؛ بنابراین Pipeline باید بدون Cache هم درست اجرا شود. Cache فقط Performance را بهتر می‌کند، اما Artifact خروجی لازم برای Job بعدی را منتقل می‌کند.</span></aside>
+</section>
+<section id="artifact-dependencies" class="lesson-section" data-source-section="26" aria-labelledby="artifact-dependencies-title"><p class="section-kicker">بخش ۲۶ · جزوهٔ دوم، موضوع ۲</p><h2 id="artifact-dependencies-title"><code>dependencies</code> برای دریافت Artifact</h2>
+<p>Jobهای Stageهای بعدی به‌صورت پیش‌فرض Artifactهای Stageهای قبلی را دریافت می‌کنند. با <code>dependencies</code> فهرست را محدود می‌کنیم تا Job فقط خروجی مورد نیازش را دانلود کند.</p>
+<div class="code-block"><div class="code-label"><span>انتقال خروجی Publish به Deploy</span><span>.gitlab-ci.yml</span></div><pre dir="ltr"><code>publish:
+  stage: publish
+  script:
+    - dotnet publish -c Release -o publish
+  artifacts:
+    paths:
+      - publish/
+
+deploy:
+  stage: deploy
+  dependencies:
+    - publish
+  script:
+    - ./deploy.sh publish/</code></pre></div>
+<p>در این مثال، <code>publish</code> ابتدا پوشهٔ خروجی را می‌سازد و GitLab آن را به‌عنوان Artifact ذخیره می‌کند. Job <code>deploy</code> فقط Artifact همان Job را دریافت می‌کند. نام‌های داخل <code>dependencies</code> باید به Jobهای Stageهای قبلی اشاره کنند.</p>
+</section>
+<section id="needs-artifacts" class="lesson-section" data-source-section="27" aria-labelledby="needs-artifacts-title"><p class="section-kicker">بخش ۲۷ · جزوهٔ دوم، موضوع ۳</p><h2 id="needs-artifacts-title">دریافت Artifact با <code>needs:artifacts</code></h2>
+<p><code>needs</code> وابستگی اجرایی مستقیم می‌سازد؛ یعنی Job لازم نیست منتظر پایان همهٔ Jobهای Stage قبلی بماند. با <code>artifacts: true</code> خروجی Job مورد نیاز نیز دانلود می‌شود.</p>
+<div class="code-block"><div class="code-label"><span>وابستگی اجرایی همراه با Artifact</span><span>.gitlab-ci.yml</span></div><pre dir="ltr"><code>deploy:
+  stage: deploy
+  needs:
+    - job: publish
+      artifacts: true
+  script:
+    - ./deploy.sh publish/</code></pre></div>
+<div class="table-wrap"><table class="diagnostic-table"><caption>انتخاب بین dependencies و needs</caption><thead><tr><th scope="col">Keyword</th><th scope="col">کاربرد</th></tr></thead><tbody><tr><td>dependencies</td><td>انتخاب Artifact از Jobهای Stageهای قبلی، با حفظ ترتیب عادی Stageها.</td></tr><tr><td>needs:artifacts</td><td>تعریف وابستگی مستقیم و دریافت Artifact همان Job؛ مناسب DAG و شروع زودتر Job.</td></tr></tbody></table></div>
+<aside class="lesson-note"><strong>یک روش را انتخاب کنید</strong><span>مستندات GitLab توصیه می‌کنند <code>dependencies</code> و <code>needs</code> را روی یک Job ترکیب نکنید. وقتی <code>needs</code> دارید، دریافت Artifactهای لازم را همان‌جا مشخص کنید.</span></aside>
+</section>
+<section id="docker-build" class="lesson-section" data-source-section="28" aria-labelledby="docker-build-title"><p class="section-kicker">بخش ۲۸ · جزوهٔ دوم، موضوع ۴</p><h2 id="docker-build-title">ساخت Docker Image داخل Pipeline</h2>
+<p>پس از موفقیت Build و Test، یک Job می‌تواند با <code>docker build</code> از Dockerfile، Image بسازد. Docker CLI داخل Container مربوط به Job اجرا می‌شود و برای ساخت Image باید به یک Docker daemon دسترسی داشته باشد.</p>
+<div class="code-block"><div class="code-label"><span>نمونهٔ آموزشی Docker-in-Docker با TLS</span><span>.gitlab-ci.yml</span></div><pre dir="ltr"><code>docker-build:
+  stage: build
+  image: docker:24.0.5-cli
+  services:
+    - name: docker:24.0.5-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: &quot;tcp://docker:2376&quot;
+    DOCKER_TLS_CERTDIR: &quot;/certs&quot;
+  script:
+    - docker build --pull -t &quot;$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA&quot; .</code></pre></div>
+<p>جریان اصلی ساده است: <code>Dockerfile → docker build → Docker Image</code>. گزینهٔ <code>--pull</code> باعث می‌شود Docker نسخهٔ در دسترس Base Image را بررسی کند.</p>
+<aside class="lesson-note"><strong>نیازمندی امنیتی Runner</strong><span>Docker-in-Docker معمولاً به Runner پیکربندی‌شده برای این روش و Privileged Mode نیاز دارد؛ این سطح دسترسی باید فقط به Projectهای مورد اعتماد داده شود. در محیط‌های محدودتر می‌توان BuildKit یا Buildah را بررسی کرد.</span></aside>
+</section>
+<section id="registry-push" class="lesson-section" data-source-section="29" aria-labelledby="registry-push-title"><p class="section-kicker">بخش ۲۹ · جزوهٔ دوم، موضوع ۵</p><h2 id="registry-push-title">Push کردن Image به Container Registry</h2>
+<p>Image ساخته‌شده روی Runner موقتی است. با Push کردن آن به Container Registry، Jobهای بعدی و Serverهای مقصد می‌توانند همان Image را Pull کنند.</p>
+<div class="code-block"><div class="code-label"><span>ورود امن، Build و Push</span><span>.gitlab-ci.yml</span></div><pre dir="ltr"><code>script:
+  - echo &quot;$CI_REGISTRY_PASSWORD&quot; | docker login &quot;$CI_REGISTRY&quot; -u &quot;$CI_REGISTRY_USER&quot; --password-stdin
+  - docker build --pull -t &quot;$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA&quot; .
+  - docker push &quot;$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA&quot;</code></pre></div>
+<p><code>CI_REGISTRY_IMAGE</code> مسیر Registry همین Project است. GitLab مقدارهای <code>CI_REGISTRY_USER</code> و <code>CI_REGISTRY_PASSWORD</code> را برای Job فراهم می‌کند. استفاده از <code>--password-stdin</code> مانع قرارگرفتن Password در آرگومان Command می‌شود؛ با این حال نباید Variableهای حساس را در Log چاپ کرد.</p>
+</section>
+<section id="commit-sha-tags" class="lesson-section" data-source-section="30" aria-labelledby="commit-sha-tags-title"><p class="section-kicker">بخش ۳۰ · جزوهٔ دوم، موضوع ۶</p><h2 id="commit-sha-tags-title">Tag کردن Image با Commit SHA</h2>
+<p>Tag عمومی مثل <code>latest</code> به‌تنهایی نمی‌گوید کدام Commit منتشر شده است و ممکن است هم‌زمان توسط Pipeline دیگری بازنویسی شود. Tag مبتنی بر <code>CI_COMMIT_SHA</code> بین Commit و Image رابطهٔ قابل‌ردیابی می‌سازد.</p>
+<div class="message-flow" aria-label="ارتباط Commit با Image و Production"><span>Commit <bdi>a81f96c…</bdi></span><b aria-hidden="true">←</b><span>Image <bdi>payment-api:a81f96c…</bdi></span><b aria-hidden="true">←</b><span>Production</span></div>
+<div class="code-block"><div class="code-label"><span>نام کامل Image</span><span>Shell</span></div><pre dir="ltr"><code>IMAGE_REF="$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+docker build -t "$IMAGE_REF" .
+docker push "$IMAGE_REF"</code></pre></div>
+<aside class="lesson-note"><strong>Tag خوب است؛ Digest دقیق‌تر است</strong><span>SHA tag ردیابی و Rollback را ساده می‌کند، ولی Tag در Registry از نظر فنی می‌تواند جابه‌جا شود. برای کنترل سخت‌گیرانه‌تر Production، Image را Immutable نگه دارید و Digest آن را نیز ثبت یا Deploy کنید.</span></aside>
+</section>
+<section id="deploy-tested-image" class="lesson-section" data-source-section="31" aria-labelledby="deploy-tested-image-title"><p class="section-kicker">بخش ۳۱ · جزوهٔ دوم، موضوع ۷</p><h2 id="deploy-tested-image-title">Deploy همان Image ساخته‌شده و تست‌شده</h2>
+<p>مرحلهٔ Deploy نباید Source Code را دوباره Build کند؛ باید همان Image تأییدشده در CI را از Registry دریافت و در مقصد اجرا کند. در غیر این صورت خروجی Production می‌تواند با چیزی که Test شده متفاوت باشد.</p>
+<div class="code-block"><div class="code-label"><span>نمونه روی Server</span><span>Shell</span></div><pre dir="ltr"><code>docker pull registry.example.com/payment-api:a81f96c
+docker run -d --name payment-api registry.example.com/payment-api:a81f96c</code></pre></div>
+<div class="code-block"><div class="code-label"><span>نمونه روی Kubernetes</span><span>Shell</span></div><pre dir="ltr"><code>kubectl set image deployment/payment-api \
+  payment-api=registry.example.com/payment-api:a81f96c</code></pre></div>
+<p>این Commandها فقط هستهٔ مثال‌اند. در Pipeline واقعی، Authentication، Health Check، Timeout، Strategy انتشار و بررسی موفقیت Rollout نیز باید تعریف شوند.</p>
+</section>
+<section id="rollback-image" class="lesson-section" data-source-section="32" aria-labelledby="rollback-image-title"><p class="section-kicker">بخش ۳۲ · جزوهٔ دوم، موضوع ۸</p><h2 id="rollback-image-title">Rollback با Image سالم قبلی</h2>
+<p>اگر نسخهٔ جدید پس از Deploy مشکل داشته باشد، Rollback یعنی یک Deployment جدید ایجاد کنیم که نسخهٔ سالم قبلی را دوباره فعال کند. Tag دقیق یا Digest باعث می‌شود نسخهٔ مقصد را بدون حدس پیدا کنیم.</p>
+<div class="code-block"><div class="code-label"><span>بازگردانی نسخهٔ قبلی در Kubernetes</span><span>Shell</span></div><pre dir="ltr"><code>kubectl set image deployment/payment-api \
+  payment-api=registry.example.com/payment-api:73bc210</code></pre></div>
+<p>GitLab تاریخچهٔ Deploymentهای هر Environment را نگه می‌دارد و امکان Retry یا Rollback به Deployment موفق قبلی را فراهم می‌کند، به شرط آنکه Job و Script استقرار هنوز بتوانند نسخه را Deploy کنند.</p>
+<aside class="lesson-note"><strong>Rollback را پیشاپیش آزمایش کنید</strong><span>وجود Tag قبلی کافی نیست. Database migration، تغییر Contract و حذف Configuration می‌تواند بازگشت نسخه را دشوار کند. Runbook، Compatibility و Health Check بخشی از طراحی Rollback هستند.</span></aside>
+</section>
+<section id="promote-image" class="lesson-section" data-source-section="33" aria-labelledby="promote-image-title"><p class="section-kicker">بخش ۳۳ · جزوهٔ دوم، موضوع ۹</p><h2 id="promote-image-title">Promote کردن یک Image بین Environmentها</h2>
+<p>اصل <bdi>Build once, deploy many</bdi> می‌گوید Artifact یا Image را یک‌بار بسازید و همان نسخه را به‌ترتیب در Development، Staging و Production استفاده کنید. ساخت دوباره برای هر Environment احتمال تفاوت خروجی‌ها را ایجاد می‌کند.</p>
+<div class="code-block"><div class="code-label"><span>مسیر Promote</span><span>Flow</span></div><pre dir="ltr"><code>$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+          │
+          ├──► Development
+          ├──► Staging
+          └──► Production</code></pre></div>
+<p>Configuration محیطی مانند URLها و Secretها هنگام Deploy از Variableهای Environment-scoped وارد می‌شوند؛ خود Image تغییر نمی‌کند. بنابراین نسخه‌ای که در Staging تأیید شده دقیقاً همان Binary یا Container وارد Production است.</p>
+</section>
+<section id="branch-deploy-rules" class="lesson-section" data-source-section="34" aria-labelledby="branch-deploy-rules-title"><p class="section-kicker">بخش ۳۴ · جزوهٔ دوم، موضوع ۱۰</p><h2 id="branch-deploy-rules-title">تکمیل <code>rules</code> برای سناریوی Branchها</h2>
+<p>در یک سناریوی ساده، Push روی <code>develop</code> می‌تواند Deployment محیط Development را فعال کند و Branch پیش‌فرض فقط یک Job دستی و Blocking برای Production بسازد.</p>
+<div class="code-block"><div class="code-label"><span>Development خودکار و Production دستی</span><span>.gitlab-ci.yml</span></div><pre dir="ltr"><code>deploy-development:
+  stage: deploy
+  script:
+    - ./deploy.sh development &quot;$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA&quot;
+  environment:
+    name: development
+  rules:
+    - if: '$CI_COMMIT_BRANCH == &quot;develop&quot;'
+
+deploy-production:
+  stage: deploy
+  script:
+    - ./deploy.sh production &quot;$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA&quot;
+  environment:
+    name: production
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+      allow_failure: false</code></pre></div>
+<p><code>rules</code> تعیین می‌کند Job در کدام Pipeline حضور داشته باشد. <code>when: manual</code> اجرای Production را به اقدام کاربر وابسته می‌کند و <code>allow_failure: false</code> آن را به یک Manual Job مسدودکننده تبدیل می‌کند. برای Production واقعی، Protected Environment و محدودیت دسترسی Deploy نیز لازم است.</p>
+</section>
+<section id="delivery-flow" class="lesson-section" data-source-section="35" aria-labelledby="delivery-flow-title"><p class="section-kicker">بخش ۳۵ · جزوهٔ دوم، موضوع ۱۱</p><h2 id="delivery-flow-title">Flow کامل از Push تا Rollback</h2>
+<div class="code-block"><div class="code-label"><span>زنجیرهٔ تحویل نسخه</span><span>Flow</span></div><pre dir="ltr"><code>Developer Push
+      │
+      ▼
+Restore → Build → Test
+      │
+      ▼
+Docker Build → Tag with Commit SHA → Push
+      │
+      ▼
+Container Registry
+      │
+      ├──► Development
+      ├──► Staging
+      └──► Production
+                │
+                └──► Rollback to a known-good image if needed</code></pre></div>
+<p>CI تا ساخت، آزمون و ثبت Image قابل‌ردیابی پیش می‌رود. CD همان Image را با Controlهای مناسب بین Environmentها Promote می‌کند. اگر Health Check یا Monitoring مشکل نشان دهد، نسخهٔ سالم قبلی دوباره Deploy می‌شود.</p>
+</section>
+<section id="part-two-review" class="lesson-section" data-source-section="36" aria-labelledby="part-two-review-title"><p class="section-kicker">بخش ۳۶ · جزوهٔ دوم، موضوع ۱۲</p><h2 id="part-two-review-title">مرور سریع بخش دوم</h2>
+<div class="table-wrap"><table class="diagnostic-table"><caption>مفاهیم جزوهٔ دوم در یک نگاه</caption><thead><tr><th scope="col">مفهوم</th><th scope="col">نقش</th></tr></thead><tbody>
+<tr><td>Cache</td><td>کاهش دانلود یا کار تکراری؛ نمونهٔ رایج آن Packageهای NuGet است.</td></tr>
+<tr><td>dependencies</td><td>انتخاب Artifactهای Jobهای Stageهای قبلی.</td></tr>
+<tr><td>needs:artifacts</td><td>وابستگی مستقیم به Job و دریافت Artifact آن.</td></tr>
+<tr><td>docker build</td><td>ساخت Docker Image از Dockerfile.</td></tr>
+<tr><td>Container Registry</td><td>محل مرکزی نگهداری و توزیع Imageها.</td></tr>
+<tr><td>CI_COMMIT_SHA</td><td>Tag قابل‌ردیابی که Image را به Commit متصل می‌کند.</td></tr>
+<tr><td>Deploy</td><td>اجرای همان Image ساخته‌شده و تست‌شده در مقصد.</td></tr>
+<tr><td>Rollback</td><td>فعال‌کردن دوبارهٔ نسخهٔ سالم قبلی.</td></tr>
+<tr><td>Promote</td><td>انتقال همان Image از Development به Staging و Production.</td></tr>
+<tr><td>rules</td><td>کنترل حضور و رفتار Job بر اساس Branch یا شرط‌های دیگر.</td></tr>
+</tbody></table></div>
+</section>
+<section id="part-two-interview" class="lesson-section" data-source-section="37" aria-labelledby="part-two-interview-title"><p class="section-kicker">بخش ۳۷ · جزوهٔ دوم، موضوع ۱۳</p><h2 id="part-two-interview-title">پاسخ‌های کوتاه برای مرور و مصاحبه</h2>
+<dl class="definition-list">
+<div><dt>چرا Docker Image را Push می‌کنیم؟</dt><dd>چون Image روی Runner محلی و موقتی است؛ Registry آن را برای Jobها و مقصدهای Deploy قابل دسترسی می‌کند.</dd></div>
+<div><dt>چرا Commit SHA از latest بهتر است؟</dt><dd>نسخهٔ Deploy‌شده را به Commit مشخصی وصل می‌کند، از ابهام هم‌زمانی می‌کاهد و Rollback را ساده‌تر می‌سازد.</dd></div>
+<div><dt>چرا روی Server دوباره Image نمی‌سازیم؟</dt><dd>باید همان Image ساخته‌شده و تست‌شده در CI را Deploy کنیم تا خروجی مقصد با نسخهٔ تأییدشده یکسان باشد.</dd></div>
+<div><dt>چرا یک Image را در همهٔ Environmentها استفاده می‌کنیم؟</dt><dd>تا نسخهٔ تأییدشده در Staging دقیقاً همان نسخهٔ واردشده به Production باشد؛ Configuration محیطی جداگانه تزریق می‌شود.</dd></div>
+<div><dt>Rollback چیست؟</dt><dd>ایجاد یک Deployment جدید با نسخهٔ سالم قبلی؛ برای Containerها معمولاً با Deploy دوبارهٔ Image قبلی انجام می‌شود.</dd></div>
+<div><dt>dependencies و needs:artifacts چه تفاوتی دارند؟</dt><dd><code>dependencies</code> دانلود Artifact از Stageهای قبلی را محدود می‌کند؛ <code>needs:artifacts</code> هم وابستگی مستقیم اجرایی و هم دریافت Artifact را تعریف می‌کند.</dd></div>
+</dl>
+</section>
         </div>
-        <footer class="study-source" aria-label="منابع مطالعه"><h2>منبع این یادداشت‌ها</h2><p>محتوای این صفحه بر اساس <a href="../../books/CI-CD-01.pdf"><bdi>CI-CD-01.pdf</bdi></a> تنظیم شده است. ترتیب موضوع‌ها و مرز مطالب خوانده‌شده حفظ شده‌اند؛ نکته‌های اجرایی مثال‌ها در همان بخش توضیح داده شده‌اند.</p><p>برای بررسی جزئیات فنی: <a href="https://docs.gitlab.com/ci/yaml/">مرجع رسمی YAML در GitLab</a>، <a href="https://docs.gitlab.com/ci/variables/">CI/CD Variables</a> و <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test">راهنمای dotnet test</a>.</p><a href="#course-title">بازگشت به ابتدای یادداشت‌ها ↑</a></footer>
+        <footer class="study-source" aria-label="منابع مطالعه"><h2>منبع این یادداشت‌ها</h2><p>محتوای این صفحه بر اساس <a href="../../books/CI-CD-01.pdf"><bdi>CI-CD-01.pdf</bdi></a> و <a href="../../books/CI-CD-02.pdf"><bdi>CI-CD-02.pdf</bdi></a> تنظیم شده است. ترتیب موضوع‌ها و مرز مطالب خوانده‌شده حفظ شده‌اند؛ نکته‌های اجرایی مثال‌ها در همان بخش توضیح داده شده‌اند.</p><p>برای بررسی جزئیات فنی: <a href="https://docs.gitlab.com/ci/yaml/">مرجع رسمی YAML در GitLab</a>، <a href="https://docs.gitlab.com/ci/caching/">Caching در GitLab</a>، <a href="https://docs.gitlab.com/ci/jobs/job_artifacts/">Job artifacts</a>، <a href="https://docs.gitlab.com/user/packages/container_registry/build_and_push_images/">Build و Push کردن Image</a>، <a href="https://docs.gitlab.com/ci/environments/deployments/">Deployments و Rollback</a> و <a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test">راهنمای dotnet test</a>.</p><a href="#course-title">بازگشت به ابتدای یادداشت‌ها ↑</a></footer>
       </article>
     </main>
   </div>
