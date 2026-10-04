@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="یادداشت‌های یادگیری RabbitMQ با .NET؛ از مفاهیم پایه تا Direct Exchange، Ack و Nack و گزینهٔ mandatory، بر اساس جزوهٔ RabbitMQ_01.">
+  <meta name="description" content="یادداشت‌های یادگیری RabbitMQ با .NET بر اساس RabbitMQ_01 و RabbitMQ_02؛ از Direct Exchange تا Publisher Confirms، Inbox، Dead Letter و Retry با TTL.">
   <title>یادگیری RabbitMQ | آکادمی دات‌نت</title>
   <script>
     (() => {
@@ -36,7 +36,7 @@
   </header>
   <div class="lesson-shell">
     <aside id="course-sidebar" class="course-sidebar" data-current-lesson="rabbitmq">
-      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>RabbitMQ</bdi> با <bdi>.NET</bdi></strong><span>تا mandatory در Direct Exchange</span></div>
+      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>RabbitMQ</bdi> با <bdi>.NET</bdi></strong><span>تا ساخت مسیر Retry با TTL</span></div>
       <nav aria-label="فهرست مطالب RabbitMQ">
         <ol>
           <li><a href="#basics"><span>۰۱</span>مفاهیم پایه</a></li>
@@ -49,10 +49,20 @@
           <li><a href="#producer-code"><span>۰۸</span>کد کامل Producer</a></li>
           <li><a href="#consumer-code"><span>۰۹</span>کد کامل Consumer</a></li>
           <li><a href="#review"><span>۱۰</span>مرور سریع مفاهیم</a></li>
-          <li><a href="#next-steps"><span>۱۱</span>ادامهٔ یادگیری</a></li>
+          <li><a href="#returned-messages"><span>۱۱</span>دریافت پیام برگشتی</a></li>
+          <li><a href="#publisher-confirms"><span>۱۲</span>Publisher Confirms</a></li>
+          <li><a href="#message-identity"><span>۱۳</span>تأیید گم‌شده و MessageId</a></li>
+          <li><a href="#inbox"><span>۱۴</span>Idempotency با Inbox</a></li>
+          <li><a href="#failure-types"><span>۱۵</span>خطای موقت و دائمی</a></li>
+          <li><a href="#dead-letter"><span>۱۶</span>مسیر Dead Letter</a></li>
+          <li><a href="#retry-ttl"><span>۱۷</span>Retry با تأخیر و TTL</a></li>
+          <li><a href="#implementation-boundary"><span>۱۸</span>مرز پیاده‌سازی فعلی</a></li>
+          <li><a href="#reliability-review"><span>۱۹</span>مرور پرسش و پاسخ</a></li>
+          <li><a href="#next-steps"><span>۲۰</span>ادامهٔ یادگیری</a></li>
         </ol>
       </nav>
       <a class="source-download" href="../../books/RabbitMQ_01.pdf" download>دریافت جزوهٔ اصلی <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+      <a class="source-download" href="../../books/RabbitMQ_02.pdf" download>دریافت جزوهٔ دوم <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
     </aside>
     <main id="lesson-content" class="lesson-content">
       <article aria-labelledby="course-title">
@@ -60,10 +70,10 @@
         <section class="rabbitmq-hero" aria-labelledby="course-title">
           <p class="eyebrow">از پایه تا کاربرد، همراه با .NET</p>
           <h1 id="course-title">یادگیری <bdi>RabbitMQ</bdi></h1>
-          <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از ارتباط سرویس‌ها با Message Broker تا مسیریابی پیام در Direct Exchange.</p>
-          <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۱۱ بخش آموزشی</span><span>RabbitMQ.Client 7.x</span></div>
-          <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>به گزینهٔ <code>mandatory</code> رسیده‌ایم. مبحث <bdi>Direct Exchange</bdi> هنوز تمام نشده است و مطالب بعدی به‌مرور اضافه می‌شوند.</span></aside>
-          <div class="study-actions"><a class="button-link" href="#basics">شروع مطالعه</a><a href="../../books/RabbitMQ_01.pdf">مشاهدهٔ PDF اصلی</a></div>
+          <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از ارتباط سرویس‌ها با Message Broker تا تأیید انتشار، جلوگیری از اثر تکراری و ساخت مسیر Retry با TTL.</p>
+          <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۲۰ بخش · دو جزوه</span><span>RabbitMQ.Client 7.x</span></div>
+          <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>مسیر بازگشت پیام از Queue انتظار با <bdi>TTL</bdi> را ساخته‌ایم. انتقال امن به Queue انتظار، شمارنده و سقف <bdi>Retry</bdi> هنوز پیاده‌سازی نشده‌اند.</span></aside>
+          <div class="study-actions"><a class="button-link" href="#basics">شروع مطالعه</a><a href="#returned-messages">ادامه از جزوهٔ دوم</a><a href="../../books/RabbitMQ_01.pdf">مشاهدهٔ PDF اول</a><a href="../../books/RabbitMQ_02.pdf">مشاهدهٔ PDF دوم</a></div>
         </section>
         <div class="lesson-body">
           <section id="basics" class="lesson-section" data-source-section="1" aria-labelledby="basics-title">
@@ -268,7 +278,7 @@ var message = Encoding.UTF8.GetString(body);</code></pre></div>
             <p><bdi>Nack</bdi> ناموفق‌بودن پردازش را اعلام می‌کند. با <code>requeue: true</code> پیام برای امکان دریافت دوباره به صف برمی‌گردد.</p>
             <h3>۳۳. تفاوت requeue: true و requeue: false</h3>
             <div class="table-wrap"><table class="diagnostic-table"><caption>پس از ردکردن پیام چه اتفاقی می‌افتد؟</caption><thead><tr><th scope="col">تنظیم</th><th scope="col">رفتار</th></tr></thead><tbody><tr><td><code>requeue: true</code></td><td>پیام به صف اصلی برمی‌گردد و می‌تواند دوباره تحویل داده شود.</td></tr><tr><td><code>requeue: false</code></td><td>پیام به صف اصلی برنمی‌گردد؛ در صورت تنظیم Dead Letter به مسیر آن می‌رود و در غیر این صورت کنار گذاشته می‌شود.</td></tr></tbody></table></div>
-            <aside class="lesson-warning"><strong>حلقهٔ Redelivery</strong><span>اگر دادهٔ پیام خراب باشد و هر بار شکست بخورد، <code>requeue: true</code> بدون محدودیت می‌تواند دریافت دوبارهٔ بی‌پایان ایجاد کند. کد فعلی آموزشی است؛ <bdi>Retry</bdi> محدود و <bdi>Dead Letter Queue</bdi> هنوز به آن اضافه نشده‌اند.</span></aside>
+            <aside class="lesson-warning"><strong>حلقهٔ Redelivery</strong><span>اگر دادهٔ پیام خراب باشد و هر بار شکست بخورد، <code>requeue: true</code> بدون محدودیت می‌تواند دریافت دوبارهٔ بی‌پایان ایجاد کند. این نمونهٔ جزوهٔ اول آموزشی است؛ مسیر <a href="#dead-letter">Dead Letter</a> و مقدمات <a href="#retry-ttl">Retry با TTL</a> در جزوهٔ دوم آمده‌اند و Retry محدود هنوز کامل نشده است.</span></aside>
           </section>
 
           <section id="routing" class="lesson-section" data-source-section="7" aria-labelledby="routing-title">
@@ -297,7 +307,7 @@ Result: Queue A + Queue B</code></pre></div>
     body: body
 );</code></pre></div>
             <p>با <code>mandatory: true</code> اگر پیام به هیچ صفی مسیریابی نشود، <bdi>RabbitMQ</bdi> آن را از مسیر <code>basic.return</code> به <bdi>Publisher</bdi> برمی‌گرداند. این گزینه به معنی پردازش موفق پیام توسط <bdi>Consumer</bdi> نیست.</p>
-            <aside class="lesson-note"><strong>تا اینجا خوانده شده</strong><span>رفتار <code>mandatory</code> معرفی شده است، اما <bdi>Handler</bdi> رویداد <code>BasicReturnAsync</code> هنوز در آموزش پیاده‌سازی نشده است. مدیریت پیام برگشتی نقطهٔ شروع ادامهٔ مطالعه خواهد بود.</span></aside>
+            <aside class="lesson-note"><strong>ادامه در جزوهٔ دوم</strong><span>جزوهٔ اول در معرفی <code>mandatory</code> متوقف می‌شود. پیاده‌سازی Handler رویداد <code>BasicReturnAsync</code> در <a href="#returned-messages">بخش دریافت پیام برگشتی</a> آمده است.</span></aside>
           </section>
 
           <section id="producer-code" class="lesson-section" data-source-section="8" aria-labelledby="producer-title">
@@ -353,7 +363,7 @@ await channel.BasicPublishAsync(
 Console.WriteLine($"Sent: {message}");
 Console.ReadLine();</code></pre></div>
             <p>پیام با کلید <code>payment.success</code> به صف اعلان می‌رود. <code>Console.ReadLine</code> برنامه را باز نگه می‌دارد؛ خروجی <code>Sent</code> به‌تنهایی اثبات دریافت یا پردازش پیام نیست.</p>
-            <aside class="lesson-note"><strong>وضعیت نمونه</strong><span><code>mandatory</code> فعال است، ولی Handler پیام برگشتی و <bdi>Publisher Confirms</bdi> هنوز در نمونهٔ جزوه وجود ندارند.</span></aside>
+            <aside class="lesson-note"><strong>وضعیت نمونهٔ جزوهٔ اول</strong><span><code>mandatory</code> فعال است، ولی Handler پیام برگشتی و <bdi>Publisher Confirms</bdi> در این نمونه وجود ندارند. روش افزودن آن‌ها در <a href="#returned-messages">بخش ۱۱</a> و <a href="#publisher-confirms">بخش ۱۲</a> توضیح داده شده است.</span></aside>
           </section>
 
           <section id="consumer-code" class="lesson-section" data-source-section="9" aria-labelledby="consumer-title">
@@ -453,28 +463,206 @@ Received: Payment 123 succeeded</code></pre></div>
             </tbody></table></div>
           </section>
 
-          <section id="next-steps" class="lesson-section future-section" data-source-section="11" aria-labelledby="next-title">
-            <p class="section-kicker">بخش ۱۱</p>
+          <section id="returned-messages" class="lesson-section" data-source-section="11" data-source-file="RabbitMQ_02" aria-labelledby="returned-title">
+            <p class="section-kicker">بخش ۱۱ · جزوهٔ دوم، بخش ۱</p>
+            <h2 id="returned-title">دریافت پیام برگشتی در Producer</h2>
+            <p>فرض کنید فقط Binding با کلید <code>payment.success</code> داریم، اما Producer پیام را با <code>payment.refund</code> و <code>mandatory: true</code> منتشر می‌کند. چون هیچ Queue منطبقی وجود ندارد، Broker پیام را برمی‌گرداند. برای مشاهدهٔ این اتفاق، رویداد <code>BasicReturnAsync</code> را قبل از انتشار ثبت می‌کنیم.</p>
+            <div class="code-block"><div class="code-label"><span>روی Channel مربوط به Producer، پیش از BasicPublishAsync</span><span>C# · Client 7.x</span></div><pre dir="ltr"><code>channel.BasicReturnAsync += (sender, ea) =&gt;
+{
+    var message = Encoding.UTF8.GetString(ea.Body.ToArray());
+    Console.WriteLine($"Returned: {message}");
+    Console.WriteLine($"Routing key: {ea.RoutingKey}");
+    Console.WriteLine($"Reason: {ea.ReplyText}");
+    return Task.CompletedTask;
+};</code></pre></div>
+            <p>خروجی شامل متن پیام، کلید <code>payment.refund</code> و دلیل برگشت، مانند <code>NO_ROUTE</code> است. کپی‌کردن <code>Body</code> با <code>ToArray()</code> داده را در همان Handler در اختیار ما می‌گذارد. این Handler فقط گزارش می‌دهد؛ ذخیره‌سازی یا ارسال مجدد باید جداگانه طراحی شود.</p>
+            <aside class="lesson-note"><strong>خاموش‌بودن Consumer باعث Return نیست</strong><span>اگر Queue منطبق موجود باشد و Consumer خاموش باشد، پیام می‌تواند در Queue منتظر بماند. <code>mandatory</code> وجود مسیر به Queue را بررسی می‌کند، نه موفقیت پردازش Consumer.</span></aside>
+          </section>
+
+          <section id="publisher-confirms" class="lesson-section" data-source-section="12" data-source-file="RabbitMQ_02" aria-labelledby="confirms-title">
+            <p class="section-kicker">بخش ۱۲ · جزوهٔ دوم، بخش ۲</p>
+            <h2 id="confirms-title">تأیید انتشار با Publisher Confirms</h2>
+            <p>Producer می‌خواهد بداند Broker انتشار را پذیرفته است. <bdi>Publisher Confirms</bdi> همین تأیید را فراهم می‌کند؛ این تأیید مستقل از <bdi>Consumer Ack</bdi> است. حتی وقتی Consumer خاموش است، Broker می‌تواند انتشار را تأیید کند.</p>
+            <p>در Producer، خط ساخت Channel در نمونهٔ اول را با کد زیر جایگزین کنید. سپس Handler بخش قبل را روی همین Channel و پیش از انتشار ثبت کنید؛ <code>connection</code> همان اتصال بازشدهٔ قبلی است.</p>
+            <div class="code-block"><div class="code-label"><span>فعال‌کردن تأیید و پیگیری آن</span><span>C#</span></div><pre dir="ltr"><code>var options = new CreateChannelOptions(
+    publisherConfirmationsEnabled: true,
+    publisherConfirmationTrackingEnabled: true);
+using var channel = await connection.CreateChannelAsync(options);</code></pre></div>
+            <div class="code-block"><div class="code-label"><span>انتشار روی Channel دارای Confirm Tracking</span><span>C#</span></div><pre dir="ltr"><code>try
+{
+    await channel.BasicPublishAsync(
+        exchange: "payment.direct",
+        routingKey: "payment.refund",
+        mandatory: true,
+        basicProperties: new BasicProperties(),
+        body: Encoding.UTF8.GetBytes("Payment refunded"));
+    Console.WriteLine("Publish confirmed");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Publish failed: {ex.Message}");
+}</code></pre></div>
+            <p>با فعال‌بودن هر دو گزینه، <code>await BasicPublishAsync</code> منتظر تأیید می‌ماند و در صورت Nack یا Return خطا می‌دهد. در مثال بدون Binding منطبق، خط <code>Publish confirmed</code> اجرا نمی‌شود. اگر Binding منطبق اضافه شود، تأیید انتشار همچنان به معنی ارسال موفق اعلان نیست.</p>
+            <p><code>catch (Exception)</code> در این قطعه برای نمایش خطا در آموزش است؛ برنامهٔ واقعی باید خطای مسیریابی، قطع اتصال و خطاهای دیگر را تشخیص دهد. Confirm به‌تنهایی وجود مقصد را ثابت نمی‌کند؛ <code>mandatory</code> و مدیریت Return نیز لازم‌اند. <a href="https://www.rabbitmq.com/tutorials/tutorial-seven-dotnet">مرجع رسمی Publisher Confirms در .NET</a>.</p>
+          </section>
+
+          <section id="message-identity" class="lesson-section" data-source-section="13" data-source-file="RabbitMQ_02" aria-labelledby="identity-title">
+            <p class="section-kicker">بخش ۱۳ · جزوهٔ دوم، بخش ۳</p>
+            <h2 id="identity-title">تأیید گم‌شده و پیام تکراری</h2>
+            <p>Broker پیام پرداخت را وارد Queue کرده است، اما قبل از رسیدن Confirm، شبکه قطع می‌شود. Producer تأییدی نمی‌بیند و ممکن است همان پیام را دوباره بفرستد. بنابراین «تأیید نرسید» الزاماً به معنی «پیام نرسید» نیست و ارسال مجدد می‌تواند پیام تکراری بسازد.</p>
+            <p><code>MessageId</code> شناسه‌ای است که Producer برای یک پیام منطقی تعیین می‌کند. آن را یک بار بسازید و در تمام تلاش‌های انتشار همان پیام حفظ کنید؛ ساختن شناسهٔ جدید در هر Retry تشخیص تکرار را مختل می‌کند.</p>
+            <div class="code-block"><div class="code-label"><span>شناسه در Producer و خواندن آن در Handler مربوط به Consumer</span><span>C#</span></div><pre dir="ltr"><code>// Producer: create once for this logical message.
+var messageId = Guid.NewGuid().ToString();
+var properties = new BasicProperties { MessageId = messageId };
+// Pass properties as basicProperties; reuse MessageId for retries.
+
+// Consumer: inside ReceivedAsync.
+var receivedMessageId = ea.BasicProperties.MessageId;</code></pre></div>
+            <p>تنظیم <code>MessageId</code> باعث حذف خودکار پیام تکراری توسط Broker نمی‌شود. این شناسه را با <code>DeliveryTag</code> اشتباه نگیرید: DeliveryTag شناسهٔ تحویل روی Channel و ورودی Ack/Nack است و در تحویل مجدد ممکن است تغییر کند. اگر Producer، MessageId تعیین نکرده باشد، مقدار آن ممکن است <code>null</code> باشد؛ Consumer باید برای این حالت تصمیم مشخص داشته باشد.</p>
+          </section>
+
+          <section id="inbox" class="lesson-section" data-source-section="14" data-source-file="RabbitMQ_02" aria-labelledby="inbox-title">
+            <p class="section-kicker">بخش ۱۴ · جزوهٔ دوم، بخش ۴</p>
+            <h2 id="inbox-title">جلوگیری از اثر تکراری با Inbox</h2>
+            <p>اگر پیام پرداخت دو بار برسد، نباید موجودی دو بار تغییر کند. <bdi>Idempotency</bdi> در این مثال یعنی پردازش مجدد همان پیام، اثر کسب‌وکار تازه‌ای ایجاد نکند. <bdi>Inbox</bdi> جدول ثبت شناسهٔ پیام‌های پردازش‌شده در دیتابیس Consumer است.</p>
+            <ol>
+              <li>برای پیام جدید، یک Transaction در دیتابیس شروع می‌کنیم.</li>
+              <li>MessageId را در Inbox ثبت می‌کنیم و تغییر دادهٔ کسب‌وکار را در همان Transaction انجام می‌دهیم.</li>
+              <li>پس از Commit موفق، پیام را با <code>BasicAckAsync</code> تأیید می‌کنیم.</li>
+              <li>اگر پردازش قبلی همان MessageId به‌طور معتبر تأیید شده باشد، عملیات را تکرار نمی‌کنیم و پیام تکراری را Ack می‌کنیم.</li>
+            </ol>
+            <p>اگر برنامه بعد از Commit و پیش از Ack قطع شود، Broker می‌تواند پیام را دوباره تحویل دهد. Inbox کمک می‌کند این تحویل اثر تکراری نسازد. اما Ack پیش از Commit خطرناک است: اگر Transaction شکست بخورد، عملیات ثبت نشده و Broker نیز پیام تأییدشده را برای جبران آن دوباره تحویل نمی‌دهد.</p>
+            <h3>چرا بررسی وجود شناسه کافی نیست؟</h3>
+            <p>دو Consumer یک سرویس با جدول مشترک ممکن است هم‌زمان نبودن شناسه را ببینند. <bdi>Unique Index</bdi> محدودیتی در دیتابیس است که ثبت دوبارهٔ یک مقدار را منع می‌کند. قطعهٔ زیر پس از ساخت جدول Inbox و ستون MessageId اجرا می‌شود:</p>
+            <div class="code-block"><div class="code-label"><span>قید یکتایی روی جدول موجود</span><span>SQL Server</span></div><pre dir="ltr"><code>CREATE UNIQUE INDEX UX_Inbox_MessageId
+ON dbo.Inbox (MessageId);</code></pre></div>
+            <p>Transaction بازنده باید کامل Rollback شود تا تغییر کسب‌وکار آن نیز ثبت نشود. خطای قطع دیتابیس را تکراری‌بودن پیام فرض نکنید؛ فقط پس از تشخیص معتبر تکرار و تأیید پردازش قبلی، Ack بدون اجرای دوباره درست است.</p>
+            <aside class="lesson-warning"><strong>مرز Transaction</strong><span>این الگو عملیات داخل همان Transaction دیتابیس را پوشش می‌دهد. ارسال پیامک یا فراخوانی سرویس خارجی خودکار با آن اتمیک نمی‌شود. جزوه در این مرحله الگوریتم را توضیح می‌دهد و پیاده‌سازی کامل دیتابیس ارائه نمی‌کند.</span></aside>
+          </section>
+
+          <section id="failure-types" class="lesson-section" data-source-section="15" data-source-file="RabbitMQ_02" aria-labelledby="failures-title">
+            <p class="section-kicker">بخش ۱۵ · جزوهٔ دوم، بخش ۵</p>
+            <h2 id="failures-title">تفاوت خطای موقت و دائمی</h2>
+            <p>اگر دیتابیس چند ثانیه در دسترس نباشد، تلاش بعدی ممکن است موفق شود؛ این یک خطای موقت است. اما اگر فیلد ضروری پیام وجود نداشته باشد، تکرار همان داده مشکل را حل نمی‌کند؛ این خطا در مثال ما دائمی است.</p>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>انتخاب مسیر پیام ناموفق</caption><thead><tr><th scope="col">وضعیت</th><th scope="col">رفتار مناسب</th></tr></thead><tbody>
+              <tr><td>خطای موقت مانند قطعی کوتاه دیتابیس</td><td>Retry با فاصله و تعداد محدود، پس از طراحی انتقال امن.</td></tr>
+              <tr><td>خطای دائمی مانند نبود فیلد ضروری</td><td>انتقال به مسیر بررسی پیام ناموفق، به‌جای تکرار همان داده.</td></tr>
+              <tr><td><code>requeue: true</code></td><td>برگشت به همان Queue؛ به‌تنهایی تأخیر یا سقف Retry ایجاد نمی‌کند.</td></tr>
+              <tr><td><code>requeue: false</code></td><td>Dead-letter شدن در صورت تنظیم مسیر؛ در نبود مسیر ممکن است پیام حذف شود.</td></tr>
+            </tbody></table></div>
+            <p>پس <code>catch</code> عمومی همراه با <code>requeue: true</code> در Consumer مقدماتی، سیاست نهایی مدیریت خطا نیست؛ خطای دائمی می‌تواند مرتب تکرار شود و به سرویس فشار بیاورد.</p>
+          </section>
+
+          <section id="dead-letter" class="lesson-section" data-source-section="16" data-source-file="RabbitMQ_02" aria-labelledby="dead-letter-title">
+            <p class="section-kicker">بخش ۱۶ · جزوهٔ دوم، بخش ۶</p>
+            <h2 id="dead-letter-title">ساخت مسیر Dead Letter</h2>
+            <p>می‌خواهیم پیام اعلان ناموفق از Queue اصلی خارج شود و برای بررسی در Queue جداگانه بماند. <bdi>Dead Letter Exchange</bdi> یا <bdi>DLX</bdi> یک Exchange معمولی است که Queue اصلی برای مسیریابی پیام‌های Dead-letter از آن استفاده می‌کند. <bdi>Dead Letter Queue</bdi> یا <bdi>DLQ</bdi> مقصد نگهداری این پیام‌هاست.</p>
+            <div class="code-block"><div class="code-label"><span>تعریف مقصد بررسی پیام ناموفق</span><span>C#</span></div><pre dir="ltr"><code>await channel.ExchangeDeclareAsync(
+    exchange: "payment.dlx", type: ExchangeType.Direct,
+    durable: true, autoDelete: false, arguments: null);
+await channel.QueueDeclareAsync(
+    queue: "payment.notification.dlq", durable: true,
+    exclusive: false, autoDelete: false, arguments: null);
+await channel.QueueBindAsync(
+    queue: "payment.notification.dlq",
+    exchange: "payment.dlx", routingKey: "notification.failed");</code></pre></div>
+            <p>روی Queue اصلی، نام DLX و Routing Key خروج پیام را تنظیم می‌کنیم. Exchange قبلی <code>payment.direct</code> باید با همان تنظیمات بخش اول موجود باشد؛ این قطعه آن را دوباره با تنظیمات متفاوت تعریف نمی‌کند.</p>
+            <div class="code-block"><div class="code-label"><span>Queue اصلی جدید با تنظیمات Dead Letter</span><span>C#</span></div><pre dir="ltr"><code>var arguments = new Dictionary&lt;string, object?&gt;
+{
+    ["x-dead-letter-exchange"] = "payment.dlx",
+    ["x-dead-letter-routing-key"] = "notification.failed"
+};
+await channel.QueueDeclareAsync(
+    queue: "payment.notification.v2.queue", durable: true,
+    exclusive: false, autoDelete: false, arguments: arguments);
+await channel.QueueBindAsync(
+    queue: "payment.notification.v2.queue",
+    exchange: "payment.direct", routingKey: "payment.success");</code></pre></div>
+            <p>Consumer را با <code>autoAck: false</code> روی <code>payment.notification.v2.queue</code> ثبت کنید؛ نمونهٔ کامل Consumer در بخش ۹ هنوز به Queue نسخهٔ اول متصل است. سپس برای ردکردن پیامی که باید به مسیر بررسی برود، داخل Handler از کد زیر استفاده کنید:</p>
+            <div class="code-block"><pre dir="ltr"><code>await channel.BasicNackAsync(
+    deliveryTag: ea.DeliveryTag,
+    multiple: false,
+    requeue: false);</code></pre></div>
+            <div class="code-block"><div class="code-label"><span>مسیر مورد انتظار پیام ردشده</span><span>Flow</span></div><pre dir="ltr"><code>payment.notification.v2.queue
+    → payment.dlx (notification.failed)
+    → payment.notification.dlq</code></pre></div>
+            <p>با <code>requeue: true</code> پیام به Queue اصلی برمی‌گردد و این مسیر ردکردن فعال نمی‌شود. DLQ نیز پیام را خودکار اصلاح یا دوباره منتشر نمی‌کند؛ ابتدا دلیل شکست، داده و کد بررسی می‌شوند، سپس ارسال مجدد کنترل‌شده انجام می‌شود.</p>
+            <aside class="lesson-warning"><strong>تعریف مجدد و ایمنی انتقال</strong><span>نام Queue جدید برای جلوگیری از <code>PRECONDITION_FAILED</code> ناشی از تغییر آرگومان‌های Queue قبلی است. ساخت v2 پیام‌های Queue قدیمی را منتقل نمی‌کند و Binding قبلی نیز باقی می‌ماند. برای برخی تنظیمات DLX می‌توان از Policy استفاده کرد. انتقال Dead Letter به پیکربندی صحیح و دسترس‌پذیری مقصد وابسته است و تضمین مطلق تحویل نیست؛ <a href="https://www.rabbitmq.com/docs/dlx">جزئیات رسمی DLX</a>.</span></aside>
+          </section>
+
+          <section id="retry-ttl" class="lesson-section" data-source-section="17" data-source-file="RabbitMQ_02" aria-labelledby="retry-title">
+            <p class="section-kicker">بخش ۱۷ · جزوهٔ دوم، بخش ۷</p>
+            <h2 id="retry-title">Retry با تأخیر و TTL</h2>
+            <p>اگر دیتابیس قطع باشد، تلاش فوری و پیاپی همان خطا را تکرار می‌کند. Queue انتظار به پیام فرصت می‌دهد مدتی بماند و سپس به Queue اصلی برگردد. <bdi>Time-To-Live</bdi> یا <bdi>TTL</bdi> مدت اعتبار پیام است؛ آرگومان <code>x-message-ttl</code> آن را برای پیام‌های یک Queue بر حسب میلی‌ثانیه تنظیم می‌کند.</p>
+            <p>در این مثال مقدار <code>5000</code> یعنی ۵ ثانیه. Queue انتظار Consumer ندارد؛ وگرنه پیام ممکن است پیش از انقضا مصرف شود. پس از انقضا، DLX آن را به Exchange اصلی برمی‌گرداند. بدون مسیر Dead Letter، پیام منقضی‌شده حذف می‌شود؛ زمان خروج نیز دقت تضمین‌شدهٔ یک Timer را ندارد.</p>
+            <div class="code-block"><div class="code-label"><span>Binding اختصاصی بازگشت اعلان و Queue انتظار</span><span>C#</span></div><pre dir="ltr"><code>await channel.QueueBindAsync(
+    queue: "payment.notification.v2.queue",
+    exchange: "payment.direct", routingKey: "notification.retry");
+var retryArguments = new Dictionary&lt;string, object?&gt;
+{
+    ["x-message-ttl"] = 5000,
+    ["x-dead-letter-exchange"] = "payment.direct",
+    ["x-dead-letter-routing-key"] = "notification.retry"
+};
+await channel.QueueDeclareAsync(
+    queue: "payment.notification.retry.5s.v2.queue",
+    durable: true, exclusive: false, autoDelete: false,
+    arguments: retryArguments);</code></pre></div>
+            <div class="code-block"><div class="code-label"><span>بخش ساخته‌شدهٔ مسیر Retry</span><span>Flow</span></div><pre dir="ltr"><code>payment.notification.retry.5s.v2.queue (no consumer)
+    → TTL expires
+    → payment.direct (notification.retry)
+    → payment.notification.v2.queue</code></pre></div>
+            <h3>چرا کلید بازگشت اختصاصی است؟</h3>
+            <p>اگر بازگشت با <code>payment.success</code> انجام شود، Queueهای دیگری مانند گزارش‌گیری که با این کلید Binding دارند نیز پیام را دوباره می‌گیرند. با <code>notification.retry</code> فقط Queue اعلان را به مسیر Retry وصل می‌کنیم.</p>
+            <p>Binding جدید، Binding قبلی با <code>payment.success</code> را حذف نمی‌کند. Queue اعلان اکنون هر دو کلید را می‌پذیرد: یکی برای رویداد اولیه و دیگری برای بازگشت Retry. نام Queue انتظار نیز جدید است تا با تنظیمات مثال قبلی تعارض نداشته باشد؛ تعریف مجدد همان نام، راه تغییر آرگومان‌های ناسازگار نیست.</p>
+            <p>فاصله‌های ۵، ۱۵ و ۳۰ ثانیه در جزوه مثال‌اند؛ فقط Queue پنج‌ثانیه‌ای اینجا تعریف شده است. این تنظیم به‌تنهایی پیام ناموفق Consumer را وارد Queue انتظار نمی‌کند. <a href="https://www.rabbitmq.com/docs/ttl">مرجع TTL و انقضای پیام</a>.</p>
+          </section>
+
+          <section id="implementation-boundary" class="lesson-section" data-source-section="18" data-source-file="RabbitMQ_02" aria-labelledby="boundary-title">
+            <p class="section-kicker">بخش ۱۸ · جزوهٔ دوم، بخش ۸</p>
+            <h2 id="boundary-title">مرز پیاده‌سازی فعلی</h2>
+            <p>تا اینجا مسیر خروج پیام منقضی‌شده از Queue انتظار و بازگشت آن به Queue اصلی را تنظیم کرده‌ایم. مسیر <code>Nack(requeue: false)</code> در بخش ۱۶ به DLQ می‌رود؛ هیچ اتصال خودکاری از آن به Queue انتظار ساخته نشده است.</p>
+            <aside class="lesson-note"><strong>Retry هنوز کامل نیست</strong><span>انتقال امن پیام خطادار از Consumer به Queue انتظار، حفظ MessageId هنگام انتقال، شمارندهٔ تلاش‌ها و سقف Retry هنوز پیاده‌سازی نشده‌اند. نباید پیام اصلی را پیش از اطمینان از انتقال لازم، موفق فرض کرد. کدهای جزوهٔ دوم قطعات آموزشی‌اند و یک سامانهٔ کامل Retry نیستند.</span></aside>
+            <p>نمونه‌های کامل Producer و Consumer در بخش‌های ۸ و ۹ مربوط به جزوهٔ اول‌اند. قطعات این ادامه باید با توجه به توضیح هر بخش روی Channel مناسب و Queue جدید اعمال شوند؛ کنار هم گذاشتن تمام قطعات، بدون طراحی مسیرهای باقی‌مانده، کافی نیست.</p>
+          </section>
+
+          <section id="reliability-review" class="lesson-section" data-source-section="19" data-source-file="RabbitMQ_02" aria-labelledby="reliability-review-title">
+            <p class="section-kicker">بخش ۱۹ · جزوهٔ دوم، بخش ۹</p>
+            <h2 id="reliability-review-title">مرور پرسش و پاسخ جزوهٔ دوم</h2>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>مرور رفتار انتشار، پردازش و تلاش مجدد</caption><thead><tr><th scope="col">پرسش</th><th scope="col">پاسخ</th></tr></thead><tbody>
+              <tr><td>Confirm، پردازش Consumer را هم تأیید می‌کند؟</td><td>خیر؛ تأیید انتشار و Consumer Ack مستقل‌اند.</td></tr>
+              <tr><td>اگر Confirm نرسد، حتماً پیام وارد Queue نشده است؟</td><td>خیر؛ ممکن است فقط تأیید در شبکه گم شده باشد.</td></tr>
+              <tr><td>برای ارسال مجدد همان پیام چه شناسه‌ای استفاده می‌کنیم؟</td><td>همان MessageId قبلی، تا Consumer بتواند تکرار را تشخیص دهد.</td></tr>
+              <tr><td>با پیام تکراریِ قبلاً پردازش‌شده چه می‌کنیم؟</td><td>پس از تأیید معتبر پردازش قبلی، عملیات را تکرار نمی‌کنیم و Ack می‌فرستیم.</td></tr>
+              <tr><td>چرا Unique Index لازم است؟</td><td>همراه Transaction، جلوی ثبت و اثر تکراری در پردازش هم‌زمان را می‌گیرد.</td></tr>
+              <tr><td>خطای قطع دیتابیس یعنی پیام تکراری است؟</td><td>خیر؛ علت خطا باید تشخیص داده شود.</td></tr>
+              <tr><td>با requeue: true پیام کجا می‌رود؟</td><td>به همان Queue اصلی؛ این گزینه خودکار تأخیر نمی‌سازد.</td></tr>
+              <tr><td>کدام جزء پیام ناموفق را نگه می‌دارد؟</td><td>DLQ؛ وظیفهٔ DLX مسیریابی است.</td></tr>
+              <tr><td>چرا Retry با فاصله انجام می‌شود؟</td><td>برای فرصت بازیابی سرویس و کاهش تکرار سریع خطا.</td></tr>
+              <tr><td>آیا Binding جدید، Binding قبلی را حذف می‌کند؟</td><td>خیر؛ هر دو باقی می‌مانند و یک Queue می‌تواند چند Binding داشته باشد.</td></tr>
+            </tbody></table></div>
+            <p>پرسش آخر همان پرسش مرحلهٔ ۹۴ است که در گفت‌وگوی مبنای جزوه هنوز پاسخ داده نشده بود؛ بخش مرور خود PDF پاسخ آن را درج کرده است.</p>
+          </section>
+
+          <section id="next-steps" class="lesson-section future-section" data-source-section="20" aria-labelledby="next-title">
+            <p class="section-kicker">بخش ۲۰</p>
             <h2 id="next-title">ادامهٔ یادگیری <bdi>Direct Exchange</bdi></h2>
             <p class="future-status">هنوز مطالعه نشده · برنامهٔ ادامهٔ مسیر</p>
-            <p>این موارد همان فهرست ادامهٔ جزوه هستند. محتوای آموزشی آن‌ها پس از مطالعه، به این بخش اضافه خواهد شد.</p>
+            <p>با اضافه‌شدن جزوهٔ دوم، مباحث Return، Confirm، Inbox، Dead Letter و ساخت Queue انتظار به بخش‌های آموزشی بالا منتقل شدند. موارد باقی‌ماندهٔ مسیر و بخش‌های تکمیل‌نشدهٔ Retry در ادامه دنبال می‌شوند.</p>
             <ol class="future-topics">
-              <li>مدیریت پیام برگشتی با <bdi>BasicReturn</bdi> و <code>mandatory</code>.</li>
-              <li><bdi>Publisher Confirms</bdi> برای بررسی پذیرش پیام توسط Broker.</li>
               <li><bdi>Prefetch</bdi> و <bdi>QoS</bdi> برای کنترل پیام‌های <bdi>Unacked</bdi>.</li>
               <li>چند <bdi>Consumer</bdi> روی یک <bdi>Queue</bdi> و رفتار توزیع پیام‌ها.</li>
-              <li><bdi>Retry</bdi> محدود و جلوگیری از <bdi>Redelivery Loop</bdi>.</li>
-              <li><bdi>Dead Letter Exchange</bdi> و <bdi>Dead Letter Queue</bdi>.</li>
+              <li>تکمیل <bdi>Retry</bdi>: انتقال امن به Queue انتظار، شمارنده، سقف تلاش‌ها و جلوگیری از <bdi>Redelivery Loop</bdi>.</li>
               <li>ارسال مدل‌های واقعی به صورت <bdi>JSON</bdi> و <bdi>Deserialize</bdi> در Consumer.</li>
-              <li><bdi>Idempotency</bdi> برای جلوگیری از اجرای دوبارهٔ عملیات کسب‌وکار.</li>
               <li>جمع‌بندی <bdi>Direct Exchange</bdi> با یک نمونهٔ کاربردی کامل.</li>
             </ol>
           </section>
         </div>
         <footer class="study-source" aria-label="منابع مطالعه">
           <h2>منبع این یادداشت‌ها</h2>
-          <p>محتوای این صفحه از جزوهٔ <a href="../../books/RabbitMQ_01.pdf"><bdi>RabbitMQ_01.pdf</bdi></a> تنظیم شده است. ترتیب مباحث و نقطهٔ توقف مطالعه حفظ شده‌اند.</p>
+          <p>محتوای این صفحه از جزوه‌های <a href="../../books/RabbitMQ_01.pdf"><bdi>RabbitMQ_01.pdf</bdi></a> و <a href="../../books/RabbitMQ_02.pdf"><bdi>RabbitMQ_02.pdf</bdi></a> تنظیم شده است. جزوهٔ دوم ادامهٔ مراحل ۸۲ تا ۹۴ است؛ ترتیب مباحث و مرز پیاده‌سازی آن حفظ شده‌اند.</p>
           <p>برای بررسی جزئیات فنی: <a href="https://www.rabbitmq.com/client-libraries/dotnet-api-guide">راهنمای رسمی .NET Client</a>، <a href="https://www.rabbitmq.com/docs/exchanges">Exchanges</a>، <a href="https://www.rabbitmq.com/docs/queues">Queues</a> و <a href="https://www.rabbitmq.com/docs/confirms">Acknowledgements</a>.</p>
+          <p>منابع ادامهٔ یادگیری: <a href="https://www.rabbitmq.com/tutorials/tutorial-seven-dotnet">Publisher Confirms در .NET</a>، <a href="https://www.rabbitmq.com/docs/dlx">Dead Letter Exchanges</a> و <a href="https://www.rabbitmq.com/docs/ttl">TTL</a>.</p>
           <a href="#course-title">بازگشت به ابتدای یادداشت‌ها ↑</a>
         </footer>
       </article>

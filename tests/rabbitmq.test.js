@@ -27,24 +27,30 @@ test('every RabbitMQ navigation anchor and local resource resolves', () => {
     else if (anchor) assert.ok(ids.includes(anchor), `Missing anchor: ${anchor}`);
   }
   assert.match(html, /href="\.\.\/\.\.\/books\/RabbitMQ_01\.pdf"/);
-  assert.equal((html.match(/data-source-section="\d+"/g) || []).length, 11);
+  assert.match(html, /href="\.\.\/\.\.\/books\/RabbitMQ_02\.pdf"/);
+  assert.equal((html.match(/data-source-section="\d+"/g) || []).length, 20);
+  assert.equal((html.match(/data-source-file="RabbitMQ_02"/g) || []).length, 9);
 });
 
-test('completed study content stops at mandatory and separates future topics', () => {
+test('study content includes the second book and separates unfinished retry work', () => {
   assert.ok(fs.existsSync(pagePath), 'RabbitMQ study page must exist');
   const html = fs.readFileSync(pagePath, 'utf8');
   assert.match(html, /lang="fa" dir="rtl"/);
   assert.match(html, /data-course-menu-toggle[^>]+aria-controls="course-sidebar"/);
   for (const concept of ['ConnectionFactory', 'CreateChannelAsync', 'QueueBindAsync',
-    'Persistent', 'ReceivedAsync', 'BasicAckAsync', 'BasicNackAsync', 'mandatory']) {
+    'Persistent', 'ReceivedAsync', 'BasicAckAsync', 'BasicNackAsync', 'mandatory',
+    'BasicReturnAsync', 'CreateChannelOptions', 'publisherConfirmationTrackingEnabled',
+    'MessageId', 'UX_Inbox_MessageId', 'x-dead-letter-exchange', 'x-message-ttl',
+    'notification.retry', 'payment.notification.retry.5s.v2.queue']) {
     assert.ok(html.includes(concept), `Missing studied concept: ${concept}`);
   }
   assert.match(html, /id="producer-code"[\s\S]*?BasicPublishAsync/);
   assert.match(html, /id="consumer-code"[\s\S]*?BasicConsumeAsync/);
   const future = html.match(/<section[^>]+id="next-steps"[\s\S]*?<\/section>/)?.[0];
   assert.ok(future);
-  for (const topic of ['BasicReturn', 'Publisher Confirms', 'Prefetch', 'Dead Letter', 'Idempotency']) {
+  for (const topic of ['Prefetch', 'QoS', 'Retry', 'شمارنده', 'سقف تلاش‌ها', 'JSON']) {
     assert.ok(future.includes(topic), `Future topic must remain in the roadmap: ${topic}`);
   }
   assert.match(future, /هنوز مطالعه نشده/);
+  assert.match(html, /id="implementation-boundary"[\s\S]*?یک سامانهٔ کامل Retry نیستند/);
 });
