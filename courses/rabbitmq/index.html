@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="یادداشت‌های یادگیری RabbitMQ با .NET بر اساس RabbitMQ_01 و RabbitMQ_02؛ از Direct Exchange تا Publisher Confirms، Inbox، Dead Letter و Retry با TTL.">
+  <meta name="description" content="یادداشت‌های یادگیری RabbitMQ با .NET بر اساس سه جزوه؛ Direct و Fanout Exchange، Publisher Confirms، Inbox، Dead Letter و مقدمات Retry با TTL.">
   <title>یادگیری RabbitMQ | آکادمی دات‌نت</title>
   <script>
     (() => {
@@ -36,7 +36,7 @@
   </header>
   <div class="lesson-shell">
     <aside id="course-sidebar" class="course-sidebar" data-current-lesson="rabbitmq">
-      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>RabbitMQ</bdi> با <bdi>.NET</bdi></strong><span>تا ساخت مسیر Retry با TTL</span></div>
+      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong><bdi>RabbitMQ</bdi> با <bdi>.NET</bdi></strong><span>تا جمع‌بندی Fanout Exchange</span></div>
       <nav aria-label="فهرست مطالب RabbitMQ">
         <ol>
           <li><a href="#basics"><span>۰۱</span>مفاهیم پایه</a></li>
@@ -56,13 +56,22 @@
           <li><a href="#failure-types"><span>۱۵</span>خطای موقت و دائمی</a></li>
           <li><a href="#dead-letter"><span>۱۶</span>مسیر Dead Letter</a></li>
           <li><a href="#retry-ttl"><span>۱۷</span>Retry با تأخیر و TTL</a></li>
-          <li><a href="#implementation-boundary"><span>۱۸</span>مرز پیاده‌سازی فعلی</a></li>
+          <li><a href="#implementation-boundary"><span>۱۸</span>مرز پیاده‌سازی جزوهٔ دوم</a></li>
           <li><a href="#reliability-review"><span>۱۹</span>مرور پرسش و پاسخ</a></li>
-          <li><a href="#next-steps"><span>۲۰</span>ادامهٔ یادگیری</a></li>
+          <li><a href="#review-clarifications"><span>۲۰</span>نکات تثبیت‌شده در مرور</a></li>
+          <li><a href="#fanout-concept"><span>۲۱</span>مفهوم Fanout Exchange</a></li>
+          <li><a href="#fanout-topology"><span>۲۲</span>ساخت Fanout و Bindingها</a></li>
+          <li><a href="#fanout-publishing"><span>۲۳</span>انتشار در Fanout</a></li>
+          <li><a href="#fanout-consumers"><span>۲۴</span>چند Queue و چند Consumer</a></li>
+          <li><a href="#fanout-late-binding"><span>۲۵</span>اتصال دیرهنگام Queue</a></li>
+          <li><a href="#fanout-vs-direct"><span>۲۶</span>انتخاب Fanout یا Direct</a></li>
+          <li><a href="#fanout-review"><span>۲۷</span>جمع‌بندی و تمرین Fanout</a></li>
+          <li><a href="#next-steps"><span>۲۸</span>ادامهٔ یادگیری</a></li>
         </ol>
       </nav>
-      <a class="source-download" href="../../books/RabbitMQ_01.pdf" download>دریافت جزوهٔ اصلی <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
-      <a class="source-download" href="../../books/RabbitMQ_02.pdf" download>دریافت جزوهٔ دوم <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+      <a class="source-download" href="../../books/RabbitMQ/RabbitMQ_01.pdf" download>دریافت جزوهٔ اصلی <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+      <a class="source-download" href="../../books/RabbitMQ/RabbitMQ_02.pdf" download>دریافت جزوهٔ دوم <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
+      <a class="source-download" href="../../books/RabbitMQ/RabbitMQ_03.pdf" download>دریافت جزوهٔ سوم <bdi>PDF</bdi> <span aria-hidden="true">↓</span></a>
     </aside>
     <main id="lesson-content" class="lesson-content">
       <article aria-labelledby="course-title">
@@ -70,10 +79,10 @@
         <section class="rabbitmq-hero" aria-labelledby="course-title">
           <p class="eyebrow">از پایه تا کاربرد، همراه با .NET</p>
           <h1 id="course-title">یادگیری <bdi>RabbitMQ</bdi></h1>
-          <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از ارتباط سرویس‌ها با Message Broker تا تأیید انتشار، جلوگیری از اثر تکراری و ساخت مسیر Retry با TTL.</p>
-          <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۲۰ بخش · دو جزوه</span><span>RabbitMQ.Client 7.x</span></div>
-          <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>مسیر بازگشت پیام از Queue انتظار با <bdi>TTL</bdi> را ساخته‌ایم. انتقال امن به Queue انتظار، شمارنده و سقف <bdi>Retry</bdi> هنوز پیاده‌سازی نشده‌اند.</span></aside>
-          <div class="study-actions"><a class="button-link" href="#basics">شروع مطالعه</a><a href="#returned-messages">ادامه از جزوهٔ دوم</a><a href="../../books/RabbitMQ_01.pdf">مشاهدهٔ PDF اول</a><a href="../../books/RabbitMQ_02.pdf">مشاهدهٔ PDF دوم</a></div>
+          <p class="course-lead">مطالبی که تا اینجا خوانده‌ام؛ از ارتباط سرویس‌ها با Message Broker و مقدمات قابلیت اطمینان تا دریافت مستقل رویدادها با Fanout Exchange.</p>
+          <div class="study-meta"><span class="study-status">در حال تکمیل</span><span>۲۸ بخش · سه جزوه</span><span>RabbitMQ.Client 7.x</span></div>
+          <aside class="lesson-note"><strong>نقطهٔ فعلی مطالعه</strong><span>مباحث Routing در <bdi>Direct Exchange</bdi> و مفهوم اصلی <bdi>Fanout Exchange</bdi> تمام شده‌اند. <bdi>Topic Exchange</bdi> هنوز شروع نشده و انتقال امن و سقف <bdi>Retry</bdi> همچنان پیاده‌سازی نشده‌اند.</span></aside>
+          <div class="study-actions"><a class="button-link" href="#basics">شروع مطالعه</a><a href="#returned-messages">ادامه از جزوهٔ دوم</a><a href="../../books/RabbitMQ/RabbitMQ_01.pdf">مشاهدهٔ PDF اول</a><a href="../../books/RabbitMQ/RabbitMQ_02.pdf">مشاهدهٔ PDF دوم</a><a href="#review-clarifications">ادامه از جزوهٔ سوم</a><a href="../../books/RabbitMQ/RabbitMQ_03.pdf">مشاهدهٔ PDF سوم</a></div>
         </section>
         <div class="lesson-body">
           <section id="basics" class="lesson-section" data-source-section="1" aria-labelledby="basics-title">
@@ -110,7 +119,7 @@
 Binding Key = payment.success
 Result: Match → Queue receives message</code></pre></div>
             <h3>۱۰. اشارهٔ کوتاه به Fanout Exchange</h3>
-            <p><bdi>Fanout Exchange</bdi> پیام را بدون توجه به <bdi>Routing Key</bdi> به تمام صف‌های متصل به خود می‌فرستد. این مفهوم در جزوه فقط معرفی شده است؛ تمرکز فعلی روی <bdi>Direct Exchange</bdi> است.</p>
+            <p><bdi>Fanout Exchange</bdi> پیام را بدون توجه به <bdi>Routing Key</bdi> به تمام صف‌های متصل به خود می‌فرستد. در جزوهٔ اول فقط معرفی شده است؛ آموزش آن در <a href="#fanout-concept">ادامهٔ جزوهٔ سوم</a> آمده است.</p>
           </section>
 
           <section id="dotnet-setup" class="lesson-section" data-source-section="2" aria-labelledby="setup-title">
@@ -312,7 +321,7 @@ Result: Queue A + Queue B</code></pre></div>
 
           <section id="producer-code" class="lesson-section" data-source-section="8" aria-labelledby="producer-title">
             <p class="section-kicker">بخش ۸</p>
-            <h2 id="producer-title">کد کامل <bdi>Producer</bdi> تا نقطهٔ فعلی</h2>
+            <h2 id="producer-title">کد کامل <bdi>Producer</bdi> در جزوهٔ اول</h2>
             <p>این کد را در <code>Payment.Producer/Program.cs</code> قرار دهید. این برنامه توپولوژی را آماده می‌کند و پیام موفقیت پرداخت را منتشر می‌کند.</p>
             <div class="code-block"><div class="code-label"><span>Payment.Producer/Program.cs</span><span>C#</span></div><pre dir="ltr"><code>using RabbitMQ.Client;
 using System.Text;
@@ -368,7 +377,7 @@ Console.ReadLine();</code></pre></div>
 
           <section id="consumer-code" class="lesson-section" data-source-section="9" aria-labelledby="consumer-title">
             <p class="section-kicker">بخش ۹</p>
-            <h2 id="consumer-title">کد کامل <bdi>Consumer</bdi> تا نقطهٔ فعلی</h2>
+            <h2 id="consumer-title">کد کامل <bdi>Consumer</bdi> در جزوهٔ اول</h2>
             <p>این کد را در <code>Notification.Consumer/Program.cs</code> قرار دهید. نمونهٔ فعلی متن پیام را نمایش می‌دهد و بعد از اجرای بخش پردازش، تأیید دستی می‌فرستد.</p>
             <div class="code-block"><div class="code-label"><span>Notification.Consumer/Program.cs</span><span>C#</span></div><pre dir="ltr"><code>using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -620,7 +629,7 @@ await channel.QueueDeclareAsync(
 
           <section id="implementation-boundary" class="lesson-section" data-source-section="18" data-source-file="RabbitMQ_02" aria-labelledby="boundary-title">
             <p class="section-kicker">بخش ۱۸ · جزوهٔ دوم، بخش ۸</p>
-            <h2 id="boundary-title">مرز پیاده‌سازی فعلی</h2>
+            <h2 id="boundary-title">مرز پیاده‌سازی در پایان جزوهٔ دوم</h2>
             <p>تا اینجا مسیر خروج پیام منقضی‌شده از Queue انتظار و بازگشت آن به Queue اصلی را تنظیم کرده‌ایم. مسیر <code>Nack(requeue: false)</code> در بخش ۱۶ به DLQ می‌رود؛ هیچ اتصال خودکاری از آن به Queue انتظار ساخته نشده است.</p>
             <aside class="lesson-note"><strong>Retry هنوز کامل نیست</strong><span>انتقال امن پیام خطادار از Consumer به Queue انتظار، حفظ MessageId هنگام انتقال، شمارندهٔ تلاش‌ها و سقف Retry هنوز پیاده‌سازی نشده‌اند. نباید پیام اصلی را پیش از اطمینان از انتقال لازم، موفق فرض کرد. کدهای جزوهٔ دوم قطعات آموزشی‌اند و یک سامانهٔ کامل Retry نیستند.</span></aside>
             <p>نمونه‌های کامل Producer و Consumer در بخش‌های ۸ و ۹ مربوط به جزوهٔ اول‌اند. قطعات این ادامه باید با توجه به توضیح هر بخش روی Channel مناسب و Queue جدید اعمال شوند؛ کنار هم گذاشتن تمام قطعات، بدون طراحی مسیرهای باقی‌مانده، کافی نیست.</p>
@@ -644,25 +653,150 @@ await channel.QueueDeclareAsync(
             <p>پرسش آخر همان پرسش مرحلهٔ ۹۴ است که در گفت‌وگوی مبنای جزوه هنوز پاسخ داده نشده بود؛ بخش مرور خود PDF پاسخ آن را درج کرده است.</p>
           </section>
 
-          <section id="next-steps" class="lesson-section future-section" data-source-section="20" aria-labelledby="next-title">
-            <p class="section-kicker">بخش ۲۰</p>
-            <h2 id="next-title">ادامهٔ یادگیری <bdi>Direct Exchange</bdi></h2>
+          <section id="review-clarifications" class="lesson-section" data-source-section="20" data-source-file="RabbitMQ_03" aria-labelledby="clarifications-title">
+            <p class="section-kicker">بخش ۲۰ · جزوهٔ سوم، مرور</p>
+            <h2 id="clarifications-title">نکات تثبیت‌شده در مرور</h2>
+            <p>پیام پرداخت ممکن است اصلاً مقصدی نداشته باشد، یا به Consumer برسد و پردازش آن شکست بخورد. این دو اتفاق در دو نقطهٔ متفاوت رخ می‌دهند؛ تصمیم مناسب را با مشخص‌کردن محل شکست آغاز می‌کنیم.</p>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>شش نکتهٔ مرور پیش از Fanout Exchange</caption><thead><tr><th scope="col">موقعیت</th><th scope="col">رفتار و مسئولیت</th></tr></thead><tbody>
+              <tr><td>انتشار بدون Queue منطبق با <code>mandatory: true</code></td><td>پیام به Producer برمی‌گردد و با <code>BasicReturnAsync</code> مشاهده می‌شود.</td></tr>
+              <tr><td>Consumer پیام را با Nack و <code>requeue: true</code> رد می‌کند</td><td>پیام به همان Queue دریافت‌شده، در مثال ما Queue اعلان، برمی‌گردد؛ Consumer فعلی یا Consumer دیگری روی همان Queue می‌تواند آن را بگیرد.</td></tr>
+              <tr><td>ارسال مجدد همان پیام</td><td>MessageId حفظ می‌شود. Consumer با Inbox تکرار را تشخیص می‌دهد؛ Broker صرفاً با دیدن شناسهٔ یکسان آن را حذف نمی‌کند. ثبت شناسه و تغییر کسب‌وکار در یک Transaction با قید یکتا انجام می‌شوند و Ack پس از Commit می‌آید.</td></tr>
+              <tr><td>قطع دیتابیس یا نامشخص‌بودن نتیجهٔ Commit</td><td>خطا را موفق فرض نمی‌کنیم و Ack نمی‌فرستیم. پس از بازیابی، ابتدا Inbox را بررسی می‌کنیم؛ شاید Commit قبلی انجام شده اما نتیجه به برنامه نرسیده باشد. قطعی ادامه‌دار به Retry با فاصله و تعداد محدود نیاز دارد.</td></tr>
+              <tr><td>تنظیم <code>x-dead-letter-exchange</code></td><td>این آرگومان فقط نام مقصد را تعیین می‌کند و Exchange نمی‌سازد؛ Exchange با ExchangeDeclareAsync تعریف می‌شود. <code>x-dead-letter-routing-key</code> کلید انتشار در آن مقصد است. Nack با requeue: false فقط با مسیر تنظیم‌شده به DLQ می‌رسد؛ بدون مسیر پیام حذف می‌شود.</td></tr>
+              <tr><td>انقضای TTL در Queue انتظار</td><td>انقضا به معنی مقصد نهایی DLQ نیست؛ مقصد را DLX تعیین می‌کند. در مثال Retry، بازگشت با notification.retry به Queue اعلان انجام می‌شود. Queue انتظار Consumer ندارد و Binding تازه، Binding قبلی را حذف نمی‌کند.</td></tr>
+            </tbody></table></div>
+            <p>مفاهیم Routing در Direct Exchange، تطابق دقیق کلید، رسیدن پیام به چند Queue منطبق و مدیریت پیام بدون مسیر در جزوه تمام شده‌اند. انتقال امن پیام خطادار به Queue انتظار و سقف Retry همچنان پیاده‌سازی نشده‌اند؛ این‌ها ادامهٔ قابلیت اطمینان‌اند و شرط شروع آموزش Fanout نیستند.</p>
+          </section>
+
+          <section id="fanout-concept" class="lesson-section" data-source-section="21" data-source-file="RabbitMQ_03" aria-labelledby="fanout-concept-title">
+            <p class="section-kicker">بخش ۲۱ · جزوهٔ سوم، مرحلهٔ ۱</p>
+            <h2 id="fanout-concept-title">Fanout Exchange چیست؟</h2>
+            <p>فرض کنید پس از پرداخت، اعلان، گزارش‌گیری و حسابداری هر کدام باید رویداد را مستقل دریافت کنند. <bdi>Fanout Exchange</bdi> پیام را به همهٔ Queueهای متصل به خودش مسیریابی می‌کند. برخلاف Direct Exchange، مقدار Routing Key در انتخاب مقصدهای Fanout نقشی ندارد.</p>
+            <div class="code-block"><div class="code-label"><span>یک انتشار، یک نسخه برای هر Queue متصل</span><span>Flow</span></div><pre dir="ltr"><code>Payment Producer → payment.fanout
+                      ├─→ Notification Queue
+                      ├─→ Reporting Queue
+                      └─→ Accounting Queue</code></pre></div>
+            <p>در Direct، Queue باید Binding با کلید منطبق داشته باشد؛ در Fanout، اتصال Queue به Exchange کافی است. تکثیر در این مدل بین Queueها رخ می‌دهد؛ نحوهٔ تحویل به Consumerهای هر Queue را در <a href="#fanout-consumers">بخش ۲۴</a> بررسی می‌کنیم.</p>
+          </section>
+
+          <section id="fanout-topology" class="lesson-section" data-source-section="22" data-source-file="RabbitMQ_03" aria-labelledby="fanout-topology-title">
+            <p class="section-kicker">بخش ۲۲ · جزوهٔ سوم، مراحل ۲ و ۳</p>
+            <h2 id="fanout-topology-title">ساخت Exchange و اتصال چند Queue</h2>
+            <p>روی Channel بازشده، Exchange تازه‌ای با نام <code>payment.fanout</code> می‌سازیم. پارامتر <code>type</code> با مقدار <code>ExchangeType.Fanout</code> نوع آن را تعیین می‌کند؛ نام Exchange به‌تنهایی نوع را مشخص نمی‌کند.</p>
+            <div class="code-block"><div class="code-label"><span>تعریف Exchange جدید</span><span>C# · Client 7.x</span></div><pre dir="ltr"><code>await channel.ExchangeDeclareAsync(
+    exchange: "payment.fanout",
+    type: ExchangeType.Fanout,
+    durable: true,
+    autoDelete: false,
+    arguments: null);</code></pre></div>
+            <p>Exchange موجود <code>payment.direct</code> را با نوع جدید دوباره تعریف نمی‌کنیم؛ تغییر نوع همان نام خطا می‌دهد. جزوه فرض می‌کند Queueهای اعلان و گزارش‌گیری قبلاً ساخته شده‌اند. اگر Queue گزارش‌گیری هنوز وجود ندارد، ابتدا با مشخصات سازگار آن را تعریف کنید؛ مثلاً برای Queue تازه:</p>
+            <div class="code-block"><div class="code-label"><span>آماده‌سازی Queue گزارش‌گیری در صورت نبودن آن</span><span>C#</span></div><pre dir="ltr"><code>await channel.QueueDeclareAsync(
+    queue: "payment.reporting.queue", durable: true,
+    exclusive: false, autoDelete: false, arguments: null);</code></pre></div>
+            <p>Queue اعلان <code>payment.notification.queue</code> همان Queue جزوهٔ اول است. پس از موجودبودن هر دو Queue، آن‌ها را به Exchange متصل می‌کنیم:</p>
+            <div class="code-block"><div class="code-label"><span>Binding دو Queue</span><span>C#</span></div><pre dir="ltr"><code>await channel.QueueBindAsync(
+    queue: "payment.notification.queue",
+    exchange: "payment.fanout",
+    routingKey: "");
+await channel.QueueBindAsync(
+    queue: "payment.reporting.queue",
+    exchange: "payment.fanout",
+    routingKey: "");</code></pre></div>
+            <p>کلید را خالی گذاشته‌ایم چون Fanout آن را برای انتخاب Queue به کار نمی‌برد. هر دو Queue نسخهٔ مستقل می‌گیرند؛ Ack در Queue اعلان نسخهٔ گزارش‌گیری را حذف نمی‌کند و هر سرویس جداگانه پردازش و تأیید می‌کند.</p>
+          </section>
+
+          <section id="fanout-publishing" class="lesson-section" data-source-section="23" data-source-file="RabbitMQ_03" aria-labelledby="fanout-publishing-title">
+            <p class="section-kicker">بخش ۲۳ · جزوهٔ سوم، مرحلهٔ ۴</p>
+            <h2 id="fanout-publishing-title">انتشار پیام در Fanout</h2>
+            <p>پس از ساخت Exchange و Bindingها، Producer پیام پرداخت را روی <code>payment.fanout</code> منتشر می‌کند. <code>Encoding.UTF8</code> و <code>BasicProperties</code> مانند نمونهٔ قبلی به namespaceهای <code>System.Text</code> و <code>RabbitMQ.Client</code> نیاز دارند.</p>
+            <div class="code-block"><div class="code-label"><span>انتشار از Producer</span><span>C#</span></div><pre dir="ltr"><code>var body = Encoding.UTF8.GetBytes("Payment succeeded");
+await channel.BasicPublishAsync(
+    exchange: "payment.fanout",
+    routingKey: "",
+    mandatory: true,
+    basicProperties: new BasicProperties(),
+    body: body);</code></pre></div>
+            <p>نتیجهٔ مورد انتظار، دریافت متن <code>Payment succeeded</code> در هر دو Queue متصل است. برای مشاهده در Console، Consumer اعلان را روی Queue اعلان و Consumer گزارش را روی Queue گزارش ثبت کنید؛ الگوی دریافت و Ack همان <a href="#consumer-code">نمونهٔ Consumer جزوهٔ اول</a> است.</p>
+            <p>اگر Routing Key را <code>payment.failed</code> بگذارید، مقصدها تغییر نمی‌کنند؛ حتی پیام با این کلید هم به تمام Queueهای متصل می‌رسد. اگر در این مثال هیچ Queue متصلی و هیچ مسیر جایگزینی نباشد، <code>mandatory: true</code> باعث Return به Producer می‌شود؛ برای مشاهدهٔ آن، <a href="#returned-messages">Handler مربوط به BasicReturnAsync</a> را پیش از انتشار ثبت کنید.</p>
+            <p>این قطعه، نمونهٔ انتشار جزوه است؛ <code>new BasicProperties()</code> خودکار MessageId یا Persistent را تنظیم نمی‌کند و BasicPublishAsync روی Channel معمولی نیز خودکار منتظر Confirm نمی‌ماند. آن قابلیت‌ها را طبق <a href="#publisher-confirms">بخش تأیید انتشار</a> و <a href="#message-identity">بخش شناسهٔ پیام</a> جداگانه فعال می‌کنیم.</p>
+          </section>
+
+          <section id="fanout-consumers" class="lesson-section" data-source-section="24" data-source-file="RabbitMQ_03" aria-labelledby="fanout-consumers-title">
+            <p class="section-kicker">بخش ۲۴ · جزوهٔ سوم، مراحل ۵ و ۶</p>
+            <h2 id="fanout-consumers-title">چند Queue در برابر چند Consumer</h2>
+            <p>دو Consumer اعلان روی یک Queue داریم و یک Consumer گزارش روی Queue دیگر. یک انتشار، در تحویل معمول به یکی از دو Consumer اعلان و به Consumer گزارش می‌رسد؛ هر دو Consumer اعلان نسخهٔ مستقل همان پیام را نمی‌گیرند.</p>
+            <div class="code-block"><pre dir="ltr"><code>payment.fanout
+  ├─→ payment.notification.queue → Notification A OR B
+  └─→ payment.reporting.queue    → Reporting Consumer</code></pre></div>
+            <p>Fanout بین Queueها تکثیر می‌کند؛ Consumerهای یک Queue کار همان Queue را تقسیم می‌کنند. Redelivery هنگام شکست همچنان ممکن است، بنابراین این رفتار وعدهٔ پردازش دقیقاً یک‌باره نیست.</p>
+            <h3>حسابداری باید Queue مستقل داشته باشد</h3>
+            <p>برای دریافت مستقل همهٔ رویدادها توسط حسابداری، یک Queue جدا می‌سازیم و به Exchange متصل می‌کنیم. اتصال Consumer حسابداری به Queue اعلان، آن را رقیب Consumerهای اعلان می‌کند و نسخهٔ مستقل فراهم نمی‌کند.</p>
+            <p>اگر Consumer گزارش‌گیری خاموش شود اما Queue آن برقرار و متصل باشد، پیام‌ها می‌توانند آنجا منتظر بمانند و سرویس اعلان کار خود را ادامه دهد. فرض این مثال، نبود انقضا یا حذف پیام و باقی‌ماندن Queue است؛ خاموش‌بودن Consumer با نبود Binding فرق دارد.</p>
+          </section>
+
+          <section id="fanout-late-binding" class="lesson-section" data-source-section="25" data-source-file="RabbitMQ_03" aria-labelledby="late-binding-title">
+            <p class="section-kicker">بخش ۲۵ · جزوهٔ سوم، مرحلهٔ ۷</p>
+            <h2 id="late-binding-title">Queue دیرمتصل، پیام قبلی را نمی‌گیرد</h2>
+            <p>در زمان انتشار پرداخت شمارهٔ ۱۲۳، Queue حسابداری هنوز Binding ندارد. بعد از انتشار آن را متصل می‌کنیم. پیام قبلی برای حسابداری بازپخش نمی‌شود؛ فقط انتشارهای بعد از اتصال به آن مسیریابی می‌شوند.</p>
+            <div class="code-block"><pre dir="ltr"><code>T1: publish Payment 123 → Notification + Reporting
+T2: bind Accounting Queue to payment.fanout
+T3: publish Payment 124 → Notification + Reporting + Accounting</code></pre></div>
+            <p>Exchange سابقهٔ پیام‌ها را برای Queueهای آینده نگه نمی‌دارد. اما اگر Queue حسابداری از ابتدا متصل بود و فقط Consumer آن خاموش بود، پیام می‌توانست در همان Queue منتظر بماند. پس زمان ساخت Binding و زمان روشن‌شدن Consumer دو موضوع جدا هستند.</p>
+          </section>
+
+          <section id="fanout-vs-direct" class="lesson-section" data-source-section="26" data-source-file="RabbitMQ_03" aria-labelledby="exchange-choice-title">
+            <p class="section-kicker">بخش ۲۶ · جزوهٔ سوم، مرحلهٔ ۸</p>
+            <h2 id="exchange-choice-title">انتخاب بین Fanout و Direct</h2>
+            <p>اگر همهٔ Queueهای متصل باید تمام پیام‌های منتشرشده را بگیرند، Fanout مناسب است. اگر اعلان فقط رویداد با کلید دقیق <code>payment.success</code> و سرویس دیگری فقط <code>payment.failed</code> را می‌خواهد، Direct با Bindingهای مشخص مناسب‌تر است.</p>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>قاعدهٔ انتخاب مقصد در دو Exchange</caption><thead><tr><th scope="col">نوع</th><th scope="col">قاعده</th><th scope="col">مثال</th></tr></thead><tbody>
+              <tr><td>Fanout</td><td>همهٔ Queueهای متصل؛ Routing Key در انتخاب مقصد نقشی ندارد.</td><td>اعلان و گزارش هر دو رویداد پرداخت موفق و ناموفق را می‌گیرند.</td></tr>
+              <tr><td>Direct</td><td>تطابق دقیق Routing Key با Binding Key.</td><td>هر Queue فقط کلیدهای مشخصی را می‌گیرد که برایشان Binding دارد.</td></tr>
+            </tbody></table></div>
+            <p>مستندات رسمی نیز <a href="https://www.rabbitmq.com/docs/exchanges">قاعدهٔ Routing این Exchangeها</a> را توضیح می‌دهند. نمونهٔ <a href="https://www.rabbitmq.com/tutorials/tutorial-three-dotnet">Publish/Subscribe با .NET</a> کاربرد Fanout را نشان می‌دهد.</p>
+          </section>
+
+          <section id="fanout-review" class="lesson-section" data-source-section="27" data-source-file="RabbitMQ_03" aria-labelledby="fanout-review-title">
+            <p class="section-kicker">بخش ۲۷ · جزوهٔ سوم، مرحلهٔ ۹ و پرسش و پاسخ</p>
+            <h2 id="fanout-review-title">جمع‌بندی و تمرین Fanout</h2>
+            <p>قاعدهٔ اصلی این است: تکثیر بین Queueها و تقسیم کار بین Consumerهای یک Queue انجام می‌شود. پیش از دیدن پاسخ‌ها، مسیر پیام را برای سه Queue اعلان، گزارش‌گیری و حسابداری روی کاغذ رسم کنید.</p>
+            <div class="table-wrap"><table class="diagnostic-table"><caption>پرسش و پاسخ جزوهٔ سوم</caption><thead><tr><th scope="col">پرسش</th><th scope="col">پاسخ</th></tr></thead><tbody>
+              <tr><td>سه Queue متصل‌اند؛ کدام پیام را می‌گیرد؟</td><td>هر سه Queue متصل به همان Fanout Exchange.</td></tr>
+              <tr><td>کدام پارامتر نوع Fanout را تعیین می‌کند؟</td><td><code>type: ExchangeType.Fanout</code>.</td></tr>
+              <tr><td>چرا Routing Key اتصال خالی است؟</td><td>Fanout کلید را برای انتخاب Queue به کار نمی‌برد.</td></tr>
+              <tr><td>Ack اعلان، نسخهٔ گزارش را حذف می‌کند؟</td><td>خیر؛ نسخه‌های Queueها مستقل‌اند.</td></tr>
+              <tr><td>با کلید payment.failed فقط Queue خطا پیام می‌گیرد؟</td><td>خیر؛ در Fanout همهٔ Queueهای متصل آن را می‌گیرند.</td></tr>
+              <tr><td>دو Consumer روی یک Queue، هر دو نسخهٔ هر پیام را می‌گیرند؟</td><td>خیر؛ در تحویل معمول یکی از آن‌ها پیام را می‌گیرد.</td></tr>
+              <tr><td>حسابداری مستقل به چه نیاز دارد؟</td><td>یک Queue جداگانه متصل به Exchange.</td></tr>
+              <tr><td>Queue بعداً متصل‌شده پیام قبلی را می‌گیرد؟</td><td>خیر؛ Exchange سابقهٔ پیام را برای آن بازپخش نمی‌کند.</td></tr>
+              <tr><td>برای انتخاب مقصد با کلید دقیق چه نوعی مناسب است؟</td><td>Direct Exchange.</td></tr>
+              <tr><td>اعلان دو Consumer و گزارش یک Consumer دارد؛ نتیجهٔ یک انتشار چیست؟</td><td>دو Queue نسخه می‌گیرند و در حالت معمول دو تحویل رخ می‌دهد: یکی به A یا B اعلان و یکی به گزارش.</td></tr>
+            </tbody></table></div>
+            <h3>تمرین نهایی و مرور بعدی</h3>
+            <p>حسابداری را پیش از انتشار به Exchange متصل کنید. اکنون با دو Consumer اعلان، یک Consumer گزارش و یک Consumer حسابداری، چند Queue و چند Consumer در تحویل معمول پیام را می‌گیرند؟ پاسخ: سه Queue نسخه می‌گیرند و سه Consumer دریافت می‌کنند؛ فقط یکی از دو Consumer اعلان انتخاب می‌شود.</p>
+            <p>مرور بعدی را روی تفاوت mandatory و requeue، مسئول تشخیص تکرار، تفاوت تنظیم مقصد DLX با ساخت Exchange، و نقش Queue بدون Consumer در تأخیر متمرکز کنید. مفهوم اصلی Fanout در جزوه کامل شده است؛ Topic Exchange فقط معرفی شده و هنوز آموزش داده نشده است.</p>
+          </section>
+
+          <section id="next-steps" class="lesson-section future-section" data-source-section="28" aria-labelledby="next-title">
+            <p class="section-kicker">بخش ۲۸</p>
+            <h2 id="next-title">ادامهٔ یادگیری <bdi>RabbitMQ</bdi></h2>
             <p class="future-status">هنوز مطالعه نشده · برنامهٔ ادامهٔ مسیر</p>
-            <p>با اضافه‌شدن جزوهٔ دوم، مباحث Return، Confirm، Inbox، Dead Letter و ساخت Queue انتظار به بخش‌های آموزشی بالا منتقل شدند. موارد باقی‌ماندهٔ مسیر و بخش‌های تکمیل‌نشدهٔ Retry در ادامه دنبال می‌شوند.</p>
+            <p>مباحث Routing در Direct و مفهوم اصلی Fanout مطالعه شده‌اند. Topic Exchange هنوز شروع نشده است؛ تکمیل قابلیت اطمینان و سایر موارد باقی‌مانده در ادامه دنبال می‌شوند.</p>
             <ol class="future-topics">
               <li><bdi>Prefetch</bdi> و <bdi>QoS</bdi> برای کنترل پیام‌های <bdi>Unacked</bdi>.</li>
-              <li>چند <bdi>Consumer</bdi> روی یک <bdi>Queue</bdi> و رفتار توزیع پیام‌ها.</li>
+              <li>آموزش <bdi>Topic Exchange</bdi>، پس از معرفی اولیهٔ آن در جزوهٔ سوم.</li>
               <li>تکمیل <bdi>Retry</bdi>: انتقال امن به Queue انتظار، شمارنده، سقف تلاش‌ها و جلوگیری از <bdi>Redelivery Loop</bdi>.</li>
               <li>ارسال مدل‌های واقعی به صورت <bdi>JSON</bdi> و <bdi>Deserialize</bdi> در Consumer.</li>
-              <li>جمع‌بندی <bdi>Direct Exchange</bdi> با یک نمونهٔ کاربردی کامل.</li>
+              <li>یک نمونهٔ کاربردی کامل با قابلیت اطمینان و مسیر Retry محدود.</li>
             </ol>
           </section>
         </div>
         <footer class="study-source" aria-label="منابع مطالعه">
           <h2>منبع این یادداشت‌ها</h2>
-          <p>محتوای این صفحه از جزوه‌های <a href="../../books/RabbitMQ_01.pdf"><bdi>RabbitMQ_01.pdf</bdi></a> و <a href="../../books/RabbitMQ_02.pdf"><bdi>RabbitMQ_02.pdf</bdi></a> تنظیم شده است. جزوهٔ دوم ادامهٔ مراحل ۸۲ تا ۹۴ است؛ ترتیب مباحث و مرز پیاده‌سازی آن حفظ شده‌اند.</p>
+          <p>محتوای این صفحه از جزوه‌های <a href="../../books/RabbitMQ/RabbitMQ_01.pdf"><bdi>RabbitMQ_01.pdf</bdi></a> و <a href="../../books/RabbitMQ/RabbitMQ_02.pdf"><bdi>RabbitMQ_02.pdf</bdi></a> تنظیم شده است. جزوهٔ دوم ادامهٔ مراحل ۸۲ تا ۹۴ است؛ ترتیب مباحث و مرز پیاده‌سازی آن حفظ شده‌اند.</p>
+          <p>جزوهٔ سوم، <a href="../../books/RabbitMQ/RabbitMQ_03.pdf"><bdi>RabbitMQ_03.pdf</bdi></a>، نکات تثبیت‌شدهٔ مرور و مراحل ۱ تا ۹ Fanout Exchange را پوشش می‌دهد. ترتیب آموزش و نقطهٔ توقف پیش از Topic Exchange حفظ شده‌اند.</p>
           <p>برای بررسی جزئیات فنی: <a href="https://www.rabbitmq.com/client-libraries/dotnet-api-guide">راهنمای رسمی .NET Client</a>، <a href="https://www.rabbitmq.com/docs/exchanges">Exchanges</a>، <a href="https://www.rabbitmq.com/docs/queues">Queues</a> و <a href="https://www.rabbitmq.com/docs/confirms">Acknowledgements</a>.</p>
           <p>منابع ادامهٔ یادگیری: <a href="https://www.rabbitmq.com/tutorials/tutorial-seven-dotnet">Publisher Confirms در .NET</a>، <a href="https://www.rabbitmq.com/docs/dlx">Dead Letter Exchanges</a> و <a href="https://www.rabbitmq.com/docs/ttl">TTL</a>.</p>
+          <p>منبع بررسی Fanout: <a href="https://www.rabbitmq.com/tutorials/tutorial-three-dotnet">Publish/Subscribe با .NET</a>.</p>
           <a href="#course-title">بازگشت به ابتدای یادداشت‌ها ↑</a>
         </footer>
       </article>
