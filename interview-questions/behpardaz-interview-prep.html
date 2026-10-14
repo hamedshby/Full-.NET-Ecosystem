@@ -1,0 +1,643 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Behparaz Interview Prep</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single reading column, sticky section index on wide screens, Q&A as expandable rows with "reviewed" ticks */
+:root{
+  --bg:#f5f7f7; --surface:#ffffff; --ink:#14232a; --muted:#5b6d73; --line:#dbe3e5;
+  --accent:#0d6e74; --accent-soft:#e2f1f1; --amber:#b86a00; --amber-soft:#fff3df;
+  --good:#1d7a45; --good-soft:#e3f4ea; --bad:#b3261e; --bad-soft:#fbe7e5;
+  --code-bg:#eef3f4;
+  --f-body:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1719; --surface:#162226; --ink:#e3ecee; --muted:#93a7ac; --line:#2a3a3f;
+  --accent:#4fbfc4; --accent-soft:#18383b; --amber:#f0a83c; --amber-soft:#3a2c14;
+  --good:#5cc98a; --good-soft:#163323; --bad:#f08a80; --bad-soft:#3b1d1a; --code-bg:#0b1214; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1719; --surface:#162226; --ink:#e3ecee; --muted:#93a7ac; --line:#2a3a3f;
+  --accent:#4fbfc4; --accent-soft:#18383b; --amber:#f0a83c; --amber-soft:#3a2c14;
+  --good:#5cc98a; --good-soft:#163323; --bad:#f08a80; --bad-soft:#3b1d1a; --code-bg:#0b1214; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.85;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} nav.toc{display:none}}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;padding-top:28px;font-size:14px}
+nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:4px 10px;border-inline-start:2px solid var(--line)}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--accent);border-color:var(--accent);outline:none}
+main{min-width:0}
+header.hero{padding-block:36px 24px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.eyebrow{font-size:13px;letter-spacing:.02em;color:var(--accent);font-weight:700}
+h1{font-size:clamp(26px,4vw,36px);line-height:1.35;margin:6px 0 10px;font-weight:800;text-wrap:balance}
+.lead{color:var(--muted);max-width:66ch;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.chip{font-size:13px;padding:4px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.chip.amber{background:var(--amber-soft);color:var(--amber)}
+section{padding-block:28px 8px;scroll-margin-top:20px}
+h2{font-size:23px;margin:0 0 6px;font-weight:800;text-wrap:balance}
+h2 small{font-size:14px;color:var(--muted);font-weight:500;margin-inline-start:8px}
+h3{font-size:17px;margin:22px 0 8px;font-weight:700}
+p{max-width:70ch}
+.sub{color:var(--muted);margin:0 0 14px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:14.5px}
+th,td{padding:10px 12px;text-align:right;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-size:13px;color:var(--muted);font-weight:700;background:var(--bg)}
+tr:last-child td{border-bottom:0}
+.st{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.st.ok{background:var(--good-soft);color:var(--good)}
+.st.warn{background:var(--amber-soft);color:var(--amber)}
+.st.risk{background:var(--bad-soft);color:var(--bad)}
+.note{border:1px solid var(--line);border-inline-start:4px solid var(--amber);background:var(--surface);border-radius:8px;padding:12px 16px;margin:14px 0;max-width:76ch}
+.note.teal{border-inline-start-color:var(--accent)}
+.note.red{border-inline-start-color:var(--bad)}
+.note strong{display:block;margin-bottom:2px}
+.script{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 20px;max-width:76ch}
+.script p{margin:0 0 10px}
+.en{direction:ltr;text-align:left;font-family:var(--f-body)}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code-bg);padding:1px 6px;border-radius:4px;direction:ltr;unicode-bidi:isolate}
+pre{direction:ltr;text-align:left;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;font-family:var(--f-mono);font-size:13.5px;line-height:1.6;margin:10px 0}
+pre code{background:none;padding:0;font-size:inherit}
+.qa-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 14px}
+button{font-family:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 14px;cursor:pointer}
+button:hover{border-color:var(--accent);color:var(--accent)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.progress{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;width:160px}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+details.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:8px 0}
+details.q>summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;gap:12px;align-items:flex-start;font-weight:600}
+details.q>summary::-webkit-details-marker{display:none}
+details.q>summary::before{content:"+";flex:none;width:22px;height:22px;border-radius:6px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;line-height:1;margin-top:3px}
+details.q[open]>summary::before{content:"−"}
+details.q>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:10px}
+.qtext{flex:1;min-width:0}
+.tick{flex:none;font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:4px;margin-top:3px}
+.tick input{accent-color:var(--good);width:16px;height:16px}
+details.q.done{border-color:var(--good)}
+details.q.done .qtext{color:var(--muted)}
+.ans{padding:0 16px 14px 16px;padding-inline-start:50px;min-width:0}
+.ans p,.ans ul{margin:6px 0}
+.ans ul{padding-inline-start:20px}
+.tag{font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--amber-soft);color:var(--amber);margin-inline-start:6px;vertical-align:2px}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.day h3{margin:0 0 4px}
+.day .when{font-size:13px;color:var(--accent);font-weight:700}
+.day ul{margin:8px 0 0;padding-inline-start:18px}
+ul.check{list-style:none;padding:0;max-width:76ch}
+ul.check li{padding:6px 0;border-bottom:1px dashed var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap" dir="rtl" lang="fa">
+<nav class="toc" aria-label="فهرست">
+  <a href="#fit">تطبیق رزومه با آگهی</a>
+  <a href="#risks">نقاط حساس</a>
+  <a href="#intro">معرفی خود</a>
+  <a href="#stories">داستان‌های پروژه</a>
+  <a href="#csharp">C# و OOP</a>
+  <a href="#aspnet">ASP.NET Core</a>
+  <a href="#rest">REST API</a>
+  <a href="#sql">SQL Server</a>
+  <a href="#ef">EF Core و Dapper</a>
+  <a href="#angular">Angular</a>
+  <a href="#micro">Microservices و RabbitMQ</a>
+  <a href="#test">تست</a>
+  <a href="#git">Git و Agile</a>
+  <a href="#perf">Performance و Scalability</a>
+  <a href="#coding">تمرین کدنویسی</a>
+  <a href="#behave">سوالات رفتاری</a>
+  <a href="#ask">سوال‌های تو از آن‌ها</a>
+  <a href="#plan">برنامه تا یکشنبه</a>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">مصاحبه یکشنبه ۲۶ مهر ۱۴۰۵</div>
+  <h1>آمادگی مصاحبه .NET Developer — بهپرداز همراه سامانه اول</h1>
+  <p class="lead">تطبیق رزومه جاب‌ویژن با آگهی، سوالات محتمل فنی با جواب کوتاه و قابل‌قبول در مصاحبه، داستان‌های پروژه، و برنامه سه‌روزه. جواب هر سوال را اول خودت بلند بگو، بعد باز کن و مقایسه کن.</p>
+  <div class="meta">
+    <span class="chip">.NET Core · C# · ASP.NET</span>
+    <span class="chip">SQL Server</span>
+    <span class="chip">Angular</span>
+    <span class="chip">REST · Git</span>
+    <span class="chip amber">Microservices · RabbitMQ</span>
+  </div>
+</header>
+
+<section id="fit">
+  <h2>تطبیق رزومه با آگهی</h2>
+  <p class="sub">بیشتر الزامات آگهی را در سطح «Intermediate» خواسته‌اند و رزومه تو در اکثرشان «پیشرفته» است. تنها شکاف واقعی روی کاغذ، Angular است.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>الزام آگهی</th><th>شواهد در رزومه</th><th>وضعیت</th></tr></thead>
+    <tbody>
+      <tr><td>۵ سال سابقه مشابه</td><td>حدود ۹.۵ سال؛ از ۱۳۹۶ در چارگون تا الان در اوزون</td><td><span class="st ok">قوی</span></td></tr>
+      <tr><td>.NET / .NET Core، C#، ASP.NET</td><td>Microservice احراز هویت و تراکنش، API با ASP.NET Core در ناک و پارسیان</td><td><span class="st ok">قوی</span></td></tr>
+      <tr><td>Microsoft SQL Server + Query Optimization</td><td>نقطه قوت اصلی: Index، Execution Plan، Performance Tuning، دوره‌های نیک‌آموز</td><td><span class="st ok">خیلی قوی</span></td></tr>
+      <tr><td>REST API و Web Services</td><td>REST و gRPC، قرارداد API با تیم فرانت در ناک</td><td><span class="st ok">قوی</span></td></tr>
+      <tr><td>OOP</td><td>SOLID، Clean Architecture، Design Patterns در بخش «درباره من»</td><td><span class="st ok">قوی</span></td></tr>
+      <tr><td>Microservices و RabbitMQ</td><td>RabbitMQ پیشرفته، سرویس‌های پرداخت شتاب</td><td><span class="st ok">قوی</span></td></tr>
+      <tr><td>Testing frameworks</td><td>Unit Test و Integration Test</td><td><span class="st ok">خوب</span></td></tr>
+      <tr><td>Git</td><td>Git و GitLab در سطح متوسط</td><td><span class="st ok">کافی</span></td></tr>
+      <tr><td>Agile</td><td>در رزومه صریح نیامده؛ از تجربه تقسیم کار و تیم‌لیدی بگو</td><td><span class="st warn">آماده کن</span></td></tr>
+      <tr><td>Angular</td><td><strong>در رزومه نیست</strong>؛ کار کرده‌ای ولی ثبت نکرده‌ای</td><td><span class="st risk">شکاف</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="risks">
+  <h2>نقاط حساس و برگ‌های برنده</h2>
+  <div class="note red"><strong>Angular را همین امروز به رزومه جاب‌ویژن اضافه کن.</strong>مصاحبه‌کننده رزومه را جلویش دارد و Angular جزو الزامات است. یک خط در سوابق ناک یا پارسیان (هر جا که واقعاً Angular کار کردی) و یک تگ در «نرم‌افزارها» با سطح واقعی‌ات. یک پروژه مشخص هم آماده کن که بگویی: چه صفحه‌ای ساختی، Service و HttpClient چطور بود، با API دات‌نت چطور وصل شد.</div>
+  <div class="note teal"><strong>ارتباط با همراه اول برگ برنده توست.</strong>ناک هم از مجموعه همراه اول بود و بهپرداز همراه سامانه اول زیرمجموعه همراه اول است. در معرفی بگو با فضای همراه اول، حجم بالای کاربر و استانداردهایش آشنایی.</div>
+  <div class="note"><strong>Overqualified به نظر نرسی.</strong>آگهی سطح Intermediate خواسته و تو الان Team Lead هستی. اگر پرسیدند «چرا از تیم‌لیدی به این نقش؟» جواب آماده داشته باش: علاقه به محیط بزرگ‌تر و پایدارتر، پروژه‌های متنوع‌تر، و اینکه هم کد می‌زنی و هم می‌توانی منتورینگ کنی (آگهی هم «technical guidance» خواسته).</div>
+  <div class="note"><strong>فقط چیزی را بگو که عمیق می‌دانی.</strong>Azure و Kubernetes در رزومه هست ولی تجربه کاری عملیاتی‌ات با آن‌ها محدود است. اگر پرسیدند صادقانه بگو «در حد آشنایی و پروژه آموزشی» و سریع برگرد به چیزی که قوی هستی. مصاحبه‌کننده ایرانی معمولاً روی همین‌ها یک سوال عمقی می‌پرسد.</div>
+  <div class="note"><strong>حقوق.</strong>در رزومه ۸۰ تا ۱۰۰ میلیون تومان ثبت شده. اگر عدد پرسیدند، از همین بازه دفاع کن و بگو بسته به مزایا قابل صحبت است. عدد پایین‌تر از این بازه نگو.</div>
+</section>
+
+<section id="intro">
+  <h2>معرفی خود <small>حدود ۲ دقیقه</small></h2>
+  <p class="sub">این را چند بار بلند تمرین کن تا روان شود، ولی حفظی نخوان.</p>
+  <div class="script">
+    <p>من حامد شعیبی هستم، حدود ۹ سال و نیم سابقه برنامه‌نویسی دات‌نت و SQL Server دارم. از ۱۳۹۶ در چارگون شروع کردم، بعد در تجارت الکترونیک پارسیان و ناک (همراه اول) روی سرویس‌های Backend و دیتابیس کار کردم.</p>
+    <p>از مهر ۱۴۰۲ در اوزون، زیرمجموعه گروه صنعتی گلرنگ، تیم‌لید فنی پروژه اتصال به شبکه شتاب هستم. آنجا Microserviceهای احراز هویت و تراکنش را با .NET و SQL Server توسعه دادیم و سرویس‌های درگاه پرداخت را طوری بهینه کردیم که پاسخ تراکنش زیر ۱۰۰ میلی‌ثانیه باشد. Backoffice و پنل مشتریان، مدیریت کاربران و دسترسی‌ها و گزارش‌ها هم بخشی از کار بود.</p>
+    <p>نقطه قوت اصلی‌ام بهینه‌سازی Query و Index در سیستم‌های پرترافیک است. با RabbitMQ، EF Core و Dapper، Unit و Integration Test کار می‌کنم و در سمت فرانت هم با Angular کار کرده‌ام.</p>
+    <p>دنبال محیطی هستم که پروژه‌های بزرگ‌تر و پایدار داشته باشد. چون قبلاً در ناک بودم با فضای همراه اول آشنا هستم و فکر می‌کنم تجربه پرداخت و Performance من اینجا مستقیم به درد می‌خورد.</p>
+  </div>
+  <h3>نسخه انگلیسی کوتاه (اگر خواستند)</h3>
+  <div class="script en" dir="ltr">
+    <p>I'm Hamed, a .NET and SQL Server developer with about nine and a half years of experience. For the last three years I've been the technical lead of the SHETAB integration team at Ozone, part of Golrang Industrial Group. We built authentication and transaction microservices with .NET and SQL Server and tuned the payment services to respond in under 100 milliseconds. My strongest area is query and index optimization in high-traffic systems, and I also work with RabbitMQ, EF Core, Dapper, automated tests and Angular.</p>
+  </div>
+</section>
+
+<section id="stories">
+  <h2>داستان‌های پروژه <small>فرمت STAR: موقعیت، وظیفه، اقدام، نتیجه</small></h2>
+  <p class="sub">مصاحبه‌گرها روی یکی از خطوط رزومه عمیق می‌شوند. این چهار داستان را با عدد و جزئیات آماده کن.</p>
+  <h3>۱. پاسخ زیر ۱۰۰ میلی‌ثانیه در درگاه پرداخت</h3>
+  <ul>
+    <li><strong>موقعیت:</strong> سرویس تراکنش شتاب در ساعات پیک کند می‌شد و Timeout داشتیم.</li>
+    <li><strong>اقدام:</strong> Log و Monitoring گذاشتیم تا گلوگاه پیدا شود؛ Queryهای سنگین را با Execution Plan بررسی و Index مناسب (Covering) ساختیم؛ کارهای غیرضروری مسیر اصلی (نوتیفیکیشن، لاگ تفصیلی) را به RabbitMQ و پردازش Async بردیم؛ داده‌های ثابت را Cache کردیم؛ کل مسیر را async/await کردیم.</li>
+    <li><strong>نتیجه:</strong> زمان پاسخ به زیر ۱۰۰ms رسید. اگر عدد قبل را یادت هست (مثلاً ۴۰۰ms) حتماً بگو.</li>
+  </ul>
+  <h3>۲. یک Query کند که درستش کردی</h3>
+  <ul>
+    <li>یک گزارش یا Query پرتکرار مشخص را انتخاب کن. بگو مشکل چه بود: Index Scan، تابع روی ستون در WHERE (Non-SARGable)، Parameter Sniffing، یا Key Lookup.</li>
+    <li>بگو چطور فهمیدی (Execution Plan، <code>SET STATISTICS IO</code>، Query Store) و چه کردی و زمان از چند به چند رسید.</li>
+  </ul>
+  <h3>۳. تیم‌لیدی و منتورینگ</h3>
+  <ul>
+    <li>تیم سه‌نفره روی پروژه کارت پرداخت، منتورینگ پنج مهندس. Code Review، تقسیم کار، تصمیم فنی.</li>
+    <li>یک مثال مشخص: کسی که با Review یا Pair Programming پیشرفت کرد، یا یک تصمیم فنی که با استدلال تیم را قانع کردی.</li>
+  </ul>
+  <h3>۴. یک باگ سخت در Production</h3>
+  <ul>
+    <li>مثلاً تراکنش تکراری یا Race Condition: با Idempotency Key، Redis Lock یا rowversion در SQL Server حلش کردی. نشان بده چطور با Log ریشه‌یابی کردی و چه کردی که تکرار نشود.</li>
+  </ul>
+</section>
+
+<section id="qa-root">
+  <h2>سوالات فنی</h2>
+  <div class="qa-tools">
+    <button type="button" id="openAll">باز کردن همه</button>
+    <button type="button" id="closeAll">بستن همه</button>
+    <div class="bar" aria-hidden="true"><i id="barFill"></i></div>
+    <span class="progress" id="progress">۰ از ۰ مرور شده</span>
+  </div>
+  <p class="sub">علامت «مرور شد» در همین مرورگر ذخیره می‌شود. موارد <span class="tag">مهم</span> را حتماً بلد باش.</p>
+</section>
+
+<section id="csharp">
+  <h2>C# و OOP</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">چهار اصل OOP را با مثال توضیح بده.<span class="tag">مهم</span></span></summary><div class="ans">
+      <ul><li><strong>Encapsulation:</strong> حالت داخلی پنهان و فقط از طریق متد تغییر می‌کند. مثلاً <code>Balance</code> در BankAccount فقط با <code>Deposit</code>/<code>Withdraw</code> عوض می‌شود.</li>
+      <li><strong>Inheritance:</strong> <code>SavingsAccount : BankAccount</code>؛ استفاده مجدد از رفتار مشترک.</li>
+      <li><strong>Polymorphism:</strong> متد <code>virtual CalculateFee()</code> که هر نوع حساب override می‌کند؛ کد صدازننده فقط با نوع پایه کار دارد.</li>
+      <li><strong>Abstraction:</strong> فقط «چه کاری» دیده شود نه «چطور»؛ مثل <code>IPaymentGateway</code>.</li></ul>
+    </div></details>
+    <details class="q"><summary><span class="qtext">تفاوت abstract class و interface؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>abstract class می‌تواند State (فیلد)، Constructor و پیاده‌سازی پیش‌فرض داشته باشد و کلاس فقط از یکی ارث می‌برد. interface قرارداد است، چندتایی پیاده‌سازی می‌شود و از C# 8 می‌تواند Default Implementation داشته باشد ولی فیلد نه. وقتی «is-a» با کد مشترک داریم abstract، وقتی «can-do» یا قابلیت داریم interface. در عمل برای DI و تست، interface.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">SOLID را توضیح بده و یک مثال واقعی از کار خودت بزن.<span class="tag">مهم</span></span></summary><div class="ans">
+      <ul><li><strong>S</strong> یک کلاس، یک دلیل برای تغییر (PaymentService کار Log و Email نکند).</li>
+      <li><strong>O</strong> باز برای توسعه، بسته برای تغییر: اضافه کردن درگاه جدید با کلاس جدید <code>IPaymentGateway</code>، نه if/else جدید.</li>
+      <li><strong>L</strong> زیرکلاس باید جای کلاس پایه بنشیند بدون شکستن رفتار.</li>
+      <li><strong>I</strong> interfaceهای کوچک و تخصصی به‌جای یک interface چاق.</li>
+      <li><strong>D</strong> وابستگی به Abstraction؛ در ASP.NET Core همان DI Container.</li></ul>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Value Type و Reference Type؟ struct و class؟ record چیست؟</span></summary><div class="ans">
+      <p>Value Type مقدار خودش را نگه می‌دارد و با کپی منتقل می‌شود (int، struct)؛ Reference Type به آدرسی در Heap اشاره می‌کند (class، string، array). Boxing یعنی تبدیل Value Type به object که هزینه Allocation دارد. record نوع ارجاعی با Equality بر اساس مقدار، Immutable به‌صورت پیش‌فرض و <code>with</code> expression؛ برای DTO و Value Object عالی است.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">async/await چطور کار می‌کند؟ چرا در API مهم است؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>کامپایلر متد را به State Machine تبدیل می‌کند. در I/O (دیتابیس، HTTP) Thread آزاد می‌شود و به Thread Pool برمی‌گردد، پس سرور با Thread کمتر درخواست بیشتری جواب می‌دهد (Scalability، نه لزوماً سرعت یک درخواست). خطاهای رایج: <code>.Result</code> و <code>.Wait()</code> که Deadlock یا Thread Starvation می‌سازند، و <code>async void</code> که Exception را گم می‌کند (فقط برای Event Handler). <code>Task.WhenAll</code> برای کارهای موازی مستقل.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">IEnumerable، IQueryable، و Deferred Execution در LINQ؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p><code>IQueryable</code> Expression Tree می‌سازد که EF آن را به SQL ترجمه می‌کند، پس فیلتر در دیتابیس اجرا می‌شود. <code>IEnumerable</code> در حافظه کار می‌کند. اگر زود <code>ToList()</code> یا <code>AsEnumerable()</code> کنی، کل جدول به حافظه می‌آید. Deferred Execution: Query تا زمان Enumerate شدن (foreach، ToList، Count) اجرا نمی‌شود؛ اگر دو بار Enumerate کنی دو بار اجرا می‌شود.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Garbage Collector و IDisposable و using؟</span></summary><div class="ans">
+      <p>GC حافظه Managed را با Generationهای 0، 1، 2 (و LOH برای آبجکت‌های بزرگ) آزاد می‌کند. منابع Unmanaged (Connection، File، Socket) را GC به‌موقع آزاد نمی‌کند، پس <code>IDisposable</code> و <code>using</code> لازم است. برای HttpClient از <code>IHttpClientFactory</code> استفاده می‌کنیم تا Socket Exhaustion نداشته باشیم.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">delegate، event، Func و Action؟</span></summary><div class="ans">
+      <p>delegate نوعی است که به متد اشاره می‌کند. <code>Func&lt;T,TResult&gt;</code> مقدار برمی‌گرداند، <code>Action&lt;T&gt;</code> نه. event یک delegate محافظت‌شده است که بیرون کلاس فقط <code>+=</code> و <code>-=</code> می‌شود و فقط خود کلاس آن را Raise می‌کند (الگوی Observer).</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Generic و constraint ها؟ چرا Generic Repository بحث‌برانگیز است؟</span></summary><div class="ans">
+      <p>Generic یعنی Type Safety بدون Boxing و تکرار کد: <code>where T : class, IEntity, new()</code>. Generic Repository روی EF Core اغلب لایه اضافه است چون DbSet خودش Repository و DbContext خودش Unit of Work است؛ Repository اختصاصی با متدهای معنادار دامنه (مثلاً <code>GetPendingTransactions</code>) مفیدتر است.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">string و StringBuilder؟ چرا string Immutable است؟</span></summary><div class="ans">
+      <p>string Immutable است؛ هر تغییر یک آبجکت جدید می‌سازد. در حلقه با الحاق زیاد، <code>StringBuilder</code> یک بافر قابل تغییر دارد. Immutability برای Thread Safety و String Interning و استفاده امن به‌عنوان کلید Dictionary خوب است.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">چند Design Pattern که واقعاً استفاده کردی نام ببر.</span></summary><div class="ans">
+      <p>Repository و Unit of Work، Factory/Builder برای ساخت Entity، Strategy برای انتخاب درگاه یا محاسبه کارمزد، Decorator (مثلاً Caching روی Repository)، Mediator با MediatR در CQRS، Options Pattern، Outbox برای پیام مطمئن. برای هر کدام یک جمله «کجا و چرا» آماده کن.</p>
+    </div></details>
+  </div>
+</section>
+
+<section id="aspnet">
+  <h2>ASP.NET Core</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">Middleware Pipeline چیست و ترتیب چرا مهم است؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>زنجیره‌ای از کامپوننت‌ها که Request را به ترتیب ثبت پردازش می‌کنند و Response برعکس برمی‌گردد. هر Middleware می‌تواند <code>next()</code> را صدا بزند یا Short-circuit کند. ترتیب معمول: ExceptionHandler، HTTPS، Static Files، Routing، CORS، Authentication، Authorization، Endpoints. اگر Authorization قبل از Authentication باشد، کاربر شناخته نمی‌شود.</p>
+      <pre><code>app.Use(async (ctx, next) =&gt; {
+    var sw = Stopwatch.StartNew();
+    await next();
+    logger.LogInformation("{Path} {Ms}ms", ctx.Request.Path, sw.ElapsedMilliseconds);
+});</code></pre>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Lifetimeهای DI: Singleton، Scoped، Transient؟ Captive Dependency چیست؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>Singleton یک نمونه برای کل برنامه، Scoped یک نمونه برای هر Request (DbContext)، Transient هر بار نمونه جدید. Captive Dependency: تزریق Scoped در Singleton؛ DbContext عملاً Singleton می‌شود و مشکل Thread Safety و داده کهنه می‌دهد. در BackgroundService با <code>IServiceScopeFactory</code> Scope بساز.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Filter ها در MVC چه انواعی دارند و فرقشان با Middleware؟</span></summary><div class="ans">
+      <p>Authorization، Resource، Action، Exception، Result. Filter به Context کنترلر و Action و Model دسترسی دارد؛ Middleware عمومی‌تر و روی کل Pipeline است. Logging عمومی و Exception سراسری در Middleware، Validation یا منطق مخصوص Action در Filter.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Exception Handling سراسری را چطور پیاده می‌کنی؟</span></summary><div class="ans">
+      <p>با <code>UseExceptionHandler</code> یا از .NET 8 با <code>IExceptionHandler</code> و خروجی استاندارد <code>ProblemDetails</code>. Exceptionهای دامنه به Status Code مناسب Map می‌شوند (NotFound → 404، Validation → 400) و جزئیات داخلی فقط Log می‌شود، به کاربر نمی‌رود.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Authentication و Authorization؟ JWT چطور کار می‌کند؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>Authentication یعنی «کی هستی»، Authorization یعنی «اجازه داری». JWT سه بخش دارد: Header، Payload (Claims)، Signature. سرور با کلید امضا را چک می‌کند، پس Stateless است. Access Token کوتاه‌عمر و Refresh Token برای تمدید. Policy-based Authorization با <code>[Authorize(Policy="...")]</code> و Role/Claim. در Backoffice که مدیریت دسترسی داشتید، این را به تجربه خودت ربط بده.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Model Validation چطور انجام می‌دهی؟</span></summary><div class="ans">
+      <p>DataAnnotations یا FluentValidation. با <code>[ApiController]</code> اگر ModelState نامعتبر باشد خودکار 400 با ProblemDetails برمی‌گردد. Validation قواعد کسب‌وکار در لایه Domain یا Application، نه فقط در DTO.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Configuration و Options Pattern؟ IOptions، IOptionsSnapshot، IOptionsMonitor؟</span></summary><div class="ans">
+      <p>تنظیمات از appsettings، Environment، User Secrets و... لایه‌لایه خوانده می‌شود. <code>IOptions</code> یک بار (Singleton)، <code>IOptionsSnapshot</code> هر Request (Scoped)، <code>IOptionsMonitor</code> با Reload زنده و قابل استفاده در Singleton.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Background Job در ASP.NET Core؟</span></summary><div class="ans">
+      <p><code>BackgroundService</code>/<code>IHostedService</code> برای کارهای ساده؛ Hangfire یا Quartz برای زمان‌بندی، Retry و Dashboard. برای کارهای مهم، Queue (RabbitMQ) بهتر است چون با Restart پروسس از بین نمی‌رود.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Controller یا Minimal API؟ تفاوت .NET Framework و .NET Core؟</span></summary><div class="ans">
+      <p>Minimal API سبک‌تر و کم‌کدتر برای سرویس‌های کوچک؛ Controller برای API بزرگ با Filter و ساختار مرسوم. .NET Core کراس‌پلتفرم، Open Source، سریع‌تر، DI داخلی، Kestrel، و Self-hosted است؛ .NET Framework فقط ویندوز و IIS.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">CORS چیست و چرا وقتی Angular به API وصل می‌شود مطرح است؟</span></summary><div class="ans">
+      <p>مرورگر درخواست از Origin دیگر را بدون اجازه سرور مسدود می‌کند. سرور با Header <code>Access-Control-Allow-Origin</code> اجازه می‌دهد؛ برای درخواست‌های غیرساده Preflight با OPTIONS ارسال می‌شود. در ASP.NET Core با <code>AddCors</code> و Policy مشخص؛ <code>AllowAnyOrigin</code> با Credentials ممنوع است.</p>
+    </div></details>
+  </div>
+</section>
+
+<section id="rest">
+  <h2>REST API</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">اصول REST و متدهای HTTP؛ کدام Idempotent هستند؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>Resource محور، Stateless، Uniform Interface، Cacheable. GET، PUT، DELETE Idempotent هستند (تکرار، نتیجه را تغییر نمی‌دهد). POST نیست، پس در پرداخت از Idempotency Key در Header استفاده می‌کنیم تا تراکنش تکراری ثبت نشود. این را حتماً به تجربه پرداخت ربط بده.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">PUT و PATCH؟</span></summary><div class="ans"><p>PUT کل Resource را جایگزین می‌کند؛ PATCH بخشی را تغییر می‌دهد (JSON Patch یا Merge Patch).</p></div></details>
+    <details class="q"><summary><span class="qtext">Status Codeهای مهم را بگو.</span></summary><div class="ans">
+      <p>200 OK، 201 Created (با Location)، 204 No Content، 400 Bad Request، 401 Unauthorized (احراز نشده)، 403 Forbidden (اجازه ندارد)، 404، 409 Conflict (مثلاً Concurrency)، 422، 429 Too Many Requests، 500، 503.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Versioning و Pagination را چطور طراحی می‌کنی؟</span></summary><div class="ans">
+      <p>Versioning در URL (<code>/api/v1/</code>)، Header یا Query String؛ URL ساده‌ترین برای کلاینت‌ها. Pagination با <code>page</code>/<code>pageSize</code> (OFFSET/FETCH) یا Keyset/Cursor برای جدول‌های بزرگ که در صفحه‌های عمیق سریع‌تر است.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">REST در مقابل gRPC؟</span></summary><div class="ans">
+      <p>gRPC روی HTTP/2 با Protobuf باینری، سریع‌تر، Contract-first و Streaming؛ مناسب ارتباط داخلی سرویس‌ها. REST با JSON خواناتر و برای مرورگر و کلاینت عمومی. گفته‌ای gRPC کار کرده‌ای؛ یک مثال آماده کن.</p>
+    </div></details>
+  </div>
+</section>
+
+<section id="sql">
+  <h2>SQL Server <small>نقطه قوت اصلی تو؛ اینجا باید بدرخشی</small></h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">Clustered و Non-Clustered Index؟ Covering Index؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>Clustered ترتیب فیزیکی داده‌ها (Leafها خود داده‌اند)، فقط یکی در هر جدول. Non-Clustered ساختار جدا که به Clustered Key اشاره می‌کند؛ اگر ستون لازم در Index نباشد Key Lookup رخ می‌دهد. Covering Index با <code>INCLUDE</code> همه ستون‌های Query را دارد و Lookup حذف می‌شود. Filtered Index برای زیرمجموعه (مثلاً <code>WHERE Status = 'Pending'</code>).</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">یک Query کند را چطور بررسی می‌کنی؟ مراحلت را بگو.<span class="tag">مهم</span></span></summary><div class="ans">
+      <ul><li>پیدا کردن Query: Query Store، DMVها (<code>sys.dm_exec_query_stats</code>)، Extended Events.</li>
+      <li><code>SET STATISTICS IO, TIME ON</code> و Actual Execution Plan: Scan به‌جای Seek، Key Lookup، تفاوت Estimated و Actual Rows، Sort و Spill در tempdb، Implicit Conversion.</li>
+      <li>رفع: Index مناسب، بازنویسی SARGable، به‌روزرسانی Statistics، حذف <code>SELECT *</code>، شکستن Query، Temp Table.</li></ul>
+    </div></details>
+    <details class="q"><summary><span class="qtext">SARGable یعنی چه؟ مثال بزن.</span></summary><div class="ans">
+      <p>شرطی که بتواند از Index Seek استفاده کند. تابع روی ستون آن را خراب می‌کند:</p>
+      <pre><code>-- Bad: Index Scan
+WHERE YEAR(CreatedAt) = 2026
+-- Good: Index Seek
+WHERE CreatedAt &gt;= '2026-01-01' AND CreatedAt &lt; '2027-01-01'</code></pre>
+      <p><code>LIKE '%abc'</code> و مقایسه nvarchar با varchar (Implicit Conversion) هم همین مشکل را دارند.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Parameter Sniffing چیست و چطور حلش می‌کنی؟</span></summary><div class="ans">
+      <p>SQL Server Plan را بر اساس پارامتر اولین اجرا Cache می‌کند؛ اگر توزیع داده نامتوازن باشد Plan برای پارامترهای دیگر بد است. راه‌ها: <code>OPTION (RECOMPILE)</code>، <code>OPTIMIZE FOR</code>، متغیر محلی، Plan Forcing در Query Store، یا جدا کردن Procedure.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Isolation Levelها و Deadlock؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>Read Uncommitted (Dirty Read)، Read Committed (پیش‌فرض)، Repeatable Read، Serializable، Snapshot و RCSI که با Row Versioning خواننده و نویسنده را بلاک نمی‌کنند. Deadlock: دو تراکنش منابع هم را قفل کرده‌اند و یکی Victim می‌شود. پیشگیری: دسترسی به جدول‌ها با ترتیب ثابت، تراکنش کوتاه، Index مناسب، RCSI، و Retry در کد. برای تحلیل از Deadlock Graph در system_health.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Temp Table، Table Variable و CTE؟</span></summary><div class="ans">
+      <p>Temp Table در tempdb با Statistics و Index، برای حجم زیاد. Table Variable آمار ندارد (تا قبل از 2019 تخمین ۱ ردیف) و برای حجم کم. CTE فقط خوانایی است و Materialize نمی‌شود؛ اگر دو بار استفاده شود دو بار اجرا می‌شود. Recursive CTE برای سلسله‌مراتب.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Window Functionها: ROW_NUMBER، RANK، DENSE_RANK، LAG، SUM OVER؟</span></summary><div class="ans">
+      <pre><code>SELECT AccountId, Amount, CreatedAt,
+  ROW_NUMBER() OVER (PARTITION BY AccountId ORDER BY CreatedAt DESC) AS rn,
+  SUM(Amount)  OVER (PARTITION BY AccountId ORDER BY CreatedAt
+                     ROWS UNBOUNDED PRECEDING) AS RunningTotal,
+  LAG(Amount)  OVER (PARTITION BY AccountId ORDER BY CreatedAt) AS PrevAmount
+FROM Transactions;</code></pre>
+      <p>RANK با تساوی شماره رد می‌کند (1،1،3)، DENSE_RANK نه (1،1،2).</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Stored Procedure یا Query از کد؟ View و Function؟</span></summary><div class="ans">
+      <p>SP: Plan Reuse، امنیت (فقط Execute)، کاهش رفت‌وبرگشت؛ ولی منطق در دیتابیس پراکنده و تست سخت‌تر می‌شود. Scalar Function قدیمی Row-by-row اجرا می‌شود و کند است (2019 Inlining دارد)؛ Inline Table-Valued Function بهتر است. View برای ساده‌سازی و امنیت؛ Indexed View برای تجمیع از پیش محاسبه‌شده.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">DELETE، TRUNCATE، DROP؟ WHERE و HAVING؟ JOIN ها؟</span></summary><div class="ans">
+      <p>DELETE ردیف‌به‌ردیف و Log کامل با WHERE؛ TRUNCATE همه داده با Log حداقلی و Reset شدن Identity؛ DROP کل جدول. WHERE قبل از Group، HAVING بعد از Group روی Aggregate. INNER، LEFT، RIGHT، FULL، CROSS، و APPLY.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Columnstore Index چه موقع؟</span></summary><div class="ans">
+      <p>برای جدول‌های بزرگ گزارشی و تحلیلی با Aggregate روی ستون‌های کم؛ فشرده‌سازی بالا و Batch Mode. برای OLTP با Seek تک‌ردیفی مناسب نیست. دوره‌اش را در نیک‌آموز گذرانده‌ای؛ اگر جایی استفاده کردی بگو.</p>
+    </div></details>
+  </div>
+</section>
+
+<section id="ef">
+  <h2>EF Core و Dapper</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">مشکل N+1 چیست و چطور حل می‌شود؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>یک Query برای لیست و N Query برای هر رابطه (معمولاً با Lazy Loading). راه‌حل: <code>Include</code> (Eager)، Projection با <code>Select</code> به DTO، یا <code>AsSplitQuery</code> برای جلوگیری از Cartesian Explosion.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">AsNoTracking و Change Tracker؟</span></summary><div class="ans"><p>برای Queryهای فقط‌خواندنی <code>AsNoTracking</code> سربار Tracking را حذف می‌کند و سریع‌تر و کم‌حافظه‌تر است. Change Tracker تغییرات Entityهای Track‌شده را در <code>SaveChanges</code> به SQL تبدیل می‌کند.</p></div></details>
+    <details class="q"><summary><span class="qtext">Concurrency را در EF Core چطور مدیریت می‌کنی؟</span></summary><div class="ans">
+      <p>Optimistic با <code>[Timestamp]</code>/rowversion یا ConcurrencyToken؛ در صورت تعارض <code>DbUpdateConcurrencyException</code> می‌گیری و Retry یا پیام 409 می‌دهی. Pessimistic با Lock در SQL (<code>UPDLOCK</code>) یا Distributed Lock در Redis. تجربه خودت در پرداخت را بگو.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">EF Core یا Dapper؟ کی کدام؟</span></summary><div class="ans">
+      <p>EF Core برای CRUD و منطق دامنه، Migration، Change Tracking و بهره‌وری. Dapper برای Queryهای سنگین گزارشی و مسیرهای حساس به Performance با SQL دستی. در یک پروژه هر دو با هم: Write با EF، Read سنگین با Dapper (نزدیک به CQRS).</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Migration در Production را چطور اجرا می‌کنی؟</span></summary><div class="ans"><p>اجرای خودکار <code>Database.Migrate()</code> در Startup برای Production ریسکی است. بهتر: تولید اسکریپت Idempotent با <code>dotnet ef migrations script --idempotent</code> یا Migration Bundle، بررسی DBA، و اجرا در Pipeline.</p></div></details>
+  </div>
+</section>
+
+<section id="angular">
+  <h2>Angular <small>سوالات پایه تا متوسط برای یک Backend Developer</small></h2>
+  <div class="note teal"><strong>استراتژی:</strong>بگو تمرکزت Backend است ولی با Angular صفحه و فرم ساخته‌ای و به API وصل کرده‌ای. سریع پل بزن به قرارداد API، CORS، JWT Interceptor و Pagination که سمت تو هستند.</div>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">ساختار یک برنامه Angular: Component، Module، Service، Standalone؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>Component = Template + Class + Style. Service منطق مشترک و فراخوانی API، با <code>@Injectable({providedIn:'root'})</code> تزریق می‌شود. NgModule روش قدیمی گروه‌بندی بود؛ از Angular 14 به بعد Standalone Component رایج و از 17 پیش‌فرض است.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Observable در مقابل Promise؟ RxJS چند Operator مهم؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <p>Promise یک مقدار، Eager، غیرقابل لغو. Observable چند مقدار در طول زمان، Lazy (تا Subscribe نشود اجرا نمی‌شود)، قابل لغو با Unsubscribe. Operatorها: <code>map</code>، <code>filter</code>، <code>switchMap</code> (لغو درخواست قبلی، مثلاً در جستجو)، <code>mergeMap</code>، <code>debounceTime</code>، <code>catchError</code>، <code>takeUntil</code>. برای جلوگیری از Memory Leak از <code>async</code> pipe یا <code>takeUntilDestroyed</code> استفاده می‌شود.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">ارتباط بین کامپوننت‌ها چطور است؟</span></summary><div class="ans"><p>Parent به Child با <code>@Input</code>، Child به Parent با <code>@Output</code> و <code>EventEmitter</code>، و بین کامپوننت‌های نامرتبط با Shared Service و <code>BehaviorSubject</code> یا Signal. برای State پیچیده NgRx.</p></div></details>
+    <details class="q"><summary><span class="qtext">Lifecycle Hookها؟</span></summary><div class="ans"><p><code>ngOnChanges</code> (تغییر Input)، <code>ngOnInit</code> (مقداردهی و فراخوانی API)، <code>ngAfterViewInit</code>، <code>ngOnDestroy</code> (Unsubscribe و پاکسازی). Constructor فقط برای تزریق وابستگی.</p></div></details>
+    <details class="q"><summary><span class="qtext">Data Binding ها؟</span></summary><div class="ans"><p>Interpolation <code>{{ value }}</code>، Property <code>[src]="url"</code>، Event <code>(click)="save()"</code>، Two-way <code>[(ngModel)]</code>.</p></div></details>
+    <details class="q"><summary><span class="qtext">HttpClient و Interceptor؛ توکن JWT را چطور به همه درخواست‌ها اضافه می‌کنی؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <pre><code>export const authInterceptor: HttpInterceptorFn = (req, next) =&gt; {
+  const token = inject(AuthService).token();
+  const authReq = token
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
+  return next(authReq);
+};
+// app.config.ts
+provideHttpClient(withInterceptors([authInterceptor]))</code></pre>
+      <p>Interceptor برای Token، مدیریت سراسری خطا (مثلاً 401 → صفحه Login)، و Loading.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Reactive Form و Template-driven Form؟</span></summary><div class="ans"><p>Template-driven ساده، منطق در HTML با ngModel. Reactive با <code>FormGroup</code>/<code>FormControl</code>/<code>FormBuilder</code> در کلاس، Validation قوی‌تر، قابل تست؛ برای فرم‌های پیچیده Reactive.</p></div></details>
+    <details class="q"><summary><span class="qtext">Routing، Lazy Loading و Guard؟</span></summary><div class="ans"><p>Route با <code>loadComponent</code>/<code>loadChildren</code> Lazy بارگذاری می‌شود و Bundle اولیه کوچک می‌ماند. Guard (<code>canActivate</code>) دسترسی به Route را بر اساس Login یا نقش کنترل می‌کند؛ ولی امنیت واقعی همیشه سمت API است.</p></div></details>
+    <details class="q"><summary><span class="qtext">Change Detection و OnPush؟ Signals چیست؟</span></summary><div class="ans"><p>Angular با Zone.js بعد از هر رویداد Async کل درخت را بررسی می‌کند. <code>OnPush</code> فقط وقتی Input مرجعش عوض شود یا Event داخلی رخ دهد بررسی می‌کند و سریع‌تر است. Signals (از Angular 16) مقدار واکنش‌گرا با <code>signal()</code>، <code>computed()</code>، <code>effect()</code> که Change Detection دقیق‌تر و بدون Zone را ممکن می‌کند.</p></div></details>
+    <details class="q"><summary><span class="qtext">Pipe چیست؟</span></summary><div class="ans"><p>تبدیل نمایش داده در Template: <code>date</code>، <code>currency</code>، <code>async</code>، و Pipe سفارشی. Pure Pipe فقط با تغییر ورودی دوباره اجرا می‌شود.</p></div></details>
+  </div>
+</section>
+
+<section id="micro">
+  <h2>Microservices و RabbitMQ</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">Microservice در مقابل Monolith؛ مزایا و هزینه‌ها؟<span class="tag">مهم</span></span></summary><div class="ans"><p>مزایا: Deploy و Scale مستقل، مالکیت تیمی، ایزوله شدن خطا، تکنولوژی متفاوت. هزینه: پیچیدگی شبکه، Consistency توزیع‌شده، Monitoring و Tracing، DevOps. برای سیستم کوچک، Modular Monolith اغلب انتخاب بهتری است.</p></div></details>
+    <details class="q"><summary><span class="qtext">انواع Exchange در RabbitMQ؟<span class="tag">مهم</span></span></summary><div class="ans"><p><strong>Direct</strong> بر اساس Routing Key دقیق؛ <strong>Fanout</strong> به همه Queueهای متصل (Broadcast)؛ <strong>Topic</strong> با الگو (<code>payment.*.failed</code>، <code>#</code>)؛ <strong>Headers</strong> بر اساس Header.</p></div></details>
+    <details class="q"><summary><span class="qtext">چطور مطمئن می‌شوی پیام گم نمی‌شود؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <ul><li>Queue و پیام Durable/Persistent.</li><li>Publisher Confirms.</li><li>Manual Ack در Consumer بعد از پردازش موفق؛ در خطا Nack و Retry.</li><li>Dead Letter Exchange برای پیام‌های Poison.</li><li>Outbox Pattern: پیام در همان تراکنش دیتابیس ذخیره و جداگانه Publish می‌شود.</li><li>Consumer Idempotent (Inbox یا چک MessageId) چون تحویل At-least-once است.</li></ul>
+    </div></details>
+    <details class="q"><summary><span class="qtext">ارتباط Sync و Async بین سرویس‌ها؟ کی کدام؟</span></summary><div class="ans"><p>Sync (HTTP/gRPC) وقتی جواب فوری لازم است، ولی Coupling زمانی و زنجیره خطا دارد؛ با Timeout، Retry و Circuit Breaker (Polly) محافظت کن. Async (پیام) برای کارهایی که منتظرشان نیستیم: نوتیفیکیشن، گزارش، به‌روزرسانی سرویس دیگر.</p></div></details>
+    <details class="q"><summary><span class="qtext">تراکنش توزیع‌شده: Saga؟</span></summary><div class="ans"><p>چون Transaction واحد بین دیتابیس‌ها نداریم، Saga زنجیره‌ای از تراکنش‌های محلی با Compensating Action است. Choreography با Event، Orchestration با یک هماهنگ‌کننده (مثلاً State Machine در MassTransit).</p></div></details>
+    <details class="q"><summary><span class="qtext">API Gateway، Service Discovery، Observability؟</span></summary><div class="ans"><p>Gateway (YARP، Ocelot): نقطه ورود واحد، Auth، Rate Limit، Routing. Observability: Log ساخت‌یافته با Serilog به Elasticsearch، Correlation Id، Metrics، و Distributed Tracing با OpenTelemetry.</p></div></details>
+  </div>
+</section>
+
+<section id="test">
+  <h2>تست</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">Unit Test و Integration Test؛ از چه ابزاری استفاده می‌کنی؟<span class="tag">مهم</span></span></summary><div class="ans"><p>Unit Test یک واحد را جدا از وابستگی‌ها (با Mock) تست می‌کند: xUnit، Moq یا NSubstitute، FluentAssertions. Integration Test چند لایه با دیتابیس واقعی یا Testcontainers و <code>WebApplicationFactory</code> برای تست کامل API. Test Pyramid: Unit زیاد، Integration کمتر، E2E کم.</p></div></details>
+    <details class="q"><summary><span class="qtext">یک Unit Test ساده بنویس.</span></summary><div class="ans">
+      <pre><code>public class BankAccountTests
+{
+    [Fact]
+    public void Withdraw_MoreThanBalance_Throws()
+    {
+        var account = new BankAccount(initialBalance: 100);
+        var act = () =&gt; account.Withdraw(150);
+        Assert.Throws&lt;InvalidOperationException&gt;(act);
+    }
+
+    [Theory]
+    [InlineData(100, 30, 70)]
+    [InlineData(50, 50, 0)]
+    public void Withdraw_Valid_DecreasesBalance(decimal start, decimal amount, decimal expected)
+    {
+        var account = new BankAccount(start);
+        account.Withdraw(amount);
+        Assert.Equal(expected, account.Balance);
+    }
+}</code></pre>
+      <p>الگوی Arrange / Act / Assert و نام‌گذاری <code>Method_Scenario_Expected</code>.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Mock، Stub و Fake؟</span></summary><div class="ans"><p>Stub فقط داده برمی‌گرداند، Mock علاوه بر آن رفتار و فراخوانی را Verify می‌کند، Fake پیاده‌سازی سبک و واقعی (مثل InMemory Repository).</p></div></details>
+  </div>
+</section>
+
+<section id="git">
+  <h2>Git و Agile</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">merge و rebase؟ cherry-pick؟<span class="tag">مهم</span></span></summary><div class="ans"><p>merge یک Merge Commit می‌سازد و تاریخچه را حفظ می‌کند؛ rebase کامیت‌ها را روی شاخه مقصد بازنویسی و تاریخچه را خطی می‌کند. روی شاخه مشترک و Push‌شده rebase نکن. cherry-pick یک کامیت خاص را به شاخه دیگر می‌آورد (مثلاً Hotfix). <code>git stash</code> برای کنار گذاشتن موقت تغییرات، <code>git revert</code> برای برگرداندن امن کامیت Push‌شده.</p></div></details>
+    <details class="q"><summary><span class="qtext">استراتژی Branching تیمتان چه بود؟</span></summary><div class="ans"><p>Git Flow (develop، feature، release، hotfix) یا Trunk-based با Feature Branch کوتاه‌عمر و Merge Request با Code Review و CI. تجربه GitLab Merge Request و Review خودت را بگو.</p></div></details>
+    <details class="q"><summary><span class="qtext">Scrum و تجربه Agile تیمتان؟</span></summary><div class="ans"><p>Sprint دو هفته‌ای، Sprint Planning، Daily Standup، Review و Retrospective؛ Backlog و تخمین با Story Point. حتی اگر رسمی Scrum نبود، بگو چطور کار را تقسیم، تخمین و تحویل می‌دادید. نقش خودت به‌عنوان تیم‌لید در Planning و Review را برجسته کن.</p></div></details>
+  </div>
+</section>
+
+<section id="perf">
+  <h2>Performance و Scalability</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">برای بهبود Performance یک API چه کارهایی می‌کنی؟<span class="tag">مهم</span></span></summary><div class="ans">
+      <ul><li>اول اندازه‌گیری: Log زمان، APM، Profiler؛ حدس نزن.</li><li>دیتابیس: Index، Projection، AsNoTracking، Pagination، حذف N+1.</li><li>Caching: In-Memory، Redis (Distributed)، Output/Response Caching؛ Cache-aside و Invalidation.</li><li>async تا انتها، Connection Pooling، IHttpClientFactory.</li><li>کارهای غیرضروری را Async و به Queue بفرست.</li><li>Response Compression و کاهش حجم Payload.</li></ul>
+    </div></details>
+    <details class="q"><summary><span class="qtext">Scale Up و Scale Out؟ سرویس Stateless چرا مهم است؟</span></summary><div class="ans"><p>Scale Up سخت‌افزار قوی‌تر، Scale Out نمونه‌های بیشتر پشت Load Balancer. برای Scale Out سرویس باید Stateless باشد: Session و Cache در Redis، فایل در Storage مشترک.</p></div></details>
+    <details class="q"><summary><span class="qtext">Redis را برای چه استفاده کردی؟</span></summary><div class="ans"><p>Distributed Cache، جلوگیری از درخواست تکراری (Deduplication)، Distributed Lock، Rate Limiting. مراقب Cache Stampede و TTL مناسب باش.</p></div></details>
+    <details class="q"><summary><span class="qtext">Rate Limiting در ASP.NET Core؟</span></summary><div class="ans"><p>از .NET 7 Middleware داخلی <code>AddRateLimiter</code> با الگوریتم‌های Fixed Window، Sliding Window، Token Bucket و Concurrency؛ خروجی 429.</p></div></details>
+  </div>
+</section>
+
+<section id="coding">
+  <h2>تمرین کدنویسی محتمل</h2>
+  <p class="sub">در مصاحبه‌های ایرانی معمولاً یک یا دو Query و یک مسئله کوچک C# روی کاغذ یا نوت‌پد می‌دهند. اول خودت بنویس، بعد باز کن.</p>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">SQL: دومین حقوق بالا (یا N امین).</span></summary><div class="ans">
+      <pre><code>SELECT Salary FROM (
+  SELECT Salary, DENSE_RANK() OVER (ORDER BY Salary DESC) AS rnk
+  FROM Employees
+) t WHERE rnk = 2;</code></pre>
+    </div></details>
+    <details class="q"><summary><span class="qtext">SQL: رکوردهای تکراری را پیدا و حذف کن (یکی بماند).</span></summary><div class="ans">
+      <pre><code>;WITH d AS (
+  SELECT *, ROW_NUMBER() OVER (PARTITION BY Email ORDER BY Id) AS rn
+  FROM Users
+)
+DELETE FROM d WHERE rn &gt; 1;</code></pre>
+    </div></details>
+    <details class="q"><summary><span class="qtext">SQL: آخرین تراکنش هر حساب (Top 1 per group).</span></summary><div class="ans">
+      <pre><code>SELECT * FROM (
+  SELECT t.*, ROW_NUMBER() OVER (PARTITION BY AccountId ORDER BY CreatedAt DESC) AS rn
+  FROM Transactions t
+) x WHERE rn = 1;</code></pre>
+      <p>یا با <code>CROSS APPLY (SELECT TOP 1 ...)</code> که با Index روی <code>(AccountId, CreatedAt DESC)</code> خیلی سریع است.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">SQL: مشتری‌هایی که هیچ سفارشی ندارند.</span></summary><div class="ans">
+      <pre><code>SELECT c.* FROM Customers c
+WHERE NOT EXISTS (SELECT 1 FROM Orders o WHERE o.CustomerId = c.Id);</code></pre>
+      <p><code>NOT IN</code> با NULL در زیرQuery نتیجه خالی می‌دهد؛ <code>NOT EXISTS</code> امن‌تر است.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">SQL: مجموع تراکنش موفق هر روز در ماه جاری، فقط روزهای بالای ۱۰۰ میلیون.</span></summary><div class="ans">
+      <pre><code>SELECT CAST(CreatedAt AS date) AS Day, SUM(Amount) AS Total
+FROM Transactions
+WHERE Status = 'Success'
+  AND CreatedAt &gt;= DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)
+GROUP BY CAST(CreatedAt AS date)
+HAVING SUM(Amount) &gt; 100000000
+ORDER BY Day;</code></pre>
+    </div></details>
+    <details class="q"><summary><span class="qtext">C#: کاراکترهای تکراری یک رشته و تعدادشان را با LINQ بشمار.</span></summary><div class="ans">
+      <pre><code>var result = input
+    .Where(char.IsLetter)
+    .GroupBy(c =&gt; char.ToLower(c))
+    .Where(g =&gt; g.Count() &gt; 1)
+    .Select(g =&gt; new { Char = g.Key, Count = g.Count() });</code></pre>
+    </div></details>
+    <details class="q"><summary><span class="qtext">C#: بررسی Palindrome و Reverse رشته بدون متد آماده.</span></summary><div class="ans">
+      <pre><code>static bool IsPalindrome(string s)
+{
+    int i = 0, j = s.Length - 1;
+    while (i &lt; j)
+        if (s[i++] != s[j--]) return false;
+    return true;
+}</code></pre>
+    </div></details>
+    <details class="q"><summary><span class="qtext">C#: دو عدد در آرایه که جمعشان برابر Target است (Two Sum).</span></summary><div class="ans">
+      <pre><code>static (int, int)? TwoSum(int[] nums, int target)
+{
+    var seen = new Dictionary&lt;int, int&gt;();
+    for (int i = 0; i &lt; nums.Length; i++)
+    {
+        if (seen.TryGetValue(target - nums[i], out var j)) return (j, i);
+        seen[nums[i]] = i;
+    }
+    return null;
+}   // O(n)</code></pre>
+    </div></details>
+    <details class="q"><summary><span class="qtext">C#: خروجی این کد چیست؟ (سوال تله‌ای رایج)</span></summary><div class="ans">
+      <pre><code>var actions = new List&lt;Action&gt;();
+for (int i = 0; i &lt; 3; i++) actions.Add(() =&gt; Console.Write(i));
+actions.ForEach(a =&gt; a());</code></pre>
+      <p>خروجی <code>333</code>؛ Closure متغیر <code>i</code> را Capture می‌کند نه مقدارش را. با <code>foreach</code> از C# 5 به بعد هر دور متغیر جدید است و <code>012</code> چاپ می‌شود. راه‌حل در for: کپی محلی <code>var x = i;</code>.</p>
+    </div></details>
+    <details class="q"><summary><span class="qtext">طراحی: یک Endpoint انتقال وجه بین دو حساب طراحی کن.</span></summary><div class="ans">
+      <ul><li><code>POST /api/v1/transfers</code> با Header <code>Idempotency-Key</code>.</li><li>Validation: مبلغ مثبت، حساب‌ها متفاوت و فعال.</li><li>Transaction دیتابیس؛ Lock یا rowversion روی حساب‌ها، و قفل گرفتن با ترتیب ثابت (Id کوچک‌تر اول) برای جلوگیری از Deadlock.</li><li>ثبت Ledger (بدهکار و بستانکار) به‌جای فقط تغییر Balance.</li><li>رویداد <code>TransferCompleted</code> با Outbox به RabbitMQ برای نوتیفیکیشن.</li><li>خروجی 201؛ تعارض 409؛ موجودی ناکافی 422.</li></ul>
+    </div></details>
+  </div>
+</section>
+
+<section id="behave">
+  <h2>سوالات رفتاری و منابع انسانی</h2>
+  <div class="qs">
+    <details class="q"><summary><span class="qtext">چرا می‌خواهی از کار فعلی‌ات بروی؟<span class="tag">مهم</span></span></summary><div class="ans"><p>هیچ‌وقت از شرکت فعلی بد نگو. «سه سال در اوزون پروژه شتاب را از ابتدا تا پایداری رساندیم و یاد گرفتم. حالا دنبال محیط بزرگ‌تر با پروژه‌های متنوع‌تر هستم و همراه اول را از دوره ناک می‌شناسم.»</p></div></details>
+    <details class="q"><summary><span class="qtext">چرا بهپرداز همراه؟ از شرکت چه می‌دانی؟</span></summary><div class="ans"><p>قبل از یکشنبه سایت و محصولاتشان را ببین (پرداخت، کیف پول، خدمات دیجیتال همراه اول) و یک جمله بگو که تجربه پرداخت و تراکنش‌های پرترافیکت دقیقاً به کجای کارشان می‌خورد.</p></div></details>
+    <details class="q"><summary><span class="qtext">نقطه ضعفت چیست؟</span></summary><div class="ans"><p>یک ضعف واقعی ولی غیرکشنده که روی آن کار می‌کنی. مثال: «قبلاً کارها را خودم انجام می‌دادم و Delegate نمی‌کردم؛ در تیم‌لیدی یاد گرفتم کار را تقسیم کنم و با Code Review کیفیت را نگه دارم.»</p></div></details>
+    <details class="q"><summary><span class="qtext">با هم‌تیمی اختلاف فنی داشتی؟ چطور حل شد؟</span></summary><div class="ans"><p>یک نمونه واقعی: دو راه‌حل، مقایسه با داده (Benchmark یا POC)، تصمیم مشترک، و اینکه بعد از تصمیم، حتی اگر نظر تو نبود، کامل اجرایش کردی.</p></div></details>
+    <details class="q"><summary><span class="qtext">تکنولوژی‌های جدید را چطور یاد می‌گیری؟</span></summary><div class="ans"><p>آگهی «Stay up to date» خواسته. بگو: مستندات Microsoft و Release Notes دات‌نت، دوره‌ها (لیست رزومه‌ات)، پروژه‌های تمرینی شخصی (مثلاً Docker/Kubernetes و RabbitMQ)، و استفاده از Claude Code و Copilot در کار روزانه.</p></div></details>
+    <details class="q"><summary><span class="qtext">پنج سال دیگر خودت را کجا می‌بینی؟</span></summary><div class="ans"><p>«Senior یا Technical Lead با تسلط عمیق بر معماری سیستم‌های توزیع‌شده و پرترافیک، در همین مسیر Backend.»</p></div></details>
+    <details class="q"><summary><span class="qtext">انتظار حقوق؟ زمان شروع؟</span></summary><div class="ans"><p>بازه ۸۰ تا ۱۰۰ میلیون (همان رزومه)، «بسته به مزایا و شرح کار قابل گفتگو». زمان شروع را با توجه به مدت اطلاع‌رسانی به کارفرمای فعلی بگو (معمولاً یک ماه).</p></div></details>
+  </div>
+</section>
+
+<section id="ask">
+  <h2>سوال‌هایی که تو بپرسی</h2>
+  <p class="sub">آخر مصاحبه حتماً دو یا سه سوال بپرس؛ نشان علاقه و تجربه است.</p>
+  <ul class="check">
+    <li>این نقش روی کدام محصول یا پروژه کار می‌کند و تیم چند نفر است؟</li>
+    <li>نسخه .NET و Angular پروژه چیست؟ Monolith هستید یا Microservice؟ RabbitMQ کجای معماری است؟</li>
+    <li>فرایند Code Review، CI/CD و تست در تیم چطور است؟</li>
+    <li>بزرگ‌ترین چالش فنی تیم در شش ماه آینده چیست؟</li>
+    <li>کار حضوری است یا امکان دورکاری بخشی از هفته هست؟</li>
+    <li>مراحل بعدی مصاحبه چیست؟</li>
+  </ul>
+</section>
+
+<section id="plan">
+  <h2>برنامه تا یکشنبه</h2>
+  <div class="plan">
+    <div class="day"><div class="when">چهارشنبه ۲۲ مهر (امروز)</div><h3>رزومه و معرفی</h3>
+      <ul><li>Angular را به رزومه جاب‌ویژن اضافه کن.</li><li>معرفی خود را ۳ بار بلند تمرین کن.</li><li>چهار داستان STAR را با عدد کامل کن.</li></ul></div>
+    <div class="day"><div class="when">پنجشنبه ۲۳ مهر</div><h3>C#، ASP.NET، SQL</h3>
+      <ul><li>بخش‌های C#، ASP.NET Core، REST و SQL Server.</li><li>Queryهای بخش کدنویسی را بدون نگاه بنویس.</li><li>یک Execution Plan واقعی از کار خودت را مرور کن.</li></ul></div>
+    <div class="day"><div class="when">جمعه ۲۴ مهر</div><h3>Angular و Microservices</h3>
+      <ul><li>بخش Angular؛ یک پروژه کوچک Angular را اجرا و یک Service با HttpClient و Interceptor بنویس.</li><li>Microservices، RabbitMQ، تست و Git.</li></ul></div>
+    <div class="day"><div class="when">شنبه ۲۵ مهر</div><h3>مصاحبه تمرینی</h3>
+      <ul><li>مصاحبه شبیه‌سازی‌شده با من در همین گفتگو.</li><li>سوالات رفتاری و سوال‌های خودت.</li><li>مسیر و زمان رسیدن؛ زود بخواب.</li></ul></div>
+  </div>
+  <h3>چک‌لیست روز مصاحبه</h3>
+  <ul class="check">
+    <li>نسخه چاپی رزومه (با Angular اضافه‌شده).</li>
+    <li>۱۵ دقیقه زودتر برس؛ اگر آنلاین است، صدا و دوربین و اینترنت را از قبل تست کن.</li>
+    <li>اگر جوابی را نمی‌دانی، صادقانه بگو و توضیح بده چطور پیدایش می‌کنی. حدس با اعتمادبه‌نفس بدتر از «نمی‌دانم» است.</li>
+    <li>جواب‌ها را کوتاه شروع کن، اگر خواستند عمیق شو؛ هر جا می‌شود به تجربه واقعی پرداخت و SQL ربط بده.</li>
+  </ul>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  var KEY='behparaz-reviewed-v1', store={};
+  try{store=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){store={}}
+  var qs=[].slice.call(document.querySelectorAll('details.q'));
+  var fa=function(n){return String(n).replace(/\d/g,function(d){return '۰۱۲۳۴۵۶۷۸۹'[d]})};
+  function update(){
+    var done=qs.filter(function(q){return q.classList.contains('done')}).length;
+    document.getElementById('progress').textContent=fa(done)+' از '+fa(qs.length)+' مرور شده';
+    document.getElementById('barFill').style.width=(qs.length?done/qs.length*100:0)+'%';
+  }
+  qs.forEach(function(q,i){
+    var id='q'+i;
+    var lab=document.createElement('label'); lab.className='tick';
+    var cb=document.createElement('input'); cb.type='checkbox'; cb.id='rev-'+id;
+    lab.appendChild(cb); lab.appendChild(document.createTextNode('مرور شد'));
+    q.querySelector('summary').appendChild(lab);
+    lab.addEventListener('click',function(e){e.stopPropagation()});
+    if(store[id]){cb.checked=true;q.classList.add('done')}
+    cb.addEventListener('change',function(){
+      q.classList.toggle('done',cb.checked);
+      if(cb.checked)store[id]=1;else delete store[id];
+      try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}
+      update();
+    });
+  });
+  document.getElementById('openAll').onclick=function(){qs.forEach(function(q){q.open=true})};
+  document.getElementById('closeAll').onclick=function(){qs.forEach(function(q){q.open=false})};
+  update();
+})();
+</script>
+
+</body></html>

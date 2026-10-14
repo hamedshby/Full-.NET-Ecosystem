@@ -8,6 +8,7 @@ const interviewRoot = path.join(root, 'interview-questions');
 const landingPath = path.join(interviewRoot, 'index.html');
 const sectionPath = path.join(interviewRoot, 'section-1.html');
 const oopSectionPath = path.join(interviewRoot, 'section-2.html');
+const behpardazPrepPath = path.join(interviewRoot, 'behpardaz-interview-prep.html');
 const firstAnswerPath = path.join(interviewRoot, 'answers', '01-dotnet-core-vs-framework.html');
 
 test('interview questions are linked from the home navigation', () => {
@@ -26,15 +27,26 @@ test('the interview landing presents section one as a collection card', () => {
 
 test('the interview landing presents the ChatGPT OOP collection as a second card', () => {
   const landing = fs.readFileSync(landingPath, 'utf8');
-  const cards = landing.match(/class="collection-card"/g) ?? [];
-
-  assert.equal(cards.length, 2);
   assert.match(landing, /class="collection-card" href="section-2\.html"/);
   assert.match(landing, /سوالات مصاحبه OOP از چت جی پی تی/);
   assert.match(landing, /<strong>۳۱<\/strong><span>سوال<\/span>/);
   assert.match(landing, /<strong>۹<\/strong><span>دسته<\/span>/);
-  assert.match(landing, /<span class="collection-count">۲ مجموعه<\/span>/);
   assert.ok(fs.existsSync(oopSectionPath));
+});
+
+test('the interview landing presents the Behpardaz preparation collection as a third card', () => {
+  const landing = fs.readFileSync(landingPath, 'utf8');
+  const prep = fs.readFileSync(behpardazPrepPath, 'utf8');
+  const cards = landing.match(/class="collection-card"/g) ?? [];
+
+  assert.equal(cards.length, 3);
+  assert.match(landing, /class="collection-card" href="behpardaz-interview-prep\.html"/);
+  assert.match(landing, /آمادگی مصاحبه به‌پرداز/);
+  assert.match(landing, /<strong>۸۴<\/strong><span>سوال<\/span>/);
+  assert.match(landing, /<strong>۱۹<\/strong><span>بخش<\/span>/);
+  assert.match(landing, /<span class="collection-count">۳ مجموعه<\/span>/);
+  assert.match(prep, /<h1>آمادگی مصاحبه \.NET Developer — بهپرداز همراه سامانه اول<\/h1>/);
+  assert.equal((prep.match(/<details class="q">/g) ?? []).length, 84);
 });
 
 test('the interview landing can switch between the same modern and classic themes as home', () => {
