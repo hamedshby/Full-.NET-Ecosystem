@@ -1,4 +1,14 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>
+(() => {
+  let storedTheme = null;
+  try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+  const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+    ? storedTheme : systemDark ? 'dark' : 'light';
+})();
+</script>
+<script src="../script.js" defer></script>
+</head><body>
 <title>Behparaz Interview Prep</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -94,6 +104,31 @@ ul.check{list-style:none;padding:0;max-width:76ch}
 ul.check li{padding:6px 0;border-bottom:1px dashed var(--line)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+
+<style>
+.prep-header { max-width:1120px; margin:0 auto; padding:16px 0; display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); }
+.prep-breadcrumb { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:14px; }
+.prep-breadcrumb a { color:var(--accent); text-decoration:none; }
+.prep-breadcrumb a:hover { text-decoration:underline; }
+.prep-breadcrumb a:focus-visible { outline:2px solid var(--accent); outline-offset:4px; }
+.prep-theme-toggle { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; padding:0; flex-shrink:0; }
+.prep-theme-toggle svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.theme-icon-sun { display:none; }
+[data-theme="dark"] .theme-icon-moon { display:none; }
+[data-theme="dark"] .theme-icon-sun { display:block; }
+</style>
+
+<header class="prep-header">
+  <nav class="prep-breadcrumb" aria-label="مسیر راهنما">
+    <a href="../index.html">آکادمی دات‌نت</a>
+    <span aria-hidden="true">&gt;</span>
+    <a href="index.html">سوالات مصاحبه</a>
+  </nav>
+  <button id="theme-toggle" class="prep-theme-toggle" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+    <svg class="theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+    <svg class="theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+  </button>
+</header>
 
 <div class="wrap" dir="rtl" lang="fa">
 <nav class="toc" aria-label="فهرست">

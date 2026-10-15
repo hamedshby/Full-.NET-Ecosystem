@@ -5,12 +5,15 @@ const path = require('node:path');
 const root = process.env.STUDY_SITE_ROOT || path.resolve(__dirname, '..');
 const pagePath = path.join(root, 'courses/gitlab-cicd/index.html');
 
-test('homepage opens GitLab learning notes and accurately describes their status', () => {
-  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+test('thematic tutorials open GitLab learning notes and accurately describe their status', () => {
+  const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.match(home, /href="topics\/"/);
+  assert.doesNotMatch(home, /course-card--gitlab-cicd/);
+  const html = fs.readFileSync(path.join(root, 'topics/index.html'), 'utf8');
   const card = html.match(/<article[^>]+course-card--gitlab-cicd[\s\S]*?<\/article>/)?.[0];
   assert.ok(card);
   assert.match(card, /در حال تکمیل/);
-  assert.match(card, /href="courses\/gitlab-cicd\/"/);
+  assert.match(card, /href="\.\.\/courses\/gitlab-cicd\/"/);
   assert.doesNotMatch(card, /یک‌روزه/);
   const page = fs.readFileSync(pagePath, 'utf8');
   assert.match(page, /data-study-notes="gitlab-cicd"/);

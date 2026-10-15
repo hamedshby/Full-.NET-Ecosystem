@@ -1,0 +1,451 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="دوره کامل ۱۲ درسی Middleware Pipeline در ASP.NET Core با کدهای C# و سؤال‌های مصاحبه Senior"><title>آموزش Middleware Pipeline در ASP.NET Core | آکادمی دات‌نت</title><script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script><style>
+:root {
+  color-scheme: light;
+  --surface:#fff; --surface-soft:#fff9f5; --surface-muted:#fff3eb;
+  --ink:#1b2331; --muted:#687486; --line:#e9e5e2;
+  --accent:#c4550b; --accent-strong:#983e08; --accent-light:#fff0e4;
+  --blue:#2f669b; --warning:#9e4c13; --warning-bg:#fff1db;
+  --shadow:0 12px 40px rgba(29,35,44,.065); --code-bg:#14202d; --code-ink:#e8f1f8;
+}
+html[data-theme="dark"] { color-scheme:dark;
+  --surface:#18212c;--surface-soft:#1d2833;--surface-muted:#2e2a2b;
+  --ink:#e5ebf2;--muted:#abb6c6;--line:#344050;
+  --accent:#fa9e59;--accent-strong:#ffb67b;--accent-light:#352a23;
+  --blue:#a0cef0;--warning:#ffd295;--warning-bg:#372b26;
+  --shadow:0 12px 40px rgba(0,0,0,.15);--code-bg:#0e1721;--code-ink:#e7eff8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{margin:0;background:var(--surface);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2;direction:rtl}
+a{color:var(--accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.skip-link{position:absolute;right:1rem;top:-4rem;background:var(--accent);color:white;padding:.3rem .8rem;z-index:99}
+.skip-link:focus{top:.5rem}
+.course-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;box-shadow:0 3px 12px rgba(13,20,25,.03)}
+.course-nav{display:flex;align-items:center;gap:1.1rem;max-width:1460px;min-height:69px;padding:8px clamp(14px,2vw,34px);margin:auto}
+.course-brand{font-weight:900;white-space:nowrap;color:var(--ink);font-size:1.08rem}
+.course-name{font-weight:800;padding-inline-start:1rem;border-inline-start:1px solid var(--line);color:var(--accent-strong)}
+.course-header .back-link{margin-inline-start:auto;font-size:.87rem;color:var(--muted)}
+.course-menu-button,.icon-button{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line);border-radius:.65rem;min-height:38px;cursor:pointer;padding:.2rem .8rem;font-size:.85rem}
+.icon-button{width:40px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none}
+[data-theme="dark"] .theme-icon-moon{display:none}
+[data-theme="dark"] .theme-icon-sun{display:block}
+.lesson-shell{max-width:1460px;display:grid;grid-template-columns:275px minmax(0,1fr);align-items:start;gap:clamp(24px,3.2vw,54px);padding:25px clamp(14px,2vw,34px);margin:0 auto}
+.course-sidebar{position:sticky;top:92px;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--surface-soft);box-shadow:var(--shadow);padding:1.1rem .55rem 1rem}
+.sidebar-heading{display:grid;gap:2px;padding:.55rem .9rem 1.05rem;border-bottom:1px solid var(--line)}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading>strong{font-size:1rem}
+.course-sidebar ol{list-style:none;margin:.7rem 0;padding:0}
+.course-sidebar li a{display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border-radius:.55rem;color:var(--ink);font-size:.86rem;line-height:1.6}
+.course-sidebar li a:hover,.course-sidebar li a.active{background:var(--accent-light);color:var(--accent-strong);text-decoration:none}
+.course-sidebar li a span{min-width:1.55rem;color:var(--accent);font-weight:800;direction:ltr;font-size:.78rem}
+.sidebar-tail{display:block;border-top:1px solid var(--line);margin:.8rem .35rem 0;padding:.7rem;color:var(--muted);font-size:.8rem}
+.lesson-content{min-width:0;max-width:1000px;width:100%;padding-bottom:1rem}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;gap:.7rem;align-items:center;padding:.1rem 0 .65rem}
+.gc-hero{margin-block:1rem 2rem;border:1px solid var(--line);border-radius:20px;padding:clamp(1.1rem,3vw,2.2rem);background:linear-gradient(130deg,var(--surface-soft),var(--surface));position:relative;overflow:hidden}
+.gc-hero:before{content:"";position:absolute;pointer-events:none;inset:auto auto -135px -85px;width:300px;height:300px;border-radius:50%;background:var(--accent-light);opacity:.85}
+.gc-hero>*{position:relative}
+.eyebrow,.section-kicker{color:var(--accent-strong);font-size:.8rem;font-weight:850;margin:0}
+.gc-hero h1{font-size:clamp(1.72rem,3.2vw,2.8rem);line-height:1.6;margin:.4rem 0 .8rem;letter-spacing:-.5px}
+.course-lead{font-size:1rem;color:var(--muted);max-width:750px;line-height:2.2}
+.study-meta,.study-actions{display:flex;align-items:center;gap:10px 17px;flex-wrap:wrap;margin-top:1.1rem;font-size:.84rem;color:var(--muted)}
+.study-status{color:var(--accent-strong);background:var(--accent-light);border:1px solid var(--line);font-weight:750;padding:2px 10px;border-radius:10px}
+.study-actions a{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:.32rem .85rem;font-weight:800}
+.study-actions a.button-link{background:var(--accent);color:white;border-color:var(--accent)}
+.lesson-body{display:grid;gap:2rem}
+.lesson-section{border:1px solid var(--line);border-radius:18px;padding:clamp(1.1rem,3vw,2rem);background:var(--surface);box-shadow:0 3px 20px rgba(25,30,35,.025);scroll-margin-top:92px}
+.lesson-section h2{font-size:clamp(1.32rem,2.4vw,1.75rem);line-height:1.7;margin:.3rem 0 1rem}
+.lesson-section h3{font-size:1.08rem;line-height:1.9;margin:1.45rem 0 .4rem}
+.lesson-section h4{font-size:.96rem;margin:1.2rem 0 .4rem}
+.lesson-section p{margin:.55rem 0 1rem}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{margin:.38rem 0}
+.lesson-section code:not(pre code),.study-source code{font-family:Consolas,"Cascadia Code",monospace;font-size:.89em;background:var(--surface-muted);color:var(--accent-strong);border-radius:5px;padding:.13rem .3rem;unicode-bidi:isolate;direction:ltr;overflow-wrap:anywhere}
+bdi{unicode-bidi:isolate}
+.code-block{border-radius:12px;border:1px solid #314050;margin:1.2rem 0;overflow:hidden;max-width:100%}
+.code-label{display:flex;gap:10px;align-items:center;padding:.48rem .85rem;background:#223344;color:#dbe8f5;font-size:.75rem;direction:rtl}
+.code-label span:nth-child(2){margin-inline-start:auto;color:#b3c6d4}
+.copy-code{color:#e8f1f8;border:1px solid #617486;background:#2a4054;padding:1px 11px;border-radius:7px;cursor:pointer}
+pre{direction:ltr;text-align:left;margin:0;padding:1.15rem 1.1rem;overflow:auto;background:var(--code-bg);color:var(--code-ink);line-height:1.75;font:13.4px/1.75 Consolas,"Cascadia Code",monospace;tab-size:4;max-width:100%}
+pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:inherit}
+.lesson-note,.lesson-warning{border-radius:11px;padding:.85rem 1rem;display:grid;gap:.2rem;margin:1.1rem 0;border:1px solid var(--line);background:var(--surface-soft)}
+.lesson-note{border-inline-start:4px solid var(--blue)}
+.lesson-warning{border-inline-start:4px solid var(--warning);background:var(--warning-bg)}
+.lesson-note strong,.lesson-warning strong{font-size:.9rem}
+.lesson-note span,.lesson-warning span{font-size:.88rem;line-height:2;color:var(--muted)}
+.message-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:1.3rem auto;font:12px Consolas,monospace}
+.message-flow span{padding:10px 13px;background:var(--accent-light);border:1px solid var(--line);border-radius:10px;color:var(--accent-strong)}
+.message-flow b{color:var(--accent)}
+.generation-flow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:1.4rem 0;direction:ltr}
+.generation-flow>div{border:1px solid var(--line);border-radius:13px;min-width:140px;display:grid;justify-items:center;padding:16px;background:var(--surface-soft);text-align:center;direction:rtl}
+.generation-flow b{direction:ltr;font-size:1.3rem;color:var(--accent-strong)}
+.generation-flow span{font-size:.73rem;color:var(--muted)}
+.generation-flow i{font-size:.72rem;color:var(--muted);font-style:normal}
+.table-wrap{overflow-x:auto;max-width:100%;margin:1.15rem 0;border:1px solid var(--line);border-radius:12px}
+.diagnostic-table{border-collapse:collapse;width:100%;min-width:510px;font-size:.88rem}
+.diagnostic-table caption{text-align:right;color:var(--muted);font-size:.78rem;padding:.7rem .9rem}
+.diagnostic-table th{background:var(--surface-muted);font-weight:850;text-align:right}
+.diagnostic-table th,.diagnostic-table td{padding:.73rem .88rem;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.9}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.lesson-quiz{border:1px solid var(--line);background:var(--surface-soft);border-radius:12px;padding:.95rem 1.1rem;margin:1.8rem 0 .3rem}
+.lesson-quiz h3{color:var(--accent-strong);font-size:.99rem;margin:0 0 .4rem}
+.lesson-quiz p{margin:.2rem 0 .8rem}
+.lesson-quiz details{margin-top:.75rem}
+.lesson-quiz summary{cursor:pointer;font-size:.89rem;font-weight:800;color:var(--accent-strong);width:max-content;max-width:100%}
+.lesson-quiz details>div{border-top:1px solid var(--line);margin-top:.7rem;padding-top:.75rem;font-size:.9rem}
+.study-source{margin-top:2rem;border-top:1px solid var(--line);padding:1rem .3rem;color:var(--muted);font-size:.88rem}
+.study-source h2{font-size:1.1rem;color:var(--ink)}
+.study-source a{word-break:break-word}
+.course-footer{border-top:1px solid var(--line);padding:1.3rem;display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted);max-width:1460px;margin:auto}
+@media(max-width:1020px){.lesson-shell{grid-template-columns:245px minmax(0,1fr);gap:20px}.course-name{font-size:.9rem}}
+@media(max-width:790px){.lesson-shell{display:block;padding:15px}.course-sidebar{display:none;position:relative;top:auto;max-height:none;margin-bottom:1.15rem}.menu-open .course-sidebar{display:block}.course-menu-button{order:2}.course-header .back-link{display:none}.course-brand{font-size:.95rem}.course-name{font-size:.8rem}.course-nav{gap:.5rem}.icon-button{margin-inline-start:auto}.gc-hero{margin-top:.5rem}.lesson-body{gap:1.1rem}.generation-flow i{width:100%;text-align:center}.lesson-section{padding:1rem}.course-footer{flex-wrap:wrap}}
+@media print{.course-header,.course-sidebar,.copy-code,.study-actions,.skip-link{display:none!important}.lesson-shell{display:block;max-width:none}.lesson-content{max-width:none}.lesson-section{box-shadow:none;break-inside:avoid;padding:.8rem;border-color:#aaa}.lesson-quiz summary{color:#444}html{scroll-behavior:auto}body{background:white;color:black}.gc-hero{background:white}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#111;background:#f3f4f6;border:1px solid #ddd}}
+/* Ensure long code and tables never widen the lesson grid on narrow screens. */
+.lesson-body{min-width:0;grid-template-columns:minmax(0,1fr)}
+.lesson-section{min-width:0}
+
+</style></head><body class="lesson-page gc-page"><a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a><header class="course-header"><nav class="course-nav" aria-label="ناوبری آکادمی دات‌نت"><a class="course-brand" href="../../index.html">آکادمی دات‌نت</a><span class="course-name">Middleware Pipeline</span><button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="false" aria-controls="course-sidebar">فهرست مطالب</button><button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="تغییر تم" aria-pressed="false"><svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg><svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button></nav></header><div class="lesson-shell"><aside id="course-sidebar" class="course-sidebar" aria-label="فهرست دوره"><div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>آموزش Middleware Pipeline</strong><span>۱۲ درس، از پایه تا مصاحبه Senior</span></div><nav id="lessons-list" aria-label="فهرست مطالب دوره"><ol><li><a href="#intro"><span>01</span>Middleware چیست و چه کاری انجام می‌دهد؟</a></li><li><a href="#pipeline"><span>02</span>مفهوم Pipeline و مسیر رفت‌وبرگشت</a></li><li><a href="#auth-order"><span>03</span>اهمیت ترتیب Authentication و Authorization</a></li><li><a href="#short-circuit"><span>04</span>Short-Circuit و متوقف کردن Pipeline</a></li><li><a href="#use-run-map"><span>05</span>تفاوت Use و Run و Map</a></li><li><a href="#custom"><span>06</span>نوشتن Custom Middleware</a></li><li><a href="#exceptions"><span>07</span>Exception Handling Middleware</a></li><li><a href="#production-order"><span>08</span>ترتیب عملی Middlewareها در Web API</a></li><li><a href="#filters"><span>09</span>تفاوت Middleware، Action Filter و Endpoint Filter</a></li><li><a href="#scoped"><span>10</span>Dependency Injection و Scoped Service در Middleware</a></li><li><a href="#senior"><span>11</span>مصاحبه Senior: خطا، ترتیب و try/finally</a></li><li><a href="#finally"><span>12</span>ثبت زمان درخواست با try/finally و جمع‌بندی</a></li></ol></nav><span class="sidebar-tail">مجموعه آموزشی ASP.NET Core Middleware</span></aside><main id="lesson-content" class="lesson-content"><article aria-labelledby="course-title"><nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html">آکادمی دات‌نت</a><span aria-hidden="true">/</span><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span>Middleware Pipeline</span></nav><section class="gc-hero" aria-labelledby="course-title"><p class="eyebrow">آموزش کاربردی معماری درخواست در دات‌نت</p><h1 id="course-title">آموزش کامل <bdi>Middleware Pipeline</bdi> در <bdi>ASP.NET Core</bdi></h1><p class="course-lead">از مسیر رفت‌وبرگشت درخواست و اهمیت ترتیب Middlewareها تا Short-Circuit، Custom Middleware، مدیریت خطا، Dependency Injection و سناریوهای مصاحبه Senior .NET.</p><div class="study-meta"><span class="study-status">جزوهٔ ۱۲ درسی</span><span>کدهای C# و پاسخ تشریحی</span><span>مطابق قالب فایل پیوست</span></div><aside class="lesson-note"><strong>درباره این جزوه</strong><span>محتوا از درس‌های آموزش‌داده‌شده در همین گفتگو تنظیم و یکپارچه شده است. مثال‌های برنامهٔ پرداخت، تمرین‌ها و پاسخ‌های آن‌ها حفظ و برای خوانایی فنی بازنویسی شده‌اند.</span></aside><div class="study-actions"><a class="button-link" href="#intro">شروع از درس ۱</a><a href="#finally">مرور آخرین درس</a><a href="#senior">سؤال‌های مصاحبه</a></div></section><div class="lesson-body"><section id="intro" class="lesson-section" data-source-section="1" aria-labelledby="intro-title"><p class="section-kicker">درس 1 · آموزش و تمرین</p><h2 id="intro-title">Middleware چیست و چه کاری انجام می‌دهد؟</h2><p>در یک سرویس پرداخت، درخواست پیش از رسیدن به Endpoint ممکن است ثبت لاگ، احراز هویت، مدیریت خطا و سایر مراحل را طی کند.</p><h3>تعریف Middleware</h3><p>هر <bdi>Middleware</bdi> یک جزء از مسیر پردازش درخواست HTTP است؛ می‌تواند قبل و بعد از جزء بعدی کاری انجام دهد، پاسخ را مستقیماً بسازد یا پردازش را به مرحلهٔ بعد بسپارد.</p><div class="code-block"><div class="code-label"><span>ساده‌ترین Middleware</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;Request received&quot;);
+    await next(context);
+});
+
+app.MapGet(&quot;/payments&quot;, () =&gt; &quot;Payments&quot;);
+app.Run();</code></pre></div><aside class="lesson-note"><strong>نکته مهم</strong><span>در این صفحه، <code>app.Run()</code> بدون پارامتر برای اجرای برنامه است؛ <code>app.Run(RequestDelegate)</code> با ورودی، Middleware پایانی تعریف می‌کند.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 1</h3><p>Middleware چه دو انتخاب اصلی برای ادامهٔ درخواست دارد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>می‌تواند مرحلهٔ بعدی را با <code>next</code> اجرا کند، یا بدون اجرای آن مسیر را در همین نقطه تمام کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="pipeline" class="lesson-section" data-source-section="2" aria-labelledby="pipeline-title"><p class="section-kicker">درس 2 · آموزش و تمرین</p><h2 id="pipeline-title">مفهوم Pipeline و مسیر رفت‌وبرگشت</h2><p>ترتیب تعریف Middlewareها مشخص می‌کند کدهای قبل و بعد از next در چه زمانی اجرا شوند.</p><h3>رفت درخواست و برگشت پاسخ</h3><p>درخواست به‌ترتیب به مراحل بعدی می‌رود؛ هنگام پایان یافتن مراحل داخلی، کنترل به اجزای قبلی بازمی‌گردد. این رفتار شبیه لایه‌های تو در تو است.</p><div class="message-flow" dir="ltr"><span>A Before</span><b>→</b><span>B Before</span><b>→</b><span>Endpoint</span><b>→</b><span>B After</span><b>→</b><span>A After</span></div><div class="code-block"><div class="code-label"><span>سؤال تمرینی از گفت‌وگو</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;1&quot;);
+    await next(context);
+    Console.WriteLine(&quot;2&quot;);
+});
+
+app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;3&quot;);
+    await next(context);
+    Console.WriteLine(&quot;4&quot;);
+});
+
+app.Run(context =&gt;
+{
+    Console.WriteLine(&quot;5&quot;);
+    return Task.CompletedTask;
+});</code></pre></div><p>خروجی این مثال: <code>1 → 3 → 5 → 4 → 2</code>. پس از <code>await next(context)</code>، اجرای متد به همان نقطه بازمی‌گردد؛ البته اگر Exception کنترل را از مسیر عادی خارج نکند.</p><div class="lesson-quiz"><h3>سؤال مرور درس 2</h3><p>خروجی مثال عددی چه ترتیبی دارد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div><code>1 → 3 → 5 → 4 → 2</code>.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="auth-order" class="lesson-section" data-source-section="3" aria-labelledby="auth-order-title"><p class="section-kicker">درس 3 · آموزش و تمرین</p><h2 id="auth-order-title">اهمیت ترتیب Authentication و Authorization</h2><p>برای تصمیم‌گیری دربارهٔ مجوز، معمولاً لازم است هویت کاربر قبلاً تعیین شده باشد.</p><div class="code-block"><div class="code-label"><span>ترتیب متداول</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();</code></pre></div><h3>چرا جابه‌جایی خطرناک است؟</h3><p>Middleware احراز هویت معمولاً توکن را ارزیابی می‌کند و <code>HttpContext.User</code> را تنظیم می‌کند. سپس Middleware مجوزدهی بررسی می‌کند آیا هویت شناسایی‌شده اجازهٔ دسترسی به Endpoint را دارد یا خیر.</p><div class="code-block"><div class="code-label"><span>ترتیب مسئله‌دار</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>// Incorrect in the typical setup:
+app.UseAuthorization();
+app.UseAuthentication();</code></pre></div><aside class="lesson-note"><strong>نکته مهم</strong><span>رفتار دقیق به تنظیم سیاست‌ها و Schemeها بستگی دارد، اما ترتیب پیش‌فرض توصیه‌شده معمولاً <code>UseAuthentication</code> قبل از <code>UseAuthorization</code> است.</span></aside><p>کد وضعیت <code>401</code> معمولاً وقتی برمی‌گردد که کاربر احراز هویت نشده باشد؛ <code>403</code> وقتی که هویت تأیید شده ولی مجوز کافی ندارد.</p><div class="lesson-quiz"><h3>سؤال مرور درس 3</h3><p>چرا Authorization باید معمولاً بعد از Authentication باشد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون برای بررسی مجوز، به هویت کاربر که توسط Authentication تعیین می‌شود نیاز دارد.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="short-circuit" class="lesson-section" data-source-section="4" aria-labelledby="short-circuit-title"><p class="section-kicker">درس 4 · آموزش و تمرین</p><h2 id="short-circuit-title">Short-Circuit و متوقف کردن Pipeline</h2><p>گاهی یک درخواست قبل از رسیدن به Controller باید رد شود؛ مثلاً وقتی هدر ضروری را ندارد.</p><div class="code-block"><div class="code-label"><span>بررسی وجود هدر</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;A&quot;);
+    if (!context.Request.Headers.ContainsKey(&quot;X-Api-Key&quot;))
+    {
+        context.Response.StatusCode = 401;
+        await context.Response.WriteAsync(&quot;Unauthorized&quot;);
+        return;
+    }
+
+    await next(context);
+    Console.WriteLine(&quot;B&quot;);
+});
+
+app.Run(context =&gt;
+{
+    Console.WriteLine(&quot;C&quot;);
+    return Task.CompletedTask;
+});</code></pre></div><p>اگر هدر وجود نداشته باشد، خروجی تنها <code>A</code> است. اگر هدر وجود داشته باشد، خروجی <code>A → C → B</code> است.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>این مثال فقط وجود هدر را کنترل می‌کند و صحت کلید را نمی‌سنجد؛ برای سامانهٔ واقعی باید اعتبارسنجی درست، پاسخ مناسب و حفاظت از اطلاعات حساس انجام شود.</span></aside><h3>ویژگی Short-Circuit</h3><p>حذف <code>await next(context)</code> از یک Middleware باعث می‌شود مراحل بعدی اجرا نشوند. البته کدهای Middlewareهایی که پیش‌تر وارد آن‌ها شده‌ایم، در مسیر بازگشت می‌توانند همچنان اجرا شوند.</p><div class="lesson-quiz"><h3>سؤال مرور درس 4</h3><p>اگر هدر وجود داشته باشد، ترتیب چاپ چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div><code>A → C → B</code>.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="use-run-map" class="lesson-section" data-source-section="5" aria-labelledby="use-run-map-title"><p class="section-kicker">درس 5 · آموزش و تمرین</p><h2 id="use-run-map-title">تفاوت Use و Run و Map</h2><p>این سه ابزار برای ساخت مسیر اصلی و شاخه‌های جداگانهٔ Pipeline به کار می‌روند.</p><h3>Use: ادامه یا توقف</h3><div class="code-block"><div class="code-label"><span>Use</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;Before&quot;);
+    await next(context);
+    Console.WriteLine(&quot;After&quot;);
+});</code></pre></div><h3>Run: بخش پایانی</h3><div class="code-block"><div class="code-label"><span>Run با RequestDelegate</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Run(async context =&gt;
+{
+    await context.Response.WriteAsync(&quot;Hello&quot;);
+});</code></pre></div><h3>Map: شاخه‌بندی براساس مسیر</h3><div class="code-block"><div class="code-label"><span>Map برای شاخهٔ admin</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Map(&quot;/admin&quot;, adminApp =&gt;
+{
+    adminApp.Run(async context =&gt;
+        await context.Response.WriteAsync(&quot;Admin Area&quot;));
+});
+
+app.Run(async context =&gt;
+    await context.Response.WriteAsync(&quot;Main Area&quot;));</code></pre></div><div class="code-block"><div class="code-label"><span>سؤال دوره: Run و قطع مسیر</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Use(async (ctx, next) =&gt;
+{
+    Console.WriteLine(&quot;A&quot;);
+    await next(ctx);
+    Console.WriteLine(&quot;B&quot;);
+});
+
+app.Run(ctx =&gt;
+{
+    Console.WriteLine(&quot;C&quot;);
+    return Task.CompletedTask;
+});
+
+app.Use(async (ctx, next) =&gt;
+{
+    Console.WriteLine(&quot;D&quot;);
+    await next(ctx);
+});
+// Output: A, C, B  (D never executes)</code></pre></div><aside class="lesson-note"><strong>نکته مهم</strong><span>متد <code>MapGet</code> برای ثبت Route یک Endpoint است و با <code>app.Map("/admin", ...)</code> که شاخهٔ Middleware می‌سازد متفاوت است.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 5</h3><p>چرا در مثال آخر D چاپ نمی‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون <code>app.Run(RequestDelegate)</code> یک Middleware پایانی است و <code>next</code> را صدا نمی‌زند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="custom" class="lesson-section" data-source-section="6" aria-labelledby="custom-title"><p class="section-kicker">درس 6 · آموزش و تمرین</p><h2 id="custom-title">نوشتن Custom Middleware</h2><p>برای کدهای قابل استفادهٔ مجدد، منطق را در یک کلاس مستقل قرار می‌دهیم.</p><div class="code-block"><div class="code-label"><span>کلاس Middleware برای اندازه‌گیری زمان</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using System.Diagnostics;
+
+public sealed class RequestTimingMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger&lt;RequestTimingMiddleware&gt; _logger;
+
+    public RequestTimingMiddleware(
+        RequestDelegate next,
+        ILogger&lt;RequestTimingMiddleware&gt; logger)
+    {
+        _next = next;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        var watch = Stopwatch.StartNew();
+        await _next(context);
+        watch.Stop();
+
+        _logger.LogInformation(
+            &quot;Request {Path} took {Ms} ms&quot;,
+            context.Request.Path, watch.ElapsedMilliseconds);
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>ثبت در Program.cs</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.UseMiddleware&lt;RequestTimingMiddleware&gt;();
+app.MapGet(&quot;/payments&quot;, () =&gt; &quot;Payment List&quot;);</code></pre></div><p>کلاس، <code>RequestDelegate</code> مرحلهٔ بعد را در سازنده دریافت می‌کند و از متد <code>InvokeAsync</code> برای پردازش هر درخواست استفاده می‌کند.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>برای تضمین ثبت زمان هنگام وقوع Exception، نسخهٔ <code>try/finally</code> را در درس ۱۲ می‌بینیم.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 6</h3><p>اگر فراخوانی _next را حذف کنیم، آیا درخواست به /payments می‌رسد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر؛ Middleware مسیر را قطع می‌کند و Endpoint بعدی اجرا نمی‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="exceptions" class="lesson-section" data-source-section="7" aria-labelledby="exceptions-title"><p class="section-kicker">درس 7 · آموزش و تمرین</p><h2 id="exceptions-title">Exception Handling Middleware</h2><p>خطاهای Endpointها و Middlewareهای بعدی می‌توانند به Middleware محافظ بیرونی برگردند.</p><div class="code-block"><div class="code-label"><span>نمونهٔ آموزشی با محافظ پاسخ شروع‌شده</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class ExceptionMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger&lt;ExceptionMiddleware&gt; _logger;
+
+    public ExceptionMiddleware(RequestDelegate next,
+        ILogger&lt;ExceptionMiddleware&gt; logger)
+    {
+        _next = next;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, &quot;Unhandled request error&quot;);
+            if (context.Response.HasStarted) throw;
+
+            context.Response.Clear();
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                title = &quot;Internal Server Error&quot;,
+                status = 500
+            });
+        }
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>قرارگیری در ابتدا</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.UseMiddleware&lt;ExceptionMiddleware&gt;();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();</code></pre></div><p>اگر <code>Authentication</code> قبل از Middleware مدیریت خطا قرار گرفته باشد، Exception ناشی از Authentication در محدودهٔ try/catch آن قرار نمی‌گیرد.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>در پروژهٔ واقعی می‌توان از <code>UseExceptionHandler</code> یا <code>IExceptionHandler</code> استفاده کرد. Middleware سفارشی بالا برای توضیح مفهوم است؛ وضعیت پاسخ و logging باید با سیاست سرویس سازگار باشد.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 7</h3><p>اگر Authentication قبل از ExceptionMiddleware خطا بدهد، آیا دومی آن را می‌گیرد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر؛ هنوز وارد محدودهٔ try/catch آن نشده‌ایم.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="production-order" class="lesson-section" data-source-section="8" aria-labelledby="production-order-title"><p class="section-kicker">درس 8 · آموزش و تمرین</p><h2 id="production-order-title">ترتیب عملی Middlewareها در Web API</h2><p>در سامانهٔ پرداخت، جای مراحل امنیتی، مسیریابی، مدیریت خطا و Rate Limiting را باید هدفمند انتخاب کنیم.</p><div class="code-block"><div class="code-label"><span>نمونهٔ شماتیک ترتیب (تنظیمات Service لازم‌اند)</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+// Configure Authentication and Authorization schemes/policies.
+// Configure Rate Limiting policies.
+
+var app = builder.Build();
+
+app.UseExceptionHandler(&quot;/error&quot;);
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseAuthentication();
+app.UseRateLimiter();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();</code></pre></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>مرحله</th><th>وظیفه</th></tr></thead><tbody><tr><td>Exception Handler</td><td>مدیریت خطاهای مراحل بعدی</td></tr><tr><td>HTTPS Redirection</td><td>هدایت به HTTPS</td></tr><tr><td>Routing</td><td>شناسایی Endpoint</td></tr><tr><td>Authentication</td><td>شناسایی کاربر</td></tr><tr><td>Rate Limiter</td><td>اعمال سیاست محدودیت درخواست</td></tr><tr><td>Authorization</td><td>بررسی دسترسی</td></tr><tr><td>MapControllers</td><td>ثبت Endpointهای کنترلر</td></tr></tbody></table></div><p>در سیاست‌های محدودسازی درخواست وابسته به Endpoint، معمولاً <code>UseRateLimiter</code> را بعد از <code>UseRouting</code> قرار می‌دهیم. جای دقیق آن نسبت به احراز هویت، به نیاز سیاست بستگی دارد.</p><div class="code-block"><div class="code-label"><span>محافظت Endpoint</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>[Authorize(Roles = &quot;Admin&quot;)]
+[HttpPost(&quot;payments&quot;)]
+public IActionResult CreatePayment() =&gt; Ok();</code></pre></div><p>اگر توکن نامعتبر باشد و سیاست نیاز به کاربر معتبر داشته باشد، معمولاً <code>401</code> برمی‌گردد. اگر توکن معتبر باشد اما نقش <code>Admin</code> وجود نداشته باشد، معمولاً <code>403</code> دریافت می‌کنیم.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>این قطعه یک اسکلت آموزشی است و بدون ثبت Schemeها، سیاست‌ها و Endpoint مدیریت خطا، یک تنظیم کامل قابل اجرا نیست.</span></aside><h3>تمرین تکمیلی: 401 و 403</h3><h3>احراز هویت ناموفق</h3><div class="code-block"><div class="code-label"><span>Pipeline امنیتی</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();</code></pre></div><p>در پیکربندی متداول، وقتی توکن نامعتبر است، Authentication هویت احراز‌شده‌ای تولید نمی‌کند. سپس Authorization در Endpoint دارای <code>[Authorize]</code> معمولاً با <code>401</code> جلوی اجرای اکشن را می‌گیرد.</p><h3>دسترسی ناکافی</h3><div class="code-block"><div class="code-label"><span>کنترلر دارای محدودیت نقش</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>[Authorize(Roles = &quot;Admin&quot;)]
+[HttpPost(&quot;payments&quot;)]
+public IActionResult CreatePayment() =&gt; Ok();</code></pre></div><p>اگر توکن معتبر باشد ولی کاربر نقش <code>Admin</code> نداشته باشد، نتیجهٔ معمول <code>403 Forbidden</code> است.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>وضعیت</th><th>نتیجهٔ معمول</th></tr></thead><tbody><tr><td>هویت نامعتبر یا غایب</td><td>401 Unauthorized</td></tr><tr><td>هویت معتبر با مجوز ناکافی</td><td>403 Forbidden</td></tr></tbody></table></div><aside class="lesson-note"><strong>نکته مهم</strong><span>پیاده‌سازی Schemeها، Handlerهای چالش و سیاست‌ها می‌تواند جزئیات رفتار را تغییر دهد.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 8</h3><p>کاربر لاگین است ولی Admin نیست؛ برای Endpoint دارای محدودیت نقش چه پاسخی می‌گیرد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>معمولاً <code>403 Forbidden</code>.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="filters" class="lesson-section" data-source-section="9" aria-labelledby="filters-title"><p class="section-kicker">درس 9 · آموزش و تمرین</p><h2 id="filters-title">تفاوت Middleware، Action Filter و Endpoint Filter</h2><p>هر سه امکان اجرای منطق در بخشی از چرخهٔ درخواست را می‌دهند، اما محل اجرا و دسترسی آن‌ها متفاوت است.</p><div class="code-block"><div class="code-label"><span>Middleware</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;Middleware Before&quot;);
+    await next(context);
+    Console.WriteLine(&quot;Middleware After&quot;);
+});</code></pre></div><div class="code-block"><div class="code-label"><span>Action Filter (نیازمند Microsoft.AspNetCore.Mvc.Filters)</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public class LoggingFilter : IAsyncActionFilter
+{
+    public async Task OnActionExecutionAsync(
+        ActionExecutingContext context,
+        ActionExecutionDelegate next)
+    {
+        Console.WriteLine(&quot;Action Before&quot;);
+        await next();
+        Console.WriteLine(&quot;Action After&quot;);
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>Endpoint Filter</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.MapPost(&quot;/payments&quot;, () =&gt; Results.Ok(&quot;Created&quot;))
+   .AddEndpointFilter(async (context, next) =&gt;
+   {
+       Console.WriteLine(&quot;Endpoint Before&quot;);
+       var result = await next(context);
+       Console.WriteLine(&quot;Endpoint After&quot;);
+       return result;
+   });</code></pre></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>ابزار</th><th>محل اجرا</th><th>کاربرد</th></tr></thead><tbody><tr><td>Middleware</td><td>در HTTP Pipeline</td><td>لاگ و پردازش مشترک درخواست‌ها</td></tr><tr><td>Action Filter</td><td>در چرخهٔ اجرای Action در MVC</td><td>منطق و پارامترهای اکشن کنترلر</td></tr><tr><td>Endpoint Filter</td><td>در اجرای Endpoint پشتیبانی‌شده</td><td>اعتبارسنجی و منطق مربوط به Endpoint</td></tr></tbody></table></div><aside class="lesson-note"><strong>نکته مهم</strong><span>اگر هدف اندازه‌گیری زمان پردازش همهٔ درخواست‌ها، اعم از Controller و Minimal API باشد، Middleware انتخاب طبیعی‌تری است.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 9</h3><p>کدام ابزار برای زمان‌سنجی همهٔ درخواست‌های HTTP مناسب‌تر است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div><code>Middleware</code>.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="scoped" class="lesson-section" data-source-section="10" aria-labelledby="scoped-title"><p class="section-kicker">درس 10 · آموزش و تمرین</p><h2 id="scoped-title">Dependency Injection و Scoped Service در Middleware</h2><p>Middleware معمولی مبتنی بر کلاس در زمان ساخت Pipeline ساخته می‌شود، اما Scoped باید از Scope درخواست دریافت شود.</p><div class="code-block"><div class="code-label"><span>روش نادرست برای Scoped Service</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>builder.Services.AddScoped&lt;IPaymentService, PaymentService&gt;();
+
+public sealed class PaymentMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly IPaymentService _paymentService;
+
+    // Wrong for conventional middleware:
+    public PaymentMiddleware(RequestDelegate next,
+        IPaymentService paymentService)
+    {
+        _next = next;
+        _paymentService = paymentService;
+    }
+}</code></pre></div><p>تزریق Scoped در سازندهٔ Middleware معمولی ممکن است با اعتبارسنجی DI خطا دهد یا در تنظیمات نامناسب طول‌عمر نادرستی ایجاد کند.</p><div class="code-block"><div class="code-label"><span>روش درست: تزریق در InvokeAsync</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class PaymentMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    public PaymentMiddleware(RequestDelegate next)
+        =&gt; _next = next;
+
+    public async Task InvokeAsync(
+        HttpContext context, IPaymentService paymentService)
+    {
+        await paymentService.ProcessAsync();
+        await _next(context);
+    }
+}</code></pre></div><h3>راه جایگزین: IMiddleware</h3><p>اگر Middleware را با رابط <code>IMiddleware</code> بسازیم و به‌صورت <code>Scoped</code> در DI ثبت کنیم، امکان تزریق سرویس Scoped در سازنده وجود دارد. این دو شیوهٔ ساخت، طول‌عمر یکسانی ندارند.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>پیش از استفاده از سرویس پردازش پرداخت در هر درخواست، اثر آن بر امنیت، کارایی و idempotency را نیز بررسی کن؛ کد این درس صرفاً برای نمایش DI است.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 10</h3><p>چرا Scoped را نباید در سازندهٔ Middleware معمولی تزریق کرد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون Middleware معمولی برای Pipeline ساخته می‌شود و با Scope یک درخواست یکسان نیست؛ وابستگی Scoped باید در <code>InvokeAsync</code> دریافت شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="senior" class="lesson-section" data-source-section="11" aria-labelledby="senior-title"><p class="section-kicker">درس 11 · آموزش و تمرین</p><h2 id="senior-title">مصاحبه Senior: خطا، ترتیب و try/finally</h2><p>این درس سناریوهای تمرینی گفت‌وگو را جمع‌بندی می‌کند و نسخهٔ مقاوم Middleware اندازه‌گیری زمان را نشان می‌دهد.</p><h3>سناریوی ۱: خطای Authentication</h3><div class="code-block"><div class="code-label"><span>قرارگیری ExceptionMiddleware قبل از بخش‌های حساس</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.UseMiddleware&lt;ExceptionMiddleware&gt;();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();</code></pre></div><p>این ترتیب خطاهای منتشرشده از Authentication و مراحل بعدی را می‌تواند دریافت کند؛ اما خطاهای Startup، Background Service یا خطاهایی که قبل از ورود به این Middleware رخ دهند را پوشش نمی‌دهد.</p><h3>سناریوی ۲: خروجی try/catch</h3><div class="code-block"><div class="code-label"><span>ترتیب خروجی مورد آزمون</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;A&quot;);
+    try { await next(context); }
+    catch (Exception) { Console.WriteLine(&quot;B&quot;); }
+    Console.WriteLine(&quot;C&quot;);
+});
+
+app.Use(async (context, next) =&gt;
+{
+    Console.WriteLine(&quot;D&quot;);
+    throw new Exception(&quot;Database Error&quot;);
+});
+
+app.Run(ctx =&gt;
+{
+    Console.WriteLine(&quot;E&quot;);
+    return Task.CompletedTask;
+});
+
+// Output: A, D, B, C</code></pre></div><p>چون Middleware دوم پیش از رسیدن به E خطا می‌دهد، خروجی برابر <code>A → D → B → C</code> خواهد بود.</p><div class="lesson-quiz"><h3>سؤال مرور درس 11</h3><p>خروجی سناریوی try/catch چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div><code>A → D → B → C</code>.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="finally" class="lesson-section" data-source-section="12" aria-labelledby="finally-title"><p class="section-kicker">درس 12 · آموزش و تمرین</p><h2 id="finally-title">ثبت زمان درخواست با try/finally و جمع‌بندی</h2><p>در آخرین درس بررسی می‌کنیم چگونه ثبت لاگ حتی هنگام Exception هم انجام شود.</p><h3>سناریوی ۳: ثبت زمان هنگام Exception</h3><div class="code-block"><div class="code-label"><span>نسخهٔ مقاوم برای ثبت زمان</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using System.Diagnostics;
+
+public sealed class RequestTimingMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger&lt;RequestTimingMiddleware&gt; _logger;
+
+    public RequestTimingMiddleware(
+        RequestDelegate next,
+        ILogger&lt;RequestTimingMiddleware&gt; logger)
+    {
+        _next = next;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            await _next(context);
+        }
+        finally
+        {
+            stopwatch.Stop();
+            _logger.LogInformation(
+                &quot;Request {Method} {Path} took {Ms} ms&quot;,
+                context.Request.Method,
+                context.Request.Path,
+                stopwatch.ElapsedMilliseconds);
+        }
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>ترتیب نمونه</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.UseMiddleware&lt;RequestTimingMiddleware&gt;();
+app.UseExceptionHandler(&quot;/error&quot;);
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();</code></pre></div><p>بلوک <code>finally</code> حتی هنگام انتشار Exception اجرا می‌شود، ولی خودِ خطا را مدیریت نمی‌کند. برای مدیریت خطا باید در جای مناسب <code>catch</code> یا Exception Handler جدا داشته باشیم.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>برای استفادهٔ عملی در Production وضعیت شروع پاسخ، ساختار Problem Details، داده‌های حساس لاگ، cancellation و مسیرهای استثنایی را نیز بررسی کن.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 12</h3><p>چرا finally برای ثبت زمان مطمئن‌تر از دستور بعد از await next است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون حتی اگر Exception از <code>await _next(context)</code> خارج شود، کد داخل <code>finally</code> هنگام خروج از try اجرا می‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section></div><footer class="study-source"><h2>نکته‌های پایانی و منابع</h2><p>این جزوه براساس آموزش همین گفت‌وگو و در همان چارچوب صفحهٔ پیوست تهیه شده است. نمونه‌های مربوط به تنظیم سرویس‌ها بعضاً شماتیک هستند و باید با نیاز پروژه کامل شوند.</p><p>برای مطالعهٔ بیشتر: <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/" target="_blank" rel="noopener noreferrer">مستندات رسمی Middleware در ASP.NET Core</a>، <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write" target="_blank" rel="noopener noreferrer">نوشتن Middleware اختصاصی</a> و <a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/error-handling" target="_blank" rel="noopener noreferrer">مدیریت خطا در ASP.NET Core</a>.</p><a href="#course-title">بازگشت به ابتدای جزوه ↑</a></footer></article></main></div><footer class="course-footer"><span>آکادمی دات‌نت · Middleware Pipeline</span><a href="../../topics/">بازگشت به آموزش‌های موضوعی</a></footer><script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const menuToggle = document.querySelector('[data-course-menu-toggle]');
+  const setTheme = theme => {
+    root.dataset.theme = theme;
+    toggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+    toggle?.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
+  };
+  setTheme(root.dataset.theme || 'light');
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('dotnet-academy-theme', next); } catch (_) {}
+  });
+  menuToggle?.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+    menuToggle.setAttribute('aria-expanded', String(document.body.classList.contains('menu-open')));
+  });
+  document.querySelectorAll('.course-sidebar a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  }));
+  document.querySelectorAll('.copy-code').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const val = btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+      if (!val) return;
+      try {
+        await navigator.clipboard.writeText(val);
+        btn.textContent = 'کپی شد';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      } catch (_) {
+        const textArea = document.createElement('textarea');
+        textArea.value = val;
+        document.body.append(textArea);
+        textArea.select();
+        const success = document.execCommand('copy');
+        textArea.remove();
+        btn.textContent = success ? 'کپی شد' : 'کپی ناموفق';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      }
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const links = [...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+    const index = Object.fromEntries(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        index[entry.target.id]?.classList.add('active');
+      }
+    }, {rootMargin:'-18% 0px -70% 0px', threshold:0});
+    document.querySelectorAll('.lesson-section').forEach(el => observer.observe(el));
+  }
+})();
+
+</script></body></html>

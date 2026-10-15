@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش ۱۲ درس Garbage Collector، IDisposable و using در .NET همراه با مثال‌های C#، فهرست دروس، تمرین و سؤالات مصاحبه Senior.">
+  <title>مدیریت حافظه و منابع در .NET | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <style>
+:root {
+  color-scheme: light;
+  --surface:#fff; --surface-soft:#fff9f5; --surface-muted:#fff3eb;
+  --ink:#1b2331; --muted:#687486; --line:#e9e5e2;
+  --accent:#c4550b; --accent-strong:#983e08; --accent-light:#fff0e4;
+  --blue:#2f669b; --warning:#9e4c13; --warning-bg:#fff1db;
+  --shadow:0 12px 40px rgba(29,35,44,.065); --code-bg:#14202d; --code-ink:#e8f1f8;
+}
+html[data-theme="dark"] { color-scheme:dark;
+  --surface:#18212c;--surface-soft:#1d2833;--surface-muted:#2e2a2b;
+  --ink:#e5ebf2;--muted:#abb6c6;--line:#344050;
+  --accent:#fa9e59;--accent-strong:#ffb67b;--accent-light:#352a23;
+  --blue:#a0cef0;--warning:#ffd295;--warning-bg:#372b26;
+  --shadow:0 12px 40px rgba(0,0,0,.15);--code-bg:#0e1721;--code-ink:#e7eff8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{margin:0;background:var(--surface);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2;direction:rtl}
+a{color:var(--accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.skip-link{position:absolute;right:1rem;top:-4rem;background:var(--accent);color:white;padding:.3rem .8rem;z-index:99}
+.skip-link:focus{top:.5rem}
+.course-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;box-shadow:0 3px 12px rgba(13,20,25,.03)}
+.course-nav{display:flex;align-items:center;gap:1.1rem;max-width:1460px;min-height:69px;padding:8px clamp(14px,2vw,34px);margin:auto}
+.course-brand{font-weight:900;white-space:nowrap;color:var(--ink);font-size:1.08rem}
+.course-name{font-weight:800;padding-inline-start:1rem;border-inline-start:1px solid var(--line);color:var(--accent-strong)}
+.course-header .back-link{margin-inline-start:auto;font-size:.87rem;color:var(--muted)}
+.course-menu-button,.icon-button{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line);border-radius:.65rem;min-height:38px;cursor:pointer;padding:.2rem .8rem;font-size:.85rem}
+.icon-button{width:40px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none}
+[data-theme="dark"] .theme-icon-moon{display:none}
+[data-theme="dark"] .theme-icon-sun{display:block}
+.lesson-shell{max-width:1460px;display:grid;grid-template-columns:275px minmax(0,1fr);align-items:start;gap:clamp(24px,3.2vw,54px);padding:25px clamp(14px,2vw,34px);margin:0 auto}
+.course-sidebar{position:sticky;top:92px;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--surface-soft);box-shadow:var(--shadow);padding:1.1rem .55rem 1rem}
+.sidebar-heading{display:grid;gap:2px;padding:.55rem .9rem 1.05rem;border-bottom:1px solid var(--line)}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading>strong{font-size:1rem}
+.course-sidebar ol{list-style:none;margin:.7rem 0;padding:0}
+.course-sidebar li a{display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border-radius:.55rem;color:var(--ink);font-size:.86rem;line-height:1.6}
+.course-sidebar li a:hover,.course-sidebar li a.active{background:var(--accent-light);color:var(--accent-strong);text-decoration:none}
+.course-sidebar li a span{min-width:1.55rem;color:var(--accent);font-weight:800;direction:ltr;font-size:.78rem}
+.sidebar-tail{display:block;border-top:1px solid var(--line);margin:.8rem .35rem 0;padding:.7rem;color:var(--muted);font-size:.8rem}
+.lesson-content{min-width:0;max-width:1000px;width:100%;padding-bottom:1rem}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;gap:.7rem;align-items:center;padding:.1rem 0 .65rem}
+.gc-hero{margin-block:1rem 2rem;border:1px solid var(--line);border-radius:20px;padding:clamp(1.1rem,3vw,2.2rem);background:linear-gradient(130deg,var(--surface-soft),var(--surface));position:relative;overflow:hidden}
+.gc-hero:before{content:"";position:absolute;pointer-events:none;inset:auto auto -135px -85px;width:300px;height:300px;border-radius:50%;background:var(--accent-light);opacity:.85}
+.gc-hero>*{position:relative}
+.eyebrow,.section-kicker{color:var(--accent-strong);font-size:.8rem;font-weight:850;margin:0}
+.gc-hero h1{font-size:clamp(1.72rem,3.2vw,2.8rem);line-height:1.6;margin:.4rem 0 .8rem;letter-spacing:-.5px}
+.course-lead{font-size:1rem;color:var(--muted);max-width:750px;line-height:2.2}
+.study-meta,.study-actions{display:flex;align-items:center;gap:10px 17px;flex-wrap:wrap;margin-top:1.1rem;font-size:.84rem;color:var(--muted)}
+.study-status{color:var(--accent-strong);background:var(--accent-light);border:1px solid var(--line);font-weight:750;padding:2px 10px;border-radius:10px}
+.study-actions a{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:.32rem .85rem;font-weight:800}
+.study-actions a.button-link{background:var(--accent);color:white;border-color:var(--accent)}
+.lesson-body{display:grid;gap:2rem}
+.lesson-section{border:1px solid var(--line);border-radius:18px;padding:clamp(1.1rem,3vw,2rem);background:var(--surface);box-shadow:0 3px 20px rgba(25,30,35,.025);scroll-margin-top:92px}
+.lesson-section h2{font-size:clamp(1.32rem,2.4vw,1.75rem);line-height:1.7;margin:.3rem 0 1rem}
+.lesson-section h3{font-size:1.08rem;line-height:1.9;margin:1.45rem 0 .4rem}
+.lesson-section h4{font-size:.96rem;margin:1.2rem 0 .4rem}
+.lesson-section p{margin:.55rem 0 1rem}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{margin:.38rem 0}
+.lesson-section code:not(pre code),.study-source code{font-family:Consolas,"Cascadia Code",monospace;font-size:.89em;background:var(--surface-muted);color:var(--accent-strong);border-radius:5px;padding:.13rem .3rem;unicode-bidi:isolate;direction:ltr;overflow-wrap:anywhere}
+bdi{unicode-bidi:isolate}
+.code-block{border-radius:12px;border:1px solid #314050;margin:1.2rem 0;overflow:hidden;max-width:100%}
+.code-label{display:flex;gap:10px;align-items:center;padding:.48rem .85rem;background:#223344;color:#dbe8f5;font-size:.75rem;direction:rtl}
+.code-label span:nth-child(2){margin-inline-start:auto;color:#b3c6d4}
+.copy-code{color:#e8f1f8;border:1px solid #617486;background:#2a4054;padding:1px 11px;border-radius:7px;cursor:pointer}
+pre{direction:ltr;text-align:left;margin:0;padding:1.15rem 1.1rem;overflow:auto;background:var(--code-bg);color:var(--code-ink);line-height:1.75;font:13.4px/1.75 Consolas,"Cascadia Code",monospace;tab-size:4;max-width:100%}
+pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:inherit}
+.lesson-note,.lesson-warning{border-radius:11px;padding:.85rem 1rem;display:grid;gap:.2rem;margin:1.1rem 0;border:1px solid var(--line);background:var(--surface-soft)}
+.lesson-note{border-inline-start:4px solid var(--blue)}
+.lesson-warning{border-inline-start:4px solid var(--warning);background:var(--warning-bg)}
+.lesson-note strong,.lesson-warning strong{font-size:.9rem}
+.lesson-note span,.lesson-warning span{font-size:.88rem;line-height:2;color:var(--muted)}
+.message-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:1.3rem auto;font:12px Consolas,monospace}
+.message-flow span{padding:10px 13px;background:var(--accent-light);border:1px solid var(--line);border-radius:10px;color:var(--accent-strong)}
+.message-flow b{color:var(--accent)}
+.generation-flow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:1.4rem 0;direction:ltr}
+.generation-flow>div{border:1px solid var(--line);border-radius:13px;min-width:140px;display:grid;justify-items:center;padding:16px;background:var(--surface-soft);text-align:center;direction:rtl}
+.generation-flow b{direction:ltr;font-size:1.3rem;color:var(--accent-strong)}
+.generation-flow span{font-size:.73rem;color:var(--muted)}
+.generation-flow i{font-size:.72rem;color:var(--muted);font-style:normal}
+.table-wrap{overflow-x:auto;max-width:100%;margin:1.15rem 0;border:1px solid var(--line);border-radius:12px}
+.diagnostic-table{border-collapse:collapse;width:100%;min-width:510px;font-size:.88rem}
+.diagnostic-table caption{text-align:right;color:var(--muted);font-size:.78rem;padding:.7rem .9rem}
+.diagnostic-table th{background:var(--surface-muted);font-weight:850;text-align:right}
+.diagnostic-table th,.diagnostic-table td{padding:.73rem .88rem;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.9}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.lesson-quiz{border:1px solid var(--line);background:var(--surface-soft);border-radius:12px;padding:.95rem 1.1rem;margin:1.8rem 0 .3rem}
+.lesson-quiz h3{color:var(--accent-strong);font-size:.99rem;margin:0 0 .4rem}
+.lesson-quiz p{margin:.2rem 0 .8rem}
+.lesson-quiz details{margin-top:.75rem}
+.lesson-quiz summary{cursor:pointer;font-size:.89rem;font-weight:800;color:var(--accent-strong);width:max-content;max-width:100%}
+.lesson-quiz details>div{border-top:1px solid var(--line);margin-top:.7rem;padding-top:.75rem;font-size:.9rem}
+.study-source{margin-top:2rem;border-top:1px solid var(--line);padding:1rem .3rem;color:var(--muted);font-size:.88rem}
+.study-source h2{font-size:1.1rem;color:var(--ink)}
+.study-source a{word-break:break-word}
+.course-footer{border-top:1px solid var(--line);padding:1.3rem;display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted);max-width:1460px;margin:auto}
+@media(max-width:1020px){.lesson-shell{grid-template-columns:245px minmax(0,1fr);gap:20px}.course-name{font-size:.9rem}}
+@media(max-width:790px){.lesson-shell{display:block;padding:15px}.course-sidebar{display:none;position:relative;top:auto;max-height:none;margin-bottom:1.15rem}.menu-open .course-sidebar{display:block}.course-menu-button{order:2}.course-header .back-link{display:none}.course-brand{font-size:.95rem}.course-name{font-size:.8rem}.course-nav{gap:.5rem}.icon-button{margin-inline-start:auto}.gc-hero{margin-top:.5rem}.lesson-body{gap:1.1rem}.generation-flow i{width:100%;text-align:center}.lesson-section{padding:1rem}.course-footer{flex-wrap:wrap}}
+@media print{.course-header,.course-sidebar,.copy-code,.study-actions,.skip-link{display:none!important}.lesson-shell{display:block;max-width:none}.lesson-content{max-width:none}.lesson-section{box-shadow:none;break-inside:avoid;padding:.8rem;border-color:#aaa}.lesson-quiz summary{color:#444}html{scroll-behavior:auto}body{background:white;color:black}.gc-hero{background:white}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#111;background:#f3f4f6;border:1px solid #ddd}}
+/* Ensure long code and tables never widen the lesson grid on narrow screens. */
+.lesson-body{min-width:0;grid-template-columns:minmax(0,1fr)}
+.lesson-section{min-width:0}
+
+</style>
+</head>
+<body class="lesson-page gc-page">
+  <a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری آکادمی دات‌نت">
+      <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+      <span class="course-name">مدیریت حافظه و منابع</span>
+      <a class="back-link" href="../../topics/">بازگشت به آموزش‌های موضوعی</a>
+      <button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="false" aria-controls="course-sidebar">فهرست مطالب</button>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="تغییر تم" aria-pressed="false">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+  <div class="lesson-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست دوره">
+      <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>مدیریت حافظه با <bdi>.NET</bdi></strong><span>۱۲ درس، از پایه تا مصاحبهٔ Senior</span></div>
+      <nav id="lessons-list" aria-label="فهرست مطالب دوره">
+        <ol>
+          <li><a href="#gc-intro"><span>۰۱</span>آشنایی با Garbage Collector و چرخهٔ عمر اشیا</a></li>
+<li><a href="#generations"><span>۰۲</span>نسل‌های حافظه: Gen 0، Gen 1 و Gen 2</a></li>
+<li><a href="#resources"><span>۰۳</span>تفاوت منابع Managed و Unmanaged</a></li>
+<li><a href="#idisposable"><span>۰۴</span>رابط IDisposable و متد Dispose</a></li>
+<li><a href="#using-block"><span>۰۵</span>دستور using و تضمین آزادسازی منابع</a></li>
+<li><a href="#using-declaration"><span>۰۶</span>تفاوت using (...) و using var</a></li>
+<li><a href="#async-dispose"><span>۰۷</span>آزادسازی غیرهم‌زمان با IAsyncDisposable و await using</a></li>
+<li><a href="#finalizer"><span>۰۸</span>شناخت Finalizer و تفاوت آن با Dispose</a></li>
+<li><a href="#dispose-pattern"><span>۰۹</span>الگوی استاندارد Dispose Pattern</a></li>
+<li><a href="#memory-leak"><span>۱۰</span>نشت حافظه و روش تشخیص آن در .NET</a></li>
+<li><a href="#gc-performance"><span>۱۱</span>کارایی GC، دستور GC.Collect و حافظهٔ LOH</a></li>
+<li><a href="#senior-scenarios"><span>۱۲</span>سناریوهای واقعی و پرسش‌های مصاحبهٔ Senior</a></li>
+        </ol>
+      </nav>
+      <span class="sidebar-tail">مجموعهٔ آموزشی <bdi>Garbage Collector / IDisposable / using</bdi></span>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <article aria-labelledby="course-title">
+        <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span>مدیریت حافظه و منابع</span></nav>
+        <section class="gc-hero" aria-labelledby="course-title">
+          <p class="eyebrow">آموزش کاربردی مدیریت حافظه در #C</p>
+          <h1 id="course-title">یادگیری <bdi>Garbage Collector</bdi>، <bdi>IDisposable</bdi> و <bdi>using</bdi></h1>
+          <p class="course-lead">از نحوهٔ جمع‌آوری حافظه و نسل‌های GC تا آزادسازی فایل و اتصال دیتابیس، Finalizer، نشت حافظه، بهینه‌سازی و پاسخ به پرسش‌های مصاحبهٔ Senior .NET.</p>
+          <div class="study-meta"><span class="study-status">جزوهٔ ۱۲ درسی</span><span>همراه با کدهای C# و تمرین</span><span>مطابق چیدمان دوره‌های آکادمی دات‌نت</span></div>
+          <aside class="lesson-note"><strong>وضعیت مطالعه</strong><span>درس‌های ۱ تا ۶ در گفتگو تمرین شده‌اند؛ درس ۷ معرفی شده و سؤال پایانی آن هنوز بررسی نشده است. درس‌های ۸ تا ۱۲ برای کامل‌شدن جزوه به‌صورت محتوای تکمیلی تدوین شده‌اند، نه به عنوان مطالبی که قبلاً مطالعه شده‌اند.</span></aside>
+          <div class="study-actions"><a class="button-link" href="#gc-intro">شروع از درس ۱</a><a href="#async-dispose">ادامه از درس ۷</a><a href="#senior-scenarios">مرور مصاحبه</a></div>
+        </section>
+        <div class="lesson-body"><section id="gc-intro" class="lesson-section" data-source-section="1" aria-labelledby="gc-intro-title">
+       <p class="section-kicker">درس ۱ · آموزش‌داده‌شده</p>
+       <h2 id="gc-intro-title">آشنایی با Garbage Collector و چرخهٔ عمر اشیا</h2>
+       <h3>۱. وظیفهٔ Garbage Collector چیست؟</h3><p>در محیط اجرای دات‌نت (<bdi>CLR</bdi>)، حافظهٔ بیشتر اشیای مرجع در <bdi>Managed Heap</bdi> اختصاص داده می‌شود. <bdi>Garbage Collector</bdi> یا <bdi>GC</bdi> زمانی که اشیا دیگر قابل‌دسترسی نباشند، حافظهٔ آن‌ها را در یکی از دوره‌های جمع‌آوری بازیابی می‌کند.</p><div class="code-block"><div class="code-label"><span>یک شیء موقت از Payment</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class Payment
+{
+    public decimal Amount { get; set; }
+}
+
+static void ProcessPayment()
+{
+    var payment = new Payment { Amount = 500 };
+    Console.WriteLine(payment.Amount);
+}</code></pre></div><h3>۲. غیرقابل‌دسترسی یعنی چه؟</h3><p>جمع‌آوری به پایان متد وابسته نیست؛ <bdi>GC</bdi> از ریشه‌هایی مانند متغیرهای زندهٔ استک، فیلدهای استاتیک و <bdi>GC Handle</bdi> مسیر دسترسی به اشیا را بررسی می‌کند. شیئی که هیچ مسیر دسترسی از ریشه‌ها به آن نباشد، واجد شرایط جمع‌آوری است. زمان دقیق این جمع‌آوری قطعی نیست.</p><div class="message-flow" dir="ltr" role="img" aria-label="چرخه مراحل"><span>Object allocated</span><b aria-hidden="true">→</b><span>Reachable from GC Roots</span><b aria-hidden="true">→</b><span>Unreachable</span><b aria-hidden="true">→</b><span>Reclaimed in later GC</span></div><aside class="lesson-note"><strong>نکتهٔ مهم مصاحبه</strong><span>متغیر محلی لزوماً تا انتهای متد زنده نمی‌ماند؛ <bdi>JIT</bdi> می‌تواند عمر مؤثر یک ارجاع را کوتاه‌تر تشخیص دهد. بنابراین صرف وجود نام متغیر در متن متد، تضمین زنده‌بودن شیء تا آخر متد نیست.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>اگر متد <code>ProcessPayment</code> تمام شود، آیا حافظهٔ <code>payment</code> فوراً آزاد می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. وقتی شیء دیگر قابل‌دسترسی نباشد، نامزد جمع‌آوری می‌شود؛ اما زمان جمع‌آوری را <bdi>Runtime</bdi> تعیین می‌کند.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="generations" class="lesson-section" data-source-section="2" aria-labelledby="generations-title">
+       <p class="section-kicker">درس ۲ · آموزش‌داده‌شده</p>
+       <h2 id="generations-title">نسل‌های حافظه: Gen 0، Gen 1 و Gen 2</h2>
+       <h3>۱. چرا GC نسلی است؟</h3><p>بیشتر اشیای برنامه عمر کوتاهی دارند؛ برای همین <bdi>GC</bdi>، اشیای کوچک را در نسل‌های مختلف مدیریت می‌کند تا برای آزادسازی اشیای کوتاه‌عمر مجبور نباشد همیشه تمام حافظه را بررسی کند.</p><div class="generation-flow"><div><b>Gen 0</b><span>اشیای جدید و کوتاه‌عمر</span></div><i>بقای شیء در جمع‌آوری</i><div><b>Gen 1</b><span>مرحلهٔ میانی</span></div><i>بقای مجدد در جمع‌آوری</i><div><b>Gen 2</b><span>اشیای بادوام</span></div></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th scope="col">نسل</th><th scope="col">ویژگی</th><th scope="col">زمان جمع‌آوری</th></tr></thead><tbody><tr><td><code>Gen 0</code></td><td>اشیای تازه و معمولاً کوتاه‌عمر</td><td>معمولاً پرتکرارتر</td></tr><tr><td><code>Gen 1</code></td><td>اشیای باقی‌مانده از نسل صفر</td><td>کمتر از نسل صفر</td></tr><tr><td><code>Gen 2</code></td><td>اشیای بادوام؛ همچنین جمع‌آوری LOH</td><td>عموماً پرهزینه‌تر</td></tr></tbody></table></div><div class="code-block"><div class="code-label"><span>مثال ارجاع زنده</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>var cache = new List&lt;Payment&gt;();
+cache.Add(new Payment { Amount = 100 });
+
+// While cache is reachable and holds its item,
+// the Payment object is also reachable.</code></pre></div><p>وقتی شیء در جمع‌آوری نسل صفر زنده بماند، معمولاً به نسل یک ارتقا پیدا می‌کند؛ با باقی‌ماندن در جمع‌آوری نسل یک، به نسل دو می‌رود. بقای شیء در نسل دو به معنی ارتقای بیشتر نیست. این ارتقا لزوماً به معنی جابه‌جایی فیزیکی نیست.</p><aside class="lesson-note"><strong>تفاوت مهم</strong><span>جمع‌آوری نسل دو، نسل‌های کوچک‌تر را هم پوشش می‌دهد؛ اما جمع‌آوری فقط نسل صفر، به معنی بررسی کامل نسل‌های یک و دو نیست.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>شیئی که بعد از جمع‌آوری <code>Gen 0</code> هنوز قابل‌دسترسی است، معمولاً چه سرنوشتی دارد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>حافظهٔ آن بازیابی نمی‌شود و شیء به <code>Gen 1</code> ارتقا پیدا می‌کند.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="resources" class="lesson-section" data-source-section="3" aria-labelledby="resources-title">
+       <p class="section-kicker">درس ۳ · آموزش‌داده‌شده</p>
+       <h2 id="resources-title">تفاوت منابع Managed و Unmanaged</h2>
+       <h3>۱. حافظهٔ تحت مدیریت چیست؟</h3><p>حافظهٔ یک شیء مانند <code>Payment</code> توسط <bdi>GC</bdi> مدیریت می‌شود. با این حال یک شیء تحت مدیریت می‌تواند مالک منبعی خارج از <bdi>Managed Heap</bdi> باشد.</p><h3>۲. منبع Unmanaged چیست؟</h3><p>منابعی مثل <bdi>File Handle</bdi>، <bdi>Socket Handle</bdi> و حافظهٔ <bdi>Native</bdi> به آزادسازی مخصوص خودشان نیاز دارند. نمونهٔ شناخته‌شده، شیء <code>FileStream</code> است که یک شیء مدیریت‌شده بوده، اما دسترسی به فایل را با منابع سیستم‌عامل انجام می‌دهد.</p><div class="code-block"><div class="code-label"><span>نمونهٔ مدیریت نادرست فایل</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>var stream = new FileStream(
+    &quot;payment.txt&quot;, FileMode.Open, FileAccess.Read);
+
+// Read file ...
+// No Dispose here!</code></pre></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th scope="col">مفهوم</th><th scope="col">مدیریت‌شده با GC؟</th><th scope="col">نیاز به آزادسازی مشخص؟</th></tr></thead><tbody><tr><td>شیء سادهٔ <code>Payment</code></td><td>بله</td><td>معمولاً خیر</td></tr><tr><td>خود شیء <code>FileStream</code></td><td>حافظهٔ شیء: بله</td><td>بله؛ منابع فایل را آزاد کنید</td></tr><tr><td>هندل سیستم‌عامل</td><td>خیر، به شکل مستقیم</td><td>بله؛ معمولاً توسط Wrapper</td></tr></tbody></table></div><aside class="lesson-note"><strong>اصلاح یک برداشت رایج</strong><span><bdi>GC</bdi> مستقیماً متد <code>Dispose</code> را اجرا نمی‌کند. ممکن است آزادسازی منابع زیرساختی بعدها از راه <bdi>Finalizer</bdi> یا <bdi>SafeHandle</bdi> انجام شود؛ اما زمان آن قابل‌اتکا نیست.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>چرا نباید برای آزادسازی <bdi>File Handle</bdi> منتظر <bdi>GC</bdi> ماند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>زیرا زمان جمع‌آوری نامشخص است؛ در این فاصله هندل‌ها اشغال می‌مانند و بسته به حالت اشتراک فایل، سایر عملیات ممکن است با مشکل مواجه شوند.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="idisposable" class="lesson-section" data-source-section="4" aria-labelledby="idisposable-title">
+       <p class="section-kicker">درس ۴ · آموزش‌داده‌شده</p>
+       <h2 id="idisposable-title">رابط IDisposable و متد Dispose</h2>
+       <h3>۱. قرارداد IDisposable</h3><div class="code-block"><div class="code-label"><span>تعریف رابط</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public interface IDisposable
+{
+    void Dispose();
+}</code></pre></div><p>پیاده‌سازی این رابط به مصرف‌کنندهٔ کلاس اعلام می‌کند که پس از پایان استفاده باید منابع تحت مالکیت شیء را آزاد کند. روش آزادسازی و اینکه کلاس مالک کدام منبع است، بخشی از طراحی آن کلاس محسوب می‌شود.</p><div class="code-block"><div class="code-label"><span>مثال سادهٔ کلاس مالک FileStream</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class PaymentFileReader : IDisposable
+{
+    private readonly FileStream _stream;
+
+    public PaymentFileReader(string path)
+    {
+        _stream = File.OpenRead(path);
+    }
+
+    public void Dispose() =&gt; _stream.Dispose();
+}</code></pre></div><div class="code-block"><div class="code-label"><span>فراخوانی آزادسازی توسط مصرف‌کننده</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>var reader = new PaymentFileReader(&quot;payment.txt&quot;);
+try
+{
+    // Use reader...
+}
+finally
+{
+    reader.Dispose();
+}</code></pre></div><aside class="lesson-note"><strong>نکتهٔ مصاحبه</strong><span>حتی اگر کلاس <code>IDisposable</code> را پیاده کند، صرف غیرقابل‌دسترسی‌شدن آن باعث فراخوانی خودکار <code>Dispose()</code> نمی‌شود. آزادسازی باید توسط مصرف‌کننده، <code>using</code> یا مالک طول‌عمر شیء انجام شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>آیا <code>GC.Collect()</code> تضمین می‌کند متد <code>Dispose</code> شیء غیرقابل‌دسترسی فراخوانی شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر؛ <bdi>GC</bdi> با <bdi>Dispose</bdi> قرارداد فراخوانی مستقیم ندارد.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="using-block" class="lesson-section" data-source-section="5" aria-labelledby="using-block-title">
+       <p class="section-kicker">درس ۵ · آموزش‌داده‌شده</p>
+       <h2 id="using-block-title">دستور using و تضمین آزادسازی منابع</h2>
+       <h3>۱. مشکل Dispose دستی</h3><div class="code-block"><div class="code-label"><span>کد آسیب‌پذیر در برابر Exception</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>var stream = File.OpenRead(&quot;payment.txt&quot;);
+ProcessFile(stream); // May throw
+stream.Dispose();     // May never execute</code></pre></div><p>وقتی عملیات پردازش خطا بدهد، مسیر عادی اجرا قطع می‌شود و احتمال دارد به فراخوانی دستی <code>Dispose()</code> نرسیم.</p><h3>۲. راه‌حل using</h3><div class="code-block"><div class="code-label"><span>استفادهٔ صحیح از using</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using (var stream = File.OpenRead(&quot;payment.txt&quot;))
+{
+    ProcessFile(stream);
+} // stream.Dispose()</code></pre></div><p>کامپایلر ساختاری معادل <code>try/finally</code> ایجاد می‌کند. خروج از بلوک، حتی بر اثر استثنا، باعث فراخوانی <code>Dispose</code> می‌شود. در این مثال آزادسازی پس از ساخت موفق منبع تضمین می‌شود.</p><div class="code-block"><div class="code-label"><span>نمای مفهومی کد تولیدشده</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>var stream = File.OpenRead(&quot;payment.txt&quot;);
+try
+{
+    ProcessFile(stream);
+}
+finally
+{
+    stream.Dispose();
+}</code></pre></div><div class="code-block"><div class="code-label"><span>سناریوی خروج در اثر خطا</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class TestResource : IDisposable
+{
+    public void Dispose() =&gt; Console.WriteLine(&quot;Disposed&quot;);
+}
+
+try
+{
+    using (var resource = new TestResource())
+    {
+        Console.WriteLine(&quot;Start&quot;);
+        throw new Exception(&quot;Error&quot;);
+    }
+}
+catch (Exception)
+{
+    Console.WriteLine(&quot;Exception&quot;);
+}
+// Start
+// Disposed
+// Exception</code></pre></div><aside class="lesson-note"><strong>حد تضمین</strong><span>دستور <code>using</code> خطای رخ‌داده را نمی‌بلعد. ضمن اینکه در صورت متوقف‌شدن اجباری فرایند یا شکست ساخت خود منبع، آزادسازی از مسیر معمول <code>using</code> لزوماً رخ نمی‌دهد.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>در مثال بالا، چرا <code>Disposed</code> قبل از <code>Exception</code> چاپ می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون پیش از انتقال کنترل به <code>catch</code>، خروج از <code>using</code> و اجرای بلوک <code>finally</code> داخلی آن انجام می‌شود.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="using-declaration" class="lesson-section" data-source-section="6" aria-labelledby="using-declaration-title">
+       <p class="section-kicker">درس ۶ · آموزش‌داده‌شده</p>
+       <h2 id="using-declaration-title">تفاوت using (...) و using var</h2>
+       <h3>۱. زمان پایان عمر منبع</h3><div class="code-block"><div class="code-label"><span>روش بلوکی</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using (var resource = new TestResource())
+{
+    Console.WriteLine(&quot;A&quot;);
+}
+Console.WriteLine(&quot;B&quot;);
+// A, Disposed, B</code></pre></div><div class="code-block"><div class="code-label"><span>روش تعریفی از C# 8</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>static void Test()
+{
+    using var resource = new TestResource();
+    Console.WriteLine(&quot;A&quot;);
+    Console.WriteLine(&quot;B&quot;);
+}
+// A, B, Disposed</code></pre></div><p>در روش بلوکی، منبع در پایان بلوک مشخص‌شده آزاد می‌شود. در روش <code>using var</code>، منبع هنگام خروج از محدودهٔ تعریف متغیر آزاد می‌شود؛ در مثال دوم پایان متد.</p><h3>۲. ترتیب آزادسازی چند منبع</h3><div class="code-block"><div class="code-label"><span>آزادسازی به‌ترتیب معکوس</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using var first = new TestResource();
+using var second = new TestResource();
+Console.WriteLine(&quot;Work&quot;);
+// Work
+// Disposed (second)
+// Disposed (first)</code></pre></div><aside class="lesson-note"><strong>به‌خاطر بسپار</strong><span>منابع معمولاً به‌ترتیب معکوس ساخته‌شدن آزاد می‌شوند. اگر منبعی باید زودتر بسته شود، از بلوک <code>using</code> داخلی استفاده کن.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>اگر بعد از بسته‌شدن بلوک <code>using (resource2)</code> هنوز متد ادامه داشته باشد، کدام منبع زودتر آزاد می‌شود: <code>resource2</code> یا منبعی که با <code>using var resource1</code> در ابتدای متد ساخته شده؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>ابتدا <code>resource2</code> در پایان بلوک خودش آزاد می‌شود؛ سپس <code>resource1</code> در پایان محدودهٔ تعریفش.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="async-dispose" class="lesson-section" data-source-section="7" aria-labelledby="async-dispose-title">
+       <p class="section-kicker">درس ۷ · در حال یادگیری</p>
+       <h2 id="async-dispose-title">آزادسازی غیرهم‌زمان با IAsyncDisposable و await using</h2>
+       <h3>۱. چرا آزادسازی غیرهم‌زمان؟</h3><p>برخی منابع برای پایان کار باید عملیات <bdi>I/O</bdi> غیرهم‌زمان انجام دهند؛ مانند ثبت نهایی یا تخلیهٔ بافر. رابط <code>IAsyncDisposable</code> یک متد <code>DisposeAsync()</code> برمی‌گرداند که می‌توان تکمیل آن را <code>await</code> کرد.</p><div class="code-block"><div class="code-label"><span>قرارداد آزادسازی غیرهم‌زمان</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public interface IAsyncDisposable
+{
+    ValueTask DisposeAsync();
+}</code></pre></div><div class="code-block"><div class="code-label"><span>کلاس نمونهٔ مالک جریان فایل</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class AsyncPaymentWriter : IAsyncDisposable
+{
+    private readonly FileStream _stream = new(
+        &quot;payments.log&quot;, FileMode.Append, FileAccess.Write,
+        FileShare.Read, 4096, useAsync: true);
+
+    public async Task WriteAsync(byte[] data)
+    {
+        await _stream.WriteAsync(data);
+    }
+
+    public ValueTask DisposeAsync() =&gt; _stream.DisposeAsync();
+}</code></pre></div><div class="code-block"><div class="code-label"><span>مصرف منبع با await using</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public static async Task SaveAsync(byte[] data)
+{
+    await using var writer = new AsyncPaymentWriter();
+    await writer.WriteAsync(data);
+} // DisposeAsync is awaited here</code></pre></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th scope="col">نوع</th><th scope="col">فراخوانی</th><th scope="col">کاربرد</th></tr></thead><tbody><tr><td><code>IDisposable</code></td><td><code>using</code> → <code>Dispose()</code></td><td>آزادسازی هم‌زمان</td></tr><tr><td><code>IAsyncDisposable</code></td><td><code>await using</code> → <code>DisposeAsync()</code></td><td>آزادسازی غیرهم‌زمان</td></tr></tbody></table></div><aside class="lesson-note"><strong>دام مصاحبه</strong><span>اگر کلاس فقط <code>IAsyncDisposable</code> را پیاده‌سازی کند، <code>using var x = ...</code> برای آن کامپایل نمی‌شود. باید در محدودهٔ <code>async</code> از <code>await using</code> استفاده کرد. پیاده‌سازی هم‌زمان هر دو رابط هم مجاز است.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>آیا <code>using var writer = new AsyncPaymentWriter();</code> کامپایل می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. این کلاس فقط <code>IAsyncDisposable</code> دارد و باید بنویسیم <code>await using var writer = new AsyncPaymentWriter();</code> در یک متد <code>async</code>.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="finalizer" class="lesson-section" data-source-section="8" aria-labelledby="finalizer-title">
+       <p class="section-kicker">درس ۸ · مبحث تکمیلی</p>
+       <h2 id="finalizer-title">شناخت Finalizer و تفاوت آن با Dispose</h2>
+       <h3>۱. Finalizer دقیقاً چیست؟</h3><p>متدی که در زبان #C با نحو <code>~TypeName()</code> تعریف می‌شود، مکانیزم نهایی‌سازی را فراهم می‌کند. برای انواع واجد شرایط نهایی‌سازی، زمان اجرای آن قطعی نیست و ممکن است پیش از خاتمهٔ فرایند اصلاً اجرا نشود.</p><div class="code-block"><div class="code-label"><span>شکل کلی Finalizer</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public class NativeResource
+{
+    // Conceptual example only; real native handles
+    // should normally be wrapped in SafeHandle.
+    ~NativeResource()
+    {
+        // Release directly owned unmanaged resource.
+        // Do not call arbitrary managed dependencies here.
+    }
+}</code></pre></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th scope="col">ویژگی</th><th scope="col">Dispose</th><th scope="col">Finalizer</th></tr></thead><tbody><tr><td>زمان اجرا</td><td>با فراخوانی مصرف‌کننده یا مالک</td><td>نامعین؛ از مسیر نهایی‌سازی</td></tr><tr><td>نحوهٔ اجرا</td><td>هم‌زمان با مسیر برنامه یا DisposeAsync</td><td>توسط Runtime در فرایند نهایی‌سازی</td></tr><tr><td>هدف</td><td>آزادسازی به‌موقع منابع</td><td>پشتیبان منابع Native مستقیم در شرایط خاص</td></tr><tr><td>اجراشدن خودکار Dispose؟</td><td>خیر</td><td>خیر</td></tr></tbody></table></div><h3>۲. نقش SafeHandle و SuppressFinalize</h3><p>در کد واقعی بهتر است هندل‌های سیستم‌عامل را با <code>SafeHandle</code> مدیریت کنیم؛ این کار در بیشتر موارد نیاز به نوشتن Finalizer اختصاصی را از بین می‌برد. بعد از آزادسازی قطعی، <code>GC.SuppressFinalize(this)</code> می‌تواند اجرای Finalizer آن شیء را در صورت وجود، حذف کند.</p><div class="code-block"><div class="code-label"><span>الگوی رایج متد Dispose</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public void Dispose()
+{
+    Dispose(disposing: true);
+    GC.SuppressFinalize(this);
+}</code></pre></div><aside class="lesson-warning"><strong>هشدار</strong><span>از <bdi>Finalizer</bdi> برای دسترسی به اشیای مدیریت‌شدهٔ دیگر، ثبت لاگ معمولی یا صدا زدن سرویس شبکه‌ای استفاده نکن. ترتیب نهایی‌سازی اشیا قابل‌اتکا نیست و وجود Finalizer هزینهٔ جمع‌آوری دارد.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>اگر کلاس فقط یک <code>FileStream</code> را نگهداری کند، آیا نوشتن Finalizer اختصاصی لازم است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. کلاس باید منبعی را که مالک آن است در <code>Dispose</code> آزاد کند؛ <code>FileStream</code> و <code>SafeHandle</code> زیرساخت لازم برای هندل را دارند.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="dispose-pattern" class="lesson-section" data-source-section="9" aria-labelledby="dispose-pattern-title">
+       <p class="section-kicker">درس ۹ · مبحث تکمیلی</p>
+       <h2 id="dispose-pattern-title">الگوی استاندارد Dispose Pattern</h2>
+       <h3>۱. یک کلاس sealed با مالکیت مشخص</h3><p>اگر کلاسی فقط منابع <code>IDisposable</code> تحت مالکیت خودش را نگهداری می‌کند و ارث‌بری ندارد، معمولاً یک پیاده‌سازی ساده، کافی و خواناست.</p><div class="code-block"><div class="code-label"><span>مثال ساده برای .NET جدید</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class PaymentFileReader : IDisposable
+{
+    private readonly FileStream _stream;
+    private bool _disposed;
+
+    public PaymentFileReader(string path)
+        =&gt; _stream = File.OpenRead(path);
+
+    public int ReadByte()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        return _stream.ReadByte();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _stream.Dispose();
+        _disposed = true;
+    }
+}</code></pre></div><p>در این نمونه، <code>Dispose</code> دوباره قابل‌فراخوانی است؛ پس از آزادسازی استفادهٔ مجدد از شیء با <code>ObjectDisposedException</code> رد می‌شود. این نمونه فرض می‌کند <code>Dispose</code> هم‌زمان از چند ترد اجرا نمی‌شود.</p><h3>۲. وقتی کلاس قابل ارث‌بری است</h3><div class="code-block"><div class="code-label"><span>الگوی قابل‌گسترش IDisposable</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public class DisposableBase : IDisposable
+{
+    private Stream? _ownedStream;
+    private bool _disposed;
+
+    public DisposableBase(Stream ownedStream)
+        =&gt; _ownedStream = ownedStream;
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+
+        if (disposing)
+        {
+            _ownedStream?.Dispose();
+            _ownedStream = null;
+        }
+
+        // Directly owned unmanaged resources, if any,
+        // would be released here on both paths.
+        _disposed = true;
+    }
+}</code></pre></div><p>پارامتر <code>disposing</code> مشخص می‌کند فراخوانی از مسیر <code>Dispose()</code> است یا از مسیر نهایی‌سازی. در شاخهٔ <code>disposing: false</code> نباید به اشیای مدیریت‌شدهٔ دیگر تکیه کنیم. این کلاس به Finalizer نیازی ندارد، چون خودش منبع Native خام را مالک نیست.</p><h3>۳. اصل مالکیت</h3><p>اگر یک <code>Stream</code> را از بیرون دریافت می‌کنی، قبل از اینکه در <code>Dispose</code> آن را ببندی باید روشن باشد مالک آن هستی یا نه. گاهی API با گزینه‌ای مانند <code>leaveOpen</code> تعیین می‌کند که Stream ورودی پس از پایان کار باز بماند.</p><aside class="lesson-note"><strong>توجه به نسخهٔ زبان و چارچوب</strong><span>نمونهٔ اول از <code>ObjectDisposedException.ThrowIf</code> استفاده می‌کند که در نسخه‌های جدید دات‌نت در دسترس است. در پروژه‌های قدیمی‌تر می‌توان به‌جای آن <code>if (_disposed) throw new ObjectDisposedException(nameof(PaymentFileReader));</code> نوشت.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>آیا هر کلاسی که <code>IDisposable</code> دارد باید Finalizer هم داشته باشد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. Finalizer معمولاً فقط برای مالکیت مستقیم منابع Unmanaged بدون Wrapper امن مطرح می‌شود؛ در بیشتر برنامه‌ها <code>SafeHandle</code> یا <code>Dispose</code> منابع مدیریت‌شده کافی است.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="memory-leak" class="lesson-section" data-source-section="10" aria-labelledby="memory-leak-title">
+       <p class="section-kicker">درس ۱۰ · مبحث تکمیلی</p>
+       <h2 id="memory-leak-title">نشت حافظه و روش تشخیص آن در .NET</h2>
+       <h3>۱. آیا در زبان دارای GC هم Memory Leak داریم؟</h3><p>بله. وقتی دیگر به داده‌ای نیاز نداریم اما هنوز از یک ریشهٔ حافظه مسیر دسترسی به آن وجود دارد، <bdi>GC</bdi> نمی‌تواند آن را جمع‌آوری کند. به این وضعیت معمولاً نشت منطقی یا <bdi>Managed Memory Leak</bdi> می‌گوییم.</p><div class="code-block"><div class="code-label"><span>نمونهٔ فهرست استاتیک بدون محدودیت</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public static class PaymentCache
+{
+    public static readonly List&lt;byte[]&gt; Items = new();
+}
+
+// Simulate a leak: references grow without bound.
+void OnEachRequest()
+{
+    PaymentCache.Items.Add(new byte[100_000]);
+}</code></pre></div><p>در این مثال مشکل این نیست که <bdi>GC</bdi> ضعیف کار می‌کند؛ مشکل این است که فهرست استاتیک همچنان به تمام آرایه‌ها ارجاع دارد.</p><h3>۲. سایر علت‌های رایج</h3><ul><li>رویدادهایی که <bdi>Subscriber</bdi> طول‌عمر کوتاه را نزد <bdi>Publisher</bdi> طول‌عمر بلند نگه می‌دارند.</li><li>کش بدون محدودیت، دیکشنری با کلیدهای قدیمی و بافرهای بزرگ انباشته‌شده.</li><li>تایمرها، تسک‌ها و اشتراک‌هایی که در پایان عمرشان متوقف یا آزاد نشده‌اند.</li><li>منابع Native که <code>Dispose</code> نشده‌اند؛ ممکن است خارج از Managed Heap مصرف حافظه یا هندل ایجاد کنند.</li></ul><div class="code-block"><div class="code-label"><span>رفع نگهداری ناخواسته با لغو اشتراک</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>// Illustrative event subscription pattern:
+source.Changed += OnChanged;
+
+// When the subscription is no longer required:
+source.Changed -= OnChanged;</code></pre></div><h3>۳. تشخیص با ابزارهای دات‌نت</h3><div class="code-block"><div class="code-label"><span>دستورهای خط فرمان</span><span dir="ltr">CLI</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>dotnet tool install --global dotnet-counters
+dotnet-counters monitor -p 1234 --counters System.Runtime
+
+# For deeper investigation (can trigger a full GC):
+dotnet tool install --global dotnet-gcdump
+dotnet-gcdump collect -p 1234 -o payment.gcdump</code></pre></div><p>برای تشخیص، روند <bdi>Allocation Rate</bdi>، رشد اشیای زنده و شمار جمع‌آوری‌های نسل دو را بررسی کن. سپس با <bdi>Heap Dump</bdi> به دنبال <bdi>GC Root</bdi> نگهدارندهٔ اشیا بگرد. صرف زیادبودن حافظهٔ فرایند یا افزایش <bdi>Working Set</bdi> به‌تنهایی ثابت نمی‌کند نشت داریم.</p><aside class="lesson-warning"><strong>احتیاط در Production</strong><span>جمع‌آوری <code>dotnet-gcdump</code> ممکن است یک <bdi>Full GC</bdi> ایجاد کند. پیش از اجرا روی سرویس پرترافیک، اثر آن بر تأخیر و وضعیت عملیاتی را بسنج.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>اگر بعد از ده هزار درخواست، یک <code>static List</code> ده هزار آبجکت قدیمی را نگه داشته باشد، چرا GC آن‌ها را آزاد نمی‌کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون از فیلد استاتیک به آن‌ها مسیر ارجاع وجود دارد؛ باید سیاست انقضا، سقف اندازه یا حذف صریح داده‌ها طراحی شود.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="gc-performance" class="lesson-section" data-source-section="11" aria-labelledby="gc-performance-title">
+       <p class="section-kicker">درس ۱۱ · مبحث تکمیلی</p>
+       <h2 id="gc-performance-title">کارایی GC، دستور GC.Collect و حافظهٔ LOH</h2>
+       <h3>۱. چرا GC.Collect معمولاً توصیه نمی‌شود؟</h3><p>دات‌نت بر اساس فشار حافظه و الگوی تخصیص، زمان مناسب جمع‌آوری را تخمین می‌زند. فراخوانی دستی <code>GC.Collect()</code> ممکن است جمع‌آوری پرهزینه را زودتر از موعد آغاز کند، باعث توقف تردهای مدیریت‌شده شود و کارایی را کاهش دهد.</p><div class="code-block"><div class="code-label"><span>دو عملیات با مسئولیت متفاوت</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>// Usually avoid in application request paths:
+GC.Collect();
+
+// This is not a replacement for:
+stream.Dispose();</code></pre></div><h3>۲. مفهوم Large Object Heap</h3><p>اشیایی که اندازهٔ تخصیص آن‌ها به آستانهٔ <bdi>LOH</bdi> برسد، معمولاً در <bdi>Large Object Heap</bdi> قرار می‌گیرند. آستانهٔ پیش‌فرض حدود <code>85,000 bytes</code> برای اندازهٔ خود شیء است، نه شمار عناصر آرایه. این آستانه قابل پیکربندی است.</p><div class="code-block"><div class="code-label"><span>نمونهٔ تخصیص بزرگ</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>byte[] buffer = new byte[100_000];
+// This allocation normally belongs to LOH.
+
+// LOH is collected with Gen 2 collections.</code></pre></div><p>به‌طور معمول <bdi>LOH</bdi> مانند ناحیهٔ اشیای کوچک به‌دفعات فشرده نمی‌شود؛ فشرده‌سازی آن را می‌توان برای شرایط ویژه درخواست کرد. تخصیص پرتکرار بافرهای بزرگ باعث فشار حافظه و جمع‌آوری‌های پرهزینه‌تر می‌شود.</p><h3>۳. استفادهٔ محتاطانه از ArrayPool</h3><div class="code-block"><div class="code-label"><span>الگوی بازگرداندن بافر اجاره‌ای</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using System.Buffers;
+
+byte[] buffer = ArrayPool&lt;byte&gt;.Shared.Rent(100_000);
+try
+{
+    // Use only the needed portion of buffer.
+}
+finally
+{
+    ArrayPool&lt;byte&gt;.Shared.Return(buffer, clearArray: true);
+}</code></pre></div><p>استفاده از <code>ArrayPool</code> می‌تواند تخصیص‌های بزرگ مکرر را کم کند، ولی آرایهٔ اجاره‌ای ممکن است از اندازهٔ خواسته‌شده بزرگ‌تر باشد و نباید بعد از بازگرداندن آن را استفاده کرد.</p><aside class="lesson-note"><strong>جمع‌بندی اجرایی</strong><span>ابتدا مصرف حافظه را اندازه بگیر، سپس الگوی تخصیص را اصلاح کن. افزایش غیرعادی <bdi>Gen 2 GC</bdi>، بافرهای بزرگ موقت، یا نگهداری بی‌مورد اشیا، سرنخ‌هایی برای بررسی‌اند؛ پاسخ پیش‌فرض، صدا زدن <code>GC.Collect()</code> نیست.</span></aside><div class="lesson-quiz"><h3>سؤال مرور</h3><p>آیا آرایهٔ <code>new byte[100_000]</code> معمولاً در Gen 0 ساخته می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. با آستانهٔ پیش‌فرض، معمولاً در <bdi>LOH</bdi> قرار می‌گیرد که همراه با جمع‌آوری نسل دو بررسی می‌شود.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section>
+<section id="senior-scenarios" class="lesson-section" data-source-section="12" aria-labelledby="senior-scenarios-title">
+       <p class="section-kicker">درس ۱۲ · مبحث تکمیلی</p>
+       <h2 id="senior-scenarios-title">سناریوهای واقعی و پرسش‌های مصاحبهٔ Senior</h2>
+       <h3>۱. سناریوی اتصال دیتابیس در سرویس پرداخت</h3><div class="code-block"><div class="code-label"><span>آزادسازی منابع دیتابیس در عملیات async</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using Microsoft.Data.SqlClient;
+
+public static async Task&lt;int&gt; ReadCountAsync(
+    string connectionString, CancellationToken token)
+{
+    await using var connection = new SqlConnection(connectionString);
+    await connection.OpenAsync(token);
+
+    await using var command = new SqlCommand(
+        &quot;SELECT COUNT(*) FROM dbo.Payments&quot;, connection);
+
+    return Convert.ToInt32(await command.ExecuteScalarAsync(token));
+}</code></pre></div><p>در این مثال اتصال و فرمان تحت مالکیت همین متد هستند و بعد از کار آزاد می‌شوند. با فعال‌بودن <bdi>Connection Pooling</bdi>، بستن یا <code>Dispose</code> کردن اتصال معمولاً اتصال فیزیکی را برای استفادهٔ مجدد به استخر برمی‌گرداند، نه اینکه حتماً شبکه را قطع کند.</p><h3>۲. سناریوی تزریق وابستگی</h3><p>در سرویس‌های <bdi>ASP.NET Core</bdi>، طول عمر اشیایی که توسط <bdi>DI Container</bdi> ساخته می‌شوند معمولاً توسط همان ظرف مدیریت می‌شود. برای نمونه <code>DbContext</code> تزریق‌شدهٔ <bdi>Scoped</bdi> را در میانهٔ درخواست بی‌دلیل دستی <code>Dispose</code> نکن؛ پایان Scope وظیفهٔ ظرف است.</p><div class="code-block"><div class="code-label"><span>نمونهٔ مالکیت توسط DI</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class PaymentService
+{
+    private readonly AppDbContext _db;
+
+    public PaymentService(AppDbContext db) =&gt; _db = db;
+
+    public Task&lt;int&gt; CountAsync(CancellationToken token)
+        =&gt; _db.Payments.CountAsync(token);
+
+    // Do not dispose injected _db here.
+}</code></pre></div><h3>۳. سناریوی پردازش فایل</h3><div class="code-block"><div class="code-label"><span>آزادسازی جریان‌ها هنگام موفقیت یا Exception</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public async Task CopyAsync(
+    string sourcePath, string destinationPath,
+    CancellationToken token)
+{
+    await using var source = File.OpenRead(sourcePath);
+    await using var destination = File.Create(destinationPath);
+    await source.CopyToAsync(destination, token);
+}</code></pre></div><aside class="lesson-note"><strong>نکتهٔ مهم</strong><span>در این مثال پایان کار، منابع را آزاد می‌کند اما تضمین نمی‌کند در صورت لغو یا خطای نیمه‌راه، فایل مقصد حتماً محتوای کامل داشته باشد. برای عملیات حساس باید نوشتن موقت، اعتبارسنجی و جابه‌جایی اتمیک در شرایط مناسب طراحی شود.</span></aside><h3>۴. خلاصهٔ تصمیم‌گیری در پروژه</h3><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th scope="col">مسئله</th><th scope="col">راهکار مناسب</th><th scope="col">اشتباه رایج</th></tr></thead><tbody><tr><td>شیء ساده بدون منبع محدود</td><td>اتکا به GC</td><td>Dispose بی‌دلیل برای هر کلاس</td></tr><tr><td>مالک <code>Stream</code> یا <code>Connection</code></td><td><code>using</code> / <code>Dispose</code></td><td>منتظر ماندن برای GC</td></tr><tr><td>آزادسازی I/O غیرهم‌زمان</td><td><code>await using</code></td><td>تبدیل بی‌دلیل async به sync</td></tr><tr><td>منبع ساخته‌شده توسط DI</td><td>واگذاری آزادسازی به Scope</td><td>Dispose زودهنگام سرویس تزریق‌شده</td></tr><tr><td>رشد اشیای زنده</td><td>تحلیل Retention و GC Roots</td><td>فراخوانی مکرر <code>GC.Collect</code></td></tr></tbody></table></div><h3>۵. پرسش‌های جمع‌بندی مصاحبه</h3><div class="lesson-quiz"><h3>سؤال مرور</h3><p>اگر یک <code>SqlConnection</code> را <code>Dispose</code> کنیم، آیا <bdi>GC</bdi> همان لحظه حافظهٔ شیء را پاک می‌کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. <code>Dispose</code> منابع اتصال را آزاد می‌کند و با Pooling معمولاً اتصال به Pool برمی‌گردد؛ حافظهٔ شیء بعداً توسط <bdi>GC</bdi> بازیابی می‌شود.</div></details></div><div class="lesson-quiz"><h3>سؤال مرور</h3><p>چرا اجرای <code>GC.Collect()</code> مشکل یک کش استاتیک بدون محدودیت را حل نمی‌کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون کش هنوز به اشیا ارجاع دارد و آن‌ها قابل‌دسترسی‌اند؛ باید سیاست محدودسازی یا حذف داده‌ها اصلاح شود.</div></details></div><div class="lesson-quiz"><h3>سؤال مرور</h3><p>در صورت پرتاب Exception از داخل <code>await using</code>، تکلیف منبع چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>هنگام خروج از محدودهٔ مربوط، <code>DisposeAsync</code> فراخوانی و <code>await</code> می‌شود؛ سپس استثنا به بیرون منتقل می‌شود، مگر اینکه خود آزادسازی نیز خطا بدهد.</div></details></div><div class="lesson-quiz"><h3>سؤال مرور</h3><p>چرا نباید برای هر درخواست یک <code>HttpClient</code> مستقل ساخت و بلافاصله آزاد کرد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>این کار می‌تواند بهره‌وری اتصال‌ها را کم کند و مشکلاتی مانند فشار بر سوکت‌ها ایجاد کند؛ در سرویس‌های معمول، استفاده از <code>IHttpClientFactory</code> یا یک کلاینت با طول‌عمر مناسب ارجح است.</div></details></div><div class="lesson-quiz"><h3>سؤال مرور</h3><p>سه کلمهٔ کلیدی برای توضیح تفاوت GC و IDisposable در مصاحبه چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div><bdi>GC</bdi>: بازیابی حافظه و زمان نامعین. <bdi>IDisposable</bdi>: قرارداد آزادسازی منابع با زمان قابل‌کنترل. <bdi>using</bdi>: سازوکار تضمین فراخوانی Dispose هنگام خروج از محدوده.</div></details></div>
+       <p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p>
+    </section></div>
+        <footer class="study-source" aria-label="منابع مطالعه">
+          <h2>منابع و روش تدوین جزوه</h2>
+          <p>ساختار صفحه، نوار کناری و بخش‌های کد بر اساس قالب HTML و CSS ارسالی طراحی شده‌اند؛ محتوای درس‌های ۱ تا ۷ از آموزش همین گفتگو بازنویسی و تکمیل شده و درس‌های ۸ تا ۱۲ محتوای تکمیلی برای پوشش مسیر پیشنهادی‌اند.</p>
+          <p>برای بررسی فنی و مطالعهٔ بیشتر از مستندات رسمی دات‌نت استفاده شده است: <a href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/fundamentals" target="_blank" rel="noopener noreferrer">آشنایی با جمع‌آوری حافظه</a>، <a href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose" target="_blank" rel="noopener noreferrer">راهنمای پیاده‌سازی Dispose</a>، <a href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-disposeasync" target="_blank" rel="noopener noreferrer">آزادسازی غیرهم‌زمان</a>، <a href="https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern" target="_blank" rel="noopener noreferrer">الگوی Dispose</a>، <a href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/large-object-heap" target="_blank" rel="noopener noreferrer">حافظهٔ LOH</a>، <a href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/induced" target="_blank" rel="noopener noreferrer">جمع‌آوری القایی</a>، <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-counters" target="_blank" rel="noopener noreferrer">ابزار dotnet-counters</a>، <a href="https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-gcdump" target="_blank" rel="noopener noreferrer">ابزار dotnet-gcdump</a>.</p>
+          <p>نکته: تمام کدها آموزشی‌اند؛ در برنامهٔ واقعی به مالکیت منابع، نسخهٔ .NET، خطاها، هم‌زمانی و سیاست عملیاتی پروژه توجه کن.</p>
+          <a href="#course-title">بازگشت به ابتدای جزوه ↑</a>
+        </footer>
+      </article>
+    </main>
+  </div>
+  <footer class="course-footer"><span>آکادمی دات‌نت · دورهٔ مدیریت حافظه و منابع</span><a href="../../topics/">بازگشت به آموزش‌های موضوعی</a></footer>
+  <script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const menuToggle = document.querySelector('[data-course-menu-toggle]');
+  const setTheme = theme => {
+    root.dataset.theme = theme;
+    toggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+    toggle?.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
+  };
+  setTheme(root.dataset.theme || 'light');
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('dotnet-academy-theme', next); } catch (_) {}
+  });
+  menuToggle?.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+    menuToggle.setAttribute('aria-expanded', String(document.body.classList.contains('menu-open')));
+  });
+  document.querySelectorAll('.course-sidebar a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  }));
+  document.querySelectorAll('.copy-code').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const val = btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+      if (!val) return;
+      try {
+        await navigator.clipboard.writeText(val);
+        btn.textContent = 'کپی شد';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      } catch (_) {
+        const textArea = document.createElement('textarea');
+        textArea.value = val;
+        document.body.append(textArea);
+        textArea.select();
+        const success = document.execCommand('copy');
+        textArea.remove();
+        btn.textContent = success ? 'کپی شد' : 'کپی ناموفق';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      }
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const links = [...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+    const index = Object.fromEntries(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        index[entry.target.id]?.classList.add('active');
+      }
+    }, {rootMargin:'-18% 0px -70% 0px', threshold:0});
+    document.querySelectorAll('.lesson-section').forEach(el => observer.observe(el));
+  }
+})();
+
+</script>
+</body>
+</html>

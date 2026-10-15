@@ -7,13 +7,15 @@
   <title>سوالات مصاحبه | آکادمی دات‌نت</title>
   <script>
     (() => {
-      let storedHomeTheme = null;
-      try { storedHomeTheme = localStorage.getItem('dotnet-academy-home-theme'); } catch (_) {}
-      document.documentElement.dataset.homeTheme = storedHomeTheme === 'classic' ? 'classic' : 'modern';
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=20260928">
-  <script src="../home-theme.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20261015">
+  <script src="../script.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#collections">پرش به مجموعه‌ها</a>
@@ -21,15 +23,15 @@
     <div class="header-inner">
       <a class="brand" href="../index.html">آکادمی دات‌نت</a>
       <div class="header-actions">
-        <button id="home-theme-toggle" class="home-theme-toggle" type="button" aria-label="فعال‌کردن تم کلاسیک صفحهٔ اصلی" title="فعال‌کردن تم کلاسیک صفحهٔ اصلی" aria-pressed="true">
-          <svg class="theme-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5Z"></path>
-            <path d="M4 9h16M9 9v11"></path>
-            <circle cx="6.5" cy="6.5" r=".5"></circle>
+        <button id="theme-toggle" class="home-theme-toggle theme-toggle" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
           </svg>
-          <span data-home-theme-label>نمای کلاسیک</span>
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.7"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
         </button>
-        <a class="back-link" href="../index.html">بازگشت به صفحهٔ اصلی</a>
       </div>
     </div>
   </header>
@@ -94,10 +96,10 @@
           </div>
           <div>
             <p class="collection-kicker">آمادگی اختصاصی مصاحبه</p>
-            <h3>آمادگی مصاحبه به‌پرداز</h3>
+            <h3>آمادگی مصاحبه</h3>
             <p>تطبیق رزومه با آگهی، سوالات فنی و رفتاری، تمرین کدنویسی و برنامهٔ مرور تا روز مصاحبه.</p>
           </div>
-          <ul class="collection-meta" aria-label="مشخصات آمادگی مصاحبه به‌پرداز">
+          <ul class="collection-meta" aria-label="مشخصات آمادگی مصاحبه">
             <li><strong>۸۴</strong><span>سوال</span></li>
             <li><strong>۱۹</strong><span>بخش</span></li>
             <li><strong>به‌پرداز</strong><span>شرکت</span></li>

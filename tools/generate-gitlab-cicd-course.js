@@ -75,7 +75,7 @@ function renderLanding() {
     <nav class="course-nav" aria-label="ناوبری دوره">
       <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
       <span class="course-name"><bdi>GitLab CI/CD</bdi></span>
-      <a class="back-link" href="../../index.html#courses">بازگشت به دوره‌ها</a>${themeButton}
+      <a class="back-link" href="../../topics/">بازگشت به آموزش‌های موضوعی</a>${themeButton}
     </nav>
   </header>
   <main id="course-content">
@@ -104,7 +104,7 @@ function renderLanding() {
     </section>
   </main>
   <footer class="course-footer">
-    <a href="../../index.html#courses">بازگشت به فهرست دوره‌ها</a>
+    <a href="../../topics/">بازگشت به آموزش‌های موضوعی</a>
     <p>آکادمی دات‌نت؛ آموزش برای کار واقعی</p>
   </footer>
 </body>

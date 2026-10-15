@@ -49,15 +49,19 @@ test('the interview landing presents the Behpardaz preparation collection as a t
   assert.equal((prep.match(/<details class="q">/g) ?? []).length, 84);
 });
 
-test('the interview landing can switch between the same modern and classic themes as home', () => {
+test('the interview landing uses the shared light and dark theme control', () => {
   const landing = fs.readFileSync(landingPath, 'utf8');
   const styles = fs.readFileSync(path.join(interviewRoot, 'styles.css'), 'utf8');
 
-  assert.match(landing, /localStorage\.getItem\('dotnet-academy-home-theme'\)/);
-  assert.match(landing, /dataset\.homeTheme\s*=\s*storedHomeTheme === 'classic' \? 'classic' : 'modern'/);
-  assert.match(landing, /id="home-theme-toggle"/);
-  assert.match(landing, /data-home-theme-label/);
-  assert.match(landing, /<script src="\.\.\/home-theme\.js" defer><\/script>/);
+  assert.match(landing, /localStorage\.getItem\('dotnet-academy-theme'\)/);
+  assert.match(landing, /dataset\.theme\s*=/);
+  assert.match(landing, /id="theme-toggle"/);
+  assert.doesNotMatch(landing, /id="home-theme-toggle"|data-home-theme-label/);
+  assert.match(landing, /theme-icon-moon/);
+  assert.match(landing, /theme-icon-sun/);
+  assert.match(landing, /<script src="\.\.\/script\.js" defer><\/script>/);
+  assert.match(styles, /\[data-theme="light"\]/);
+  assert.match(styles, /\[data-theme="dark"\] \.theme-icon-sun\s*\{\s*display: block/);
   assert.match(styles, /\[data-home-theme="modern"\]/);
   assert.match(styles, /\[data-home-theme="classic"\]\s*\{[^}]*color-scheme:\s*light/);
   assert.match(styles, /\[data-home-theme="classic"\]\s+\.collection-card\s*\{/);
