@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="دوره کامل EF Core و Dapper، N+1، Change Tracker، Concurrency و Migration امن در Production" name="description"/><title>دوره کامل EF Core و Dapper | آکادمی دات‌نت</title><script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script><style>
+:root {
+  color-scheme: light;
+  --surface:#fff; --surface-soft:#fff9f5; --surface-muted:#fff3eb;
+  --ink:#1b2331; --muted:#687486; --line:#e9e5e2;
+  --accent:#c4550b; --accent-strong:#983e08; --accent-light:#fff0e4;
+  --blue:#2f669b; --warning:#9e4c13; --warning-bg:#fff1db;
+  --shadow:0 12px 40px rgba(29,35,44,.065); --code-bg:#14202d; --code-ink:#e8f1f8;
+}
+html[data-theme="dark"] { color-scheme:dark;
+  --surface:#18212c;--surface-soft:#1d2833;--surface-muted:#2e2a2b;
+  --ink:#e5ebf2;--muted:#abb6c6;--line:#344050;
+  --accent:#fa9e59;--accent-strong:#ffb67b;--accent-light:#352a23;
+  --blue:#a0cef0;--warning:#ffd295;--warning-bg:#372b26;
+  --shadow:0 12px 40px rgba(0,0,0,.15);--code-bg:#0e1721;--code-ink:#e7eff8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{margin:0;background:var(--surface);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2;direction:rtl}
+a{color:var(--accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.skip-link{position:absolute;right:1rem;top:-4rem;background:var(--accent);color:white;padding:.3rem .8rem;z-index:99}
+.skip-link:focus{top:.5rem}
+.course-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;box-shadow:0 3px 12px rgba(13,20,25,.03)}
+.course-nav{display:flex;align-items:center;gap:1.1rem;max-width:1460px;min-height:69px;padding:8px clamp(14px,2vw,34px);margin:auto}
+.course-brand{font-weight:900;white-space:nowrap;color:var(--ink);font-size:1.08rem}
+.course-name{font-weight:800;padding-inline-start:1rem;border-inline-start:1px solid var(--line);color:var(--accent-strong)}
+.course-header .back-link{margin-inline-start:auto;font-size:.87rem;color:var(--muted)}
+.course-menu-button,.icon-button{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line);border-radius:.65rem;min-height:38px;cursor:pointer;padding:.2rem .8rem;font-size:.85rem}
+.icon-button{width:40px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none}
+[data-theme="dark"] .theme-icon-moon{display:none}
+[data-theme="dark"] .theme-icon-sun{display:block}
+.lesson-shell{max-width:1460px;display:grid;grid-template-columns:275px minmax(0,1fr);align-items:start;gap:clamp(24px,3.2vw,54px);padding:25px clamp(14px,2vw,34px);margin:0 auto}
+.course-sidebar{position:sticky;top:92px;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--surface-soft);box-shadow:var(--shadow);padding:1.1rem .55rem 1rem}
+.sidebar-heading{display:grid;gap:2px;padding:.55rem .9rem 1.05rem;border-bottom:1px solid var(--line)}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading>strong{font-size:1rem}
+.course-sidebar ol{list-style:none;margin:.7rem 0;padding:0}
+.course-sidebar li a{display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border-radius:.55rem;color:var(--ink);font-size:.86rem;line-height:1.6}
+.course-sidebar li a:hover,.course-sidebar li a.active{background:var(--accent-light);color:var(--accent-strong);text-decoration:none}
+.course-sidebar li a span{min-width:1.55rem;color:var(--accent);font-weight:800;direction:ltr;font-size:.78rem}
+.sidebar-tail{display:block;border-top:1px solid var(--line);margin:.8rem .35rem 0;padding:.7rem;color:var(--muted);font-size:.8rem}
+.lesson-content{min-width:0;max-width:1000px;width:100%;padding-bottom:1rem}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1460px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.gc-hero{margin-block:1rem 2rem;border:1px solid var(--line);border-radius:20px;padding:clamp(1.1rem,3vw,2.2rem);background:linear-gradient(130deg,var(--surface-soft),var(--surface));position:relative;overflow:hidden}
+.gc-hero:before{content:"";position:absolute;pointer-events:none;inset:auto auto -135px -85px;width:300px;height:300px;border-radius:50%;background:var(--accent-light);opacity:.85}
+.gc-hero>*{position:relative}
+.eyebrow,.section-kicker{color:var(--accent-strong);font-size:.8rem;font-weight:850;margin:0}
+.gc-hero h1{font-size:clamp(1.72rem,3.2vw,2.8rem);line-height:1.6;margin:.4rem 0 .8rem;letter-spacing:-.5px}
+.course-lead{font-size:1rem;color:var(--muted);max-width:750px;line-height:2.2}
+.study-meta,.study-actions{display:flex;align-items:center;gap:10px 17px;flex-wrap:wrap;margin-top:1.1rem;font-size:.84rem;color:var(--muted)}
+.study-status{color:var(--accent-strong);background:var(--accent-light);border:1px solid var(--line);font-weight:750;padding:2px 10px;border-radius:10px}
+.study-actions a{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:.32rem .85rem;font-weight:800}
+.study-actions a.button-link{background:var(--accent);color:white;border-color:var(--accent)}
+.lesson-body{display:grid;gap:2rem}
+.lesson-section{border:1px solid var(--line);border-radius:18px;padding:clamp(1.1rem,3vw,2rem);background:var(--surface);box-shadow:0 3px 20px rgba(25,30,35,.025);scroll-margin-top:92px}
+.lesson-section h2{font-size:clamp(1.32rem,2.4vw,1.75rem);line-height:1.7;margin:.3rem 0 1rem}
+.lesson-section h3{font-size:1.08rem;line-height:1.9;margin:1.45rem 0 .4rem}
+.lesson-section h4{font-size:.96rem;margin:1.2rem 0 .4rem}
+.lesson-section p{margin:.55rem 0 1rem}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{margin:.38rem 0}
+.lesson-section code:not(pre code),.study-source code{font-family:Consolas,"Cascadia Code",monospace;font-size:.89em;background:var(--surface-muted);color:var(--accent-strong);border-radius:5px;padding:.13rem .3rem;unicode-bidi:isolate;direction:ltr;overflow-wrap:anywhere}
+bdi{unicode-bidi:isolate}
+.code-block{border-radius:12px;border:1px solid #314050;margin:1.2rem 0;overflow:hidden;max-width:100%}
+.code-label{display:flex;gap:10px;align-items:center;padding:.48rem .85rem;background:#223344;color:#dbe8f5;font-size:.75rem;direction:rtl}
+.code-label span:nth-child(2){margin-inline-start:auto;color:#b3c6d4}
+.copy-code{color:#e8f1f8;border:1px solid #617486;background:#2a4054;padding:1px 11px;border-radius:7px;cursor:pointer}
+pre{direction:ltr;text-align:left;margin:0;padding:1.15rem 1.1rem;overflow:auto;background:var(--code-bg);color:var(--code-ink);line-height:1.75;font:13.4px/1.75 Consolas,"Cascadia Code",monospace;tab-size:4;max-width:100%}
+pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:inherit}
+.lesson-note,.lesson-warning{border-radius:11px;padding:.85rem 1rem;display:grid;gap:.2rem;margin:1.1rem 0;border:1px solid var(--line);background:var(--surface-soft)}
+.lesson-note{border-inline-start:4px solid var(--blue)}
+.lesson-warning{border-inline-start:4px solid var(--warning);background:var(--warning-bg)}
+.lesson-note strong,.lesson-warning strong{font-size:.9rem}
+.lesson-note span,.lesson-warning span{font-size:.88rem;line-height:2;color:var(--muted)}
+.message-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:1.3rem auto;font:12px Consolas,monospace}
+.message-flow span{padding:10px 13px;background:var(--accent-light);border:1px solid var(--line);border-radius:10px;color:var(--accent-strong)}
+.message-flow b{color:var(--accent)}
+.generation-flow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:1.4rem 0;direction:ltr}
+.generation-flow>div{border:1px solid var(--line);border-radius:13px;min-width:140px;display:grid;justify-items:center;padding:16px;background:var(--surface-soft);text-align:center;direction:rtl}
+.generation-flow b{direction:ltr;font-size:1.3rem;color:var(--accent-strong)}
+.generation-flow span{font-size:.73rem;color:var(--muted)}
+.generation-flow i{font-size:.72rem;color:var(--muted);font-style:normal}
+.table-wrap{overflow-x:auto;max-width:100%;margin:1.15rem 0;border:1px solid var(--line);border-radius:12px}
+.diagnostic-table{border-collapse:collapse;width:100%;min-width:510px;font-size:.88rem}
+.diagnostic-table caption{text-align:right;color:var(--muted);font-size:.78rem;padding:.7rem .9rem}
+.diagnostic-table th{background:var(--surface-muted);font-weight:850;text-align:right}
+.diagnostic-table th,.diagnostic-table td{padding:.73rem .88rem;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.9}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.lesson-quiz{border:1px solid var(--line);background:var(--surface-soft);border-radius:12px;padding:.95rem 1.1rem;margin:1.8rem 0 .3rem}
+.lesson-quiz h3{color:var(--accent-strong);font-size:.99rem;margin:0 0 .4rem}
+.lesson-quiz p{margin:.2rem 0 .8rem}
+.lesson-quiz details{margin-top:.75rem}
+.lesson-quiz summary{cursor:pointer;font-size:.89rem;font-weight:800;color:var(--accent-strong);width:max-content;max-width:100%}
+.lesson-quiz details>div{border-top:1px solid var(--line);margin-top:.7rem;padding-top:.75rem;font-size:.9rem}
+.study-source{margin-top:2rem;border-top:1px solid var(--line);padding:1rem .3rem;color:var(--muted);font-size:.88rem}
+.study-source h2{font-size:1.1rem;color:var(--ink)}
+.study-source a{word-break:break-word}
+.course-footer{border-top:1px solid var(--line);padding:1.3rem;display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted);max-width:1460px;margin:auto}
+@media(max-width:1020px){.lesson-shell{grid-template-columns:245px minmax(0,1fr);gap:20px}.course-name{font-size:.9rem}}
+@media(max-width:790px){.lesson-shell{display:block;padding:15px}.course-sidebar{display:none;position:relative;top:auto;max-height:none;margin-bottom:1.15rem}.menu-open .course-sidebar{display:block}.course-menu-button{order:2}.course-header .back-link{display:none}.course-brand{font-size:.95rem}.course-name{font-size:.8rem}.course-nav{gap:.5rem}.icon-button{margin-inline-start:auto}.gc-hero{margin-top:.5rem}.lesson-body{gap:1.1rem}.generation-flow i{width:100%;text-align:center}.lesson-section{padding:1rem}.course-footer{flex-wrap:wrap}}
+@media print{.course-header,.course-sidebar,.copy-code,.study-actions,.skip-link{display:none!important}.lesson-shell{display:block;max-width:none}.lesson-content{max-width:none}.lesson-section{box-shadow:none;break-inside:avoid;padding:.8rem;border-color:#aaa}.lesson-quiz summary{color:#444}html{scroll-behavior:auto}body{background:white;color:black}.gc-hero{background:white}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#111;background:#f3f4f6;border:1px solid #ddd}}
+/* Ensure long code and tables never widen the lesson grid on narrow screens. */
+.lesson-body{min-width:0;grid-template-columns:minmax(0,1fr)}
+.lesson-section{min-width:0}
+
+</style></head><body class="lesson-page gc-page"><a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a><header class="course-header"><nav aria-label="ناوبری آکادمی دات‌نت" class="course-nav"><a class="course-brand" href="../../index.html">آکادمی دات‌نت</a><span class="course-name">EF Core و Dapper</span><button aria-controls="course-sidebar" aria-expanded="false" class="course-menu-button" data-course-menu-toggle="" type="button">فهرست مطالب</button><button aria-label="فعال‌کردن تم تیره" aria-pressed="false" class="icon-button" id="theme-toggle" title="تغییر تم" type="button"><svg aria-hidden="true" class="nav-icon theme-icon-moon" viewbox="0 0 24 24"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg><svg aria-hidden="true" class="nav-icon theme-icon-sun" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button></nav></header>
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../index.html">آکادمی دات‌نت</a><span aria-hidden="true">/</span><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span aria-current="page"><bdi>EF Core و Dapper</bdi></span></nav><div class="lesson-shell"><aside aria-label="فهرست دوره" class="course-sidebar" id="course-sidebar"><div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>آموزش EF Core و Dapper</strong><span>۱۴ درس شامل ۱۳ درس دوره و یک درس تکمیلی</span></div><nav aria-label="فهرست مطالب دوره" id="lessons-list"><ol><li><a href="#nplus1"><span>01</span>مشکل N+1 و Lazy Loading</a></li><li><a href="#query-options"><span>02</span>حل N+1 با Include و AsSplitQuery و Projection</a></li><li><a href="#change-tracker"><span>03</span>Change Tracker و AsNoTracking</a></li><li><a href="#attach-update"><span>04</span>به‌روزرسانی موجودیت Detached با Attach</a></li><li><a href="#entity-states"><span>05</span>وضعیت‌های EntityState</a></li><li><a href="#rowversion"><span>06</span>Optimistic Concurrency با RowVersion</a></li><li><a href="#retry"><span>07</span>مدیریت خطای Concurrency و Retry</a></li><li><a href="#optimistic-pessimistic"><span>08</span>Optimistic و Pessimistic Locking</a></li><li><a href="#deadlock"><span>09</span>Deadlock در SQL Server</a></li><li><a href="#ef-vs-dapper"><span>10</span>مقایسه EF Core و Dapper</a></li><li><a href="#shared-transaction"><span>11</span>تراکنش مشترک EF Core و Dapper</a></li><li><a href="#production-migration"><span>12</span>Migration امن در Production</a></li><li><a href="#zero-downtime"><span>13</span>Rollback و Zero-Downtime Deployment</a></li><li><a href="#cicd-migrations"><span>14</span>تکمیل دوره: Migration در CI/CD و جمع‌بندی</a></li></ol></nav><span class="sidebar-tail">مجموعه آموزشی EF Core، Dapper و SQL Server</span></aside><main class="lesson-content" id="lesson-content"><article aria-label="آموزش EF Core و Dapper" id="course-title"><div class="lesson-body"><section aria-labelledby="nplus1-title" class="lesson-section" data-source-section="1" id="nplus1"><p class="section-kicker">درس 1 · آموزش و تمرین</p><h2 id="nplus1-title">مشکل N+1 و Lazy Loading</h2><p>در سیستم پرداخت، دریافت مشتریان و سپس تراکنش‌های هر مشتری می‌تواند تعداد بسیار زیادی دستور SQL ایجاد کند.</p><h3>سناریوی مشتریان و تراکنش‌ها</h3><p>فرض کن ۵۰۰ مشتری داریم. ابتدا فهرست مشتریان دریافت می‌شود و سپس به مجموعه تراکنش‌های هر مشتری دسترسی داریم. اگر <code>Lazy Loading</code> فعال باشد و هیچ مجموعه‌ای قبلاً بارگذاری نشده باشد، برای هر مشتری یک Query جدا اجرا می‌شود.</p><div class="code-block"><div class="code-label"><span>نمونه مشکل N+1</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var customers = await db.Customers.ToListAsync();
+foreach (var customer in customers)
+{
+    Console.WriteLine(customer.Transactions.Count);
+}</code></pre></div><div class="code-block"><div class="code-label"><span>دستورات معادل تقریبی</span><span dir="ltr">SQL</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>SELECT * FROM Customers;
+SELECT * FROM Transactions WHERE CustomerId = 1;
+SELECT * FROM Transactions WHERE CustomerId = 2;
+-- ... for every customer</code></pre></div><p>در این شرایط، یک درخواست اولیه و ۵۰۰ درخواست بعدی داریم: <strong>۵۰۱ Query</strong>. این مسئله با افزایش رفت‌وبرگشت شبکه و فشار دیتابیس موجب افت کارایی می‌شود.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>این سناریو مشروط به فعال بودن Lazy Loading است. در تنظیمات عادی EF Core، بارگذاری تنبل خودکار فعال نیست و باید صریحاً پیکربندی شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 1</h3><p>اگر ۵۰۰ مشتری داشته باشیم و هر مجموعه تراکنش هنگام اولین دسترسی Lazy Load شود، چند Query خواهیم داشت؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>۵۰۱ Query: یک دستور دریافت مشتریان و ۵۰۰ دستور دریافت تراکنش‌ها.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="query-options-title" class="lesson-section" data-source-section="2" id="query-options"><p class="section-kicker">درس 2 · آموزش و تمرین</p><h2 id="query-options-title">حل N+1 با Include و AsSplitQuery و Projection</h2><p>سه راهکار مهم برای کنترل دریافت روابط و تعداد Queryها را با مثال مقایسه می‌کنیم.</p><h3>Include: دریافت موجودیت مرتبط</h3><div class="code-block"><div class="code-label"><span>بارگذاری رابطه</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var customers = await db.Customers
+    .Include(c =&gt; c.Transactions)
+    .ToListAsync();</code></pre></div><p>در حالت پیش‌فرض <code>Single Query</code>، داده‌ها معمولاً در یک Query با JOIN دریافت می‌شوند. با این حال، داده مشتری ممکن است برای هر ردیف تراکنش در نتیجه تکرار شود.</p><h3>AsSplitQuery: چند Query کنترل‌شده</h3><div class="code-block"><div class="code-label"><span>تقسیم به چند Query</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var customers = await db.Customers
+    .Include(c =&gt; c.Transactions)
+    .AsSplitQuery()
+    .ToListAsync();</code></pre></div><p>برای یک مجموعه مرتبط، معمولاً دو Query اجرا می‌شود؛ نه یک Query برای هر مشتری. این روش به‌خصوص زمانی مفید است که چند مجموعه مرتبط باعث بزرگ شدن ضربی نتایج JOIN شوند.</p><h3>Projection: فقط ستون‌های موردنیاز</h3><div class="code-block"><div class="code-label"><span>بهینه برای گزارش تعداد تراکنش‌ها</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var result = await db.Customers
+    .Select(c =&gt; new
+    {
+        c.Id,
+        c.Name,
+        TransactionCount = c.Transactions.Count()
+    })
+    .ToListAsync();</code></pre></div><p>به‌جای بارگذاری همه تراکنش‌ها، شمارش در دیتابیس انجام می‌شود و تنها داده‌های موردنیاز منتقل می‌شوند.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>روش</th><th>زمان استفاده</th><th>ملاحظه</th></tr></thead><tbody><tr><td>Include</td><td>دریافت کامل موجودیت‌های مرتبط</td><td>تکرار داده و حجم JOIN</td></tr><tr><td>AsSplitQuery</td><td>دریافت چند Collection</td><td>رفت‌وبرگشت بیشتر و توجه به سازگاری خواندن</td></tr><tr><td>Projection</td><td>گزارش و خروجی سبک API</td><td>فقط خروجی انتخاب‌شده در دسترس است</td></tr></tbody></table></div><aside class="lesson-note"><strong>نکته مهم</strong><span>برای فهرست‌های بزرگ، Pagination نیز مهم است. Projection به‌تنهایی جای صفحه‌بندی و ایندکس مناسب را نمی‌گیرد.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 2</h3><p>برای نمایش فقط نام مشتری و تعداد تراکنش‌های ۱۰ هزار مشتری کدام روش مناسب‌تر است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>Projection با Select و Count؛ زیرا نیازی به دریافت تمام تراکنش‌ها نیست.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="change-tracker-title" class="lesson-section" data-source-section="3" id="change-tracker"><p class="section-kicker">درس 3 · آموزش و تمرین</p><h2 id="change-tracker-title">Change Tracker و AsNoTracking</h2><p>EF Core موجودیت‌های ردیابی‌شده را برای تشخیص و ذخیره تغییرات نگهداری می‌کند.</p><h3>Change Tracker چگونه عمل می‌کند؟</h3><div class="code-block"><div class="code-label"><span>ردیابی پیش‌فرض</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var customer = await db.Customers.FirstAsync(c =&gt; c.Id == 1);
+customer.Name = "Hamed";
+await db.SaveChangesAsync();</code></pre></div><p>موجودیت دریافت‌شده به‌طور پیش‌فرض ردیابی می‌شود؛ در هنگام ذخیره، تغییر نام تشخیص داده شده و UPDATE مربوطه اجرا می‌شود.</p><h3>خواندن بدون ردیابی</h3><div class="code-block"><div class="code-label"><span>AsNoTracking</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var payment = await db.Payments
+    .AsNoTracking()
+    .FirstAsync(x =&gt; x.Id == 100);
+payment.Status = "Completed";
+await db.SaveChangesAsync();</code></pre></div><p>در این مثال و با فرض نبود تغییرات ردیابی‌شده دیگر، UPDATE اجرا نمی‌شود؛ زیرا شیء <code>payment</code> زیر نظر Change Tracker نیست.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>AsNoTracking اغلب برای سناریوهای فقط‌خواندنی مصرف حافظه و سربار ردیابی را کاهش می‌دهد. با این حال در سناریوهایی که Identity Resolution مهم است، باید نوع Query بررسی شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 3</h3><p>بعد از تغییر یک موجودیت AsNoTracking و اجرای SaveChangesAsync بدون Attach چه اتفاقی می‌افتد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>تغییر آن شیء به‌صورت خودکار در دیتابیس ذخیره نمی‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="attach-update-title" class="lesson-section" data-source-section="4" id="attach-update"><p class="section-kicker">درس 4 · آموزش و تمرین</p><h2 id="attach-update-title">به‌روزرسانی موجودیت Detached با Attach</h2><p>وقتی موجودیت را بدون ردیابی خوانده‌ایم، می‌توانیم فقط ویژگی موردنظر را برای UPDATE مشخص کنیم.</p><div class="code-block"><div class="code-label"><span>Attach و تنظیم فیلد تغییرکرده</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>db.Payments.Attach(payment);
+db.Entry(payment)
+    .Property(p =&gt; p.Status)
+    .IsModified = true;
+await db.SaveChangesAsync();</code></pre></div><p>با <code>Attach</code> موجودیت وارد ردیابی می‌شود و با <code>IsModified</code> تنها ستون مشخص‌شده برای UPDATE علامت‌گذاری می‌شود.</p><h3>مقایسه با Update</h3><div class="code-block"><div class="code-label"><span>Update کل موجودیت</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>db.Payments.Update(payment);
+await db.SaveChangesAsync();</code></pre></div><p>برای موجودیت ساده و جداشده، روش Update معمولاً همه خصوصیات قابل‌به‌روزرسانی را Modified می‌کند. این می‌تواند به بازنویسی ناخواسته ستون‌های دیگر منجر شود.</p><aside class="lesson-warning"><strong>احتیاط در محیط عملیاتی</strong><span>پیش از Attach، به وضعیت Entity مشابه در همان DbContext توجه کن؛ ردیابی هم‌زمان دو نمونه با کلید یکسان می‌تواند خطا ایجاد کند. در سیستم مالی، Idempotency و کنترل دسترسی نیز ضروری‌اند.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 4</h3><p>برای تغییر فقط ستون Status در یک موجودیت Detached، کدام روش دقیق‌تر است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>Attach سپس تعیین IsModified برای Status.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="entity-states-title" class="lesson-section" data-source-section="5" id="entity-states"><p class="section-kicker">درس 5 · آموزش و تمرین</p><h2 id="entity-states-title">وضعیت‌های EntityState</h2><p>هر موجودیت ردیابی‌شده وضعیت مشخصی دارد که تعیین می‌کند هنگام ذخیره چه عملی انجام شود.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>وضعیت</th><th>رفتار هنگام SaveChanges</th></tr></thead><tbody><tr><td>Added</td><td>INSERT</td></tr><tr><td>Modified</td><td>UPDATE</td></tr><tr><td>Deleted</td><td>DELETE</td></tr><tr><td>Unchanged</td><td>بدون عملیات تغییر</td></tr><tr><td>Detached</td><td>خارج از ردیابی</td></tr></tbody></table></div><div class="code-block"><div class="code-label"><span>بعد از Insert موفق</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var payment = new Payment { Amount = 100000, Status = "Pending" };
+db.Payments.Add(payment);
+Console.WriteLine(db.Entry(payment).State); // Added
+await db.SaveChangesAsync();
+Console.WriteLine(db.Entry(payment).State); // Unchanged</code></pre></div><div class="code-block"><div class="code-label"><span>شناسایی تغییر</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var payment = await db.Payments.FirstAsync(x =&gt; x.Id == 100);
+payment.Status = "Completed";
+db.ChangeTracker.DetectChanges();
+Console.WriteLine(db.Entry(payment).State); // Modified</code></pre></div><p>پس از SaveChanges موفق در رفتار پیش‌فرض، وضعیت یک موجودیت Added به Unchanged تبدیل می‌شود.</p><div class="lesson-quiz"><h3>سؤال مرور درس 5</h3><p>وضعیت Entity بعد از Add و SaveChangesAsync موفق چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>Unchanged؛ تغییر ذخیره شده و موجودیت همچنان ردیابی می‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="rowversion-title" class="lesson-section" data-source-section="6" id="rowversion"><p class="section-kicker">درس 6 · آموزش و تمرین</p><h2 id="rowversion-title">Optimistic Concurrency با RowVersion</h2><p>برای جلوگیری از Lost Update، نسخه رکورد را هنگام به‌روزرسانی بررسی می‌کنیم.</p><h3>سناریوی رقابت دو برداشت</h3><p>اگر دو درخواست موجودی ۱۰۰ هزار تومان را بخوانند، درخواست A مبلغ ۸۰ هزار و B مبلغ ۵۰ هزار برداشت کند، ذخیره بدون کنترل نسخه ممکن است اثر یکی از درخواست‌ها را بازنویسی کند.</p><div class="code-block"><div class="code-label"><span>مدل حساب</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>public class Account
+{
+    public int Id { get; set; }
+    public decimal Balance { get; set; }
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = null!;
+}</code></pre></div><div class="code-block"><div class="code-label"><span>SQL مفهومی نسخه‌دار</span><span dir="ltr">SQL</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>UPDATE Accounts
+SET Balance = @Balance
+WHERE Id = @Id AND RowVersion = @OriginalRowVersion;</code></pre></div><p>اگر نسخه رکورد تغییر کرده باشد، صفر ردیف تحت تأثیر قرار می‌گیرد و EF Core در به‌روزرسانی معمولی ردیابی‌شده خطای <code>DbUpdateConcurrencyException</code> می‌دهد.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>در SQL Server ستون rowversion مقدار عددی تجاری نیست؛ مقدار باینری تولیدشده به‌وسیله دیتابیس است.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 6</h3><p>اگر A با نسخه ۱ ذخیره کند و نسخه به ۲ تغییر کند، B با نسخه ۱ چه خطایی دریافت می‌کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>DbUpdateConcurrencyException، زیرا شرط نسخه قبلی دیگر برقرار نیست.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="retry-title" class="lesson-section" data-source-section="7" id="retry"><p class="section-kicker">درس 7 · آموزش و تمرین</p><h2 id="retry-title">مدیریت خطای Concurrency و Retry</h2><p>تکرار عملیات فقط وقتی درست است که اطلاعات جدید دوباره خوانده و قوانین مالی دوباره ارزیابی شوند.</p><div class="code-block"><div class="code-label"><span>الگوی آموزشی تلاش مجدد</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>public async Task&lt;bool&gt; WithdrawAsync(int accountId, decimal amount)
+{
+    for (var attempt = 0; attempt &lt; 3; attempt++)
+    {
+        await using var db = new AppDbContext();
+        var account = await db.Accounts.FirstAsync(a =&gt; a.Id == accountId);
+        if (account.Balance &lt; amount) return false;
+        account.Balance -= amount;
+        try
+        {
+            await db.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Re-read with a fresh context on next attempt.
+        }
+    }
+    throw new InvalidOperationException("Concurrency retry exhausted");
+}</code></pre></div><p>اگر درخواست A از ۱۰۰ هزار تومان، ۶۰ هزار برداشت کرده باشد، موجودی جدید ۴۰ هزار است. درخواست B با مبلغ ۵۰ هزار پس از بازخوانی باید رد شود.</p><aside class="lesson-warning"><strong>احتیاط در محیط عملیاتی</strong><span>این نمونه تنها کنترل رقابت روی موجودی را نشان می‌دهد. عملیات مالی واقعی باید همراه با Ledger، تراکنش اتمیک و کلید Idempotency طراحی شود؛ Retry نباید برداشت تکراری ایجاد کند.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 7</h3><p>اگر پس از برداشت ۶۰ هزار، موجودی ۴۰ هزار باشد، برداشت مجدد ۵۰ هزار چه نتیجه‌ای دارد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>رد می‌شود؛ چون موجودی جدید کافی نیست.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="optimistic-pessimistic-title" class="lesson-section" data-source-section="8" id="optimistic-pessimistic"><p class="section-kicker">درس 8 · آموزش و تمرین</p><h2 id="optimistic-pessimistic-title">Optimistic و Pessimistic Locking</h2><p>دو شیوه کنترل هم‌زمانی با هزینه‌ها و رفتارهای متفاوت.</p><h3>Optimistic</h3><p>هنگام خواندن، قفل طولانی‌مدت محافظت‌کننده از تغییر دیگران نگه نمی‌داریم؛ تعارض در زمان ذخیره با RowVersion تشخیص داده می‌شود.</p><h3>Pessimistic</h3><div class="code-block"><div class="code-label"><span>نمونه SQL با قفل خواندن</span><span dir="ltr">SQL</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>BEGIN TRANSACTION;
+SELECT Balance
+FROM Accounts WITH (UPDLOCK, HOLDLOCK)
+WHERE Id = @Id;
+-- Validate and update in the same transaction
+COMMIT TRANSACTION;</code></pre></div><p>در روش Pessimistic، قفل‌ها می‌توانند درخواست‌های دیگر را منتظر نگه دارند. مدت تراکنش، ایندکس‌ها و ترتیب دسترسی اهمیت دارند.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>ویژگی</th><th>Optimistic</th><th>Pessimistic</th></tr></thead><tbody><tr><td>کنترل</td><td>تشخیص تعارض هنگام ذخیره</td><td>قفل‌گذاری</td></tr><tr><td>هزینه رایج</td><td>Conflict و Retry</td><td>Blocking و Deadlock</td></tr><tr><td>کاربرد</td><td>تداخل کم</td><td>کنترل مناسب در تداخل بالا</td></tr></tbody></table></div><p>اگر هزاران درخواست به یک حساب مشترک برسند، تعداد Conflictها و Retryهای Optimistic ممکن است بالا برود.</p><div class="lesson-quiz"><h3>سؤال مرور درس 8</h3><p>وقتی هزاران درخواست هم‌زمان یک رکورد RowVersionدار را تغییر دهند، چه رخ می‌دهد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>معمولاً تعارض‌های هم‌زمانی و تعداد Retryها افزایش پیدا می‌کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="deadlock-title" class="lesson-section" data-source-section="9" id="deadlock"><p class="section-kicker">درس 9 · آموزش و تمرین</p><h2 id="deadlock-title">Deadlock در SQL Server</h2><p>دو تراکنش با قفل‌گیری معکوس ممکن است وارد چرخه انتظار شوند.</p><p>تراکنش اول ابتدا A و سپس B را قفل می‌کند. تراکنش دوم ابتدا B و سپس A را قفل می‌کند. اگر هرکدام قفل اول را نگه دارد و منتظر قفل دوم بماند، Deadlock رخ می‌دهد.</p><div class="code-block"><div class="code-label"><span>دسترسی به منابع با ترتیب ثابت</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>// Conceptual rule:
+// Always lock Account with smaller Id first,
+// then Account with larger Id.</code></pre></div><p>SQL Server معمولاً یکی از تراکنش‌ها را Deadlock Victim انتخاب کرده، آن را Rollback می‌کند و خطای <code>1205</code> را گزارش می‌دهد.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>ترتیب یکسان دسترسی به حساب‌ها، کوتاه نگه داشتن Transaction و Retry محدود همراه Idempotency احتمال مشکل را کم می‌کند؛ تضمین حذف همه Deadlockها نیست.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 9</h3><p>برای کاهش Deadlock میان دو تراکنش که دو حساب را به ترتیب معکوس قفل می‌کنند چه باید کرد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>منابع را در همه تراکنش‌ها با ترتیب یکسان قفل کنیم.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="ef-vs-dapper-title" class="lesson-section" data-source-section="10" id="ef-vs-dapper"><p class="section-kicker">درس 10 · آموزش و تمرین</p><h2 id="ef-vs-dapper-title">مقایسه EF Core و Dapper</h2><p>EF Core یک ORM کامل است؛ Dapper ابزار سبک برای اجرای SQL و نگاشت نتیجه به مدل است.</p><div class="code-block"><div class="code-label"><span>خواندن با EF Core</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var payment = await db.Payments
+    .AsNoTracking()
+    .FirstOrDefaultAsync(p =&gt; p.Id == 100);</code></pre></div><div class="code-block"><div class="code-label"><span>خواندن با Dapper</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>var payment = await connection.QueryFirstOrDefaultAsync&lt;Payment&gt;(
+    "SELECT Id, Amount, Status FROM Payments WHERE Id = @Id",
+    new { Id = 100 });</code></pre></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>قابلیت</th><th>EF Core</th><th>Dapper</th></tr></thead><tbody><tr><td>LINQ و تولید SQL</td><td>بله</td><td>خیر به سبک EF</td></tr><tr><td>Change Tracker</td><td>بله</td><td>خیر</td></tr><tr><td>Migration داخلی</td><td>بله</td><td>خیر</td></tr><tr><td>کنترل مستقیم SQL</td><td>ممکن</td><td>رویکرد اصلی</td></tr><tr><td>سربار نگاشت</td><td>بیشتر در برخی سناریوها</td><td>معمولاً کمتر</td></tr></tbody></table></div><p>برای گزارش پیچیده دارای چند JOIN و GROUP BY، وقتی SQL بهینه‌شده در اختیار داریم، Dapper می‌تواند انتخاب مناسبی باشد. با این حال EF Core نیز از Raw SQL پشتیبانی می‌کند.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>هیچ‌کدام همیشه سریع‌تر نیستند؛ Execution Plan، ایندکس‌ها، حجم خروجی و رفت‌وبرگشت‌ها معمولاً تعیین‌کننده‌ترند.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 10</h3><p>برای اجرای SQL گزارش پیچیده که قبلاً دستی بهینه شده، کدام ابزار می‌تواند مناسب باشد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>Dapper؛ البته EF Core با Raw SQL هم گزینه‌ای معتبر است.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="shared-transaction-title" class="lesson-section" data-source-section="11" id="shared-transaction"><p class="section-kicker">درس 11 · آموزش و تمرین</p><h2 id="shared-transaction-title">تراکنش مشترک EF Core و Dapper</h2><p>می‌توان یک DbConnection و DbTransaction مشترک داشت تا دو عملیات روی یک دیتابیس اتمیک شوند.</p><div class="code-block"><div class="code-label"><span>نمونه ترکیبی ثبت پرداخت و کاهش موجودی</span><span dir="ltr">C#</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>using Dapper;
+using Microsoft.EntityFrameworkCore.Storage;
+
+await db.Database.OpenConnectionAsync();
+var connection = db.Database.GetDbConnection();
+await using var tx = await db.Database.BeginTransactionAsync();
+try
+{
+    db.Payments.Add(new Payment
+    {
+        AccountId = 1, Amount = 50000, Status = "Completed"
+    });
+    await db.SaveChangesAsync();
+
+    var rows = await connection.ExecuteAsync(
+        """
+        UPDATE Accounts SET Balance = Balance - @Amount
+        WHERE Id = @AccountId AND Balance &gt;= @Amount
+        """,
+        new { AccountId = 1, Amount = 50000 },
+        transaction: tx.GetDbTransaction());
+    if (rows != 1)
+        throw new InvalidOperationException("Insufficient balance");
+    await tx.CommitAsync();
+}
+catch
+{
+    await tx.RollbackAsync();
+    throw;
+}</code></pre></div><p>اجرای SaveChangesAsync داخل Transaction به معنی Commit نهایی نیست. اگر Dapper خطا دهد و Rollback موفق اجرا شود، ثبت پرداخت هم برگردانده می‌شود.</p><aside class="lesson-warning"><strong>احتیاط در محیط عملیاتی</strong><span>این کد برای نشان دادن تراکنش مشترک است. برای پرداخت واقعی، رکورد تکراری، Ledger و مدیریت وضعیت نهایی باید بررسی شوند. این تراکنش محلی بین چند دیتابیس یا سرویس مستقل توزیع نمی‌شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 11</h3><p>اگر EF Core INSERT را انجام دهد ولی Dapper خطا دهد و Rollback اجرا شود، وضعیت INSERT چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>به دلیل یک Transaction مشترک، INSERT نیز Rollback می‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="production-migration-title" class="lesson-section" data-source-section="12" id="production-migration"><p class="section-kicker">درس 12 · آموزش و تمرین</p><h2 id="production-migration-title">Migration امن در Production</h2><p>تغییر ساختار جداول بزرگ ممکن است قفل، فشار روی Transaction Log و Timeout ایجاد کند.</p><div class="code-block"><div class="code-label"><span>ایجاد Migration</span><span dir="ltr">Bash</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>dotnet ef migrations add AddPaymentReferenceCode
+dotnet ef database update</code></pre></div><h3>الگوی Expand and Contract</h3><div class="code-block"><div class="code-label"><span>مرحله Expand</span><span dir="ltr">SQL</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>ALTER TABLE Payments
+ADD ReferenceCode NVARCHAR(50) NULL;</code></pre></div><p>ابتدا ستون Nullable اضافه می‌شود تا نسخه قدیمی برنامه همچنان قابل اجرا بماند. سپس نسخه جدید منتشر می‌شود و داده‌های قدیمی به‌صورت Batch تکمیل می‌شوند.</p><div class="code-block"><div class="code-label"><span>مرحله Contract</span><span dir="ltr">SQL</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>ALTER TABLE Payments
+ALTER COLUMN ReferenceCode NVARCHAR(50) NOT NULL;</code></pre></div><p>محدودیت NOT NULL فقط پس از تکمیل داده‌ها، تأیید سازگاری و بررسی اثر قفل‌گذاری اعمال می‌شود.</p><div class="code-block"><div class="code-label"><span>اسکریپت قابل بررسی قبل از استقرار</span><span dir="ltr">Bash</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>dotnet ef migrations script --idempotent -o migration.sql</code></pre></div><aside class="lesson-note"><strong>نکته مهم</strong><span>Idempotent بودن اسکریپت، فقط اعمال‌شدن Migrationهای اجرا‌نشده را بر اساس تاریخچه مدیریت می‌کند؛ به معنی بدون‌ریسک یا بدون‌قطعی بودن تغییر نیست.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 12</h3><p>برای افزودن ستون اجباری به جدول ۵۰ میلیون رکوردی، چه روشی مناسب‌تر است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>افزودن Nullable، تکمیل مرحله‌ای داده و سپس اعمال NOT NULL با بررسی ریسک قفل‌ها.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="zero-downtime-title" class="lesson-section" data-source-section="13" id="zero-downtime"><p class="section-kicker">درس 13 · آموزش و تمرین</p><h2 id="zero-downtime-title">Rollback و Zero-Downtime Deployment</h2><p>در زمان استقرار تدریجی، نسخه قدیمی و جدید برنامه ممکن است هم‌زمان به دیتابیس متصل باشند.</p><h3>مشکل تغییر نام مستقیم ستون</h3><div class="code-block"><div class="code-label"><span>تغییر نام پرریسک</span><span dir="ltr">SQL</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>EXEC sp_rename
+    'Payments.Amount',
+    'PaymentAmount',
+    'COLUMN';</code></pre></div><p>اگر نسخه جدید منتشر شود و سپس بخواهیم نسخه قبلی را برگردانیم، برنامه قدیمی هنوز ستون Amount را انتظار دارد و ممکن است خطا بدهد.</p><h3>روش سازگار با نسخه قبل</h3><div class="code-block"><div class="code-label"><span>افزودن به‌جای حذف فوری</span><span dir="ltr">SQL</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>ALTER TABLE Payments
+ADD PaymentAmount DECIMAL(18,2) NULL;</code></pre></div><p>نسخه جدید باید برای دوره انتقال با هر دو ساختار سازگار باشد؛ در صورت نیاز Dual Write و Backfill اجرا شود. حذف ستون قدیمی فقط پس از خروج همه نسخه‌های وابسته انجام شود.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>مفهوم</th><th>معنا</th></tr></thead><tbody><tr><td>Application Rollback</td><td>بازگرداندن نسخه برنامه</td></tr><tr><td>Database Rollback</td><td>برگرداندن تغییرات دیتابیس؛ همیشه امن نیست</td></tr><tr><td>Backward Compatibility</td><td>سازگاری ساختار دیتابیس با نسخه‌های فعال</td></tr><tr><td>Zero-Downtime</td><td>استقرار همراه حفظ دسترس‌پذیری با طراحی صحیح</td></tr></tbody></table></div><aside class="lesson-note"><strong>نکته مهم</strong><span>Readiness Probe، مدیریت درخواست‌های در جریان و انتشار تدریجی نیز از اجزای مهم استقرار بدون قطعی هستند.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 13</h3><p>بعد از حذف ستون Amount و بازگشت به نسخه قدیمی چه مشکلی ممکن است ایجاد شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>نسخه قدیمی خطا می‌دهد چون ستون Amount دیگر وجود ندارد.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="cicd-migrations-title" class="lesson-section" data-source-section="14" id="cicd-migrations"><p class="section-kicker">درس 14 · آموزش و تمرین</p><h2 id="cicd-migrations-title">تکمیل دوره: Migration در CI/CD و جمع‌بندی</h2><p>این درس تکمیلی، موضوع وعده‌داده‌شده بعد از درس ۱۳ را پوشش می‌دهد.</p><h3>الگوی پیشنهادی استقرار</h3><p>در CI، Migration تولید و اسکریپت SQL ساخته می‌شود. در CD، اسکریپت مرور، در محیط مشابه Production آزمایش، و سپس در یک مرحله کنترل‌شده اجرا می‌شود. پس از آماده بودن دیتابیس، نسخه سازگار برنامه به‌تدریج منتشر می‌شود.</p><div class="code-block"><div class="code-label"><span>تولید اسکریپت</span><span dir="ltr">Bash</span><button class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>dotnet ef migrations script --idempotent --output migration.sql</code></pre></div><h3>چک‌لیست عملیاتی</h3><p>قبل از اجرا، زمان اجرای تغییر، قفل‌های Schema، استفاده از CPU و I/O، Transaction Log، ظرفیت دیسک، Backup قابل‌بازیابی و روش توقف یا اصلاح را بررسی کن.</p><p>در استقرار با چند Replica، معمولاً Migration را به‌عنوان یک مرحله جداگانه و کنترل‌شده اجرا می‌کنیم، نه هم‌زمان هنگام Startup همه Replicaها.</p><h3>جمع‌بندی پنج موضوع تصویر</h3><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>موضوع</th><th>نکته کلیدی</th></tr></thead><tbody><tr><td>N+1</td><td>کنترل تعداد Queryها با Include، SplitQuery یا Projection</td></tr><tr><td>Change Tracker</td><td>تشخیص تغییرات و استفاده آگاهانه از AsNoTracking</td></tr><tr><td>Concurrency</td><td>RowVersion، بررسی تعارض و Retry امن</td></tr><tr><td>EF Core و Dapper</td><td>انتخاب بر اساس Query، نیاز به ORM و Performance</td></tr><tr><td>Production Migration</td><td>Expand/Contract، سازگاری نسخه‌ها و بازبینی SQL</td></tr></tbody></table></div><aside class="lesson-warning"><strong>احتیاط در محیط عملیاتی</strong><span>برای تغییرات مخرب یا سنگین، صرفاً به Down Migration تکیه نکن؛ به برنامه بازیابی داده‌ها و سازگاری نسخه‌های برنامه نیاز داری.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 14</h3><p>آیا بهتر است همه Replicaهای سرویس در Startup خودشان Migration را اجرا کنند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر؛ معمولاً اجرای مرحله‌ای و کنترل‌شده در فرایند Deploy امن‌تر و قابل ممیزی‌تر است.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section class="lesson-section" id="final-summary"><p class="section-kicker">پایان دوره</p><h2>راهنمای تصمیم‌گیری در پروژه واقعی</h2><p>برای Queryهای خواندنی ابتدا Projection و AsNoTracking را ارزیابی کن؛ برای تغییر داده‌های رقابتی از کنترل هم‌زمانی و قواعد تجاری مناسب استفاده کن؛ برای عملیات چندگانه در یک دیتابیس از Transaction واحد کمک بگیر؛ و برای تغییر ساختار دیتابیس، سازگاری نسخه‌ها را قبل از انتشار بررسی کن.</p><p>برای تمرین مصاحبه، بتوانی توضیح بدهی چرا N+1 رخ می‌دهد، چرا SaveChangesAsync بدون Change Tracker یک شیء Detached را تغییر نمی‌دهد، چرا Retry بدون بازخوانی خطرناک است و چرا Rollback برنامه الزاماً Rollback دیتابیس نیست.</p></section></div><footer class="study-source"><h2>منابع و نکته‌های پایانی</h2><p>این جزوه از سرفصل‌ها و مثال‌های همین گفت‌وگوی آموزشی گردآوری شده و در قالب فایل پیوست طراحی شده است. درس ۱۴ به‌عنوان تکمیل وعده آموزشی انتهای درس ۱۳ افزوده شده است.</p><p>برای مطالعه بیشتر: <a href="https://learn.microsoft.com/en-us/ef/core/querying/related-data/" rel="noopener noreferrer" target="_blank">بارگذاری داده‌های مرتبط</a>، <a href="https://learn.microsoft.com/en-us/ef/core/change-tracking/" rel="noopener noreferrer" target="_blank">Change Tracking</a>، <a href="https://learn.microsoft.com/en-us/ef/core/saving/concurrency" rel="noopener noreferrer" target="_blank">Concurrency</a> و <a href="https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying" rel="noopener noreferrer" target="_blank">اعمال Migration</a>.</p><a href="#course-title">بازگشت به ابتدای جزوه ↑</a></footer></article></main></div><footer class="course-footer"><span>آکادمی دات‌نت · EF Core و Dapper</span><a href="../../topics/">بازگشت به آموزش‌های موضوعی</a></footer><script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const menuToggle = document.querySelector('[data-course-menu-toggle]');
+  const setTheme = theme => {
+    root.dataset.theme = theme;
+    toggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+    toggle?.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
+  };
+  setTheme(root.dataset.theme || 'light');
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('dotnet-academy-theme', next); } catch (_) {}
+  });
+  menuToggle?.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+    menuToggle.setAttribute('aria-expanded', String(document.body.classList.contains('menu-open')));
+  });
+  document.querySelectorAll('.course-sidebar a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  }));
+  document.querySelectorAll('.copy-code').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const val = btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+      if (!val) return;
+      try {
+        await navigator.clipboard.writeText(val);
+        btn.textContent = 'کپی شد';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      } catch (_) {
+        const textArea = document.createElement('textarea');
+        textArea.value = val;
+        document.body.append(textArea);
+        textArea.select();
+        const success = document.execCommand('copy');
+        textArea.remove();
+        btn.textContent = success ? 'کپی شد' : 'کپی ناموفق';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      }
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const links = [...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+    const index = Object.fromEntries(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        index[entry.target.id]?.classList.add('active');
+      }
+    }, {rootMargin:'-18% 0px -70% 0px', threshold:0});
+    document.querySelectorAll('.lesson-section').forEach(el => observer.observe(el));
+  }
+})();
+
+</script></body></html>
