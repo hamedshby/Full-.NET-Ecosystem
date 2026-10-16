@@ -62,7 +62,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var
 .course-sidebar li a span{min-width:1.55rem;color:var(--accent);font-weight:800;direction:ltr;font-size:.78rem}
 .sidebar-tail{display:block;border-top:1px solid var(--line);margin:.8rem .35rem 0;padding:.7rem;color:var(--muted);font-size:.8rem}
 .lesson-content{min-width:0;max-width:1000px;width:100%;padding-bottom:1rem}
-.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;gap:.7rem;align-items:center;padding:.1rem 0 .65rem}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1460px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
 .gc-hero{margin-block:1rem 2rem;border:1px solid var(--line);border-radius:20px;padding:clamp(1.1rem,3vw,2.2rem);background:linear-gradient(130deg,var(--surface-soft),var(--surface));position:relative;overflow:hidden}
 .gc-hero:before{content:"";position:absolute;pointer-events:none;inset:auto auto -135px -85px;width:300px;height:300px;border-radius:50%;background:var(--accent-light);opacity:.85}
 .gc-hero>*{position:relative}
@@ -141,6 +141,7 @@ pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:in
       </button>
     </nav>
   </header>
+  <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html">آکادمی دات‌نت</a><span aria-hidden="true">/</span><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span aria-current="page"><bdi>مدیریت حافظه و منابع در .NET</bdi></span></nav>
   <div class="lesson-shell">
     <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست دوره">
       <div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>مدیریت حافظه با <bdi>.NET</bdi></strong><span>۱۲ درس، از پایه تا مصاحبهٔ Senior</span></div>
@@ -164,7 +165,7 @@ pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:in
     </aside>
     <main id="lesson-content" class="lesson-content">
       <article aria-labelledby="course-title">
-        <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span>مدیریت حافظه و منابع</span></nav>
+
         <section class="gc-hero" aria-labelledby="course-title">
           <p class="eyebrow">آموزش کاربردی مدیریت حافظه در #C</p>
           <h1 id="course-title">یادگیری <bdi>Garbage Collector</bdi>، <bdi>IDisposable</bdi> و <bdi>using</bdi></h1>

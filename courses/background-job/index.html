@@ -1,0 +1,333 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="آموزش کامل ۱۲ درس Background Job در ASP.NET Core، همراه با مثال سیستم پرداخت، کد C# و سؤال‌های مصاحبه"><title>آموزش Background Job در ASP.NET Core | آکادمی دات‌نت</title><script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script><style>
+:root {
+  color-scheme: light;
+  --surface:#fff; --surface-soft:#fff9f5; --surface-muted:#fff3eb;
+  --ink:#1b2331; --muted:#687486; --line:#e9e5e2;
+  --accent:#c4550b; --accent-strong:#983e08; --accent-light:#fff0e4;
+  --blue:#2f669b; --warning:#9e4c13; --warning-bg:#fff1db;
+  --shadow:0 12px 40px rgba(29,35,44,.065); --code-bg:#14202d; --code-ink:#e8f1f8;
+}
+html[data-theme="dark"] { color-scheme:dark;
+  --surface:#18212c;--surface-soft:#1d2833;--surface-muted:#2e2a2b;
+  --ink:#e5ebf2;--muted:#abb6c6;--line:#344050;
+  --accent:#fa9e59;--accent-strong:#ffb67b;--accent-light:#352a23;
+  --blue:#a0cef0;--warning:#ffd295;--warning-bg:#372b26;
+  --shadow:0 12px 40px rgba(0,0,0,.15);--code-bg:#0e1721;--code-ink:#e7eff8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{margin:0;background:var(--surface);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2;direction:rtl}
+a{color:var(--accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.skip-link{position:absolute;right:1rem;top:-4rem;background:var(--accent);color:white;padding:.3rem .8rem;z-index:99}
+.skip-link:focus{top:.5rem}
+.course-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;box-shadow:0 3px 12px rgba(13,20,25,.03)}
+.course-nav{display:flex;align-items:center;gap:1.1rem;max-width:1460px;min-height:69px;padding:8px clamp(14px,2vw,34px);margin:auto}
+.course-brand{font-weight:900;white-space:nowrap;color:var(--ink);font-size:1.08rem}
+.course-name{font-weight:800;padding-inline-start:1rem;border-inline-start:1px solid var(--line);color:var(--accent-strong)}
+.course-header .back-link{margin-inline-start:auto;font-size:.87rem;color:var(--muted)}
+.course-menu-button,.icon-button{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line);border-radius:.65rem;min-height:38px;cursor:pointer;padding:.2rem .8rem;font-size:.85rem}
+.icon-button{width:40px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none}
+[data-theme="dark"] .theme-icon-moon{display:none}
+[data-theme="dark"] .theme-icon-sun{display:block}
+.lesson-shell{max-width:1460px;display:grid;grid-template-columns:275px minmax(0,1fr);align-items:start;gap:clamp(24px,3.2vw,54px);padding:25px clamp(14px,2vw,34px);margin:0 auto}
+.course-sidebar{position:sticky;top:92px;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--surface-soft);box-shadow:var(--shadow);padding:1.1rem .55rem 1rem}
+.sidebar-heading{display:grid;gap:2px;padding:.55rem .9rem 1.05rem;border-bottom:1px solid var(--line)}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading>strong{font-size:1rem}
+.course-sidebar ol{list-style:none;margin:.7rem 0;padding:0}
+.course-sidebar li a{display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border-radius:.55rem;color:var(--ink);font-size:.86rem;line-height:1.6}
+.course-sidebar li a:hover,.course-sidebar li a.active{background:var(--accent-light);color:var(--accent-strong);text-decoration:none}
+.course-sidebar li a span{min-width:1.55rem;color:var(--accent);font-weight:800;direction:ltr;font-size:.78rem}
+.sidebar-tail{display:block;border-top:1px solid var(--line);margin:.8rem .35rem 0;padding:.7rem;color:var(--muted);font-size:.8rem}
+.lesson-content{min-width:0;max-width:1000px;width:100%;padding-bottom:1rem}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1460px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.gc-hero{margin-block:1rem 2rem;border:1px solid var(--line);border-radius:20px;padding:clamp(1.1rem,3vw,2.2rem);background:linear-gradient(130deg,var(--surface-soft),var(--surface));position:relative;overflow:hidden}
+.gc-hero:before{content:"";position:absolute;pointer-events:none;inset:auto auto -135px -85px;width:300px;height:300px;border-radius:50%;background:var(--accent-light);opacity:.85}
+.gc-hero>*{position:relative}
+.eyebrow,.section-kicker{color:var(--accent-strong);font-size:.8rem;font-weight:850;margin:0}
+.gc-hero h1{font-size:clamp(1.72rem,3.2vw,2.8rem);line-height:1.6;margin:.4rem 0 .8rem;letter-spacing:-.5px}
+.course-lead{font-size:1rem;color:var(--muted);max-width:750px;line-height:2.2}
+.study-meta,.study-actions{display:flex;align-items:center;gap:10px 17px;flex-wrap:wrap;margin-top:1.1rem;font-size:.84rem;color:var(--muted)}
+.study-status{color:var(--accent-strong);background:var(--accent-light);border:1px solid var(--line);font-weight:750;padding:2px 10px;border-radius:10px}
+.study-actions a{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:.32rem .85rem;font-weight:800}
+.study-actions a.button-link{background:var(--accent);color:white;border-color:var(--accent)}
+.lesson-body{display:grid;gap:2rem}
+.lesson-section{border:1px solid var(--line);border-radius:18px;padding:clamp(1.1rem,3vw,2rem);background:var(--surface);box-shadow:0 3px 20px rgba(25,30,35,.025);scroll-margin-top:92px}
+.lesson-section h2{font-size:clamp(1.32rem,2.4vw,1.75rem);line-height:1.7;margin:.3rem 0 1rem}
+.lesson-section h3{font-size:1.08rem;line-height:1.9;margin:1.45rem 0 .4rem}
+.lesson-section h4{font-size:.96rem;margin:1.2rem 0 .4rem}
+.lesson-section p{margin:.55rem 0 1rem}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{margin:.38rem 0}
+.lesson-section code:not(pre code),.study-source code{font-family:Consolas,"Cascadia Code",monospace;font-size:.89em;background:var(--surface-muted);color:var(--accent-strong);border-radius:5px;padding:.13rem .3rem;unicode-bidi:isolate;direction:ltr;overflow-wrap:anywhere}
+bdi{unicode-bidi:isolate}
+.code-block{border-radius:12px;border:1px solid #314050;margin:1.2rem 0;overflow:hidden;max-width:100%}
+.code-label{display:flex;gap:10px;align-items:center;padding:.48rem .85rem;background:#223344;color:#dbe8f5;font-size:.75rem;direction:rtl}
+.code-label span:nth-child(2){margin-inline-start:auto;color:#b3c6d4}
+.copy-code{color:#e8f1f8;border:1px solid #617486;background:#2a4054;padding:1px 11px;border-radius:7px;cursor:pointer}
+pre{direction:ltr;text-align:left;margin:0;padding:1.15rem 1.1rem;overflow:auto;background:var(--code-bg);color:var(--code-ink);line-height:1.75;font:13.4px/1.75 Consolas,"Cascadia Code",monospace;tab-size:4;max-width:100%}
+pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:inherit}
+.lesson-note,.lesson-warning{border-radius:11px;padding:.85rem 1rem;display:grid;gap:.2rem;margin:1.1rem 0;border:1px solid var(--line);background:var(--surface-soft)}
+.lesson-note{border-inline-start:4px solid var(--blue)}
+.lesson-warning{border-inline-start:4px solid var(--warning);background:var(--warning-bg)}
+.lesson-note strong,.lesson-warning strong{font-size:.9rem}
+.lesson-note span,.lesson-warning span{font-size:.88rem;line-height:2;color:var(--muted)}
+.message-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:1.3rem auto;font:12px Consolas,monospace}
+.message-flow span{padding:10px 13px;background:var(--accent-light);border:1px solid var(--line);border-radius:10px;color:var(--accent-strong)}
+.message-flow b{color:var(--accent)}
+.generation-flow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:1.4rem 0;direction:ltr}
+.generation-flow>div{border:1px solid var(--line);border-radius:13px;min-width:140px;display:grid;justify-items:center;padding:16px;background:var(--surface-soft);text-align:center;direction:rtl}
+.generation-flow b{direction:ltr;font-size:1.3rem;color:var(--accent-strong)}
+.generation-flow span{font-size:.73rem;color:var(--muted)}
+.generation-flow i{font-size:.72rem;color:var(--muted);font-style:normal}
+.table-wrap{overflow-x:auto;max-width:100%;margin:1.15rem 0;border:1px solid var(--line);border-radius:12px}
+.diagnostic-table{border-collapse:collapse;width:100%;min-width:510px;font-size:.88rem}
+.diagnostic-table caption{text-align:right;color:var(--muted);font-size:.78rem;padding:.7rem .9rem}
+.diagnostic-table th{background:var(--surface-muted);font-weight:850;text-align:right}
+.diagnostic-table th,.diagnostic-table td{padding:.73rem .88rem;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.9}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.lesson-quiz{border:1px solid var(--line);background:var(--surface-soft);border-radius:12px;padding:.95rem 1.1rem;margin:1.8rem 0 .3rem}
+.lesson-quiz h3{color:var(--accent-strong);font-size:.99rem;margin:0 0 .4rem}
+.lesson-quiz p{margin:.2rem 0 .8rem}
+.lesson-quiz details{margin-top:.75rem}
+.lesson-quiz summary{cursor:pointer;font-size:.89rem;font-weight:800;color:var(--accent-strong);width:max-content;max-width:100%}
+.lesson-quiz details>div{border-top:1px solid var(--line);margin-top:.7rem;padding-top:.75rem;font-size:.9rem}
+.study-source{margin-top:2rem;border-top:1px solid var(--line);padding:1rem .3rem;color:var(--muted);font-size:.88rem}
+.study-source h2{font-size:1.1rem;color:var(--ink)}
+.study-source a{word-break:break-word}
+.course-footer{border-top:1px solid var(--line);padding:1.3rem;display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted);max-width:1460px;margin:auto}
+@media(max-width:1020px){.lesson-shell{grid-template-columns:245px minmax(0,1fr);gap:20px}.course-name{font-size:.9rem}}
+@media(max-width:790px){.lesson-shell{display:block;padding:15px}.course-sidebar{display:none;position:relative;top:auto;max-height:none;margin-bottom:1.15rem}.menu-open .course-sidebar{display:block}.course-menu-button{order:2}.course-header .back-link{display:none}.course-brand{font-size:.95rem}.course-name{font-size:.8rem}.course-nav{gap:.5rem}.icon-button{margin-inline-start:auto}.gc-hero{margin-top:.5rem}.lesson-body{gap:1.1rem}.generation-flow i{width:100%;text-align:center}.lesson-section{padding:1rem}.course-footer{flex-wrap:wrap}}
+@media print{.course-header,.course-sidebar,.copy-code,.study-actions,.skip-link{display:none!important}.lesson-shell{display:block;max-width:none}.lesson-content{max-width:none}.lesson-section{box-shadow:none;break-inside:avoid;padding:.8rem;border-color:#aaa}.lesson-quiz summary{color:#444}html{scroll-behavior:auto}body{background:white;color:black}.gc-hero{background:white}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#111;background:#f3f4f6;border:1px solid #ddd}}
+/* Ensure long code and tables never widen the lesson grid on narrow screens. */
+.lesson-body{min-width:0;grid-template-columns:minmax(0,1fr)}
+.lesson-section{min-width:0}
+
+</style></head><body class="lesson-page gc-page"><a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a><header class="course-header"><nav class="course-nav" aria-label="ناوبری آکادمی دات‌نت"><a class="course-brand" href="../../index.html">آکادمی دات‌نت</a><span class="course-name">Background Job</span><button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="false" aria-controls="course-sidebar">فهرست مطالب</button><button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="تغییر تم" aria-pressed="false"><svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"/></svg><svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="back-link" href="../../topics/">آموزش‌های موضوعی</a></nav></header>
+  <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html">آکادمی دات‌نت</a><span aria-hidden="true">/</span><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span aria-current="page"><bdi>Background Job</bdi></span></nav><div class="lesson-shell"><aside id="course-sidebar" class="course-sidebar" aria-label="فهرست دوره"><div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>آموزش Background Job</strong><span>۱۲ درس، از پایه تا مصاحبه Senior</span></div><nav id="lessons-list" aria-label="فهرست مطالب دوره"><ol><li><a href="#intro"><span>01</span>مفهوم Background Job و کاربردهای آن</a></li><li><a href="#async"><span>02</span>تفاوت async/await و Task.Run با Background Job</a></li><li><a href="#hosted"><span>03</span>آشنایی با IHostedService و چرخه عمر Host</a></li><li><a href="#execute"><span>04</span>پیاده‌سازی BackgroundService و ExecuteAsync</a></li><li><a href="#timer"><span>05</span>اجرای دوره‌ای با PeriodicTimer</a></li><li><a href="#cancel"><span>06</span>CancellationToken و توقف کنترل‌شده</a></li><li><a href="#scope"><span>07</span>DbContext و Scoped Service در BackgroundService</a></li><li><a href="#errors"><span>08</span>مدیریت Exception و Retry</a></li><li><a href="#queue"><span>09</span>Queued Background Job با Channel</a></li><li><a href="#schedulers"><span>10</span>Hangfire و Quartz.NET</a></li><li><a href="#scaling"><span>11</span>Scalability، اجرای تکراری و Distributed Lock</a></li><li><a href="#production"><span>12</span>طراحی Production و جمع‌بندی مصاحبه Senior</a></li></ol></nav><span class="sidebar-tail">مجموعه آموزشی ASP.NET Core Background Processing</span></aside><main id="lesson-content" class="lesson-content"><article aria-labelledby="course-title"><section class="gc-hero" aria-labelledby="course-title"><p class="eyebrow">آموزش کاربردی سرویس‌های پس‌زمینه در دات‌نت</p><h1 id="course-title">آموزش کامل <bdi>Background Job</bdi> در <bdi>ASP.NET Core</bdi></h1><p class="course-lead">از IHostedService و BackgroundService تا PeriodicTimer، Channel، Hangfire، Quartz.NET، Distributed Lock و طراحی مقاوم سیستم پرداخت.</p><div class="study-meta"><span class="study-status">جزوهٔ ۱۲ درسی</span><span>کدهای C# و پاسخ تشریحی</span><span>مطابق قالب فایل پیوست</span></div><aside class="lesson-note"><strong>درباره این جزوه</strong><span>درس‌های ۱ تا ۹ براساس گفت‌وگوی آموزشی این دوره بازنویسی شده‌اند. درس‌های ۱۰ تا ۱۲ محتوای تکمیلی براساس سرفصل مصوب دوره‌اند و هنوز به‌صورت تعاملی تدریس نشده‌اند. مثال‌ها آموزشی‌اند؛ برای Production به وابستگی‌ها و سیاست‌های عملیاتی کامل نیاز دارند.</span></aside><div class="study-actions"><a class="button-link" href="#intro">شروع از درس ۱</a><a href="#production">مرور آخرین درس</a><a href="#schedulers">ابزارهای حرفه‌ای</a></div></section><div class="lesson-body"><section id="intro" class="lesson-section" aria-labelledby="intro-title"><p class="section-kicker">درس 1 · آموزش و تمرین</p><h2 id="intro-title">مفهوم Background Job و کاربردهای آن</h2><p>یک کار پس‌زمینه می‌تواند مستقل از چرخه پاسخ‌دهی درخواست HTTP اجرا شود. در سیستم پرداخت، ارسال اعلان، تولید گزارش و پاک‌سازی داده‌ها نمونه‌های رایج هستند.</p><h3>سناریوی پرداخت</h3><p>کاربر پرداختی را ثبت می‌کند؛ ثبت نتیجه مالی باید در مسیر اصلی و با تضمین‌های لازم انجام شود، ولی ارسال پیامک یا تولید گزارش می‌تواند بعداً پردازش شود.</p><div class="message-flow" dir="ltr"><span>Payment API</span><b>→</b><span>Persist payment</span><b>→</b><span>Queue notification</span><b>→</b><span>Worker</span><b>→</b><span>SMS</span></div><p>اگر ثبت پرداخت ۱۰۰ میلی‌ثانیه و ارسال پیامک دو ثانیه طول بکشد، منتظر ماندن برای پیامک زمان پاسخ را افزایش می‌دهد. انتقال پیامک به مسیر پس‌زمینه فقط وقتی درست است که نحوه ثبت و بازیابی کار را هم طراحی کنیم.</p><aside class="lesson-warning"><strong>هشدار Production</strong><span>اجرای پس‌زمینه به معنی اجرای تضمینی نیست؛ کارهای فقط در حافظه ممکن است با Crash از دست بروند.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 1</h3><p>برای ارسال پیامک پس از پرداخت، بهتر است کدام کار در پس‌زمینه انجام شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>ارسال پیامک؛ پس از ثبت موفق پرداخت، درخواست اعلان را به شکل امن در صف ثبت می‌کنیم و پاسخ را برمی‌گردانیم.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="async" class="lesson-section" aria-labelledby="async-title"><p class="section-kicker">درس 2 · آموزش و تمرین</p><h2 id="async-title">تفاوت async/await و Task.Run با Background Job</h2><p>غیرهم‌زمان بودن عملیات، جدا بودن آن از درخواست HTTP و پایدار بودن کار سه موضوع متفاوت هستند.</p><h3>await همچنان منتظر نتیجه است</h3><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>[HttpPost(&quot;pay&quot;)]
+public async Task&lt;IActionResult&gt; Pay()
+{
+    await SavePaymentAsync();
+    await SendSmsAsync();
+    return Ok();
+}</code></pre></div><p>در این حالت Thread لزوماً مسدود نمی‌شود، ولی پاسخ HTTP تا پایان SendSmsAsync ارسال نمی‌شود.</p><h3>Task.Run راهکار مطمئن صف نیست</h3><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>await SavePaymentAsync();
+_ = Task.Run(async () =&gt; await SendSmsAsync());
+return Ok();</code></pre></div><p>در این نمونه ممکن است برنامه قبل از اتمام ارسال پیامک بسته شود؛ خطاهای کار پس‌زمینه نیز مدیریت نشده‌اند. به علاوه، استفاده از سرویس Scoped متعلق به Request داخل آن خطر ObjectDisposedException دارد.</p><h3>BackgroundService</h3><p>کلاس BackgroundService برای اجرای عملیات طولانی یا مداوم زیر نظر Host استفاده می‌شود؛ برای اطمینان از تحویل کار باید آن را به صف پایدار و سیاست بازیابی متصل کنیم.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>روش</th><th>آیا پاسخ منتظر می‌ماند؟</th><th>آیا کار تضمین‌شده است؟</th></tr></thead><tbody><tr><td>await مستقیم</td><td>بله</td><td>به موفقیت درخواست وابسته است</td></tr><tr><td>Task.Run بدون await</td><td>خیر</td><td>خیر</td></tr><tr><td>BackgroundService با صف حافظه‌ای</td><td>خیر</td><td>خیر، بعد از Crash</td></tr><tr><td>Worker + ذخیره پایدار</td><td>خیر</td><td>با طراحی درست قابل بازیابی است</td></tr></tbody></table></div><div class="lesson-quiz"><h3>سؤال مرور درس 2</h3><p>اگر پس از return Ok برنامه کرش کند، برای Task.Run بدون await چه رخ می‌دهد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>ممکن است کار نیمه‌تمام بماند و هرگز اجرا نشود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="hosted" class="lesson-section" aria-labelledby="hosted-title"><p class="section-kicker">درس 3 · آموزش و تمرین</p><h2 id="hosted-title">آشنایی با IHostedService و چرخه عمر Host</h2><p>IHostedService قرارداد StartAsync و StopAsync را تعریف می‌کند؛ Host هنگام راه‌اندازی و توقف کنترل‌شده این متدها را فراخوانی می‌کند.</p><div class="code-block"><div class="code-label"><span>قرارداد رابط</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public interface IHostedService
+{
+    Task StartAsync(CancellationToken cancellationToken);
+    Task StopAsync(CancellationToken cancellationToken);
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class PaymentHostedService : IHostedService
+{
+    public Task StartAsync(CancellationToken token)
+    {
+        Console.WriteLine(&quot;Payment service started&quot;);
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken token)
+    {
+        Console.WriteLine(&quot;Payment service stopped&quot;);
+        return Task.CompletedTask;
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>ثبت در Program.cs</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>builder.Services.AddHostedService&lt;PaymentHostedService&gt;();</code></pre></div><aside class="lesson-warning"><strong>هشدار Production</strong><span>StartAsync باید معمولاً سریع تمام شود. await کردن یک عملیات ۳۰ ثانیه‌ای در StartAsync می‌تواند مراحل راه‌اندازی را عقب بیندازد. StopAsync در Crash ناگهانی تضمین نمی‌شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 3</h3><p>اگر در StartAsync از await Task.Delay(30000) استفاده کنیم چه می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>تکمیل StartAsync حدود ۳۰ ثانیه به تأخیر می‌افتد و می‌تواند آماده‌شدن Host را عقب بیندازد.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="execute" class="lesson-section" aria-labelledby="execute-title"><p class="section-kicker">درس 4 · آموزش و تمرین</p><h2 id="execute-title">پیاده‌سازی BackgroundService و ExecuteAsync</h2><p>BackgroundService اجرای طولانی‌مدت را با متد ExecuteAsync آسان می‌کند و چرخه عمر آن زیر نظر Host است.</p><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class PaymentBackgroundService : BackgroundService
+{
+    protected override async Task ExecuteAsync(
+        CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            Console.WriteLine(&quot;Checking payments...&quot;);
+            await Task.Delay(5000, stoppingToken);
+        }
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>ثبت سرویس</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>builder.Services.AddHostedService&lt;PaymentBackgroundService&gt;();</code></pre></div><p>حلقه هر بار پیام را چاپ می‌کند و سپس ۵ ثانیه صبر می‌کند. این نمونه صرفاً چرخه اجرا را نمایش می‌دهد و هنوز پردازش واقعی تراکنش ندارد.</p><h3>توکن توقف</h3><p>هنگام درخواست توقف، stoppingToken لغو می‌شود؛ Task.Delay با این توکن می‌تواند بلافاصله با OperationCanceledException یا زیرنوع TaskCanceledException خارج شود.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>برای پردازش واقعی، خطاها، مدیریت Scope، ثبت وضعیت کار و جلوگیری از اجرای تکراری ضروری هستند.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 4</h3><p>اگر هنگام Task.Delay درخواست توقف برسد، آیا الزاماً ۵ ثانیه صبر می‌کنیم؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر؛ اگر توکن به Task.Delay داده شده باشد، انتظار لغو می‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="timer" class="lesson-section" aria-labelledby="timer-title"><p class="section-kicker">درس 5 · آموزش و تمرین</p><h2 id="timer-title">اجرای دوره‌ای با PeriodicTimer</h2><p>PeriodicTimer زمان‌بندی مبتنی بر Tick را فراهم می‌کند و با Task.Delay بعد از پایان پردازش رفتار متفاوتی دارد.</p><h3>Task.Delay: فاصله پس از پایان کار</h3><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>while (!stoppingToken.IsCancellationRequested)
+{
+    await CheckPendingPaymentsAsync(stoppingToken); // فرض: 3s
+    await Task.Delay(10000, stoppingToken);
+}</code></pre></div><p>در فرض پردازش سه‌ثانیه‌ای، شروع دو اجرا حدود ۱۳ ثانیه فاصله خواهد داشت.</p><h3>PeriodicTimer: Tickهای دوره‌ای</h3><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+while (await timer.WaitForNextTickAsync(stoppingToken))
+{
+    await CheckPendingPaymentsAsync(stoppingToken);
+}</code></pre></div><p>اولین اجرا بعد از نخستین Tick رخ می‌دهد. اگر پردازش ۲۵ ثانیه طول بکشد، اجرای همان حلقه هم‌پوشانی ندارد و Tickهای ازدست‌رفته تجمیع می‌شوند؛ اجرای بعدی ممکن است بی‌درنگ شروع شود.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>ویژگی</th><th>Task.Delay پس از پردازش</th><th>PeriodicTimer</th></tr></thead><tbody><tr><td>محاسبه فاصله</td><td>پس از اتمام پردازش</td><td>براساس Tick</td></tr><tr><td>اجرای هم‌زمان در همین حلقه</td><td>خیر</td><td>خیر</td></tr><tr><td>تحمل Crash</td><td>به‌تنهایی ندارد</td><td>به‌تنهایی ندارد</td></tr></tbody></table></div><div class="lesson-quiz"><h3>سؤال مرور درس 5</h3><p>وقتی اجرای Job ۲۵ ثانیه و دوره تایمر ۱۰ ثانیه است، آیا چند اجرا هم‌زمان آغاز می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. در همین حلقه، پردازش جاری تمام می‌شود، سپس نوبت بعدی دریافت می‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="cancel" class="lesson-section" aria-labelledby="cancel-title"><p class="section-kicker">درس 6 · آموزش و تمرین</p><h2 id="cancel-title">CancellationToken و توقف کنترل‌شده</h2><p>زمان Deploy یا توقف برنامه، Worker باید سیگنال توقف را دریافت و برای کار در حال اجرا سیاست مشخصی داشته باشد.</p><div class="code-block"><div class="code-label"><span>نمونه مفهومی؛ متدهای وابسته باید پیاده‌سازی شوند</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>while (!stoppingToken.IsCancellationRequested)
+{
+    var payment = await GetNextPaymentAsync(stoppingToken);
+    if (payment is null)
+    {
+        await Task.Delay(1000, stoppingToken);
+        continue;
+    }
+    await ProcessPaymentAsync(payment);
+}</code></pre></div><p>عدم ارسال stoppingToken به ProcessPaymentAsync در این نمونه نشان می‌دهد می‌توان به کار جاری فرصت تکمیل داد؛ اما کرش یا پایان مهلت توقف ممکن است آن را قطع کند.</p><h3>مهلت خاموش‌شدن</h3><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>builder.Services.Configure&lt;HostOptions&gt;(options =&gt;
+{
+    options.ShutdownTimeout = TimeSpan.FromSeconds(60);
+});</code></pre></div><p>افزایش ShutdownTimeout تنها مهلت توقف کنترل‌شده را بیشتر می‌کند و جایگزین بازیابی وضعیت نیست. در Kubernetes زمان پایان Pod نیز باید با آن هماهنگ شود.</p><aside class="lesson-warning"><strong>هشدار Production</strong><span>اگر بانک انتقال را انجام دهد ولی نتیجه قبل از ثبت در دیتابیس گم شود، درخواست انتقال را کورکورانه تکرار نکن. وضعیت را با شناسه یکتا استعلام کن و Reconciliation داشته باش.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 6</h3><p>بانک پرداخت را انجام داده ولی قبل از ثبت نتیجه، Worker کرش کرده است. اولین اقدام چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>استعلام وضعیت واقعی بانک با شناسه یکتا و جلوگیری از ارسال دوباره بدون بررسی.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="scope" class="lesson-section" aria-labelledby="scope-title"><p class="section-kicker">درس 7 · آموزش و تمرین</p><h2 id="scope-title">DbContext و Scoped Service در BackgroundService</h2><p>HostedService به‌طور پیش‌فرض Singleton است اما AddDbContext معمولاً DbContext را Scoped ثبت می‌کند؛ تزریق مستقیم آن در Constructor Worker طراحی درستی نیست.</p><div class="code-block"><div class="code-label"><span>مثال نامناسب</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>// Incorrect lifetime dependency:
+public sealed class PaymentWorker(PaymentDbContext db)
+    : BackgroundService
+{
+    protected override Task ExecuteAsync(CancellationToken token)
+        =&gt; Task.CompletedTask;
+}</code></pre></div><h3>ساخت Scope برای هر دور پردازش</h3><div class="code-block"><div class="code-label"><span>به Microsoft.EntityFrameworkCore نیاز دارد</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class PaymentWorker(
+    IServiceScopeFactory scopeFactory) : BackgroundService
+{
+    protected override async Task ExecuteAsync(
+        CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await using (var scope = scopeFactory.CreateAsyncScope())
+            {
+                var db = scope.ServiceProvider
+                    .GetRequiredService&lt;PaymentDbContext&gt;();
+                var count = await db.Payments.CountAsync(
+                    x =&gt; x.Status == &quot;Pending&quot;, stoppingToken);
+                Console.WriteLine($&quot;Pending: {count}&quot;);
+            }
+            await Task.Delay(5000, stoppingToken);
+        }
+    }
+}</code></pre></div><p>در هر چرخه Scope جدید ساخته می‌شود؛ پس از کار با دیتابیس و پیش از تأخیر، Scope Dispose می‌شود.</p><aside class="lesson-note"><strong>نکته مهم</strong><span>برای حجم بالا، همه رکوردهای Pending را یک‌باره با ToListAsync بارگیری نکن. Batch، Claim کردن اتمیک کارها و کنترل رقابت را طراحی کن.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 7</h3><p>چرا تزریق مستقیم DbContext در سازنده BackgroundService مشکل دارد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>زیرا Worker به صورت Singleton و DbContext به صورت Scoped ثبت می‌شود و طول عمر آن‌ها با هم ناسازگار است.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="errors" class="lesson-section" aria-labelledby="errors-title"><p class="section-kicker">درس 8 · آموزش و تمرین</p><h2 id="errors-title">مدیریت Exception و Retry</h2><p>در .NET 6 به بعد، Exception مدیریت‌نشده خارج‌شده از ExecuteAsync به‌صورت پیش‌فرض باعث درخواست توقف Host می‌شود.</p><div class="code-block"><div class="code-label"><span>منطق نمونه؛ logger و ProcessPendingPaymentsAsync وابستگی‌های کلاس‌اند</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>protected override async Task ExecuteAsync(
+    CancellationToken stoppingToken)
+{
+    while (!stoppingToken.IsCancellationRequested)
+    {
+        try
+        {
+            await ProcessPendingPaymentsAsync(stoppingToken);
+        }
+        catch (OperationCanceledException)
+            when (stoppingToken.IsCancellationRequested)
+        {
+            break;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, &quot;Payment processing failed&quot;);
+        }
+
+        try { await Task.Delay(5000, stoppingToken); }
+        catch (OperationCanceledException)
+            when (stoppingToken.IsCancellationRequested) { break; }
+    }
+}</code></pre></div><h3>Retry متناسب با نوع شکست</h3><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>شکست</th><th>اقدام</th></tr></thead><tbody><tr><td>قطعی گذرای دیتابیس</td><td>Retry محدود با Backoff و Logging</td></tr><tr><td>داده نامعتبر</td><td>ثبت خطای دائمی؛ Retry بی‌هدف نکن</td></tr><tr><td>Timeout درخواست مالی به بانک</td><td>استعلام وضعیت و Idempotency پیش از اقدام مجدد</td></tr></tbody></table></div><div class="code-block"><div class="code-label"><span>رفتار پیش‌فرض برای خطای مدیریت‌نشده</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>builder.Services.Configure&lt;HostOptions&gt;(options =&gt;
+{
+    options.BackgroundServiceExceptionBehavior =
+        BackgroundServiceExceptionBehavior.StopHost;
+});</code></pre></div><aside class="lesson-warning"><strong>هشدار Production</strong><span>تنظیم Ignore به‌معنای راه‌اندازی مجدد Worker نیست. استثناهای غیرمنتظره را کورکورانه نادیده نگیر.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 8</h3><p>اگر SqlException مدیریت‌نشده از ExecuteAsync خارج شود، رفتار پیش‌فرض Host در .NET 8 چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>در حالت پیش‌فرض StopHost رخ می‌دهد؛ Host درخواست توقف دریافت می‌کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="queue" class="lesson-section" aria-labelledby="queue-title"><p class="section-kicker">درس 9 · آموزش و تمرین</p><h2 id="queue-title">Queued Background Job با Channel</h2><p>Channel<T> یک صف درون‌حافظه‌ای غیرهم‌زمان برای ارتباط Producer و Consumer است. در این درس یک Worker صف‌محور می‌سازیم.</p><div class="message-flow" dir="ltr"><span>Payment API</span><b>→</b><span>Bounded Channel</span><b>→</b><span>SmsWorker</span><b>→</b><span>SMS Provider</span></div><div class="code-block"><div class="code-label"><span>ثبت در Program.cs؛ قبل از builder.Build</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>using System.Threading.Channels;
+var channel = Channel.CreateBounded&lt;string&gt;(new BoundedChannelOptions(100)
+{
+    FullMode = BoundedChannelFullMode.Wait,
+    SingleReader = true
+});
+builder.Services.AddSingleton(channel);
+builder.Services.AddHostedService&lt;SmsWorker&gt;();</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد C#</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class SmsWorker(Channel&lt;string&gt; queue)
+    : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken token)
+    {
+        await foreach (var message in queue.Reader.ReadAllAsync(token))
+        {
+            Console.WriteLine($&quot;Sending SMS: {message}&quot;);
+            await Task.Delay(2000, token); // شبیه‌سازی ارسال
+        }
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>ثبت Endpoint پس از builder.Build</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>app.MapPost(&quot;/send-sms&quot;, async (
+    Channel&lt;string&gt; queue, CancellationToken token) =&gt;
+{
+    await queue.Writer.WriteAsync(&quot;Payment successful&quot;, token);
+    return Results.Accepted();
+});</code></pre></div><h3>Backpressure</h3><p>وقتی BoundedChannel با FullMode.Wait پر باشد، WriteAsync تا آزادشدن ظرفیت به‌طور غیرمسدودکننده منتظر می‌ماند. لازم است Timeout و پاسخ مناسب API هم طراحی شود.</p><aside class="lesson-warning"><strong>هشدار Production</strong><span>Channel حافظه‌ای پایدار نیست؛ Crash صف را از بین می‌برد. دریافت پیام نیز Ack پایدار ندارد. برای عملیات مهم به دیتابیس، Outbox یا Broker پایدار نیاز داریم.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 9</h3><p>اگر ظرفیت BoundedChannel برابر ۳ و پر شده باشد، WriteAsync چهارم چه می‌کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>با FullMode پیش‌فرض Wait تا آزاد شدن ظرفیت منتظر می‌ماند؛ مگر عملیات لغو شود یا Channel بسته شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="schedulers" class="lesson-section" aria-labelledby="schedulers-title"><p class="section-kicker">درس 10 · آموزش و تمرین</p><h2 id="schedulers-title">Hangfire و Quartz.NET</h2><p>وقتی به Jobهای زمان‌بندی‌شده، پیگیری وضعیت یا اجرای پایدار پس از Restart نیاز داریم، کتابخانه‌های تخصصی کمک می‌کنند.</p><h3>Hangfire</h3><p>Hangfire اجرای Fire-and-forget، Delayed و Recurring Job را با Storage پشتیبانی می‌کند و داشبورد عملیاتی دارد. در تنظیم درست، وضعیت کار در فضای ذخیره‌سازی پایدار قرار می‌گیرد.</p><div class="code-block"><div class="code-label"><span>نمای مفهومی؛ وابستگی‌ها و نوع job باید تعریف شوند</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>// Packages: Hangfire.AspNetCore + Hangfire.SqlServer
+builder.Services.AddHangfire(config =&gt;
+    config.UseSqlServerStorage(connectionString));
+builder.Services.AddHangfireServer();
+
+// After app starts / from application code:
+BackgroundJob.Enqueue&lt;INotificationJobs&gt;(
+    job =&gt; job.SendPaymentSmsAsync(paymentId));</code></pre></div><p>اگر کاری باید در زمان آینده انجام شود، می‌توان از Schedule و برای کارهای تکرارشونده از RecurringJob استفاده کرد. نام متدها باید به شکل قابل سریال‌سازی و مطابق API نسخه نصب‌شده باشند.</p><h3>Quartz.NET</h3><p>Quartz.NET بیشتر برای زمان‌بندی پیچیده، Cron، Trigger و Calendar مناسب است. با Persistent Job Store می‌توان برنامه‌ریزی را در دیتابیس نگهداری کرد.</p><div class="code-block"><div class="code-label"><span>Quartz.NET — پیاده‌سازی IJob</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>public sealed class SettlementJob : IJob
+{
+    public Task Execute(IJobExecutionContext context)
+    {
+        Console.WriteLine(&quot;Running settlement check&quot;);
+        return Task.CompletedTask;
+    }
+}</code></pre></div><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>ویژگی</th><th>Hangfire</th><th>Quartz.NET</th></tr></thead><tbody><tr><td>سناریوی رایج</td><td>صف Job و مدیریت عملیاتی</td><td>Scheduler و Trigger پیچیده</td></tr><tr><td>Storage پایدار</td><td>با تنظیم Storage</td><td>با Persistent Store</td></tr><tr><td>Cron</td><td>پشتیبانی می‌شود</td><td>پشتیبانی پیشرفته</td></tr><tr><td>داشبورد آماده</td><td>دارد</td><td>در هسته مشابه Hangfire ندارد</td></tr></tbody></table></div><aside class="lesson-note"><strong>نکته مهم</strong><span>پایدار بودن Storage به معنی Exactly-once execution نیست؛ Job همچنان باید Idempotent طراحی شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 10</h3><p>برای زمان‌بندی پیچیده Cron و Trigger کدام ابزار معمولاً انتخاب مناسب‌تری است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>Quartz.NET؛ برای صف Job، Retry و داشبورد اجرایی Hangfire اغلب ساده‌تر است.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="scaling" class="lesson-section" aria-labelledby="scaling-title"><p class="section-kicker">درس 11 · آموزش و تمرین</p><h2 id="scaling-title">Scalability، اجرای تکراری و Distributed Lock</h2><p>وقتی چند Replica از API داریم، هر Replica می‌تواند BackgroundService خودش را اجرا کند؛ پس یک Job دوره‌ای ممکن است چند بار اجرا شود.</p><div class="message-flow" dir="ltr"><span>API Replica A: Worker</span><b>→</b><span>Shared database / queue</span><b>→</b><span>API Replica B: Worker</span></div><h3>خطر اجرای هم‌زمان</h3><p>اگر دو Instance هرکدام رکورد Pending یکسانی را ببینند، ممکن است هر دو هم‌زمان عملیات یکسان انجام دهند. این مسئله با صرفاً Singleton بودن Worker حل نمی‌شود؛ Singleton فقط داخل همان Container/Process است.</p><h3>Claim اتمیک به‌جای خواندن ساده</h3><div class="code-block"><div class="code-label"><span>SQL Server — نمونه شماتیک؛ نیازمند طراحی Lease و Recovery</span><span dir="ltr">C#</span><button type="button" class="copy-code" aria-label="کپی کد">کپی</button></div><pre dir="ltr"><code>-- SQL Server: نمونه مفهومی Claim یک Batch
+;WITH jobs AS
+(
+    SELECT TOP (10) *
+    FROM PaymentJobs WITH (UPDLOCK, READPAST, ROWLOCK)
+    WHERE Status = &#x27;Pending&#x27;
+    ORDER BY Id
+)
+UPDATE jobs
+SET Status = &#x27;Processing&#x27;, LockedUntilUtc = DATEADD(minute, 2, SYSUTCDATETIME())
+OUTPUT inserted.Id;</code></pre></div><p>برای جلوگیری از گم‌شدن Job در صورت Crash باید Lease/Timeout و بازپس‌گیری کارهای رهاشده را طراحی کنیم. قفل توزیع‌شده می‌تواند اجرای هم‌زمان یک Scheduler را کاهش دهد، اما تضمین عدم تکرار عملیات مالی نیست.</p><h3>Idempotency</h3><p>برای درخواست مالی از شناسه یکتای عملیات، قید Unique و بررسی وضعیت نهایی استفاده کن. در صورت قطع ارتباط، تکرار باید با همان شناسه و براساس قرارداد بانک/درگاه انجام شود.</p><aside class="lesson-warning"><strong>هشدار Production</strong><span>اگر از Redis Lock استفاده می‌کنی، به انقضای Lease، توقف طولانی و احتمال مالکیت هم‌زمان توجه کن. برای نوشتن روی منابع حساس، Fencing Token یا کنترل تراکنشی مناسب ممکن است لازم شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 11</h3><p>با سه Replica چرا BackgroundService از نوع Singleton مانع اجرای سه‌باره Job نمی‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>زیرا Singleton برای هر فرایند جداست؛ هر Replica نمونه مخصوص خودش را دارد و هماهنگی مشترک لازم است.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section id="production" class="lesson-section" aria-labelledby="production-title"><p class="section-kicker">درس 12 · آموزش و تمرین</p><h2 id="production-title">طراحی Production و جمع‌بندی مصاحبه Senior</h2><p>هدف: پس از ثبت پرداخت، اعلان و گزارش را قابل بازیابی اجرا کنیم، بدون اینکه شکست Worker باعث گم شدن تراکنش یا دوباره‌کاری مالی شود.</p><h3>معماری پیشنهادی</h3><div class="message-flow" dir="ltr"><span>Payment API + DB Transaction</span><b>→</b><span>Outbox table</span><b>→</b><span>Publisher Worker</span><b>→</b><span>RabbitMQ durable</span><b>→</b><span>Consumer + Inbox</span><b>→</b><span>SMS / Report</span></div><p>در یک تراکنش دیتابیس، وضعیت پرداخت و رویداد Outbox را ثبت می‌کنیم. Worker پیام Outbox را منتشر می‌کند؛ پس از دریافت تأیید مناسب Broker، وضعیت انتشار را تغییر می‌دهد. در سمت مصرف‌کننده، Inbox با کلید یکتا و تغییرات دیتابیس در یک تراکنش انجام می‌شوند.</p><h3>اگر RabbitMQ قطع باشد</h3><p>Outbox در دیتابیس می‌ماند و Publisher بعداً دوباره تلاش می‌کند. تکرار ارسال قابل‌قبول است، چون Consumer باید Idempotent باشد.</p><h3>اگر دیتابیس کند شود</h3><p>Batch را کوچک می‌کنیم، صف‌ها را محدود و Backpressure را فعال می‌کنیم، Query و Index را بهینه می‌کنیم و مصرف را با ظرفیت DB هماهنگ می‌کنیم. افزایش تعداد Worker بدون رفع گلوگاه دیتابیس ممکن است وضعیت را بدتر کند.</p><h3>اگر Worker کرش کند</h3><p>وضعیت پایدار Job، Lease/Visibility Timeout و Retry کنترل‌شده امکان ادامه کار را فراهم می‌کنند؛ عملیات دارای نتیجه نامشخص باید استعلام و تطبیق داده شود.</p><h3>Logging و Monitoring</h3><p>تعداد Pending، تأخیر قدیمی‌ترین Job، نرخ خطا، تعداد Retry، DLQ، مدت پردازش، TraceId و CorrelationId را اندازه بگیر. هشدار برای رشد صف و توقف Worker تعریف کن.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>سؤال مصاحبه</th><th>پاسخ کوتاه</th></tr></thead><tbody><tr><td>چرا Task.Run در Controller؟</td><td>برای Job پایدار کافی نیست؛ چرخه عمر و ذخیره‌سازی ندارد</td></tr><tr><td>آیا Channel مقاوم در برابر Crash است؟</td><td>خیر، در حافظه است</td></tr><tr><td>آیا Outbox Exactly-once می‌دهد؟</td><td>نه؛ انتشار می‌تواند تکرار شود، مصرف‌کننده Idempotent لازم است</td></tr><tr><td>چه زمانی Hangfire؟</td><td>وقتی Job Storage، Retry، Dashboard و زمان‌بندی می‌خواهیم</td></tr><tr><td>چرا Reconciliation؟</td><td>برای مشخص کردن نتیجه واقعی عملیات مالی با وضعیت نامعلوم</td></tr></tbody></table></div><aside class="lesson-warning"><strong>هشدار Production</strong><span>هیچ راهکار ساده‌ای به‌تنهایی Exactly-once end-to-end مالی را تضمین نمی‌کند. طراحی درست از دوام داده، Idempotency، کنترل هم‌زمانی، استعلام وضعیت و Reconciliation تشکیل می‌شود.</span></aside><div class="lesson-quiz"><h3>سؤال مرور درس 12</h3><p>اگر رویداد Outbox دو بار منتشر شود، چرا ممکن است سیستم همچنان درست کار کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>چون مصرف‌کننده با Inbox/Unique MessageId و تراکنش دیتابیس، اثر جانبی تکراری را کنترل می‌کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section></div><footer class="study-source"><h2>جمع‌بندی و منابع رسمی</h2><p>این جزوه برای مرور مفاهیم، کدنویسی تمرینی و مصاحبه Senior .NET طراحی شده است. اجرای مالی در Production به آزمون، پایش، ذخیره‌سازی پایدار و بازیابی نیاز دارد.</p><p><a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services" target="_blank" rel="noopener noreferrer">مستندات Hosted Services در ASP.NET Core</a> · <a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/channels" target="_blank" rel="noopener noreferrer">مستندات Channels</a> · <a href="https://docs.hangfire.io/" target="_blank" rel="noopener noreferrer">Hangfire</a> · <a href="https://www.quartz-scheduler.net/documentation/" target="_blank" rel="noopener noreferrer">Quartz.NET</a></p><a href="#course-title">بازگشت به ابتدای جزوه ↑</a></footer></article></main></div><footer class="course-footer"><span>آکادمی دات‌نت · Background Job</span><a href="#course-title">بازگشت به بالا</a></footer><script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const menuToggle = document.querySelector('[data-course-menu-toggle]');
+  const setTheme = theme => {
+    root.dataset.theme = theme;
+    toggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+    toggle?.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
+  };
+  setTheme(root.dataset.theme || 'light');
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('dotnet-academy-theme', next); } catch (_) {}
+  });
+  menuToggle?.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+    menuToggle.setAttribute('aria-expanded', String(document.body.classList.contains('menu-open')));
+  });
+  document.querySelectorAll('.course-sidebar a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  }));
+  document.querySelectorAll('.copy-code').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const val = btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+      if (!val) return;
+      try {
+        await navigator.clipboard.writeText(val);
+        btn.textContent = 'کپی شد';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      } catch (_) {
+        const textArea = document.createElement('textarea');
+        textArea.value = val;
+        document.body.append(textArea);
+        textArea.select();
+        const success = document.execCommand('copy');
+        textArea.remove();
+        btn.textContent = success ? 'کپی شد' : 'کپی ناموفق';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      }
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const links = [...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+    const index = Object.fromEntries(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        index[entry.target.id]?.classList.add('active');
+      }
+    }, {rootMargin:'-18% 0px -70% 0px', threshold:0});
+    document.querySelectorAll('.lesson-section').forEach(el => observer.observe(el));
+  }
+})();
+
+</script></body></html>

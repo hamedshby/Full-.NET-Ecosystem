@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="دوره کامل ۱۷ درسی احراز هویت، مجوزدهی و JWT در ASP.NET Core با مثال‌های C# و تمرین مصاحبه Senior" name="description"/><title>آموزش Authentication و Authorization و JWT | آکادمی دات‌نت</title><script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script><style>
+:root {
+  color-scheme: light;
+  --surface:#fff; --surface-soft:#fff9f5; --surface-muted:#fff3eb;
+  --ink:#1b2331; --muted:#687486; --line:#e9e5e2;
+  --accent:#c4550b; --accent-strong:#983e08; --accent-light:#fff0e4;
+  --blue:#2f669b; --warning:#9e4c13; --warning-bg:#fff1db;
+  --shadow:0 12px 40px rgba(29,35,44,.065); --code-bg:#14202d; --code-ink:#e8f1f8;
+}
+html[data-theme="dark"] { color-scheme:dark;
+  --surface:#18212c;--surface-soft:#1d2833;--surface-muted:#2e2a2b;
+  --ink:#e5ebf2;--muted:#abb6c6;--line:#344050;
+  --accent:#fa9e59;--accent-strong:#ffb67b;--accent-light:#352a23;
+  --blue:#a0cef0;--warning:#ffd295;--warning-bg:#372b26;
+  --shadow:0 12px 40px rgba(0,0,0,.15);--code-bg:#0e1721;--code-ink:#e7eff8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{margin:0;background:var(--surface);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2;direction:rtl}
+a{color:var(--accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.skip-link{position:absolute;right:1rem;top:-4rem;background:var(--accent);color:white;padding:.3rem .8rem;z-index:99}
+.skip-link:focus{top:.5rem}
+.course-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;box-shadow:0 3px 12px rgba(13,20,25,.03)}
+.course-nav{display:flex;align-items:center;gap:1.1rem;max-width:1460px;min-height:69px;padding:8px clamp(14px,2vw,34px);margin:auto}
+.course-brand{font-weight:900;white-space:nowrap;color:var(--ink);font-size:1.08rem}
+.course-name{font-weight:800;padding-inline-start:1rem;border-inline-start:1px solid var(--line);color:var(--accent-strong)}
+.course-header .back-link{margin-inline-start:auto;font-size:.87rem;color:var(--muted)}
+.course-menu-button,.icon-button{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line);border-radius:.65rem;min-height:38px;cursor:pointer;padding:.2rem .8rem;font-size:.85rem}
+.icon-button{width:40px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none}
+[data-theme="dark"] .theme-icon-moon{display:none}
+[data-theme="dark"] .theme-icon-sun{display:block}
+.lesson-shell{max-width:1460px;display:grid;grid-template-columns:275px minmax(0,1fr);align-items:start;gap:clamp(24px,3.2vw,54px);padding:25px clamp(14px,2vw,34px);margin:0 auto}
+.course-sidebar{position:sticky;top:92px;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--surface-soft);box-shadow:var(--shadow);padding:1.1rem .55rem 1rem}
+.sidebar-heading{display:grid;gap:2px;padding:.55rem .9rem 1.05rem;border-bottom:1px solid var(--line)}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading>strong{font-size:1rem}
+.course-sidebar ol{list-style:none;margin:.7rem 0;padding:0}
+.course-sidebar li a{display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border-radius:.55rem;color:var(--ink);font-size:.86rem;line-height:1.6}
+.course-sidebar li a:hover,.course-sidebar li a.active{background:var(--accent-light);color:var(--accent-strong);text-decoration:none}
+.course-sidebar li a span{min-width:1.55rem;color:var(--accent);font-weight:800;direction:ltr;font-size:.78rem}
+.sidebar-tail{display:block;border-top:1px solid var(--line);margin:.8rem .35rem 0;padding:.7rem;color:var(--muted);font-size:.8rem}
+.lesson-content{min-width:0;max-width:1000px;width:100%;padding-bottom:1rem}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1460px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.gc-hero{margin-block:1rem 2rem;border:1px solid var(--line);border-radius:20px;padding:clamp(1.1rem,3vw,2.2rem);background:linear-gradient(130deg,var(--surface-soft),var(--surface));position:relative;overflow:hidden}
+.gc-hero:before{content:"";position:absolute;pointer-events:none;inset:auto auto -135px -85px;width:300px;height:300px;border-radius:50%;background:var(--accent-light);opacity:.85}
+.gc-hero>*{position:relative}
+.eyebrow,.section-kicker{color:var(--accent-strong);font-size:.8rem;font-weight:850;margin:0}
+.gc-hero h1{font-size:clamp(1.72rem,3.2vw,2.8rem);line-height:1.6;margin:.4rem 0 .8rem;letter-spacing:-.5px}
+.course-lead{font-size:1rem;color:var(--muted);max-width:750px;line-height:2.2}
+.study-meta,.study-actions{display:flex;align-items:center;gap:10px 17px;flex-wrap:wrap;margin-top:1.1rem;font-size:.84rem;color:var(--muted)}
+.study-status{color:var(--accent-strong);background:var(--accent-light);border:1px solid var(--line);font-weight:750;padding:2px 10px;border-radius:10px}
+.study-actions a{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:.32rem .85rem;font-weight:800}
+.study-actions a.button-link{background:var(--accent);color:white;border-color:var(--accent)}
+.lesson-body{display:grid;gap:2rem}
+.lesson-section{border:1px solid var(--line);border-radius:18px;padding:clamp(1.1rem,3vw,2rem);background:var(--surface);box-shadow:0 3px 20px rgba(25,30,35,.025);scroll-margin-top:92px}
+.lesson-section h2{font-size:clamp(1.32rem,2.4vw,1.75rem);line-height:1.7;margin:.3rem 0 1rem}
+.lesson-section h3{font-size:1.08rem;line-height:1.9;margin:1.45rem 0 .4rem}
+.lesson-section h4{font-size:.96rem;margin:1.2rem 0 .4rem}
+.lesson-section p{margin:.55rem 0 1rem}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{margin:.38rem 0}
+.lesson-section code:not(pre code),.study-source code{font-family:Consolas,"Cascadia Code",monospace;font-size:.89em;background:var(--surface-muted);color:var(--accent-strong);border-radius:5px;padding:.13rem .3rem;unicode-bidi:isolate;direction:ltr;overflow-wrap:anywhere}
+bdi{unicode-bidi:isolate}
+.code-block{border-radius:12px;border:1px solid #314050;margin:1.2rem 0;overflow:hidden;max-width:100%}
+.code-label{display:flex;gap:10px;align-items:center;padding:.48rem .85rem;background:#223344;color:#dbe8f5;font-size:.75rem;direction:rtl}
+.code-label span:nth-child(2){margin-inline-start:auto;color:#b3c6d4}
+.copy-code{color:#e8f1f8;border:1px solid #617486;background:#2a4054;padding:1px 11px;border-radius:7px;cursor:pointer}
+pre{direction:ltr;text-align:left;margin:0;padding:1.15rem 1.1rem;overflow:auto;background:var(--code-bg);color:var(--code-ink);line-height:1.75;font:13.4px/1.75 Consolas,"Cascadia Code",monospace;tab-size:4;max-width:100%}
+pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:inherit}
+.lesson-note,.lesson-warning{border-radius:11px;padding:.85rem 1rem;display:grid;gap:.2rem;margin:1.1rem 0;border:1px solid var(--line);background:var(--surface-soft)}
+.lesson-note{border-inline-start:4px solid var(--blue)}
+.lesson-warning{border-inline-start:4px solid var(--warning);background:var(--warning-bg)}
+.lesson-note strong,.lesson-warning strong{font-size:.9rem}
+.lesson-note span,.lesson-warning span{font-size:.88rem;line-height:2;color:var(--muted)}
+.message-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:1.3rem auto;font:12px Consolas,monospace}
+.message-flow span{padding:10px 13px;background:var(--accent-light);border:1px solid var(--line);border-radius:10px;color:var(--accent-strong)}
+.message-flow b{color:var(--accent)}
+.generation-flow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:1.4rem 0;direction:ltr}
+.generation-flow>div{border:1px solid var(--line);border-radius:13px;min-width:140px;display:grid;justify-items:center;padding:16px;background:var(--surface-soft);text-align:center;direction:rtl}
+.generation-flow b{direction:ltr;font-size:1.3rem;color:var(--accent-strong)}
+.generation-flow span{font-size:.73rem;color:var(--muted)}
+.generation-flow i{font-size:.72rem;color:var(--muted);font-style:normal}
+.table-wrap{overflow-x:auto;max-width:100%;margin:1.15rem 0;border:1px solid var(--line);border-radius:12px}
+.diagnostic-table{border-collapse:collapse;width:100%;min-width:510px;font-size:.88rem}
+.diagnostic-table caption{text-align:right;color:var(--muted);font-size:.78rem;padding:.7rem .9rem}
+.diagnostic-table th{background:var(--surface-muted);font-weight:850;text-align:right}
+.diagnostic-table th,.diagnostic-table td{padding:.73rem .88rem;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.9}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.lesson-quiz{border:1px solid var(--line);background:var(--surface-soft);border-radius:12px;padding:.95rem 1.1rem;margin:1.8rem 0 .3rem}
+.lesson-quiz h3{color:var(--accent-strong);font-size:.99rem;margin:0 0 .4rem}
+.lesson-quiz p{margin:.2rem 0 .8rem}
+.lesson-quiz details{margin-top:.75rem}
+.lesson-quiz summary{cursor:pointer;font-size:.89rem;font-weight:800;color:var(--accent-strong);width:max-content;max-width:100%}
+.lesson-quiz details>div{border-top:1px solid var(--line);margin-top:.7rem;padding-top:.75rem;font-size:.9rem}
+.study-source{margin-top:2rem;border-top:1px solid var(--line);padding:1rem .3rem;color:var(--muted);font-size:.88rem}
+.study-source h2{font-size:1.1rem;color:var(--ink)}
+.study-source a{word-break:break-word}
+.course-footer{border-top:1px solid var(--line);padding:1.3rem;display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted);max-width:1460px;margin:auto}
+@media(max-width:1020px){.lesson-shell{grid-template-columns:245px minmax(0,1fr);gap:20px}.course-name{font-size:.9rem}}
+@media(max-width:790px){.lesson-shell{display:block;padding:15px}.course-sidebar{display:none;position:relative;top:auto;max-height:none;margin-bottom:1.15rem}.menu-open .course-sidebar{display:block}.course-menu-button{order:2}.course-header .back-link{display:none}.course-brand{font-size:.95rem}.course-name{font-size:.8rem}.course-nav{gap:.5rem}.icon-button{margin-inline-start:auto}.gc-hero{margin-top:.5rem}.lesson-body{gap:1.1rem}.generation-flow i{width:100%;text-align:center}.lesson-section{padding:1rem}.course-footer{flex-wrap:wrap}}
+@media print{.course-header,.course-sidebar,.copy-code,.study-actions,.skip-link{display:none!important}.lesson-shell{display:block;max-width:none}.lesson-content{max-width:none}.lesson-section{box-shadow:none;break-inside:avoid;padding:.8rem;border-color:#aaa}.lesson-quiz summary{color:#444}html{scroll-behavior:auto}body{background:white;color:black}.gc-hero{background:white}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#111;background:#f3f4f6;border:1px solid #ddd}}
+/* Ensure long code and tables never widen the lesson grid on narrow screens. */
+.lesson-body{min-width:0;grid-template-columns:minmax(0,1fr)}
+.lesson-section{min-width:0}
+
+</style></head><body class="lesson-page gc-page"><a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a><header class="course-header"><nav aria-label="ناوبری آکادمی دات‌نت" class="course-nav"><a class="course-brand" href="../../index.html">آکادمی دات‌نت</a><span class="course-name">Authentication، Authorization و JWT</span><button aria-controls="course-sidebar" aria-expanded="false" class="course-menu-button" data-course-menu-toggle="" type="button">فهرست مطالب</button><button aria-label="فعال‌کردن تم تیره" aria-pressed="false" class="icon-button" id="theme-toggle" title="تغییر تم" type="button"><svg aria-hidden="true" class="nav-icon theme-icon-moon" viewbox="0 0 24 24"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg><svg aria-hidden="true" class="nav-icon theme-icon-sun" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button></nav></header>
+  <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html">آکادمی دات‌نت</a><span aria-hidden="true">/</span><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span aria-current="page"><bdi>Authentication، Authorization و JWT</bdi></span></nav><div class="lesson-shell"><aside aria-label="فهرست دوره" class="course-sidebar" id="course-sidebar"><div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>آموزش Authentication و JWT</strong><span>۱۷ درس، از مفاهیم پایه تا مصاحبه Senior</span></div><nav aria-label="فهرست مطالب دوره" id="lessons-list"><ol><li><a href="#authentication"><span>01</span>Authentication در برابر Authorization</a></li><li><a href="#login"><span>02</span>فرآیند Login و بررسی رمز عبور</a></li><li><a href="#session"><span>03</span>تفاوت Session، Cookie و Token</a></li><li><a href="#structure"><span>04</span>ساختار JWT: Header، Payload و Signature</a></li><li><a href="#encoding"><span>05</span>تفاوت Encoding، Signing و Encryption</a></li><li><a href="#flow"><span>06</span>فرآیند End-to-End از Login تا API</a></li><li><a href="#validation"><span>07</span>اعتبارسنجی Issuer، Audience و Expiration</a></li><li><a href="#generate"><span>08</span>تولید JWT با C#</a></li><li><a href="#jwtbearer"><span>09</span>تنظیم AddAuthentication و AddJwtBearer</a></li><li><a href="#middleware"><span>10</span>ترتیب UseAuthentication و UseAuthorization</a></li><li><a href="#roles"><span>11</span>Authorize، Roles و Claims</a></li><li><a href="#policies"><span>12</span>Policy-Based Authorization</a></li><li><a href="#refresh"><span>13</span>Access Token در برابر Refresh Token</a></li><li><a href="#rotation"><span>14</span>Logout، Revocation و Refresh Token Rotation</a></li><li><a href="#security"><span>15</span>حملات و امنیت JWT</a></li><li><a href="#microservices"><span>16</span>JWT در Microservices و API Gateway</a></li><li><a href="#payment-scenario"><span>17</span>سناریوی عملی سیستم پرداخت و پرسش‌های Senior</a></li></ol></nav><span class="sidebar-tail">مجموعه آموزشی امنیت و JWT در ASP.NET Core</span></aside><main class="lesson-content" id="lesson-content"><article aria-labelledby="course-title"><section aria-labelledby="course-title" class="gc-hero"><p class="eyebrow">آموزش کاربردی احراز هویت و مجوزدهی</p><h1 id="course-title">آموزش کامل Authentication، Authorization و JWT در ASP.NET Core</h1><p class="course-lead">از تفاوت Authentication و Authorization و ساختار JWT تا پیاده‌سازی C#، Claims و Policies، امنیت Refresh Token Rotation و معماری Microservices.</p><div class="study-meta"><span class="study-status">جزوهٔ ۱۷ درسی</span><span>کدهای C# و پاسخ تشریحی</span><span>مطابق قالب فایل پیوست</span></div><aside class="lesson-note"><strong>درباره این جزوه</strong><span>این جزوه بر اساس درس‌های ۱ تا ۱۶ همین گفت‌وگو تنظیم شده است. درس ۱۷ به‌عنوان تکمیل دوره، با مثال یکپارچه سیستم پرداخت و پاسخ پرسش مصاحبه تدوین شده است.</span></aside><div class="study-actions"><a class="button-link" href="#authentication">شروع از درس ۱</a><a href="#payment-scenario">مرور درس ۱۷</a><a href="#rotation">Refresh Token Rotation</a></div></section><div class="lesson-body"><section aria-labelledby="authentication-title" class="lesson-section" data-source-section="1" id="authentication"><p class="section-kicker">درس 1 · آموزش و تمرین</p><h2 id="authentication-title">Authentication در برابر Authorization</h2><p>Authentication یعنی شناسایی هویت کاربر؛ Authorization یعنی بررسی مجوز عملیات. هویت معتبر به‌تنهایی به معنی دسترسی به همه منابع نیست.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>GET /api/admin/users
+Authorization: Bearer &lt;access-token&gt;</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 1</h3><p>کاربر با Access Token معتبر و نقش Customer به API مخصوص Admin درخواست دهد؛ پاسخ چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>403 Forbidden؛ چون کاربر احراز هویت شده اما مجوز ندارد. در نبود هویت معتبر معمولاً 401 Unauthorized است.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="login-title" class="lesson-section" data-source-section="2" id="login"><p class="section-kicker">درس 2 · آموزش و تمرین</p><h2 id="login-title">فرآیند Login و بررسی رمز عبور</h2><p>سرور کاربر را پیدا می‌کند، رمز ورودی را با Password Hash ذخیره‌شده و الگوریتم و پارامترهای متناظر بررسی می‌کند، سپس در صورت موفقیت Access Token صادر می‌کند. Password Hash رمزگشایی نمی‌شود.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>POST /api/auth/login
+Content-Type: application/json
+
+{"username":"hamed","password":"&lt;password&gt;"}
+
+// Example response
+{"accessToken":"&lt;signed-access-token&gt;","expiresIn":3600}</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 2</h3><p>سرور برای بررسی رمز ورودی باید Hash دیتابیس را Decode کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. باید از Password Verification متناسب با الگوریتم ذخیره‌شده (مثلاً PBKDF2 یا Argon2id) استفاده کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="session-title" class="lesson-section" data-source-section="3" id="session"><p class="section-kicker">درس 3 · آموزش و تمرین</p><h2 id="session-title">تفاوت Session، Cookie و Token</h2><p>در Session مبتنی بر سرور، وضعیت نشست سمت سرور نگهداری می‌شود. Cookie سازوکار مرورگر برای نگهداری و ارسال داده است؛ ممکن است شناسه Session یا Authentication Ticket در آن باشد. JWT امضاشده می‌تواند بدون Session سمت سرور اعتبارسنجی شود.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>Cookie: sessionId=&lt;opaque-id&gt;
+
+Authorization: Bearer &lt;signed-access-token&gt;</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 3</h3><p>آیا اعتبارسنجی JWT همیشه به خواندن Session از دیتابیس نیاز دارد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. برای JWT خودبسنده بررسی امضا، زمان انقضا، Issuer و Audience می‌تواند محلی باشد؛ لغو فوری ممکن است به وضعیت سمت سرور نیاز داشته باشد.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="structure-title" class="lesson-section" data-source-section="4" id="structure"><p class="section-kicker">درس 4 · آموزش و تمرین</p><h2 id="structure-title">ساختار JWT: Header، Payload و Signature</h2><p>JWT امضاشده معمولاً از سه بخش Base64Url(Header).Base64Url(Payload).Signature تشکیل می‌شود. Header الگوریتم، Payload ادعاها و Signature صحت و اصالت را پوشش می‌دهد. Payload محرمانه نیست.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>// Header
+{"alg":"HS256","typ":"JWT"}
+
+// Payload
+{"sub":"1001","role":"Customer","exp":1795000000}
+
+// Format
+&lt;header&gt;.&lt;payload&gt;.&lt;signature&gt;</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 4</h3><p>اگر مهاجم Role را از Customer به Admin تغییر دهد ولی Secret Key نداشته باشد چه می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>امضای JWT دیگر معتبر نیست و سرور باید آن را رد کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="encoding-title" class="lesson-section" data-source-section="5" id="encoding"><p class="section-kicker">درس 5 · آموزش و تمرین</p><h2 id="encoding-title">تفاوت Encoding، Signing و Encryption</h2><p>Encoding فقط قالب انتقال را تغییر می‌دهد، Signing اصالت و یکپارچگی را اثبات می‌کند و Encryption محرمانگی ایجاد می‌کند. JWT امضاشده معمولاً JWS است و رمزنگاری نیست؛ JWE برای رمزنگاری وجود دارد.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>Signature = HMACSHA256(
+  Base64Url(Header) + "." + Base64Url(Payload),
+  SecretKey
+)</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 5</h3><p>آیا مهاجم می‌تواند Payload یک JWT امضاشده با HS256 را بخواند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>بله؛ Payload قابل Decode است، اما بدون Secret Key نمی‌تواند برای محتوای تغییریافته امضای معتبر بسازد.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="flow-title" class="lesson-section" data-source-section="6" id="flow"><p class="section-kicker">درس 6 · آموزش و تمرین</p><h2 id="flow-title">فرآیند End-to-End از Login تا API</h2><p>کلاینت Login می‌کند؛ AuthService پس از احراز هویت یک Access Token صادر می‌کند. کلاینت Access Token را با Bearer به PaymentService می‌فرستد؛ سرویس امضا، exp، iss و aud را بررسی می‌کند، سپس Authorization اجرا می‌شود.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>POST /api/auth/login
+// =&gt; {"accessToken":"&lt;signed-access-token&gt;"}
+
+GET /api/payments
+Authorization: Bearer &lt;signed-access-token&gt;</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 6</h3><p>آیا PaymentService برای هر درخواست با JWT معتبر باید به AuthService متصل شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. با کلید و تنظیمات معتبر می‌تواند Access Token را به‌صورت محلی اعتبارسنجی کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="validation-title" class="lesson-section" data-source-section="7" id="validation"><p class="section-kicker">درس 7 · آموزش و تمرین</p><h2 id="validation-title">اعتبارسنجی Issuer، Audience و Expiration</h2><p>امضای معتبر کافی نیست. exp زمان انقضا، iss صادرکننده قابل اعتماد و aud مخاطب مورد انتظار را مشخص می‌کند. ClockSkew اختلاف ساعت را مدیریت می‌کند.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>options.TokenValidationParameters = new()
+{
+    ValidateIssuer = true,
+    ValidIssuer = "https://auth.payment.com",
+    ValidateAudience = true,
+    ValidAudience = "payment-api",
+    ValidateLifetime = true,
+    RequireExpirationTime = true,
+    ValidateIssuerSigningKey = true,
+    RequireSignedTokens = true,
+    ClockSkew = TimeSpan.Zero
+};
+// Signing key and allowed algorithms configured separately.</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 7</h3><p>Access Token با aud=reporting-api به payment-api ارسال شود و بررسی Audience فعال باشد؛ نتیجه چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>درخواست رد می‌شود، حتی اگر امضا و انقضا معتبر باشند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="generate-title" class="lesson-section" data-source-section="8" id="generate"><p class="section-kicker">درس 8 · آموزش و تمرین</p><h2 id="generate-title">تولید JWT با C#</h2><p>پس از بررسی موفق Login، Claims و SigningCredentials را می‌سازیم و Access Token را با زمان انقضای محدود تولید می‌کنیم. در HS256 کلید باید تصادفی، قوی (حداقل ۳۲ بایت) و خارج از سورس‌کد نگهداری شود.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+
+public string GenerateToken(int userId, string role, IConfiguration config)
+{
+    var secret = config["Jwt:Secret"]
+        ?? throw new InvalidOperationException("Missing secret");
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var claims = new[]
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+        new Claim(ClaimTypes.Role, role),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
+    var jwt = new JwtSecurityToken(
+        issuer: config["Jwt:Issuer"],
+        audience: config["Jwt:Audience"],
+        claims: claims,
+        expires: DateTime.UtcNow.AddMinutes(30),
+        signingCredentials: credentials);
+    return new JwtSecurityTokenHandler().WriteToken(jwt);
+}</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 8</h3><p>اگر SigningCredentials حذف شود ولی API امضای JWT را اجباری بداند چه می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>JWT بدون امضا رد می‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="jwtbearer-title" class="lesson-section" data-source-section="9" id="jwtbearer"><p class="section-kicker">درس 9 · آموزش و تمرین</p><h2 id="jwtbearer-title">تنظیم AddAuthentication و AddJwtBearer</h2><p>AddAuthentication سرویس احراز هویت و Scheme پیش‌فرض را ثبت می‌کند؛ AddJwtBearer Handler دریافت و اعتبارسنجی Bearer Access Token را تنظیم می‌کند؛ AddAuthorization سرویس‌های بررسی مجوز را ثبت می‌کند.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+var builder = WebApplication.CreateBuilder(args);
+var jwt = builder.Configuration.GetSection("Jwt");
+var secret = jwt["Secret"] ?? throw new InvalidOperationException("Missing secret");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =&gt;
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwt["Audience"],
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+            ValidateIssuerSigningKey = true,
+            RequireSignedTokens = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 },
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+builder.Services.AddAuthorization();
+var app = builder.Build();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapGet("/api/payments", () =&gt; Results.Ok("Payment list"))
+   .RequireAuthorization();
+app.Run();</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 9</h3><p>وظیفه اصلی AddJwtBearer چیست؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>تنظیم دریافت و اعتبارسنجی JWT Bearer است؛ نه صدور Access Token.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="middleware-title" class="lesson-section" data-source-section="10" id="middleware"><p class="section-kicker">درس 10 · آموزش و تمرین</p><h2 id="middleware-title">ترتیب UseAuthentication و UseAuthorization</h2><p>UseAuthentication تلاش می‌کند هویت را تعیین کرده و HttpContext.User را تنظیم کند؛ UseAuthorization Policyهای Endpoint را بررسی می‌کند. ترتیب معمول این است که اول احراز هویت، سپس مجوزدهی اجرا شود.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 10</h3><p>کدام مرحله باید معمولاً زودتر اجرا شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>UseAuthentication پیش از UseAuthorization؛ البته Policy با Scheme خاص می‌تواند رفتار متفاوتی داشته باشد.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="roles-title" class="lesson-section" data-source-section="11" id="roles"><p class="section-kicker">درس 11 · آموزش و تمرین</p><h2 id="roles-title">Authorize، Roles و Claims</h2><p>Authorize به‌طور پیش‌فرض کاربر احرازشده می‌خواهد. Roles محدودیت مبتنی بر نقش است و Claims مقادیر ادعاها مانند permission یا department هستند. مجوز دسترسی به حساب متعلق به شخص دیگر باید جداگانه بررسی شود.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>[Authorize]
+[HttpGet("payments")]
+public IActionResult GetPayments() =&gt; Ok();
+
+[Authorize(Roles = "Admin")]
+[HttpGet("admin/reports")]
+public IActionResult GetReports() =&gt; Ok();
+
+var role = User.FindFirst(ClaimTypes.Role)?.Value;</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 11</h3><p>اگر Role=Customer و permission=report.read باشد، آیا Endpoint محدود به Admin اجرا می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر؛ در نبود Policy مکمل، شرط Role=Admin برقرار نیست و پاسخ معمولاً 403 است.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="policies-title" class="lesson-section" data-source-section="12" id="policies"><p class="section-kicker">درس 12 · آموزش و تمرین</p><h2 id="policies-title">Policy-Based Authorization</h2><p>Policy مجموعه‌ای از شرط‌های صریح را تعریف می‌کند؛ مثلاً هم Role=Manager و هم permission=payment.refund. برای کنترل منابع، سقف مبلغ و مالکیت می‌توان AuthorizationHandler و Requirement نوشت.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>builder.Services.AddAuthorization(options =&gt;
+{
+    options.AddPolicy("CanRefundPayment", policy =&gt;
+    {
+        policy.RequireRole("Manager");
+        policy.RequireClaim("permission", "payment.refund");
+    });
+});
+
+[Authorize(Policy = "CanRefundPayment")]
+[HttpPost("payments/{id}/refund")]
+public IActionResult Refund(long id) =&gt; Ok();</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 12</h3><p>Manager با permission=payment.read می‌تواند Refund انجام دهد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. تمام Requirementهای این Policy باید برقرار باشند؛ معمولاً 403 دریافت می‌کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="refresh-title" class="lesson-section" data-source-section="13" id="refresh"><p class="section-kicker">درس 13 · آموزش و تمرین</p><h2 id="refresh-title">Access Token در برابر Refresh Token</h2><p>Access Token برای درخواست‌های تکراری API است و معمولاً کوتاه‌عمر است. Refresh Token صرفاً برای درخواست تمدید Access Token به AuthService فرستاده می‌شود و اغلب یک مقدار تصادفی و طولانی‌عمرتر است. این دو را نباید با هم اشتباه گرفت.</p><div class="lesson-note"><strong>تفاوت حیاتی</strong><span>Access Token را می‌توان در درخواست‌های متعدد استفاده کرد؛ در Refresh Token Rotation تنها Refresh Token پس از تمدید به Used تغییر می‌کند.</span></div><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>GET /api/payments
+Authorization: Bearer &lt;access-token&gt;
+
+POST /api/auth/refresh
+Content-Type: application/json
+
+{"refreshToken":"&lt;refresh-token&gt;"}</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 13</h3><p>پس از انقضای Access Token، کلاینت چگونه بدون Login مجدد Access Token جدید می‌گیرد؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>Refresh Token معتبر را به AuthService می‌فرستد و سرور پس از کنترل‌های لازم Access Token جدید صادر می‌کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="rotation-title" class="lesson-section" data-source-section="14" id="rotation"><p class="section-kicker">درس 14 · آموزش و تمرین</p><h2 id="rotation-title">Logout، Revocation و Refresh Token Rotation</h2><p>لغو Refresh Token مانع تمدید آینده می‌شود اما الزاماً Access Token فعلی را بی‌درنگ باطل نمی‌کند. برای لغو Access Token می‌توان از Revocation List و jti استفاده کرد. در Refresh Token Rotation، فقط Refresh Token یک‌بارمصرف است؛ Access Token تا زمان اعتبار می‌تواند بارها به API ارسال شود.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>نوع</th><th>نمونه</th><th>وضعیت پس از تمدید</th></tr></thead><tbody><tr><td>Access Token</td><td>Access A</td><td>ممکن است منقضی شده باشد؛ استفاده از Access B مجاز است</td></tr><tr><td>Refresh Token</td><td>Refresh A</td><td>Used</td></tr><tr><td>Refresh Token</td><td>Refresh B</td><td>Active</td></tr></tbody></table></div><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>// Refresh Token Rotation (pseudo-code)
+BEGIN TRANSACTION;
+SELECT * FROM RefreshTokens WHERE TokenHash = @hash FOR UPDATE;
+IF Status != 'Active' OR ExpiresAt &lt;= now: REJECT;
+UPDATE RefreshTokens SET Status = 'Used' WHERE Id = @id;
+INSERT INTO RefreshTokens(TokenHash, Status) VALUES (@newHash, 'Active');
+COMMIT;
+// Issue new Access Token and new Refresh Token.
+// Syntax is conceptual; SQL Server uses different locking syntax.</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 14</h3><p>اگر Refresh Token A قبلاً Used باشد و دوباره برای تمدید ارسال شود چه می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>درخواست رد می‌شود و ممکن است نشانه سرقت Refresh Token باشد. این وضعیت فقط به Refresh Token Rotation مربوط است، نه استفاده معمول Access Token.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="security-title" class="lesson-section" data-source-section="15" id="security"><p class="section-kicker">درس 15 · آموزش و تمرین</p><h2 id="security-title">حملات و امنیت JWT</h2><p>برای جلوگیری از سوءاستفاده: HTTPS، نگهداری امن Access Token و Refresh Token، زمان انقضای کوتاه Access Token، اعتبارسنجی امضا و الگوریتم مجاز، محافظت در برابر XSS/CSRF و سازوکار لغو دسترسی ضروری‌اند. تغییر Role در دیتابیس Claims صادرشده را به‌روزرسانی نمی‌کند.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>// Example: restrict allowed algorithm
+ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 };
+
+// For urgent revocation, check a server-side denylist keyed by jti.
+// Sensitive operations may also require current permissions.</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 15</h3><p>نقش کاربر در دیتابیس از Admin به Customer عوض شود، اما Access Token قبلی هنوز Admin و معتبر باشد؛ بدون کنترل اضافه چه می‌شود؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>سرویس صرفاً مبتنی بر Claims قدیمی، دسترسی Admin را تا پایان اعتبار Access Token ممکن است بپذیرد.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="microservices-title" class="lesson-section" data-source-section="16" id="microservices"><p class="section-kicker">درس 16 · آموزش و تمرین</p><h2 id="microservices-title">JWT در Microservices و API Gateway</h2><p>Gateway می‌تواند Access Token را اعتبارسنجی و درخواست را Route کند، اما سرویس مقصد نیز باید مرز اعتماد، مجوز عملیات و مالکیت منبع را کنترل کند. در RS256 سرویس صادرکننده با Private Key امضا می‌کند و سرویس‌های دیگر با Public Key اعتبارسنجی می‌کنند.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>Client -&gt; API Gateway -&gt; PaymentService
+                        -&gt; WalletService
+                        -&gt; ReportService
+
+AuthService signs Access Token with RSA private key.
+PaymentService validates signature with RSA public key.
+PaymentService checks payment.refund and ownership rules.</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 16</h3><p>برای اعتبارسنجی Access Token امضاشده با RS256 در PaymentService کدام کلید لازم است؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>Public Key؛ Private Key فقط برای امضای Access Token نگهداری می‌شود.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section><section aria-labelledby="payment-scenario-title" class="lesson-section" data-source-section="17" id="payment-scenario"><p class="section-kicker">درس 17 · آموزش و تمرین</p><h2 id="payment-scenario-title">سناریوی عملی سیستم پرداخت و پرسش‌های Senior</h2><p>طراحی نهایی: AuthService پس از Login، Access Token کوتاه‌عمر و Refresh Token امن صادر می‌کند؛ کلاینت Access Token را به Gateway می‌فرستد؛ Gateway بررسی اولیه و مسیریابی انجام می‌دهد؛ PaymentService اعتبار هویت و مجوز Refund، مالکیت/حد مبلغ و قواعد تجاری را کنترل می‌کند. برای Logout، Refresh Token لغو و در صورت نیاز Access Token هم از طریق Revocation بررسی می‌شود.</p><div class="code-block"><div class="code-label"><span>مثال عملی / کد آموزشی</span><span dir="ltr">C# / HTTP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code>// Example: protected refund endpoint
+[Authorize(Policy = "CanRefundPayment")]
+[HttpPost("{paymentId:long}/refund")]
+public async Task&lt;IActionResult&gt; Refund(long paymentId)
+{
+    // Load payment from database
+    // Check merchant ownership and current payment status
+    // Enforce idempotency and financial business rules
+    // Record/refund using an atomic financial workflow
+    return Accepted();
+}
+
+// Review points:
+// 401 vs 403; JWT signature; iss/aud/exp; RS256 keys;
+// Access Token vs Refresh Token; Rotation; role changes;
+// Gateway bypass; resource authorization.</code></pre></div><div class="lesson-quiz"><h3>سؤال مرور درس 17</h3><p>اگر Gateway توکن را پذیرفت، آیا PaymentService مجاز است بدون بررسی مالکیت و شرایط مالی بازپرداخت را اجرا کند؟</p><details><summary>نمایش پاسخ تشریحی</summary><div>خیر. اعتبار Access Token مجوز بی‌قید برای همه عملیات نیست. سرویس مقصد باید Policy، مالکیت و قواعد مالی را بررسی کند.</div></details></div><p class="section-end"><a href="#course-title">بازگشت به ابتدای درس‌ها ↑</a></p></section></div><footer class="study-source"><h2>منابع و نکات پایانی</h2><p>توضیح‌های درس‌های ۱ تا ۱۶ از محتوای همین گفت‌وگو بازنویسی و یکپارچه شده‌اند. درس ۱۷ تکمیل آموزشی برای پایان دوره است. مثال‌ها برای آموزش هستند و برای استفاده در Production به مدیریت کلید، سیاست امنیتی و تست نیاز دارند.</p><p><a href="https://learn.microsoft.com/en-us/aspnet/core/security/authentication/" rel="noopener noreferrer" target="_blank">مستندات Authentication در ASP.NET Core</a> · <a href="https://learn.microsoft.com/en-us/aspnet/core/security/authorization/introduction" rel="noopener noreferrer" target="_blank">مستندات Authorization</a></p><a href="#course-title">بازگشت به ابتدای جزوه ↑</a></footer></article></main></div><footer class="course-footer"><span>آکادمی دات‌نت · Authentication / Authorization / JWT</span><a href="../../topics/">بازگشت به آموزش‌های موضوعی</a></footer><script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const menuToggle = document.querySelector('[data-course-menu-toggle]');
+  const setTheme = theme => {
+    root.dataset.theme = theme;
+    toggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+    toggle?.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
+  };
+  setTheme(root.dataset.theme || 'light');
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('dotnet-academy-theme', next); } catch (_) {}
+  });
+  menuToggle?.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+    menuToggle.setAttribute('aria-expanded', String(document.body.classList.contains('menu-open')));
+  });
+  document.querySelectorAll('.course-sidebar a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  }));
+  document.querySelectorAll('.copy-code').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const val = btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+      if (!val) return;
+      try {
+        await navigator.clipboard.writeText(val);
+        btn.textContent = 'کپی شد';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      } catch (_) {
+        const textArea = document.createElement('textarea');
+        textArea.value = val;
+        document.body.append(textArea);
+        textArea.select();
+        const success = document.execCommand('copy');
+        textArea.remove();
+        btn.textContent = success ? 'کپی شد' : 'کپی ناموفق';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      }
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const links = [...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+    const index = Object.fromEntries(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        index[entry.target.id]?.classList.add('active');
+      }
+    }, {rootMargin:'-18% 0px -70% 0px', threshold:0});
+    document.querySelectorAll('.lesson-section').forEach(el => observer.observe(el));
+  }
+})();
+
+</script></body></html>

@@ -1,5 +1,16 @@
 @import url("course.css");
 
+.gitlab-study-page > .breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem .7rem;
+  width: min(1280px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding-top: 16px;
+  overflow-wrap: anywhere;
+}
+
 :root {
   --cicd-accent: #7c3aed;
   --cicd-accent-strong: #5b21b6;
