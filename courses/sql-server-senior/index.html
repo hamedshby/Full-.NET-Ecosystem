@@ -1,0 +1,1522 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="دوره جامع SQL Server برای مصاحبه Senior .NET: ۲۵ درس، نمونه‌کد SQL و EF Core، جدول مقایسه و سؤال مصاحبه">
+<title>آموزش SQL Server برای مصاحبه Senior .NET Developer | آکادمی دات‌نت</title><script>(()=>{document.documentElement.classList.add('js');let storedTheme=null;try{storedTheme=localStorage.getItem('dotnet-academy-theme')}catch(_){}const systemDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=storedTheme==='dark'||storedTheme==='light'?storedTheme:systemDark?'dark':'light'})();</script><style>
+:root {
+  color-scheme: light;
+  --surface:#fff; --surface-soft:#fff9f5; --surface-muted:#fff3eb;
+  --ink:#1b2331; --muted:#687486; --line:#e9e5e2;
+  --accent:#c4550b; --accent-strong:#983e08; --accent-light:#fff0e4;
+  --blue:#2f669b; --warning:#9e4c13; --warning-bg:#fff1db;
+  --shadow:0 12px 40px rgba(29,35,44,.065); --code-bg:#14202d; --code-ink:#e8f1f8;
+}
+html[data-theme="dark"] { color-scheme:dark;
+  --surface:#18212c;--surface-soft:#1d2833;--surface-muted:#2e2a2b;
+  --ink:#e5ebf2;--muted:#abb6c6;--line:#344050;
+  --accent:#fa9e59;--accent-strong:#ffb67b;--accent-light:#352a23;
+  --blue:#a0cef0;--warning:#ffd295;--warning-bg:#372b26;
+  --shadow:0 12px 40px rgba(0,0,0,.15);--code-bg:#0e1721;--code-ink:#e7eff8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{margin:0;background:var(--surface);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2;direction:rtl}
+a{color:var(--accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.skip-link{position:absolute;right:1rem;top:-4rem;background:var(--accent);color:white;padding:.3rem .8rem;z-index:99}
+.skip-link:focus{top:.5rem}
+.course-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;box-shadow:0 3px 12px rgba(13,20,25,.03)}
+.course-nav{display:flex;align-items:center;gap:1.1rem;max-width:1460px;min-height:69px;padding:8px clamp(14px,2vw,34px);margin:auto}
+.course-brand{font-weight:900;white-space:nowrap;color:var(--ink);font-size:1.08rem}
+.course-name{font-weight:800;padding-inline-start:1rem;border-inline-start:1px solid var(--line);color:var(--accent-strong)}
+.course-header .back-link{margin-inline-start:auto;font-size:.87rem;color:var(--muted)}
+.course-menu-button,.icon-button{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line);border-radius:.65rem;min-height:38px;cursor:pointer;padding:.2rem .8rem;font-size:.85rem}
+.icon-button{width:40px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none}
+[data-theme="dark"] .theme-icon-moon{display:none}
+[data-theme="dark"] .theme-icon-sun{display:block}
+.lesson-shell{max-width:1460px;display:grid;grid-template-columns:275px minmax(0,1fr);align-items:start;gap:clamp(24px,3.2vw,54px);padding:25px clamp(14px,2vw,34px);margin:0 auto}
+.course-sidebar{position:sticky;top:92px;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--line);border-radius:15px;background:var(--surface-soft);box-shadow:var(--shadow);padding:1.1rem .55rem 1rem}
+.sidebar-heading{display:grid;gap:2px;padding:.55rem .9rem 1.05rem;border-bottom:1px solid var(--line)}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading>strong{font-size:1rem}
+.course-sidebar ol{list-style:none;margin:.7rem 0;padding:0}
+.course-sidebar li a{display:flex;gap:.8rem;align-items:center;padding:.55rem .7rem;border-radius:.55rem;color:var(--ink);font-size:.86rem;line-height:1.6}
+.course-sidebar li a:hover,.course-sidebar li a.active{background:var(--accent-light);color:var(--accent-strong);text-decoration:none}
+.course-sidebar li a span{min-width:1.55rem;color:var(--accent);font-weight:800;direction:ltr;font-size:.78rem}
+.sidebar-tail{display:block;border-top:1px solid var(--line);margin:.8rem .35rem 0;padding:.7rem;color:var(--muted);font-size:.8rem}
+.lesson-content{min-width:0;max-width:1000px;width:100%;padding-bottom:1rem}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1460px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.gc-hero{margin-block:1rem 2rem;border:1px solid var(--line);border-radius:20px;padding:clamp(1.1rem,3vw,2.2rem);background:linear-gradient(130deg,var(--surface-soft),var(--surface));position:relative;overflow:hidden}
+.gc-hero:before{content:"";position:absolute;pointer-events:none;inset:auto auto -135px -85px;width:300px;height:300px;border-radius:50%;background:var(--accent-light);opacity:.85}
+.gc-hero>*{position:relative}
+.eyebrow,.section-kicker{color:var(--accent-strong);font-size:.8rem;font-weight:850;margin:0}
+.gc-hero h1{font-size:clamp(1.72rem,3.2vw,2.8rem);line-height:1.6;margin:.4rem 0 .8rem;letter-spacing:-.5px}
+.course-lead{font-size:1rem;color:var(--muted);max-width:750px;line-height:2.2}
+.study-meta,.study-actions{display:flex;align-items:center;gap:10px 17px;flex-wrap:wrap;margin-top:1.1rem;font-size:.84rem;color:var(--muted)}
+.study-status{color:var(--accent-strong);background:var(--accent-light);border:1px solid var(--line);font-weight:750;padding:2px 10px;border-radius:10px}
+.study-actions a{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:.32rem .85rem;font-weight:800}
+.study-actions a.button-link{background:var(--accent);color:white;border-color:var(--accent)}
+.lesson-body{display:grid;gap:2rem}
+.lesson-section{border:1px solid var(--line);border-radius:18px;padding:clamp(1.1rem,3vw,2rem);background:var(--surface);box-shadow:0 3px 20px rgba(25,30,35,.025);scroll-margin-top:92px}
+.lesson-section h2{font-size:clamp(1.32rem,2.4vw,1.75rem);line-height:1.7;margin:.3rem 0 1rem}
+.lesson-section h3{font-size:1.08rem;line-height:1.9;margin:1.45rem 0 .4rem}
+.lesson-section h4{font-size:.96rem;margin:1.2rem 0 .4rem}
+.lesson-section p{margin:.55rem 0 1rem}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{margin:.38rem 0}
+.lesson-section code:not(pre code),.study-source code{font-family:Consolas,"Cascadia Code",monospace;font-size:.89em;background:var(--surface-muted);color:var(--accent-strong);border-radius:5px;padding:.13rem .3rem;unicode-bidi:isolate;direction:ltr;overflow-wrap:anywhere}
+bdi{unicode-bidi:isolate}
+.code-block{border-radius:12px;border:1px solid #314050;margin:1.2rem 0;overflow:hidden;max-width:100%}
+.code-label{display:flex;gap:10px;align-items:center;padding:.48rem .85rem;background:#223344;color:#dbe8f5;font-size:.75rem;direction:rtl}
+.code-label span:nth-child(2){margin-inline-start:auto;color:#b3c6d4}
+.copy-code{color:#e8f1f8;border:1px solid #617486;background:#2a4054;padding:1px 11px;border-radius:7px;cursor:pointer}
+pre{direction:ltr;text-align:left;margin:0;padding:1.15rem 1.1rem;overflow:auto;background:var(--code-bg);color:var(--code-ink);line-height:1.75;font:13.4px/1.75 Consolas,"Cascadia Code",monospace;tab-size:4;max-width:100%}
+pre code{direction:ltr;white-space:pre;unicode-bidi:normal;color:inherit;font:inherit}
+.lesson-note,.lesson-warning{border-radius:11px;padding:.85rem 1rem;display:grid;gap:.2rem;margin:1.1rem 0;border:1px solid var(--line);background:var(--surface-soft)}
+.lesson-note{border-inline-start:4px solid var(--blue)}
+.lesson-warning{border-inline-start:4px solid var(--warning);background:var(--warning-bg)}
+.lesson-note strong,.lesson-warning strong{font-size:.9rem}
+.lesson-note span,.lesson-warning span{font-size:.88rem;line-height:2;color:var(--muted)}
+.message-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:1.3rem auto;font:12px Consolas,monospace}
+.message-flow span{padding:10px 13px;background:var(--accent-light);border:1px solid var(--line);border-radius:10px;color:var(--accent-strong)}
+.message-flow b{color:var(--accent)}
+.generation-flow{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin:1.4rem 0;direction:ltr}
+.generation-flow>div{border:1px solid var(--line);border-radius:13px;min-width:140px;display:grid;justify-items:center;padding:16px;background:var(--surface-soft);text-align:center;direction:rtl}
+.generation-flow b{direction:ltr;font-size:1.3rem;color:var(--accent-strong)}
+.generation-flow span{font-size:.73rem;color:var(--muted)}
+.generation-flow i{font-size:.72rem;color:var(--muted);font-style:normal}
+.table-wrap{overflow-x:auto;max-width:100%;margin:1.15rem 0;border:1px solid var(--line);border-radius:12px}
+.diagnostic-table{border-collapse:collapse;width:100%;min-width:510px;font-size:.88rem}
+.diagnostic-table caption{text-align:right;color:var(--muted);font-size:.78rem;padding:.7rem .9rem}
+.diagnostic-table th{background:var(--surface-muted);font-weight:850;text-align:right}
+.diagnostic-table th,.diagnostic-table td{padding:.73rem .88rem;vertical-align:top;border-bottom:1px solid var(--line);line-height:1.9}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.lesson-quiz{border:1px solid var(--line);background:var(--surface-soft);border-radius:12px;padding:.95rem 1.1rem;margin:1.8rem 0 .3rem}
+.lesson-quiz h3{color:var(--accent-strong);font-size:.99rem;margin:0 0 .4rem}
+.lesson-quiz p{margin:.2rem 0 .8rem}
+.lesson-quiz details{margin-top:.75rem}
+.lesson-quiz summary{cursor:pointer;font-size:.89rem;font-weight:800;color:var(--accent-strong);width:max-content;max-width:100%}
+.lesson-quiz details>div{border-top:1px solid var(--line);margin-top:.7rem;padding-top:.75rem;font-size:.9rem}
+.study-source{margin-top:2rem;border-top:1px solid var(--line);padding:1rem .3rem;color:var(--muted);font-size:.88rem}
+.study-source h2{font-size:1.1rem;color:var(--ink)}
+.study-source a{word-break:break-word}
+.course-footer{border-top:1px solid var(--line);padding:1.3rem;display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted);max-width:1460px;margin:auto}
+@media(max-width:1020px){.lesson-shell{grid-template-columns:245px minmax(0,1fr);gap:20px}.course-name{font-size:.9rem}}
+@media(max-width:790px){.lesson-shell{display:block;padding:15px}.course-sidebar{display:none;position:relative;top:auto;max-height:none;margin-bottom:1.15rem}.menu-open .course-sidebar{display:block}.course-menu-button{order:2}.course-header .back-link{display:none}.course-brand{font-size:.95rem}.course-name{font-size:.8rem}.course-nav{gap:.5rem}.icon-button{margin-inline-start:auto}.gc-hero{margin-top:.5rem}.lesson-body{gap:1.1rem}.generation-flow i{width:100%;text-align:center}.lesson-section{padding:1rem}.course-footer{flex-wrap:wrap}}
+@media print{.course-header,.course-sidebar,.copy-code,.study-actions,.skip-link{display:none!important}.lesson-shell{display:block;max-width:none}.lesson-content{max-width:none}.lesson-section{box-shadow:none;break-inside:avoid;padding:.8rem;border-color:#aaa}.lesson-quiz summary{color:#444}html{scroll-behavior:auto}body{background:white;color:black}.gc-hero{background:white}pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#111;background:#f3f4f6;border:1px solid #ddd}}
+/* Ensure long code and tables never widen the lesson grid on narrow screens. */
+.lesson-body{min-width:0;grid-template-columns:minmax(0,1fr)}
+.lesson-section{min-width:0}
+
+
+/* SQL Server course additions; original uploaded design retained. */
+.course-sidebar li a{align-items:start}
+.course-sidebar li a span{margin-top:2px}
+.future-mark{display:inline-block;font-size:.65rem;color:var(--muted);margin-inline-start:auto;white-space:nowrap;padding-top:2px}
+.course-overview{border:1px solid var(--line);border-radius:16px;background:var(--surface-soft);padding:1rem 1.3rem;margin-bottom:1.5rem}
+.course-overview strong{color:var(--accent-strong)}
+.lesson-step-nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:1.4rem;border-top:1px solid var(--line);padding-top:1rem;font-size:.89rem;font-weight:800}
+.lesson-step-nav a{background:var(--surface-soft);border:1px solid var(--line);border-radius:10px;padding:5px 13px}
+.quiz-options{list-style:none!important;margin:.85rem 0!important;padding:0!important;display:grid;gap:.5rem;counter-reset:none}
+.quiz-options li{padding:.5rem .75rem;display:flex;align-items:flex-start;gap:11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);margin:0!important;line-height:1.8}
+.quiz-options .option-letter{font-weight:bold;font-size:.8rem;color:var(--accent-strong);background:var(--accent-light);border-radius:5px;min-width:24px;text-align:center;padding:0 5px;direction:ltr}
+.section-kicker{line-height:1.7}
+.lesson-note p{margin:0}
+.lesson-note > span,.lesson-warning > span{display:block}
+.lesson-section strong{font-weight:800}
+.lesson-section .code-block{direction:rtl}
+.lesson-section .code-label span:nth-child(2){font-weight:700}
+.code-label{min-height:36px}
+pre{font-size:13px}
+.lesson-section ol:not(.quiz-options){padding-inline-start:1.65rem}
+.course-footnote{color:var(--muted);font-size:.84rem}
+@media print{.lesson-section{break-inside:auto;page-break-inside:auto}.lesson-quiz details>div{display:block}.lesson-step-nav{display:none}}
+</style></head>
+<body class="lesson-page gc-page"><a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a><header class="course-header"><nav class="course-nav" aria-label="ناوبری آکادمی دات‌نت">
+<a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+<span class="course-name">SQL Server · مصاحبه سنیور</span>
+<button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="false" aria-controls="course-sidebar">فهرست مطالب</button>
+<button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="تغییر تم" aria-pressed="false"><svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg><svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></button>
+</nav></header>
+<nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html">آکادمی دات‌نت</a><span aria-hidden="true">/</span><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span aria-current="page"><bdi>SQL Server</bdi></span></nav>
+<div class="lesson-shell"><aside id="course-sidebar" class="course-sidebar" aria-label="فهرست دوره"><div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>آموزش SQL Server برای سنیور</strong><span>۲۵ درس · مفاهیم، کد، مصاحبه</span></div><nav id="lessons-list" aria-label="فهرست مطالب دوره"><ol><li><a href="#index-types"><span>01</span>Clustered و Non-Clustered Index</a></li><li><a href="#covering"><span>02</span>Covering Index، INCLUDE و Key Lookup</a></li><li><a href="#composite"><span>03</span>Composite Index و ترتیب ستون‌ها</a></li><li><a href="#plans"><span>04</span>Execution Plan، Index Seek و Index Scan</a></li><li><a href="#statistics"><span>05</span>Statistics و تخمین تعداد ردیف‌ها</a></li><li><a href="#sargable"><span>06</span>SARGable و نوشتن شرط قابل جست‌وجو</a></li><li><a href="#sniffing"><span>07</span>Parameter Sniffing و Plan Cache</a></li><li><a href="#acid"><span>08</span>Transaction، COMMIT، ROLLBACK و ACID</a></li><li><a href="#dirty-read"><span>09</span>Isolation Level و Dirty Read</a></li><li><a href="#read-anomalies"><span>10</span>Non-Repeatable Read و Phantom Read</a></li><li><a href="#blocking"><span>11</span>Blocking و Lock در SQL Server</a></li><li><a href="#deadlock"><span>12</span>Deadlock، خطای 1205 و پیشگیری</a></li><li><a href="#deadlock-retry"><span>13</span>Retry تراکنشی در EF Core و Idempotency</a></li><li><a href="#snapshot"><span>14</span>SNAPSHOT، RCSI و SERIALIZABLE</a></li><li><a href="#lost-update"><span>15</span>Lost Update و کنترل برداشت هم‌زمان <small class="future-mark">تکمیلی</small></a></li><li><a href="#lock-hints"><span>16</span>Lock Hints و الگوهای قفل‌گذاری <small class="future-mark">تکمیلی</small></a></li><li><a href="#temp-cte"><span>17</span>Temp Table، Table Variable و CTE <small class="future-mark">تکمیلی</small></a></li><li><a href="#window-functions"><span>18</span>Window Functions: ROW_NUMBER، RANK و LAG <small class="future-mark">تکمیلی</small></a></li><li><a href="#procs-views"><span>19</span>Stored Procedure، View و Function <small class="future-mark">تکمیلی</small></a></li><li><a href="#join-group"><span>20</span>JOIN، GROUP BY، WHERE و HAVING <small class="future-mark">تکمیلی</small></a></li><li><a href="#delete-truncate"><span>21</span>DELETE، TRUNCATE و DROP <small class="future-mark">تکمیلی</small></a></li><li><a href="#columnstore"><span>22</span>Columnstore Index و Rowstore Index <small class="future-mark">تکمیلی</small></a></li><li><a href="#ef-tuning"><span>23</span>بهینه‌سازی Query در EF Core <small class="future-mark">تکمیلی</small></a></li><li><a href="#production"><span>24</span>عیب‌یابی SQL Server در Production <small class="future-mark">تکمیلی</small></a></li><li><a href="#mock-interview"><span>25</span>مصاحبه نهایی Senior .NET و سناریوهای SQL <small class="future-mark">تکمیلی</small></a></li></ol></nav><span class="sidebar-tail">۱۴ درس اول: مباحث مرورشده در گفتگو | ۱۵ تا ۲۵: ادامه تکمیلی</span></aside><main id="lesson-content" class="lesson-content">
+<article id="course-title" aria-label="دوره SQL Server برای مصاحبه سنیور">
+<div class="lesson-body"><section id="index-types" class="lesson-section" data-source-section="1" aria-labelledby="lesson-title-1">
+    <p class="section-kicker">درس 1 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-1">Clustered و Non-Clustered Index</h2>
+    <p>در سیستم پرداخت، جدول <code>Transactions</code> می‌تواند میلیون‌ها ردیف داشته باشد. اگر برای پیدا کردن یک تراکنش هر بار همه ردیف‌ها خوانده شوند، کارایی به‌شدت افت می‌کند. ایندکس امکان پیدا کردن سریع کلید یا محدوده‌ای از کلیدها را فراهم می‌کند؛ ساختار رایج ایندکس‌های Rowstore در SQL Server از نوع <strong>B+Tree</strong> است.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE TABLE dbo.Transactions (
+    Id BIGINT NOT NULL PRIMARY KEY CLUSTERED,
+    UserId BIGINT NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL,
+    Status INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL
+);
+</code></pre></div>
+<h3>Clustered Index</h3>
+<p>در <code>Clustered Index</code>، سطح برگ درخت حاوی خود ردیف‌های داده است؛ ردیف‌ها به ترتیب <strong>منطقی</strong> کلید سازمان‌دهی می‌شوند، نه اینکه الزاماً از نظر فیزیکی پشت سر هم باشند. هر جدول حداکثر <strong>یک</strong> Clustered Index دارد. جدول بدون آن <code>Heap</code> است. <code>PRIMARY KEY</code> می‌تواند <code>NONCLUSTERED</code> هم باشد.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT * FROM dbo.Transactions WHERE Id = 125;
+-- Often: Clustered Index Seek
+</code></pre></div>
+<h3>Non-Clustered Index</h3>
+<p>این ایندکس ساختاری مجزا از داده اصلی دارد. در جدولی که Clustered Index دارد، مکان‌یاب ردیف معمولاً کلید Clustered است؛ در جدول Heap مکان‌یاب از نوع RID است.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE NONCLUSTERED INDEX IX_Transactions_UserId
+ON dbo.Transactions(UserId);
+
+SELECT UserId, Amount, Status
+FROM dbo.Transactions
+WHERE UserId = 500;
+</code></pre></div>
+<p>ایندکس فوق می‌تواند <code>UserId</code> را بیابد؛ اما چون <code>Amount</code> و <code>Status</code> داخل آن نیستند، SQL Server ممکن است برای بازیابی این دو ستون عملیات <code>Key Lookup</code> انجام دهد. تعداد بالای Lookup هزینه‌بر است.</p>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>ویژگی</th>
+<th>Clustered</th>
+<th>Non-Clustered</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تعداد در هر جدول</td>
+<td>حداکثر ۱</td>
+<td>چندین مورد</td>
+</tr>
+<tr>
+<td>سطح برگ</td>
+<td>ردیف کامل داده</td>
+<td>کلید، مکان‌یاب و ستون‌های INCLUDE</td>
+</tr>
+<tr>
+<td>کاربرد نمونه</td>
+<td>جست‌وجو با <code>Id</code></td>
+<td>جست‌وجو با <code>UserId</code></td>
+</tr>
+</tbody>
+</table></div>
+<aside class="lesson-note"><strong>نکته مصاحبه</strong><span>وجود ایندکس تضمین نمی‌کند که Optimizer از آن استفاده کند. برای Query با درصد خروجی زیاد، Scan ممکن است به‌صرفه‌تر از Seek همراه با هزاران Lookup باشد.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 1 · آمادگی مصاحبه</h3><p><strong>چرا Query روی UserId ممکن است به Key Lookup نیاز پیدا کند؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>چون ایندکس روی عدد ساخته نمی‌شود</span></li><li><bdi class="option-letter">B</bdi><span>چون Amount و Status در ایندکس نیستند</span></li><li><bdi class="option-letter">C</bdi><span>چون همیشه Table Scan لازم است</span></li><li><bdi class="option-letter">D</bdi><span>چون جدول فقط یک Index دارد</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — برای خواندن ستون‌های خارج از Non-Clustered Index ممکن است به ردیف اصلی جدول مراجعه شود.</div></details></div>
+    <div class="lesson-step-nav"><a href="#course-title">↑ ابتدای جزوه</a><a href="#covering">درس بعد →</a></div>
+    </section>
+<section id="covering" class="lesson-section" data-source-section="2" aria-labelledby="lesson-title-2">
+    <p class="section-kicker">درس 2 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-2">Covering Index، INCLUDE و Key Lookup</h2>
+    <p>در یک گزارش پرتکرار این Query را داریم:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT UserId, Amount, Status
+FROM dbo.Transactions
+WHERE UserId = 100;
+</code></pre></div>
+<p>اگر ایندکس فقط <code>UserId</code> را نگهداری کند، خواندن دو ستون دیگر ممکن است به <code>Key Lookup</code> نیاز داشته باشد. می‌توان برای <strong>پوشش دادن Query</strong> این ستون‌ها را در سطح برگ ایندکس قرار داد.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE NONCLUSTERED INDEX IX_Transactions_UserId_Cover
+ON dbo.Transactions(UserId)
+INCLUDE (Amount, Status);
+</code></pre></div>
+<aside class="lesson-note">
+<p>اگر ایندکس قبلی با همین نام وجود دارد، باید آن را متناسب با شرایط بازسازی یا جایگزین کنی؛ دو تعریف هم‌نام را پشت سر هم اجرا نکن.</p>
+</aside>
+<h3>کلید ایندکس در برابر INCLUDE</h3>
+<ul>
+<li>ستون <strong>Key</strong> بخشی از ترتیب و ساختار جست‌وجوی ایندکس است؛ می‌تواند در Seek و عملیات مرتب‌سازی نقش داشته باشد.</li>
+<li>ستون <strong>INCLUDE</strong> برای پوشاندن خروجی Query مفید است، اما بخشی از ترتیب کلید نیست و به‌تنهایی نمی‌تواند کلید Seek باشد.</li>
+<li>اصطلاح <code>Covering Index</code> یک نوع دستور <code>CREATE INDEX</code> نیست؛ به معنای ایندکسی است که برای Query خاص، همه داده‌های لازم را تأمین می‌کند.</li>
+</ul>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Index key = UserId; Amount is included only.
+SELECT UserId, Amount, Status
+FROM dbo.Transactions
+WHERE Amount &gt; 1000000;
+-- A scan may be necessary; the INCLUDE column isn't a Seek key.
+</code></pre></div>
+<h3>هزینه ایندکس زیاد</h3>
+<p>هر ایندکس به فضای ذخیره‌سازی و نگهداری نیاز دارد. درج، حذف و تغییر ستون‌های ایندکس‌شده می‌تواند گران‌تر شود؛ ایندکس‌ها را بر اساس Workload واقعی بساز، نه برای هر ستون.</p>
+<aside class="lesson-warning"><strong>احتیاط در Production</strong><span>قبل و بعد از ساخت ایندکس، Logical Reads، زمان اجرا و هزینهٔ INSERT/UPDATE را اندازه بگیر. «پوشش دادن Query» لزوماً به معنی بهترین پلان نیست.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 2 · آمادگی مصاحبه</h3><p><strong>آیا INCLUDE(Amount) اجازه می‌دهد شرط WHERE Amount &gt; 1000000 به‌صورت Seek مؤثر روی همان کلید اجرا شود؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>بله، چون INCLUDE مانند Key است</span></li><li><bdi class="option-letter">B</bdi><span>خیر؛ Amount کلید مرتب‌شده نیست و ممکن است Scan شود</span></li><li><bdi class="option-letter">C</bdi><span>همیشه Clustered Index حذف می‌شود</span></li><li><bdi class="option-letter">D</bdi><span>INCLUDE فقط برای رشته‌هاست</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — INCLUDE ستون را در سطح برگ پوشش می‌دهد، ولی بخشی از ترتیب کلید نیست.</div></details></div>
+    <div class="lesson-step-nav"><a href="#index-types">← درس قبل</a><a href="#composite">درس بعد →</a></div>
+    </section>
+<section id="composite" class="lesson-section" data-source-section="3" aria-labelledby="lesson-title-3">
+    <p class="section-kicker">درس 3 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-3">Composite Index و ترتیب ستون‌ها</h2>
+    <p>برای این Query:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT Id, UserId, Amount, Status
+FROM dbo.Transactions
+WHERE UserId = 100 AND Status = 1;
+</code></pre></div>
+<p>یک ایندکس ترکیبی طراحی می‌کنیم:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE NONCLUSTERED INDEX IX_Transactions_User_Status
+ON dbo.Transactions(UserId, Status)
+INCLUDE (Amount);
+</code></pre></div>
+<p>ایندکس ابتدا بر اساس <code>UserId</code> و سپس درون هر گروه کاربر بر اساس <code>Status</code> مرتب است. در این جدول، <code>Id</code> به‌عنوان کلید Clustered به‌طور ضمنی در ایندکس Non-Clustered موجود است.</p>
+<h3>قانون Leftmost Prefix</h3>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>شرط</th>
+<th>قابلیت متداول</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UserId = 100</code></td>
+<td>Seek بر اساس کلید اول</td>
+</tr>
+<tr>
+<td><code>UserId = 100 AND Status = 1</code></td>
+<td>Seek بر اساس هر دو کلید</td>
+</tr>
+<tr>
+<td><code>Status = 1</code></td>
+<td>معمولاً Scan، چون کلید اول فیلتر نشده</td>
+</tr>
+<tr>
+<td><code>Amount &gt; 1000</code></td>
+<td>INCLUDE به‌تنهایی کلید Seek نیست</td>
+</tr>
+</tbody>
+</table></div>
+<p>ترتیب نوشتن شرط‌ها در <code>WHERE</code> با ترتیب ستون‌های کلید <strong>یکی نیست</strong>: Optimizer قادر به بازآرایی شرط‌هاست. درباره ستون اول باید <strong>Selectivity</strong>، Queryهای پرتکرار، فیلترهای مساوی و بازه‌ای و مرتب‌سازی را هم در نظر گرفت.</p>
+<h3>وقتی شرط بازه‌ای داریم</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE INDEX IX_T_User_Date
+ON dbo.Transactions(UserId, CreatedAt);
+
+SELECT Id, CreatedAt FROM dbo.Transactions
+WHERE UserId = 50
+  AND CreatedAt &gt;= '2026-10-01'
+  AND CreatedAt &lt; '2026-11-01';
+</code></pre></div>
+<p>وجود شرط مساوی روی ستون اول و بازه روی ستون بعدی اغلب الگوی مناسبی برای Seek محدوده‌ای است. ستون‌های بعد از یک شرط بازه‌ای لزوماً همگی در محدود کردن Seek کمک یکسان نمی‌کنند.</p>
+<aside class="lesson-note"><strong>نکته سنیور</strong><span>بهترین ترتیب کلیدها فقط با قاعدهٔ «ستون پرانتخاب‌تر اول باشد» تعیین نمی‌شود. الگوی predicate، ORDER BY، بازه، آماری بودن ستون‌ها و هزینهٔ نگهداری را با هم بررسی کن.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 3 · آمادگی مصاحبه</h3><p><strong>کدام شرط می‌تواند هر دو کلید (UserId, Status) را برای Seek مؤثر به‌کار ببرد؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>Status = 1</span></li><li><bdi class="option-letter">B</bdi><span>Amount &gt; 1000000</span></li><li><bdi class="option-letter">C</bdi><span>UserId = 100 AND Status = 1</span></li><li><bdi class="option-letter">D</bdi><span>Status = 1 AND Amount &gt; 1000000</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — دو شرط مساوی روی دو کلید اول برای Seek ترکیبی مناسب‌اند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#covering">← درس قبل</a><a href="#plans">درس بعد →</a></div>
+    </section>
+<section id="plans" class="lesson-section" data-source-section="4" aria-labelledby="lesson-title-4">
+    <p class="section-kicker">درس 4 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-4">Execution Plan، Index Seek و Index Scan</h2>
+    <p><code>Execution Plan</code> نشان می‌دهد SQL Server برای اجرای یک Query کدام عملیات را انتخاب کرده است: جست‌وجوی ایندکس، اسکن، Join، Sort و غیره. <code>Estimated Plan</code> فقط برآورد است؛ <code>Actual Plan</code> اطلاعات اجرا، از جمله تعداد واقعی ردیف‌های پردازش‌شده، را نیز می‌دهد.</p>
+<h3>تفاوت Seek و Scan</h3>
+<ul>
+<li><code>Index Seek</code>: ورود به موقعیت یا محدوده‌ای از کلیدهای ایندکس و خواندن داده‌های لازم؛ ممکن است محدوده بزرگی را نیز پیمایش کند.</li>
+<li><code>Index Scan</code>: پیمایش بخشی بزرگ یا همه برگ‌های ایندکس؛ لزوماً بد نیست.</li>
+<li><code>Clustered Index Scan</code>: خواندن داده‌های جدول سازمان‌یافته با ایندکس Clustered.</li>
+<li><code>Key Lookup</code>: مراجعه به Clustered Index برای ستون‌هایی که در Non-Clustered Index پوشش داده نشده‌اند.</li>
+</ul>
+<h3>ابزارهای بررسی</h3>
+<p>در SSMS با <code>Ctrl + M</code> گزینه <strong>Include Actual Execution Plan</strong> را فعال کن. سپس Query را با اطلاعات IO و Time اجرا کن:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+
+SELECT Id, UserId, Amount
+FROM dbo.Transactions
+WHERE UserId = 100;
+</code></pre></div>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>معیار</th>
+<th>تفسیر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logical Reads</td>
+<td>تعداد صفحات خوانده‌شده از Buffer Pool</td>
+</tr>
+<tr>
+<td>CPU Time</td>
+<td>زمان مصرف CPU</td>
+</tr>
+<tr>
+<td>Elapsed Time</td>
+<td>زمان سپری‌شده شامل انتظارها</td>
+</tr>
+<tr>
+<td>Estimated Rows</td>
+<td>پیش‌بینی Optimizer</td>
+</tr>
+<tr>
+<td>Actual Rows</td>
+<td>تعداد ردیف‌های واقعی اپراتور</td>
+</tr>
+</tbody>
+</table></div>
+<h3>مثال مقایسه</h3>
+<p>فرض کن Plan A از <code>Seek + Key Lookup</code> با ۵۰هزار Logical Reads و Plan B از <code>Scan</code> با ۵هزار Reads استفاده می‌کند. نمی‌توان از روی نام اپراتور نتیجه گرفت A بهتر است؛ معیارهای واقعی و تعداد ردیف‌های نهایی را بسنج.</p>
+<aside class="lesson-note"><strong>پاسخ مصاحبه</strong><span>«ابتدا Actual Plan و STATISTICS IO/TIME را بررسی می‌کنم، اپراتورهای پرهزینه و اختلاف Estimated/Actual Rows را پیدا می‌کنم و بعد تغییر Query یا ایندکس را آزمایش می‌کنم.»</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 4 · آمادگی مصاحبه</h3><p><strong>اگر Seek+Lookup دارای ۵۰هزار و Scan دارای ۵هزار Logical Reads باشد، کدام نتیجه‌گیری منطقی‌تر است؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>Seek قطعاً بهتر است</span></li><li><bdi class="option-letter">B</bdi><span>Scan قطعاً سریع‌تر است</span></li><li><bdi class="option-letter">C</bdi><span>Scan ممکن است بهتر باشد، اما باید زمان و CPU را هم دید</span></li><li><bdi class="option-letter">D</bdi><span>هر دو برابرند</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — نوع اپراتور تنها معیار نیست؛ میزان IO و زمان واقعی نیز مهم‌اند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#composite">← درس قبل</a><a href="#statistics">درس بعد →</a></div>
+    </section>
+<section id="statistics" class="lesson-section" data-source-section="5" aria-labelledby="lesson-title-5">
+    <p class="section-kicker">درس 5 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-5">Statistics و تخمین تعداد ردیف‌ها</h2>
+    <p><code>Query Optimizer</code> باید تخمین بزند هر شرط چند ردیف برمی‌گرداند تا بین Seek، Scan، Nested Loops، Hash Join و سایر عملیات انتخاب کند. این برآورد با استفاده از <code>Statistics</code> صورت می‌گیرد؛ هر Statistics ممکن است Histogram و اطلاعات چگالی داشته باشد.</p>
+<p>فرض کن ۱۰ میلیون تراکنش داریم: ۹۵٪ موفق، ۴٪ ناموفق و ۱٪ در انتظار. اگر Optimizer تعداد تراکنش‌های در انتظار را اشتباه تخمین بزند، برنامه ممکن است برای حجم داده نادرستی بهینه شود.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT Id, Amount FROM dbo.Transactions
+WHERE Status = 0;
+</code></pre></div>
+<h3>چطور بررسی کنیم؟</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Check available statistics:
+SELECT name, auto_created, user_created
+FROM sys.stats
+WHERE object_id = OBJECT_ID('dbo.Transactions');
+
+-- For a known statistic/index name:
+DBCC SHOW_STATISTICS
+('dbo.Transactions', 'IX_Transactions_UserId');
+
+-- Refresh only when justified:
+UPDATE STATISTICS dbo.Transactions;
+</code></pre></div>
+<p>پیش از اجرای <code>DBCC SHOW_STATISTICS</code> باید مطمئن باشی Statistics با همان نام وجود دارد. SQL Server معمولاً <code>AUTO_CREATE_STATISTICS</code> و <code>AUTO_UPDATE_STATISTICS</code> دارد، ولی نرخ تغییر، نمونه‌گیری و الگوی توزیع داده‌ها همچنان مهم‌اند.</p>
+<h3>نشانه‌های تخمین غلط</h3>
+<ul>
+<li>اختلاف زیاد <code>Estimated Rows</code> و <code>Actual Rows</code>.</li>
+<li>انتخاب نوع Join نامناسب یا Memory Grant نامتناسب.</li>
+<li>تغییر چشمگیر Plan پس از رشد داده‌ها یا تغییر توزیع مقادیر.</li>
+</ul>
+<p>این اختلاف <strong>همیشه</strong> نشانه Statistics قدیمی نیست؛ پیچیدگی شرط‌ها، همبستگی ستون‌ها، <code>Parameter Sniffing</code> و سایر عوامل هم دخیل‌اند.</p>
+<aside class="lesson-warning"><strong>نکته Production</strong><span>دستور UPDATE STATISTICS را بی‌هدف یا در اوج بار اجرا نکن. ابتدا آمار موجود، تاریخ آخرین به‌روزرسانی و اثر احتمالی روی Recompile را بررسی کن.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 5 · آمادگی مصاحبه</h3><p><strong>وقتی Estimated Rows و Actual Rows اختلاف شدیدی دارند، اولین بررسی مناسب چیست؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>همه Indexها را حذف و بازسازی کنیم</span></li><li><bdi class="option-letter">B</bdi><span>CPU سرور را زیاد کنیم</span></li><li><bdi class="option-letter">C</bdi><span>Statistics و کیفیت تخمین‌ها را بررسی کنیم</span></li><li><bdi class="option-letter">D</bdi><span>همه Queryها را Stored Procedure کنیم</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — Statistics از عوامل مهم تخمین ردیف‌هاست؛ نخست باید علت برآورد اشتباه را شناسایی کرد.</div></details></div>
+    <div class="lesson-step-nav"><a href="#plans">← درس قبل</a><a href="#sargable">درس بعد →</a></div>
+    </section>
+<section id="sargable" class="lesson-section" data-source-section="6" aria-labelledby="lesson-title-6">
+    <p class="section-kicker">درس 6 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-6">SARGable و نوشتن شرط قابل جست‌وجو</h2>
+    <p><code>SARGable</code> یعنی شرط Query بتواند به‌خوبی از ترتیب کلید ایندکس برای یافتن یک مقدار یا محدوده استفاده کند. قرار دادن تابع روی ستون فیلترشده، تبدیل ضمنی نامناسب یا استفاده از الگوهای خاص <code>LIKE</code> ممکن است Seek مؤثر را دشوار کند.</p>
+<h3>مثال گزارش روزانه</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE INDEX IX_T_CreatedAt
+ON dbo.Transactions(CreatedAt);
+
+-- Usually less favorable:
+SELECT * FROM dbo.Transactions
+WHERE YEAR(CreatedAt) = 2026;
+
+-- Usually more index-friendly:
+SELECT * FROM dbo.Transactions
+WHERE CreatedAt &gt;= '20260101'
+  AND CreatedAt &lt; '20270101';
+</code></pre></div>
+<p>برای یک روز نیز از بازه نیمه‌باز استفاده کن؛ این کار بخش زمانی <code>DATETIME2</code> را درست پوشش می‌دهد:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">WHERE CreatedAt &gt;= '20261016'
+  AND CreatedAt &lt; '20261017';
+</code></pre></div>
+<h3>استثناهای مهم</h3>
+<p>تبدیل <code>CAST(CreatedAt AS date)</code> در برخی حالت‌های SQL Server می‌تواند از <code>Dynamic Seek</code> استفاده کند؛ بنابراین عبارت «هر تابعی حتماً Scan می‌شود» دقیق نیست. اما شرایط بازه‌ای صریح معمولاً قابل‌پیش‌بینی‌ترند.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Leading wildcard often limits an ordinary index Seek:
+WHERE StoreName LIKE N'%بازار%';
+
+-- A prefix can be more Seek-friendly:
+WHERE StoreName LIKE N'بازار%';
+</code></pre></div>
+<p>در کنار این‌ها، نوع داده پارامترهای .NET را با ستون دیتابیس سازگار نگه دار تا <code>Implicit Conversion</code> روی ستون به مشکل تبدیل نشود.</p>
+<aside class="lesson-note"><strong>سناریوی مصاحبه</strong><span>اگر روی CreatedAt ایندکس داریم ولی گزارش سالانه کند است، پیش از افزودن ایندکس تازه بررسی می‌کنم که predicate به‌صورت بازه‌ای و SARGable نوشته شده باشد.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 6 · آمادگی مصاحبه</h3><p><strong>کدام WHERE برای جست‌وجوی تراکنش‌های ۲۰۲۶ معمولاً Index-friendlyتر است؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>YEAR(CreatedAt)=2026</span></li><li><bdi class="option-letter">B</bdi><span>CONVERT(VARCHAR,CreatedAt,120) LIKE &#x27;2026%&#x27;</span></li><li><bdi class="option-letter">C</bdi><span>CreatedAt &gt;= &#x27;20260101&#x27; AND CreatedAt &lt; &#x27;20270101&#x27;</span></li><li><bdi class="option-letter">D</bdi><span>DATEPART(YEAR,CreatedAt)=2026</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — بازه روی ستون خام معمولاً از ترتیب کلید ایندکس بهتر استفاده می‌کند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#statistics">← درس قبل</a><a href="#sniffing">درس بعد →</a></div>
+    </section>
+<section id="sniffing" class="lesson-section" data-source-section="7" aria-labelledby="lesson-title-7">
+    <p class="section-kicker">درس 7 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-7">Parameter Sniffing و Plan Cache</h2>
+    <p>در یک Stored Procedure ممکن است مقادیر مختلف یک پارامتر، تعداد ردیف‌های کاملاً متفاوتی داشته باشند. SQL Server در زمان کامپایل ممکن است مقدار همان اجرای اول را ببیند (<code>Parameter Sniffing</code>) و برنامه را Cache کند.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE OR ALTER PROCEDURE dbo.GetTransactions
+    @Status INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT * FROM dbo.Transactions
+    WHERE Status = @Status;
+END;
+
+EXEC dbo.GetTransactions @Status = 2;
+EXEC dbo.GetTransactions @Status = 1;
+</code></pre></div>
+<p>فرض کن وضعیت ۲ تنها ۱٪ و وضعیت ۱ حدود ۹۹٪ رکوردها را شامل می‌شود. پلانی که برای مقدار کم‌تکرار خوب است ممکن است برای مقدار پرتکرار مناسب نباشد. خود Parameter Sniffing یک قابلیت بهینه‌سازی طبیعی است؛ <strong>استفاده مجدد از یک Plan نامتناسب</strong> مسئله اصلی است.</p>
+<h3>راه‌های تحلیل و رفع مشکل</h3>
+<ol>
+<li><code>Actual Execution Plan</code> و <code>Query Store</code> را برای مقادیر متفاوت مقایسه کن.</li>
+<li>توزیع داده‌ها، ایندکس‌ها و Statistics را بررسی کن.</li>
+<li>در صورت نیاز از <code>OPTION (RECOMPILE)</code>، <code>OPTIMIZE FOR</code> یا راهکارهای انتخاب Plan استفاده کن.</li>
+<li>قابلیت <code>Parameter Sensitive Plan Optimization</code> در نسخه‌ها و Compatibility Levelهای پشتیبانی‌شده می‌تواند برای بازه‌های مختلف پارامتر برنامه‌های متفاوتی نگه دارد.</li>
+</ol>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT Id, Status, Amount
+FROM dbo.Transactions
+WHERE Status = @Status
+OPTION (RECOMPILE);
+</code></pre></div>
+<p><code>OPTION (RECOMPILE)</code> اجرای همان Statement را دوباره کامپایل می‌کند و هزینه CPU کامپایل دارد؛ برای یک endpoint پرتکرار نباید بدون اندازه‌گیری سراغ آن رفت.</p>
+<aside class="lesson-note"><strong>جواب مصاحبه</strong><span>«برای Parameter Sniffing ابتدا وابستگی کارایی به مقدار پارامتر و Planهای ذخیره‌شده را ثابت می‌کنم. سپس با توجه به نسخه SQL Server، اصلاح Index/Stats، Query Store یا Recompile را انتخاب می‌کنم.»</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 7 · آمادگی مصاحبه</h3><p><strong>کدام دستور مستقیماً می‌تواند از استفاده مجدد Plan قبلی برای همان Statement جلوگیری کند؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>افزایش Connection Pool</span></li><li><bdi class="option-letter">B</bdi><span>OPTION (RECOMPILE)</span></li><li><bdi class="option-letter">C</bdi><span>NOLOCK در همه جا</span></li><li><bdi class="option-letter">D</bdi><span>تبدیل Stored Procedure به View</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — RECOMPILE هر بار برای همان Statement برنامه جدید می‌سازد؛ هزینه اضافه هم دارد.</div></details></div>
+    <div class="lesson-step-nav"><a href="#sargable">← درس قبل</a><a href="#acid">درس بعد →</a></div>
+    </section>
+<section id="acid" class="lesson-section" data-source-section="8" aria-labelledby="lesson-title-8">
+    <p class="section-kicker">درس 8 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-8">Transaction، COMMIT، ROLLBACK و ACID</h2>
+    <p>در یک انتقال پول، کم کردن مبلغ از حساب A و افزودن همان مبلغ به حساب B باید به‌شکل یک واحد اتمیک اجرا شوند. <code>Transaction</code> تضمین می‌کند تغییرات آن واحد با هم Commit یا Rollback شوند؛ البته قواعد تجاری مانند موجودی کافی و وجود حساب‌ها باید جداگانه اعتبارسنجی شوند.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SET XACT_ABORT ON;
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    UPDATE dbo.Accounts
+    SET Balance = Balance - 1000000
+    WHERE Id = 1;
+
+    UPDATE dbo.Accounts
+    SET Balance = Balance + 1000000
+    WHERE Id = 2;
+
+    COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT &gt; 0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH;
+</code></pre></div>
+<p>این کد فقط <strong>ساختار Transaction</strong> را نشان می‌دهد، نه پیاده‌سازی کامل انتقال مالی؛ در سیستم واقعی باید شرط کافی بودن موجودی، تعداد ردیف‌های تغییرکرده و جلوگیری از تکرار درخواست لحاظ شود.</p>
+<h3>چهار اصل ACID</h3>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>اصل</th>
+<th>تعریف</th>
+<th>در انتقال پول</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Atomicity</td>
+<td>همه عملیات یا هیچ‌کدام</td>
+<td>برداشت و واریز با هم</td>
+</tr>
+<tr>
+<td>Consistency</td>
+<td>حفظ قیود و قواعد داده</td>
+<td>عدم نقض قواعد موجودی</td>
+</tr>
+<tr>
+<td>Isolation</td>
+<td>کنترل اثر هم‌زمانی</td>
+<td>جلوگیری از تداخل ناسالم</td>
+</tr>
+<tr>
+<td>Durability</td>
+<td>ماندگاری داده Commitشده</td>
+<td>ثبت پایدار انتقال</td>
+</tr>
+</tbody>
+</table></div>
+<h3>ROLLBACK چه می‌کند؟</h3>
+<p>اگر در داخل Transaction موجودی ۵ میلیون به ۴ میلیون تغییر کند ولی سپس <code>ROLLBACK</code> اجرا شود، مقدار Commitشده قبلی برقرار می‌ماند.</p>
+<aside class="lesson-warning"><strong>مرز Transaction</strong><span>Transaction محلی SQL Server به‌تنهایی انتشار پیام RabbitMQ یا فراخوانی HTTP بیرونی را اتمیک نمی‌کند. برای ارتباط میان سرویس‌ها از الگوهایی مانند Transactional Outbox و جبران‌سازی استفاده می‌شود.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 8 · آمادگی مصاحبه</h3><p><strong>موجودی A ابتدا ۵ میلیون است؛ پس از UPDATE یک میلیونی و ROLLBACK، موجودی چه می‌شود؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>۴ میلیون</span></li><li><bdi class="option-letter">B</bdi><span>۵ میلیون</span></li><li><bdi class="option-letter">C</bdi><span>۶ میلیون</span></li><li><bdi class="option-letter">D</bdi><span>بسته به ایندکس</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — ROLLBACK تغییر Commitنشده تراکنش را برمی‌گرداند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#sniffing">← درس قبل</a><a href="#dirty-read">درس بعد →</a></div>
+    </section>
+<section id="dirty-read" class="lesson-section" data-source-section="9" aria-labelledby="lesson-title-9">
+    <p class="section-kicker">درس 9 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-9">Isolation Level و Dirty Read</h2>
+    <p><code>Isolation Level</code> تعیین می‌کند اجرای هم‌زمان تراکنش‌ها هنگام خواندن و نوشتن داده چگونه روی یکدیگر اثر بگذارند. مشکل نخست <strong>Dirty Read</strong> است: خواندن تغییراتی که هنوز Commit نشده‌اند و ممکن است Rollback شوند.</p>
+<h3>مثال دو Connection</h3>
+<p>اتصال A:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">BEGIN TRANSACTION;
+UPDATE dbo.Accounts
+SET Balance = 4000000
+WHERE Id = 1;
+-- Do not commit yet.
+</code></pre></div>
+<p>اتصال B:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SELECT Balance FROM dbo.Accounts WHERE Id = 1;
+</code></pre></div>
+<p>اتصال B ممکن است مقدار ۴ میلیون را ببیند. اگر A بعداً <code>ROLLBACK</code> کند، مقدار خوانده‌شده B هرگز نهایی نشده است.</p>
+<h3>سطح‌های اصلی Isolation</h3>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>سطح</th>
+<th>نکته کلیدی</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ UNCOMMITTED</td>
+<td>ممکن است داده Commitنشده خوانده شود</td>
+</tr>
+<tr>
+<td>READ COMMITTED</td>
+<td>جلوگیری از Dirty Read؛ رفتار خواندن بسته به RCSI</td>
+</tr>
+<tr>
+<td>REPEATABLE READ</td>
+<td>جلوگیری از تغییر ردیف‌های خوانده‌شده در طول تراکنش</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>محافظت از ردیف‌ها و بازه‌های خوانده‌شده</td>
+</tr>
+<tr>
+<td>SNAPSHOT</td>
+<td>مشاهده نسخه سازگار داده‌ها در سطح تراکنش</td>
+</tr>
+</tbody>
+</table></div>
+<p>در <code>READ COMMITTED</code> مبتنی بر قفل، خواندن ردیف در حال تغییر ممکن است <strong>منتظر</strong> بماند؛ با فعال بودن <code>READ_COMMITTED_SNAPSHOT</code> معمولاً نسخه Commitشده پیشین خوانده می‌شود.</p>
+<h3>هشدار درباره NOLOCK</h3>
+<p><code>WITH (NOLOCK)</code> تقریباً به معنای READ UNCOMMITTED برای خواندن جدول است. استفاده از آن در گزارش مالی می‌تواند داده Commitنشده یا نتایج ناسازگار تولید کند؛ حتی تضمین نمی‌کند هیچ Blocking نداشته باشیم.</p>
+<aside class="lesson-note"><strong>نکته سنیور</strong><span>«NOLOCK برای رفع کندی Query» راه‌حل عمومی قابل اعتمادی نیست. نخست علت انتظار، ایندکس، طرح اجرای Query و امکان Row Versioning را بررسی کن.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 9 · آمادگی مصاحبه</h3><p><strong>اگر تراکنش B داده Commitنشده A را بخواند و A آن را Rollback کند، این پدیده چیست؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>Deadlock</span></li><li><bdi class="option-letter">B</bdi><span>Phantom Read</span></li><li><bdi class="option-letter">C</bdi><span>Dirty Read</span></li><li><bdi class="option-letter">D</bdi><span>Non-Repeatable Read</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — خواندن داده‌ای که بعداً Rollback شده، Dirty Read است.</div></details></div>
+    <div class="lesson-step-nav"><a href="#acid">← درس قبل</a><a href="#read-anomalies">درس بعد →</a></div>
+    </section>
+<section id="read-anomalies" class="lesson-section" data-source-section="10" aria-labelledby="lesson-title-10">
+    <p class="section-kicker">درس 10 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-10">Non-Repeatable Read و Phantom Read</h2>
+    <p><code>READ COMMITTED</code> از Dirty Read جلوگیری می‌کند، اما معمولاً تضمین نمی‌کند که اجرای دوباره یک Query در همان تراکنش نتیجه قبلی را برگرداند.</p>
+<h3>Non-Repeatable Read</h3>
+<p>تراکنش A موجودی حساب ۱ را ۵ میلیون می‌خواند. تراکنش B همان ردیف را به ۳ میلیون تغییر می‌دهد و Commit می‌کند. تراکنش A در دومین خواندن همان ردیف ۳ میلیون می‌بیند. <strong>یک ردیف قبلی مقدار متفاوت داده است.</strong></p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Connection A:
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+SELECT Balance FROM dbo.Accounts WHERE Id = 1; -- 5m
+-- B commits an UPDATE here.
+SELECT Balance FROM dbo.Accounts WHERE Id = 1; -- 3m
+COMMIT;
+</code></pre></div>
+<h3>Phantom Read</h3>
+<p>تراکنش A تعداد ردیف‌های <code>Status=2</code> را ۱۰۰ می‌بیند. تراکنش B یک ردیف جدید با همین وضعیت اضافه می‌کند و Commit می‌کند. اجرای مجدد همان Query در A تعداد ۱۰۱ را نشان می‌دهد. <strong>مجموعه ردیف‌های منطبق با شرط تغییر کرده است.</strong></p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT COUNT(*)
+FROM dbo.Transactions
+WHERE Status = 2;
+-- Repeated inside one transaction after another commit.
+</code></pre></div>
+<p>تغییر وضعیت یک ردیف به مقداری که وارد/خارج از محدوده شرط شود هم می‌تواند از نظر مجموعه نتایج نقش مشابهی داشته باشد.</p>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>سطح</th>
+<th>Dirty Read</th>
+<th>Non-Repeatable</th>
+<th>Phantom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ UNCOMMITTED</td>
+<td>ممکن</td>
+<td>ممکن</td>
+<td>ممکن</td>
+</tr>
+<tr>
+<td>READ COMMITTED</td>
+<td>ممنوع</td>
+<td>ممکن</td>
+<td>ممکن</td>
+</tr>
+<tr>
+<td>REPEATABLE READ</td>
+<td>ممنوع</td>
+<td>ممنوع</td>
+<td>ممکن</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>ممنوع</td>
+<td>ممنوع</td>
+<td>ممنوع</td>
+</tr>
+<tr>
+<td>SNAPSHOT</td>
+<td>ممنوع</td>
+<td>در Snapshot ثابت</td>
+<td>در Snapshot ثابت</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="lesson-note"><strong>تفاوت کلیدی</strong><span>Non-Repeatable Read = تغییر مقدار یک ردیف دیده‌شده؛ Phantom Read = تغییر اعضای مجموعهٔ نتایج یک شرط.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 10 · آمادگی مصاحبه</h3><p><strong>در یک تراکنش COUNT(*) با شرط ثابت از ۵۰۰ به ۵۰۱ تغییر می‌کند چون ردیف جدید Commit شده است. پدیده چیست؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>Dirty Read</span></li><li><bdi class="option-letter">B</bdi><span>Non-Repeatable Read</span></li><li><bdi class="option-letter">C</bdi><span>Phantom Read</span></li><li><bdi class="option-letter">D</bdi><span>Deadlock</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — با اضافه شدن ردیف جدید، مجموعه نتایج تغییر کرده است.</div></details></div>
+    <div class="lesson-step-nav"><a href="#dirty-read">← درس قبل</a><a href="#blocking">درس بعد →</a></div>
+    </section>
+<section id="blocking" class="lesson-section" data-source-section="11" aria-labelledby="lesson-title-11">
+    <p class="section-kicker">درس 11 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-11">Blocking و Lock در SQL Server</h2>
+    <p>وقتی تراکنشی قفلی دارد و تراکنش دیگر برای ادامه به قفل ناسازگار نیاز پیدا می‌کند، <code>Blocking</code> اتفاق می‌افتد. این الزاماً خطا نیست؛ اغلب بخشی از حفاظت در برابر تغییر هم‌زمان ناسازگار است.</p>
+<p>اتصال A:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">BEGIN TRANSACTION;
+UPDATE dbo.Accounts SET Balance = Balance - 100
+WHERE Id = 1;
+-- Open transaction: X lock can remain until commit.
+</code></pre></div>
+<p>اتصال B:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">UPDATE dbo.Accounts SET Balance = Balance - 200
+WHERE Id = 1;
+-- Usually waits for A under ordinary locking rules.
+</code></pre></div>
+<h3>گونه‌های مهم قفل</h3>
+<ul>
+<li><code>Shared (S)</code>: برای خواندن قفل‌محور؛ با S دیگر سازگار و با X ناسازگار است.</li>
+<li><code>Exclusive (X)</code>: برای تغییر داده؛ با بیشتر قفل‌های هم‌پوشان ناسازگار است.</li>
+<li><code>Update (U)</code>: برای کاهش بعضی بن‌بست‌های تبدیل قفل در الگوی خواندن-سپس-نوشتن.</li>
+<li><code>Intent Locks</code>: نشانه قصد قفل‌گذاری در سطوح پایین‌تر، مانند صفحه یا ردیف.</li>
+</ul>
+<h3>چرا Blocking طولانی می‌شود؟</h3>
+<p>تراکنش طولانی، انتظار روی API خارجی در داخل Transaction، Query بی‌ایندکس، اسکن زیاد، قفل‌گذاری گسترده و تعداد زیاد درخواست‌های هم‌زمان می‌توانند صف انتظار بسازند.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- A simple view of currently waiting requests:
+SELECT session_id, blocking_session_id,
+       wait_type, wait_time, status
+FROM sys.dm_exec_requests
+WHERE blocking_session_id &lt;&gt; 0;
+</code></pre></div>
+<p>این DMV برای دیدن درخواست‌های فعال است و در محیط عملی مجوزهای مناسب نیاز دارد.</p>
+<aside class="lesson-warning"><strong>نکته امنیت عملیاتی</strong><span>برای رفع Blocking، تراکنش‌های فعال را کورکورانه KILL نکن. مالک تراکنش، مرحله عملیات مالی و پیامد Rollback را شناسایی کن.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 11 · آمادگی مصاحبه</h3><p><strong>بعد از COMMIT شدن تراکنش A و آزاد شدن قفل، برای B که هنوز Timeout نشده چه رخ می‌دهد؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>حتماً Deadlock</span></li><li><bdi class="option-letter">B</bdi><span>می‌تواند ادامه دهد</span></li><li><bdi class="option-letter">C</bdi><span>خودکار Rollback می‌شود</span></li><li><bdi class="option-letter">D</bdi><span>به Connection جدید نیاز دارد</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — آزاد شدن قفل ناسازگار اجازه ادامه به درخواست منتظر را می‌دهد.</div></details></div>
+    <div class="lesson-step-nav"><a href="#read-anomalies">← درس قبل</a><a href="#deadlock">درس بعد →</a></div>
+    </section>
+<section id="deadlock" class="lesson-section" data-source-section="12" aria-labelledby="lesson-title-12">
+    <p class="section-kicker">درس 12 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-12">Deadlock، خطای 1205 و پیشگیری</h2>
+    <p>در <code>Deadlock</code> دو یا چند تراکنش به‌شکل چرخه‌ای منتظر منابع یکدیگرند؛ برخلاف Blocking ساده، بدون دخالت نمی‌توانند پیش بروند.</p>
+<h3>نمونه انتقال دوطرفه</h3>
+<p>اتصال A:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">BEGIN TRANSACTION;
+UPDATE dbo.Accounts SET Balance = Balance - 100 WHERE Id = 1;
+WAITFOR DELAY '00:00:05';
+UPDATE dbo.Accounts SET Balance = Balance + 100 WHERE Id = 2;
+COMMIT;
+</code></pre></div>
+<p>اتصال B:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">BEGIN TRANSACTION;
+UPDATE dbo.Accounts SET Balance = Balance - 200 WHERE Id = 2;
+WAITFOR DELAY '00:00:05';
+UPDATE dbo.Accounts SET Balance = Balance + 200 WHERE Id = 1;
+COMMIT;
+</code></pre></div>
+<p>اگر ترتیب اجرای هم‌زمان مناسب باشد، A قفل حساب ۱ و B قفل حساب ۲ را نگه می‌دارند و هرکدام منتظر حساب دیگری می‌شوند. SQL Server یکی را به‌عنوان <code>Deadlock Victim</code> انتخاب می‌کند، Transaction او را Rollback می‌کند و خطای <strong>1205</strong> برمی‌گرداند.</p>
+<h3>راهکارهای کاهش احتمال</h3>
+<ol>
+<li>منابع مشترک را در تمام مسیرهای کد با <strong>ترتیب ثابت</strong> دسترسی بده؛ مثلاً شناسه حساب کوچک‌تر، بعد بزرگ‌تر.</li>
+<li>Transaction را کوتاه نگه دار؛ تماس شبکه‌ای خارجی را درون آن نگه ندار.</li>
+<li>با ایندکس مناسب، دامنه ردیف‌های لمس‌شده را کاهش بده.</li>
+<li><code>Deadlock Graph</code> را در <code>Extended Events</code> / <code>system_health</code> بررسی کن تا چرخه واقعی و منابع مشخص شوند.</li>
+<li>عملیات قربانی را با Retry محدود، Backoff و کنترل Idempotency دوباره اجرا کن.</li>
+</ol>
+<aside class="lesson-note"><strong>تفاوت بنیادین</strong><span>Blocking = یک انتظار یک‌طرفه که ممکن است برطرف شود؛ Deadlock = انتظار چرخه‌ای. افزایش CommandTimeout درمان Deadlock نیست.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 12 · آمادگی مصاحبه</h3><p><strong>کدام اقدام احتمال Deadlock ناشی از دسترسی معکوس به حساب‌های ۱ و ۲ را کم می‌کند؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>افزایش Pool</span></li><li><bdi class="option-letter">B</bdi><span>NOLOCK روی UPDATE</span></li><li><bdi class="option-letter">C</bdi><span>دسترسی به حساب‌ها با ترتیب ثابت</span></li><li><bdi class="option-letter">D</bdi><span>افزایش Timeout</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — ترتیب ثابت از ایجاد چرخه رایج قفل‌ها جلوگیری می‌کند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#blocking">← درس قبل</a><a href="#deadlock-retry">درس بعد →</a></div>
+    </section>
+<section id="deadlock-retry" class="lesson-section" data-source-section="13" aria-labelledby="lesson-title-13">
+    <p class="section-kicker">درس 13 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-13">Retry تراکنشی در EF Core و Idempotency</h2>
+    <p>وقتی SQL Server خطای 1205 می‌دهد، تراکنش قربانی Rollback شده است. <strong>فقط Statement شکست‌خورده را Retry نکن</strong>؛ واحد کاری باید به‌صورت کامل و در Transaction جدید دوباره اجرا شود.</p>
+<h3>استفاده از Execution Strategy</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">C#</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-csharp">builder.Services.AddDbContextFactory&lt;PaymentDbContext&gt;(options =&gt;
+    options.UseSqlServer(connectionString, sql =&gt;
+        sql.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(2),
+            errorNumbersToAdd: null)));
+</code></pre></div>
+<p>اگر <code>BeginTransactionAsync</code> را خودمان مدیریت می‌کنیم، باید <strong>تمام کار تراکنشی</strong> را داخل <code>ExecuteAsync</code> قرار بدهیم:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">C#</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-csharp">await using var strategyContext =
+    await factory.CreateDbContextAsync();
+var strategy = strategyContext.Database.CreateExecutionStrategy();
+
+await strategy.ExecuteAsync(async () =&gt;
+{
+    await using var db = await factory.CreateDbContextAsync();
+    await using var tx = await db.Database.BeginTransactionAsync();
+
+    // ProcessAsync must be idempotent by a unique RequestId
+    // and perform all database writes in this transaction.
+    await ProcessAsync(db, requestId);
+
+    await tx.CommitAsync();
+});
+</code></pre></div>
+<p>در این کد <code>ProcessAsync</code> یک متد <strong>فرضی</strong> است. پیاده‌سازی کامل آن باید قفل‌ها/شرط‌های موجودی، <code>RequestId</code> یکتا و خطاهای ناشی از تکرار را مدیریت کند.</p>
+<h3>چرا Idempotency لازم است؟</h3>
+<p>اگر اتصال در لحظه Commit قطع شود، برنامه ممکن است نداند Transaction واقعاً ثبت شده یا خیر. این حالت <code>Unknown Commit Outcome</code> است؛ اجرای مجدد کورکورانه می‌تواند انتقال دوباره بسازد. شناسه درخواست را با <code>Unique Index</code> در دیتابیس ذخیره کن و قبل از تلاش دوباره، نتیجه ثبت‌شده را قابل بازیابی کن.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE UNIQUE INDEX UX_Transfers_RequestId
+ON dbo.Transfers(RequestId);
+</code></pre></div>
+<aside class="lesson-warning"><strong>نکته حساس مالی</strong><span>Idempotency فقط چک‌کردن قبل از INSERT نیست؛ باید با محدودیت یکتایی و تغییرات مالی در مرز اتمیک صحیح پیاده‌سازی شود. فراخوانی HTTP و Publish مستقیم را در delegate تکرارشونده قرار نده مگر اثر تکرار آنها کنترل شده باشد.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 13 · آمادگی مصاحبه</h3><p><strong>بعد از Deadlock قربانی، روش درست Retry برای انتقال پول چیست؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>فقط واریز را دوباره اجرا کنیم</span></li><li><bdi class="option-letter">B</bdi><span>همان Transaction قبلی را ادامه دهیم</span></li><li><bdi class="option-letter">C</bdi><span>کل انتقال را در Transaction جدید و با Idempotency تکرار کنیم</span></li><li><bdi class="option-letter">D</bdi><span>فقط Timeout را زیاد کنیم</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — باید همه مراحل اتمیک دوباره اجرا شوند و از تکرار اثر مالی جلوگیری شود.</div></details></div>
+    <div class="lesson-step-nav"><a href="#deadlock">← درس قبل</a><a href="#snapshot">درس بعد →</a></div>
+    </section>
+<section id="snapshot" class="lesson-section" data-source-section="14" aria-labelledby="lesson-title-14">
+    <p class="section-kicker">درس 14 · آموزش و تمرین · درس گفت‌وگو</p>
+    <h2 id="lesson-title-14">SNAPSHOT، RCSI و SERIALIZABLE</h2>
+    <p>گاهی می‌خواهیم هم خواندن داده‌ها سازگار باشد و هم خواندن‌ها کمترین تداخل را با نوشتن داشته باشند. SQL Server دو قابلیت مرتبط اما متفاوت برای Row Versioning دارد: <code>READ_COMMITTED_SNAPSHOT</code> یا <strong>RCSI</strong> و سطح <code>SNAPSHOT</code>.</p>
+<h3>RCSI: دید ثابت در سطح هر Statement</h3>
+<p>وقتی RCSI فعال است، خواندن معمولی در <code>READ COMMITTED</code> نسخه Commitشده مناسب همان Statement را می‌بیند. دو SELECT متوالی در یک Transaction می‌توانند <strong>نتیجه متفاوت</strong> داشته باشند.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">ALTER DATABASE PaymentDb
+SET READ_COMMITTED_SNAPSHOT ON;
+</code></pre></div>
+<h3>SNAPSHOT: دید ثابت در سطح Transaction</h3>
+<p>در SNAPSHOT تمام خواندن‌های عادی Transaction نمای سازگار یکسانی از داده‌ها می‌بینند؛ در SQL Server نقطه Snapshot معمولاً با نخستین دسترسی به داده پس از شروع تراکنش تثبیت می‌شود.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">ALTER DATABASE PaymentDb
+SET ALLOW_SNAPSHOT_ISOLATION ON;
+GO
+SET TRANSACTION ISOLATION LEVEL SNAPSHOT;
+BEGIN TRANSACTION;
+SELECT Balance FROM dbo.Accounts WHERE Id=1;
+-- Another transaction commits a change.
+SELECT Balance FROM dbo.Accounts WHERE Id=1;
+COMMIT;
+</code></pre></div>
+<p>اگر اولین خواندن ۵ میلیون بوده، خواندن دوم همان مقدار را مشاهده می‌کند؛ اما تلاش برای تغییر ردیفی که پس از نقطه Snapshot توسط تراکنش دیگری تغییر کرده ممکن است با <strong>Update Conflict 3960</strong> مواجه شود.</p>
+<h3>SERIALIZABLE: محافظت قفل‌محور از محدوده</h3>
+<p>این سطح از ردیف‌ها و محدوده‌های منطبق با شرایط محافظت می‌کند و جلوی Phantom Read را می‌گیرد؛ در عوض احتمال Blocking و Deadlock بیشتر است.</p>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>ویژگی</th>
+<th>RCSI</th>
+<th>SNAPSHOT</th>
+<th>SERIALIZABLE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>دید داده</td>
+<td>هر Statement</td>
+<td>کل Transaction</td>
+<td>مطابق ترتیب سریالی</td>
+</tr>
+<tr>
+<td>استفاده از نسخه‌ها</td>
+<td>بله</td>
+<td>بله</td>
+<td>معمولاً قفل‌ها</td>
+</tr>
+<tr>
+<td>خواندن در برابر نوشتن</td>
+<td>معمولاً بدون انتظار قفل داده</td>
+<td>معمولاً بدون انتظار قفل داده</td>
+<td>امکان Blocking</td>
+</tr>
+<tr>
+<td>تناقض در نوشتن</td>
+<td>باید جداگانه کنترل شود</td>
+<td>خطای Update Conflict ممکن است</td>
+<td>Blocking یا Deadlock ممکن است</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="lesson-note"><strong>نکته سنیور</strong><span>ثبات نتیجه SELECT با «عدم امکان دوبار برداشت از حساب» یکسان نیست. قانون مالی همچنان به به‌روزرسانی اتمیک، قیدها و Idempotency نیاز دارد.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 14 · آمادگی مصاحبه</h3><p><strong>در SNAPSHOT، اگر B پس از اولین خواندن A مقدار حساب را Commit کند، A در دومین خواندن چه می‌بیند؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>مقدار جدید B</span></li><li><bdi class="option-letter">B</bdi><span>همان مقدار قبلی در Snapshot</span></li><li><bdi class="option-letter">C</bdi><span>حتماً Deadlock</span></li><li><bdi class="option-letter">D</bdi><span>اجباراً Timeout</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — SNAPSHOT نمای تراکنشی ثابتی از داده‌ها را برای خواندن‌ها ارائه می‌کند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#deadlock-retry">← درس قبل</a><a href="#lost-update">درس بعد →</a></div>
+    </section>
+<section id="lost-update" class="lesson-section" data-source-section="15" aria-labelledby="lesson-title-15">
+    <p class="section-kicker">درس 15 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-15">Lost Update و کنترل برداشت هم‌زمان</h2>
+    <p>این درس، ادامه تکمیلی دوره است: چگونه از برداشت اشتباه در اثر دو درخواست هم‌زمان جلوگیری کنیم؟ فرض کن موجودی حساب ۱ برابر <strong>۱۰۰۰</strong> است و دو درخواست می‌خواهند هر کدام <strong>۸۰۰</strong> برداشت کنند.</p>
+<h3>روش خطرناک: Read → Check → Write</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">C#</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-csharp">var account = await db.Accounts.SingleAsync(x =&gt; x.Id == 1);
+if (account.Balance &gt;= 800)
+{
+    account.Balance -= 800;
+    await db.SaveChangesAsync();
+}
+</code></pre></div>
+<p>اگر دو درخواست مستقل هر دو مقدار ۱۰۰۰ را قبل از ذخیره ببینند، هر دو ممکن است مجاز تصور شوند. بسته به نحوه هم‌زمانی، از دست رفتن تغییر (<code>Lost Update</code>)، خطای Concurrency یا اجرای خلاف قاعده مالی ممکن است رخ دهد.</p>
+<h3>راه ۱: Conditional UPDATE اتمیک</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">UPDATE dbo.Accounts
+SET Balance = Balance - @Amount
+WHERE Id = @AccountId
+  AND Balance &gt;= @Amount;
+
+-- Check @@ROWCOUNT = 1 before considering it successful.
+</code></pre></div>
+<p>در یک Statement، شرط موجودی و تغییر آن با هم اجرا می‌شوند. اگر یک درخواست ۸۰۰ برداشت کند، درخواست دوم با موجودی ۲۰۰ شرط را پاس نمی‌کند و <code>@@ROWCOUNT</code> صفر می‌شود. ثبت تراکنش مالی و RequestId باید در همان Transaction انجام شود.</p>
+<h3>راه ۲: Optimistic Concurrency با RowVersion</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">ALTER TABLE dbo.Accounts
+ADD RowVer ROWVERSION;
+</code></pre></div>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">C#</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-csharp">modelBuilder.Entity&lt;Account&gt;()
+    .Property(x =&gt; x.RowVer)
+    .IsRowVersion();
+</code></pre></div>
+<p>در الگوی EF Core اگر ردیف از زمان خواندن تغییر کرده باشد، <code>UPDATE</code> شرط نسخه را پاس نمی‌کند و ممکن است <code>DbUpdateConcurrencyException</code> رخ دهد. سپس داده تازه خوانده می‌شود و <strong>قانون تجاری دوباره ارزیابی</strong> می‌شود؛ Retry کورکورانه با همان موجودی قبلی اشتباه است.</p>
+<h3>انتخاب روش</h3>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>سناریو</th>
+<th>رویکرد مناسب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>کم‌کردن مبلغ با شرط حداقل موجودی</td>
+<td>Conditional UPDATE اتمیک</td>
+</tr>
+<tr>
+<td>ویرایش اطلاعات با احتمال تضاد کم</td>
+<td>RowVersion / Optimistic</td>
+</tr>
+<tr>
+<td>تغییر چند حساب با قفل مشخص</td>
+<td>Transaction + ترتیب ثابت + کنترل قانون</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="lesson-warning"><strong>پاسخ سطح سنیور</strong><span>هیچ‌گاه اعتبارسنجی موجودی در حافظه برنامه را بدون کنترل اتمیک سمت دیتابیس، مبنای قطعی برداشت قرار نده. در سیستم واقعی به Ledger و Reconciliation نیز نیاز داریم.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 15 · آمادگی مصاحبه</h3><p><strong>دو برداشت هم‌زمان از موجودی ۱۰۰۰ هرکدام ۸۰۰ هستند؛ کدام روش مستقیماً جلوی برداشت دوم را می‌گیرد؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>خواندن موجودی و چک در حافظه</span></li><li><bdi class="option-letter">B</bdi><span>افزایش Timeout</span></li><li><bdi class="option-letter">C</bdi><span>UPDATE ... WHERE Balance &gt;= @Amount و بررسی تعداد ردیف</span></li><li><bdi class="option-letter">D</bdi><span>AsNoTracking</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — شرط و UPDATE در یک Statement اتمیک انجام می‌شوند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#snapshot">← درس قبل</a><a href="#lock-hints">درس بعد →</a></div>
+    </section>
+<section id="lock-hints" class="lesson-section" data-source-section="16" aria-labelledby="lesson-title-16">
+    <p class="section-kicker">درس 16 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-16">Lock Hints و الگوهای قفل‌گذاری</h2>
+    <p>در حالت عادی SQL Server با توجه به Isolation Level و Plan قفل‌ها را مدیریت می‌کند. <code>Lock Hints</code> مانند <code>UPDLOCK</code>، <code>HOLDLOCK</code> و <code>ROWLOCK</code> ابزارهای خاص هستند؛ استفاده نادرست می‌تواند فشار قفل‌ها و Deadlock را بیشتر کند.</p>
+<h3>چه زمانی UPDLOCK مفید است؟</h3>
+<p>اگر ناچار باشیم یک ردیف را بخوانیم و سپس بر اساس همان خواندن آن را تغییر دهیم، <code>UPDLOCK</code> می‌تواند تبدیل هم‌زمان قفل Shared به Exclusive را در برخی الگوها کنترل کند.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">BEGIN TRANSACTION;
+
+SELECT Balance
+FROM dbo.Accounts WITH (UPDLOCK, HOLDLOCK)
+WHERE Id = @AccountId;
+
+-- Validate and perform the UPDATE here.
+-- The transaction must remain open until the write is committed.
+
+COMMIT;
+</code></pre></div>
+<p><code>HOLDLOCK</code> روی آن مرجع جدول معنایی هم‌ارز Serializable دارد؛ بسته به ایندکس و predicate می‌تواند قفل‌های محدوده‌ای ایجاد کند. این صرفاً یک اسکلت است و برای انتقال پول به بررسی شرایط و کد کامل نیاز دارد.</p>
+<h3>چند Hint رایج</h3>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>Hint</th>
+<th>توضیح</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UPDLOCK</code></td>
+<td>استفاده از قفل Update هنگام خواندن</td>
+</tr>
+<tr>
+<td><code>HOLDLOCK</code></td>
+<td>رفتار Serializable برای مرجع جدول</td>
+</tr>
+<tr>
+<td><code>ROWLOCK</code></td>
+<td>درخواست قفل‌گذاری در گرانول ردیف؛ تضمین مطلق نیست</td>
+</tr>
+<tr>
+<td><code>READPAST</code></td>
+<td>رد کردن بعضی ردیف‌های قفل‌شده در شرایط پشتیبانی‌شده</td>
+</tr>
+<tr>
+<td><code>NOLOCK</code></td>
+<td>امکان خواندن Dirty؛ مناسب صحت مالی نیست</td>
+</tr>
+</tbody>
+</table></div>
+<h3>سناریوی صف کاری</h3>
+<p>در ساخت Worker مبتنی بر جدول SQL، گاهی <code>READPAST</code> برای رد کردن رکوردهای در حال پردازش به‌کار می‌رود، اما باید شرایط Isolation، وضعیت رزرو کار و قابلیت بازیابی پس از Crash بررسی شود.</p>
+<aside class="lesson-warning"><strong>پیش از Hint</strong><span>نخست Query و ایندکس و الگوی تراکنش را اصلاح کن. Hint می‌تواند Optimizer را محدود کند و با تغییر Workload نتیجه نامطلوب بدهد.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 16 · آمادگی مصاحبه</h3><p><strong>در الگوی خواندن و سپس تغییر همان ردیف، کدام Hint می‌تواند برای کنترل تبدیل قفل کاربرد داشته باشد؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>NOLOCK</span></li><li><bdi class="option-letter">B</bdi><span>UPDLOCK</span></li><li><bdi class="option-letter">C</bdi><span>READUNCOMMITTED</span></li><li><bdi class="option-letter">D</bdi><span>FAST 1</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — UPDLOCK هنگام خواندن قفل Update درخواست می‌کند و در برخی الگوهای read-modify-write مفید است.</div></details></div>
+    <div class="lesson-step-nav"><a href="#lost-update">← درس قبل</a><a href="#temp-cte">درس بعد →</a></div>
+    </section>
+<section id="temp-cte" class="lesson-section" data-source-section="17" aria-labelledby="lesson-title-17">
+    <p class="section-kicker">درس 17 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-17">Temp Table، Table Variable و CTE</h2>
+    <p>در Queryهای پیچیده گاهی لازم است نتایج میانی را نگه داریم، چندبار استفاده کنیم یا در همان Statement ساختار خواناتری بسازیم. سه ابزار معمول: <code>#Temp Table</code>، متغیر جدول <code>@Table</code> و <code>CTE</code>.</p>
+<h3>CTE: نام‌گذاری نتیجه در سطح یک Statement</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">WITH RecentPayments AS (
+    SELECT Id, UserId, Amount
+    FROM dbo.Transactions
+    WHERE CreatedAt &gt;= '20261001'
+)
+SELECT UserId, COUNT(*) AS Total
+FROM RecentPayments
+GROUP BY UserId;
+</code></pre></div>
+<p>CTE معمولی <strong>به‌طور خودکار Materialize نمی‌شود</strong>؛ بیشتر یک بیان منطقی Query است. ارجاع‌های چندباره لزوماً ذخیره نتیجه را تضمین نمی‌کند. برای بازگشت سلسله‌مراتبی، Recursive CTE نیز وجود دارد.</p>
+<h3>Temp Table: ذخیره موقت فیزیکی</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT Id, UserId, Amount
+INTO #RecentPayments
+FROM dbo.Transactions
+WHERE CreatedAt &gt;= '20261001';
+
+CREATE INDEX IX_Recent_UserId
+ON #RecentPayments(UserId);
+
+SELECT UserId, SUM(Amount)
+FROM #RecentPayments
+GROUP BY UserId;
+</code></pre></div>
+<p><code>#Temp Table</code> در tempdb نگهداری می‌شود؛ می‌توان برای آن ایندکس ایجاد کرد و معمولاً Statistics مناسبی نیز دارد. برای نتایج میانی پرحجم یا استفاده چندباره ارزش بررسی دارد، ولی ایجاد آن IO و هزینه tempdb دارد.</p>
+<h3>Table Variable</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">DECLARE @SelectedUsers TABLE (
+    UserId BIGINT PRIMARY KEY
+);
+INSERT INTO @SelectedUsers(UserId) VALUES (100), (200);
+SELECT * FROM @SelectedUsers;
+</code></pre></div>
+<p>Table Variable هم از منابع tempdb بهره می‌گیرد و به‌طور سنتی اطلاعات آماری محدودتری نسبت به Temp Table دارد. ویژگی Deferred Compilation در نسخه‌ها و سطوح سازگاری جدیدتر می‌تواند بعضی تخمین‌ها را بهتر کند؛ پس جمله «Table Variable همیشه کندتر است» درست نیست.</p>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>معیار</th>
+<th>CTE</th>
+<th>#Temp Table</th>
+<th>@Table Variable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>دامنه</td>
+<td>یک Statement</td>
+<td>اتصال/Scope</td>
+<td>Batch/Scope</td>
+</tr>
+<tr>
+<td>ذخیره نتیجه مستقل</td>
+<td>تضمین ندارد</td>
+<td>بله</td>
+<td>بله</td>
+</tr>
+<tr>
+<td>ایندکس دلخواه پس از ایجاد</td>
+<td>خیر</td>
+<td>بله</td>
+<td>محدودتر</td>
+</tr>
+<tr>
+<td>مناسب</td>
+<td>خوانایی/بازگشتی</td>
+<td>داده میانی بزرگ/چندمرحله‌ای</td>
+<td>داده کم/سناریو ساده</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="lesson-note"><strong>مصاحبه</strong><span>بین این سه روش با اندازه واقعی داده، Plan، Statistics، دفعات مصرف مجدد و فشار tempdb انتخاب کن.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 17 · آمادگی مصاحبه</h3><p><strong>کدام گزینه معمولاً برای نتیجه میانی پرحجم با نیاز به ساخت ایندکس پس از ذخیره مناسب‌تر است؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>CTE عادی</span></li><li><bdi class="option-letter">B</bdi><span>#Temp Table</span></li><li><bdi class="option-letter">C</bdi><span>متغیر عددی</span></li><li><bdi class="option-letter">D</bdi><span>View بدون جدول</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — Temp Table امکان ساخت ایندکس و آمار مناسب روی نتیجه میانی می‌دهد.</div></details></div>
+    <div class="lesson-step-nav"><a href="#lock-hints">← درس قبل</a><a href="#window-functions">درس بعد →</a></div>
+    </section>
+<section id="window-functions" class="lesson-section" data-source-section="18" aria-labelledby="lesson-title-18">
+    <p class="section-kicker">درس 18 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-18">Window Functions: ROW_NUMBER، RANK و LAG</h2>
+    <p>توابع پنجره‌ای محاسبه را روی گروهی از ردیف‌ها انجام می‌دهند، بدون اینکه مثل <code>GROUP BY</code> لزوماً خروجی را به یک ردیف در هر گروه تبدیل کنند. عبارت <code>OVER</code> پنجره را تعیین می‌کند.</p>
+<h3>آخرین سه تراکنش هر کاربر</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">WITH Ranked AS (
+    SELECT Id, UserId, Amount, CreatedAt,
+           ROW_NUMBER() OVER (
+               PARTITION BY UserId
+               ORDER BY CreatedAt DESC, Id DESC
+           ) AS rn
+    FROM dbo.Transactions
+)
+SELECT * FROM Ranked WHERE rn &lt;= 3;
+</code></pre></div>
+<p><code>PARTITION BY</code> داده‌ها را به گروه‌های منطقی تقسیم می‌کند. <code>ORDER BY</code> ترتیب رتبه‌دهی است؛ افزودن <code>Id</code> به‌عنوان Tie-breaker، نتیجه را در صورت تساوی تاریخ پایدارتر می‌کند.</p>
+<h3>تفاوت ROW_NUMBER، RANK و DENSE_RANK</h3>
+<p>اگر مبالغ مرتب‌شده برابر <code>[100, 100, 80]</code> باشند:</p>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>مقدار</th>
+<th>ROW_NUMBER</th>
+<th>RANK</th>
+<th>DENSE_RANK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100 (اول)</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>100 (دوم)</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>80</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+</tr>
+</tbody>
+</table></div>
+<p>در داده‌های هم‌ارزش، <code>ROW_NUMBER</code> شماره متفاوت می‌دهد، <code>RANK</code> فاصله می‌اندازد و <code>DENSE_RANK</code> فاصله نمی‌اندازد.</p>
+<h3>LAG و محاسبه اختلاف با رویداد قبلی</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT UserId, CreatedAt, Amount,
+       LAG(Amount) OVER (
+           PARTITION BY UserId
+           ORDER BY CreatedAt, Id
+       ) AS PreviousAmount
+FROM dbo.Transactions;
+</code></pre></div>
+<h3>جمع تجمعی</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT UserId, CreatedAt, Amount,
+       SUM(Amount) OVER (
+           PARTITION BY UserId
+           ORDER BY CreatedAt, Id
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS RunningTotal
+FROM dbo.Transactions;
+</code></pre></div>
+<p>این مثال جمع تجمعی <strong>مبلغ تراکنش‌ها</strong> را می‌دهد؛ جایگزین Ledger معتبر و محاسبه مانده مالی نیست.</p>
+<aside class="lesson-note"><strong>بهینه‌سازی</strong><span>برای Window Functionهای پرتکرار، ترتیب کلید ایندکس متناسب با PARTITION BY و ORDER BY را بررسی کن تا هزینه Sort کاهش یابد.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 18 · آمادگی مصاحبه</h3><p><strong>در داده مرتب‌شده [100,100,80]، رتبه مقدار 80 در DENSE_RANK چیست؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>۱</span></li><li><bdi class="option-letter">B</bdi><span>۲</span></li><li><bdi class="option-letter">C</bdi><span>۳</span></li><li><bdi class="option-letter">D</bdi><span>۴</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — DENSE_RANK بین گروه مقادیر مساوی فاصله رتبه‌ای نمی‌اندازد.</div></details></div>
+    <div class="lesson-step-nav"><a href="#temp-cte">← درس قبل</a><a href="#procs-views">درس بعد →</a></div>
+    </section>
+<section id="procs-views" class="lesson-section" data-source-section="19" aria-labelledby="lesson-title-19">
+    <p class="section-kicker">درس 19 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-19">Stored Procedure، View و Function</h2>
+    <p>در مصاحبه ممکن است بپرسند «منطق Query را در Stored Procedure نگه می‌داری یا در EF Core؟» پاسخ به نیاز کسب‌وکار، کنترل اجرای Query، امنیت و نگهداری بستگی دارد؛ هیچ گزینه‌ای همیشه برتر نیست.</p>
+<h3>Stored Procedure</h3>
+<p>برای عملیات چندمرحله‌ای، دریافت پارامتر، Transaction و منطق SQL متمرکز مناسب است:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE OR ALTER PROCEDURE dbo.GetUserTransactions
+    @UserId BIGINT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Id, Amount, Status
+    FROM dbo.Transactions
+    WHERE UserId = @UserId;
+END;
+</code></pre></div>
+<h3>View</h3>
+<p>یک Query نام‌گذاری‌شده است که مانند جدول مجازی قابل استفاده است؛ View عادی به معنای ذخیره فیزیکی نتیجه نیست.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE OR ALTER VIEW dbo.SuccessfulTransactions
+AS
+SELECT Id, UserId, Amount, CreatedAt
+FROM dbo.Transactions
+WHERE Status = 1;
+GO
+SELECT * FROM dbo.SuccessfulTransactions;
+</code></pre></div>
+<h3>Function</h3>
+<p><code>Scalar UDF</code> مقداری بازمی‌گرداند و <code>Table-Valued Function</code> مجموعه‌ای از ردیف‌ها؛ برخی انواع UDF می‌توانند محدودیت عملکردی داشته باشند. SQL Server در نسخه‌های جدید برای بعضی Scalar UDFها قابلیت Inlining دارد، اما باید Plan واقعی بررسی شود.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">CREATE OR ALTER FUNCTION dbo.TransactionsForUser(@UserId BIGINT)
+RETURNS TABLE
+AS RETURN
+(
+    SELECT Id, Amount, Status
+    FROM dbo.Transactions
+    WHERE UserId = @UserId
+);
+GO
+SELECT * FROM dbo.TransactionsForUser(100);
+</code></pre></div>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>ابزار</th>
+<th>مزیت</th>
+<th>محدودیت / توجه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stored Procedure</td>
+<td>منطق پارامتری و چندمرحله‌ای</td>
+<td>مدیریت نسخه و تست</td>
+</tr>
+<tr>
+<td>View</td>
+<td>ساده‌سازی Query و مرزبندی دسترسی</td>
+<td>View معمولی نتیجه را Cache نمی‌کند</td>
+</tr>
+<tr>
+<td>Inline TVF</td>
+<td>ترکیب‌پذیر در SELECT</td>
+<td>پارامتر و ساختار تعریف مشخص</td>
+</tr>
+<tr>
+<td>EF Core LINQ</td>
+<td>نگهداری نزدیک کد C# و Type Safety</td>
+<td>SQL تولیدشده باید تحلیل شود</td>
+</tr>
+</tbody>
+</table></div>
+<aside class="lesson-note"><strong>پاسخ خوب مصاحبه</strong><span>«برای CRUD معمولی، LINQ واضح و قابل نگهداری را ترجیح می‌دهم. برای Query حساس و پیچیده، بین Stored Procedure، View و SQL خام با معیار تست، Plan، امنیت و تیم تصمیم می‌گیرم.»</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 19 · آمادگی مصاحبه</h3><p><strong>کدام جمله درباره View معمولی SQL Server دقیق‌تر است؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>همیشه نتیجه را Cache می‌کند</span></li><li><bdi class="option-letter">B</bdi><span>تعریف یک Query قابل استفاده مجدد است؛ معمولاً نتیجه را Materialize نمی‌کند</span></li><li><bdi class="option-letter">C</bdi><span>می‌تواند COMMIT اجرا کند</span></li><li><bdi class="option-letter">D</bdi><span>از Index روی جداول پایه استفاده نمی‌کند</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — View معمولی نمای منطقی Query است؛ با Indexed View متفاوت است.</div></details></div>
+    <div class="lesson-step-nav"><a href="#window-functions">← درس قبل</a><a href="#join-group">درس بعد →</a></div>
+    </section>
+<section id="join-group" class="lesson-section" data-source-section="20" aria-labelledby="lesson-title-20">
+    <p class="section-kicker">درس 20 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-20">JOIN، GROUP BY، WHERE و HAVING</h2>
+    <p>در مصاحبه سنیور باید تفاوت Joinهای اصلی، جایگاه شرط‌ها و مدیریت ردیف‌های گمشده را دقیق بدانی. فرض کن دو جدول <code>Users</code> و <code>Transactions</code> داریم.</p>
+<h3>انواع JOIN</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Only matching rows
+SELECT u.Id, t.Id AS TransactionId
+FROM dbo.Users AS u
+INNER JOIN dbo.Transactions AS t ON t.UserId = u.Id;
+
+-- Keep users without any transaction too
+SELECT u.Id, t.Id AS TransactionId
+FROM dbo.Users AS u
+LEFT JOIN dbo.Transactions AS t ON t.UserId = u.Id;
+</code></pre></div>
+<p><code>INNER JOIN</code> فقط جفت‌های مطابق را نگه می‌دارد؛ <code>LEFT JOIN</code> تمام کاربران سمت چپ را نگه می‌دارد و برای طرف راست بدون تطبیق، <code>NULL</code> می‌گذارد.</p>
+<h3>تله مهم: WHERE بعد از LEFT JOIN</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- This can remove users with no successful transactions:
+SELECT u.Id, t.Id
+FROM dbo.Users u
+LEFT JOIN dbo.Transactions t ON t.UserId = u.Id
+WHERE t.Status = 1;
+
+-- Keep all users; only matched successful transactions:
+SELECT u.Id, t.Id
+FROM dbo.Users u
+LEFT JOIN dbo.Transactions t
+  ON t.UserId = u.Id AND t.Status = 1;
+</code></pre></div>
+<p>چون شرط روی ستون جدول راست در <code>WHERE</code>، ردیف‌های <code>NULL</code> را حذف می‌کند، ممکن است <code>LEFT JOIN</code> عملاً رفتاری نزدیک <code>INNER JOIN</code> پیدا کند.</p>
+<h3>WHERE در برابر HAVING</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">SELECT UserId, COUNT(*) AS SuccessCount
+FROM dbo.Transactions
+WHERE Status = 1
+GROUP BY UserId
+HAVING COUNT(*) &gt;= 10;
+</code></pre></div>
+<p><code>WHERE</code> ردیف‌های ورودی را قبل از گروه‌بندی فیلتر می‌کند؛ <code>HAVING</code> روی گروه‌های تشکیل‌شده شرط می‌گذارد. برای شمارش و جمع، توجه کن که Join ناخواسته چندبرابرشدن ردیف‌ها را ایجاد نکند.</p>
+<aside class="lesson-note"><strong>دقت در گزارش مالی</strong><span>قبل از هر SUM یا COUNT پس از JOIN، Cardinailty رابطه و احتمال چندبرابرشدن ردیف‌ها را بررسی کن؛ ظاهر درست SQL تضمین‌کننده جمع درست نیست.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 20 · آمادگی مصاحبه</h3><p><strong>چطور در LEFT JOIN تمام کاربران حفظ شوند اما فقط تراکنش‌های موفق به آن‌ها متصل شوند؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>شرط t.Status=1 را در WHERE بگذاریم</span></li><li><bdi class="option-letter">B</bdi><span>شرط t.Status=1 را داخل ON قرار دهیم</span></li><li><bdi class="option-letter">C</bdi><span>LEFT را به CROSS تبدیل کنیم</span></li><li><bdi class="option-letter">D</bdi><span>GROUP BY را حذف کنیم</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — شرط در ON فقط تطبیق جدول راست را محدود می‌کند و کاربران بی‌تراکنش را حفظ می‌کند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#procs-views">← درس قبل</a><a href="#delete-truncate">درس بعد →</a></div>
+    </section>
+<section id="delete-truncate" class="lesson-section" data-source-section="21" aria-labelledby="lesson-title-21">
+    <p class="section-kicker">درس 21 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-21">DELETE، TRUNCATE و DROP</h2>
+    <p>این سه دستور ظاهراً برای پاک‌سازی به‌کار می‌روند اما معنا و پیامد کاملاً متفاوت دارند. در سامانه مالی، استفاده نادرست می‌تواند فاجعه‌بار باشد.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Remove selected rows (WHERE is allowed):
+DELETE FROM dbo.Transactions WHERE Status = 99;
+
+-- Remove all rows (when constraints allow):
+TRUNCATE TABLE dbo.TempImport;
+
+-- Remove the table definition itself:
+DROP TABLE dbo.TempImport;
+</code></pre></div>
+<h3>مقایسه</h3>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>معیار</th>
+<th>DELETE</th>
+<th>TRUNCATE</th>
+<th>DROP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ردیف انتخابی با WHERE</td>
+<td>بله</td>
+<td>خیر</td>
+<td>خیر</td>
+</tr>
+<tr>
+<td>نگهداری ساختار جدول</td>
+<td>بله</td>
+<td>بله</td>
+<td>خیر</td>
+</tr>
+<tr>
+<td>اجرای DELETE Trigger</td>
+<td>بله (در شرایط مربوط)</td>
+<td>خیر</td>
+<td>خیر</td>
+</tr>
+<tr>
+<td>بازنشانی Identity</td>
+<td>معمولاً خیر</td>
+<td>معمولاً بله</td>
+<td>جدول حذف می‌شود</td>
+</tr>
+<tr>
+<td>قابل Rollback در Transaction صریح SQL Server</td>
+<td>بله</td>
+<td>بله</td>
+<td>بله در شرایط معمول</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>اشتباه رایج:</strong> گفتن اینکه <code>TRUNCATE</code> در SQL Server «قابل Rollback نیست» نادرست است. وقتی داخل Transaction قابل Rollback اجرا شود، می‌توان آن را برگرداند؛ ولی اگر Commit شده باشد، بازیابی داستان دیگری است.</p>
+<h3>محدودیت‌های TRUNCATE</h3>
+<p>در حضور بعضی قیدهای <code>FOREIGN KEY</code> و سایر وابستگی‌ها، <code>TRUNCATE</code> مجاز نیست. به‌علاوه قفل‌ها و مجوزهای متفاوتی نسبت به DELETE دارد.</p>
+<h3>نکته Production</h3>
+<p>به‌جای پاک‌سازی مستقیم داده مالی، اغلب باید طراحی <code>Retention</code>، <code>Archival</code>، پارتیشن‌بندی و الزامات حسابرسی را در نظر گرفت. برای پاک‌سازی حجم زیاد، Batch کردن DELETE ممکن است زمان قفل‌گذاری و فشار Transaction Log را قابل کنترل‌تر کند.</p>
+<aside class="lesson-warning"><strong>هشدار</strong><span>نمونه‌های این درس فقط برای دیتابیس آزمایشی‌اند؛ دستور TRUNCATE یا DROP را روی جدول واقعی تراکنش مالی اجرا نکن.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 21 · آمادگی مصاحبه</h3><p><strong>کدام جمله درباره TRUNCATE در SQL Server صحیح است؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>هیچ‌وقت Rollback نمی‌شود</span></li><li><bdi class="option-letter">B</bdi><span>شرط WHERE دارد</span></li><li><bdi class="option-letter">C</bdi><span>داخل Transaction مناسب می‌تواند Rollback شود</span></li><li><bdi class="option-letter">D</bdi><span>DELETE Trigger را فعال می‌کند</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — TRUNCATE در SQL Server یک عملیات قابل Rollback در Transaction است، با تفاوت‌های مهم نسبت به DELETE.</div></details></div>
+    <div class="lesson-step-nav"><a href="#join-group">← درس قبل</a><a href="#columnstore">درس بعد →</a></div>
+    </section>
+<section id="columnstore" class="lesson-section" data-source-section="22" aria-labelledby="lesson-title-22">
+    <p class="section-kicker">درس 22 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-22">Columnstore Index و Rowstore Index</h2>
+    <p>ایندکس‌های معمولی Rowstore ردیف‌ها را به‌صورت ردیفی نگهداری می‌کنند و برای تراکنش‌های نقطه‌ای <code>OLTP</code> بسیار متداول‌اند. در مقابل، <code>Columnstore</code> مقادیر هر ستون را به‌صورت فشرده و ستون‌محور سازمان می‌دهد و برای اسکن تحلیلی حجم زیاد مفید است.</p>
+<h3>مثال کاربردی</h3>
+<p>برای دریافت یک تراکنش با <code>Id</code>، Rowstore معمولاً مناسب است؛ ولی در گزارشی که از ۲۰۰ میلیون ردیف فقط دو ستون را <code>SUM</code> و <code>GROUP BY</code> می‌کند، Columnstore می‌تواند با فشرده‌سازی و Batch Mode سودمند باشد.</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Illustrative analytics-oriented index:
+CREATE NONCLUSTERED COLUMNSTORE INDEX NCCI_Transactions_Analytics
+ON dbo.Transactions(Status, CreatedAt, Amount);
+</code></pre></div>
+<p>وجود Columnstore روی جدول OLTP باید دقیق بررسی شود؛ هزینه نگهداری، حافظه، نرخ تغییرات و شکل گزارش اهمیت دارند. برای محیط تحلیلی مستقل گاهی <code>Clustered Columnstore Index</code> روی جدول Fact مناسب است.</p>
+<h3>مقایسه</h3>
+<div class="table-wrap"><table class="diagnostic-table">
+<thead>
+<tr>
+<th>ویژگی</th>
+<th>Rowstore B-Tree</th>
+<th>Columnstore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>بازیابی تک‌ردیف</td>
+<td>معمولاً بسیار مناسب</td>
+<td>معمولاً انتخاب اول نیست</td>
+</tr>
+<tr>
+<td>Aggregate حجیم</td>
+<td>به Plan/Index بستگی دارد</td>
+<td>اغلب مناسب‌تر</td>
+</tr>
+<tr>
+<td>سازمان داده</td>
+<td>ردیف محور</td>
+<td>ستون محور، فشرده</td>
+</tr>
+<tr>
+<td>سناریو</td>
+<td>OLTP</td>
+<td>Analytics / Reporting</td>
+</tr>
+</tbody>
+</table></div>
+<h3>Batch Mode و Segments</h3>
+<p>پردازش دسته‌ای تعداد زیادی ردیف، فشرده‌سازی و حذف بخش‌هایی از داده بر اساس Metadata سگمنت‌ها می‌توانند کارایی را بهتر کنند. اما ممکن است برخی Queryها حتی با وجود Columnstore از Plan دیگری استفاده کنند.</p>
+<aside class="lesson-note"><strong>پاسخ مصاحبه</strong><span>«برای API تراکنشی با جست‌وجوی Id ایندکس Rowstore طراحی می‌کنم؛ برای گزارش‌گیری حجیم Columnstore را روی Workload واقعی Benchmark می‌کنم.»</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 22 · آمادگی مصاحبه</h3><p><strong>کدام Workload بیشترین تناسب معمول را با Columnstore دارد؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>خواندن یک تراکنش با Id</span></li><li><bdi class="option-letter">B</bdi><span>گزارش SUM و GROUP BY روی ده‌ها میلیون ردیف</span></li><li><bdi class="option-letter">C</bdi><span>بررسی وجود کاربر با PK</span></li><li><bdi class="option-letter">D</bdi><span>تغییر یک ردیف با شناسه</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — Columnstore بیشتر در پردازش تحلیلی و Aggregate حجیم می‌درخشد.</div></details></div>
+    <div class="lesson-step-nav"><a href="#delete-truncate">← درس قبل</a><a href="#ef-tuning">درس بعد →</a></div>
+    </section>
+<section id="ef-tuning" class="lesson-section" data-source-section="23" aria-labelledby="lesson-title-23">
+    <p class="section-kicker">درس 23 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-23">بهینه‌سازی Query در EF Core</h2>
+    <p>در مصاحبه سنیور، صرفاً دانستن <code>LINQ</code> کافی نیست؛ باید SQL تولیدشده، Plan و مصرف منابع را بررسی کنی. مشکلات پرتکرار شامل <code>N+1</code>، بارگذاری داده اضافی، Tracking غیرضروری، صفحه‌بندی غیربهینه و Queryهای حجیم هستند.</p>
+<h3>Projection و AsNoTracking</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">C#</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-csharp">var result = await db.Transactions
+    .AsNoTracking()
+    .Where(x =&gt; x.UserId == userId)
+    .OrderByDescending(x =&gt; x.Id)
+    .Select(x =&gt; new TransactionDto
+    {
+        Id = x.Id,
+        Amount = x.Amount,
+        Status = x.Status
+    })
+    .Take(50)
+    .ToListAsync();
+</code></pre></div>
+<p>این Query فقط ستون‌های موردنیاز را انتخاب می‌کند. چون قرار نیست Entityها تغییر کنند، <code>AsNoTracking</code> معمولاً هزینه Change Tracker را کاهش می‌دهد.</p>
+<h3>N+1 Query</h3>
+<p>اگر ابتدا فهرست کاربران را دریافت کنیم و سپس برای هر کاربر جداگانه تراکنش‌ها را Lazy Load کنیم، ممکن است یک Query اولیه به‌علاوه N Query دیگر اجرا شود. راهکارها: Projection، <code>Include</code> هدفمند، Query ترکیبی یا Batch Query. در بارگذاری چند Collection، <code>AsSplitQuery</code> گاهی از انفجار ضرب کارتزین جلوگیری می‌کند، اما Round Tripهای اضافی دارد.</p>
+<h3>Keyset Pagination</h3>
+<p>در صفحه‌بندی عمیق، <code>Skip(100000).Take(50)</code> ممکن است کارایی ضعیفی داشته باشد. برای ترتیب پایدار با شناسه:</p>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">C#</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-csharp">var page = await db.Transactions
+    .AsNoTracking()
+    .Where(x =&gt; x.UserId == userId &amp;&amp; x.Id &lt; lastSeenId)
+    .OrderByDescending(x =&gt; x.Id)
+    .Take(50)
+    .Select(x =&gt; new { x.Id, x.Amount })
+    .ToListAsync();
+</code></pre></div>
+<p>برای این الگو ایندکس <code>(UserId, Id)</code> را با workload بررسی کن. صفحات باید دارای ترتیب قطعی باشند و ترکیب کلیدها در صفحه‌بندی چندستونی درست نگهداری شود.</p>
+<h3>دیدن SQL واقعی</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">C#</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-csharp">var sql = db.Transactions
+    .Where(x =&gt; x.UserId == userId)
+    .ToQueryString();
+</code></pre></div>
+<aside class="lesson-note"><strong>مصاحبه</strong><span>«به جای حدس درباره LINQ، ابتدا SQL تولیدشده، تعداد Round Trip، Actual Plan، Logical Reads و نیاز به Tracking را اندازه‌گیری می‌کنم.»</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 23 · آمادگی مصاحبه</h3><p><strong>برای صفحه‌بندی عمیق با Id یکتا و مرتب‌سازی نزولی، کدام روش اغلب بهتر مقیاس می‌گیرد؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>Skip بسیار بزرگ</span></li><li><bdi class="option-letter">B</bdi><span>Keyset با Id &lt; lastSeenId</span></li><li><bdi class="option-letter">C</bdi><span>ToList قبل از فیلتر</span></li><li><bdi class="option-letter">D</bdi><span>Load کردن همه رکوردها</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — Keyset معمولاً از پیمایش و کنارگذاشتن تعداد زیاد ردیف جلوگیری می‌کند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#columnstore">← درس قبل</a><a href="#production">درس بعد →</a></div>
+    </section>
+<section id="production" class="lesson-section" data-source-section="24" aria-labelledby="lesson-title-24">
+    <p class="section-kicker">درس 24 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-24">عیب‌یابی SQL Server در Production</h2>
+    <p>سؤال واقعی مصاحبه: «API پرداخت دیروز ۵۰ میلی‌ثانیه پاسخ می‌داد، امروز بعضی درخواست‌ها ۵ ثانیه طول می‌کشند. از کجا شروع می‌کنی؟» پاسخ سنیور باید <strong>اندازه‌گیری، تفکیک لایه‌ها و اقدام کم‌ریسک</strong> باشد.</p>
+<h3>گام اول: تشخیص محل تأخیر</h3>
+<ol>
+<li>آیا کندی از شبکه، Connection Pool، SQL Server یا سرویس وابسته است؟</li>
+<li>آیا خطای <code>Timeout</code> داریم یا فقط Latency افزایش یافته است؟</li>
+<li>آیا تعداد درخواست‌ها، توزیع پارامترها یا Deploy اخیر تغییر کرده است؟</li>
+<li>آیا روی سرور Waiting، Blocking، CPU، IO یا فشار حافظه مشاهده می‌شود؟</li>
+</ol>
+<h3>SQLهای تشخیصی نمونه</h3>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Active requests and waits
+SELECT session_id, status, command,
+       wait_type, wait_time,
+       blocking_session_id, total_elapsed_time
+FROM sys.dm_exec_requests
+WHERE session_id &gt; 50;
+</code></pre></div>
+<div class="code-block"><div class="code-label"><span>مثال عملی</span><span dir="ltr">SQL</span><button aria-label="کپی کد" class="copy-code" type="button">کپی</button></div><pre dir="ltr"><code class="language-sql">-- Simple index usage snapshot; counters reset on restart.
+SELECT OBJECT_NAME(object_id) AS TableName,
+       index_id, user_seeks, user_scans, user_updates
+FROM sys.dm_db_index_usage_stats
+WHERE database_id = DB_ID();
+</code></pre></div>
+<p>برای تحلیل Queryهای تاریخی از <code>Query Store</code> و برای Deadlock Graph از <code>Extended Events</code> استفاده می‌شود. DMVها و Query Store مجوز مناسب و محدودیت نگهداری داده دارند.</p>
+<h3>نمونه عیب‌یابی مرحله‌ای</h3>
+<ul>
+<li>اگر <code>LCK_M_X</code> یا انتظار قفل مشابه زیاد است: Blocking Chain و Transactionهای طولانی را بررسی کن.</li>
+<li>اگر <code>PAGEIOLATCH_*</code> افزایش یافته: الگوی خواندن و وضعیت IO را بررسی کن؛ بدون آزمایش علت را صرفاً دیسک فرض نکن.</li>
+<li>اگر <code>RESOURCE_SEMAPHORE</code> زیاد است: Memory Grant و تخمین ردیف‌ها را بررسی کن.</li>
+<li>اگر Plan ناگهان تغییر کرده: Query Store، Statistics و Parameter Sniffing را مقایسه کن.</li>
+<li>اگر در .NET خطای Connection Pool داریم: Connectionهای بازمانده، Dispose، عمر DbContext و مدت انتظار درخواست‌ها را بررسی کن.</li>
+</ul>
+<h3>اولویت تصمیم</h3>
+<p>ابتدا Blast Radius را محدود کن، داده مالی را ایمن نگه دار، شواهد قبل/بعد جمع کن و تغییر را با امکان Rollback انجام بده. <code>NOLOCK</code> سراسری، <code>KILL</code> کورکورانه یا افزایش بدون تحلیل Timeout روش تشخیص نیستند.</p>
+<aside class="lesson-warning"><strong>پاسخ سطح سنیور</strong><span>«اول مسئله را قابل اندازه‌گیری می‌کنم، سپس با Wait Stats، Query Store و Actual Plan ریشه مشکل را پیدا می‌کنم؛ راه‌حل باید هم سریع و هم برای صحت تراکنش‌های مالی امن باشد.»</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 24 · آمادگی مصاحبه</h3><p><strong>اگر Latency ناگهان زیاد شده و Waitهای قفل مشاهده می‌شوند، اولین بررسی فنی مناسب چیست؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>افزایش CPU بدون بررسی</span></li><li><bdi class="option-letter">B</bdi><span>بررسی Blocking Chain و تراکنش طولانی</span></li><li><bdi class="option-letter">C</bdi><span>اعمال NOLOCK روی همه Queryها</span></li><li><bdi class="option-letter">D</bdi><span>حذف همه ایندکس‌ها</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه B</strong> — انتظارهای قفل ابتدا باید به Session و تراکنش مسدودکننده نسبت داده شوند.</div></details></div>
+    <div class="lesson-step-nav"><a href="#ef-tuning">← درس قبل</a><a href="#mock-interview">درس بعد →</a></div>
+    </section>
+<section id="mock-interview" class="lesson-section" data-source-section="25" aria-labelledby="lesson-title-25">
+    <p class="section-kicker">درس 25 · آموزش و تمرین · ادامه تکمیلی دوره</p>
+    <h2 id="lesson-title-25">مصاحبه نهایی Senior .NET و سناریوهای SQL</h2>
+    <p>در این درس مفهوم جدیدی معرفی نمی‌کنیم؛ آنچه یاد گرفته‌ایم را در قالب سناریوی طراحی و عیب‌یابی به هم متصل می‌کنیم. هدف، پاسخ شفاهی ساخت‌یافته و قابل دفاع در مصاحبه است.</p>
+<h3>سناریو ۱: یک API تراکنش ناگهان کند شده</h3>
+<p><strong>سؤال:</strong> Query روی <code>UserId</code> ایندکس دارد ولی در بعضی ساعات ۴ ثانیه طول می‌کشد. چه بررسی می‌کنی؟</p>
+<p><strong>طرح پاسخ:</strong> ابتدا <code>Actual Execution Plan</code> و <code>STATISTICS IO/TIME</code>، تعداد Lookup، کیفیت Statistics، اختلاف Estimated/Actual، Blocking و وابستگی Plan به پارامترها را بررسی می‌کنم. بعد از اندازه‌گیری، ایندکس Covering، بازنویسی SARGable، Query Store یا تغییر محدود Query را آزمایش می‌کنم.</p>
+<h3>سناریو ۲: دو درخواست هم‌زمان برداشت پول</h3>
+<p><strong>سؤال:</strong> موجودی ۱۰۰۰ است و هر دو درخواست قصد برداشت ۸۰۰ دارند. چه می‌کنی؟</p>
+<p><strong>طرح پاسخ:</strong> اعتبارسنجی صرف در حافظه کافی نیست. یک <code>Conditional UPDATE</code> اتمیک با شرط <code>Balance &gt;= @Amount</code> و بررسی تعداد ردیف‌ها در Transaction اجرا می‌کنم. برای هر درخواست <code>RequestId</code> یکتا، <code>Unique Index</code> و ثبت نتیجه قابل بازیابی دارم؛ در عملیات چندحسابی ترتیب قفل‌ها، Ledger و Reconciliation را هم لحاظ می‌کنم.</p>
+<h3>سناریو ۳: RabbitMQ در میانه انتقال قطع می‌شود</h3>
+<p><strong>سؤال:</strong> آیا می‌توانی SQL Transaction را با Publish پیام به RabbitMQ یکی فرض کنی؟</p>
+<p><strong>طرح پاسخ:</strong> خیر. تغییر مانده و رکورد Outbox را در یک SQL Transaction ثبت می‌کنم. Publisher جداگانه پیام را از Outbox ارسال می‌کند و Consumer با Inbox/Idempotency اثر تکراری را کنترل می‌کند. انتشار ممکن است تکرار شود، ولی نباید اثر مالی دوبار اتفاق بیفتد.</p>
+<h3>سناریو ۴: Deadlockهای متناوب</h3>
+<p><strong>سؤال:</strong> خطای 1205 داریم. آیا CommandTimeout را زیاد می‌کنی؟</p>
+<p><strong>طرح پاسخ:</strong> خیر؛ از <code>Deadlock Graph</code> منابع و Queryها را پیدا می‌کنم، ترتیب دسترسی ثابت و Transaction کوتاه طراحی می‌کنم و Retry محدودِ کل Transaction را با Idempotency برقرار می‌کنم.</p>
+<h3>قالب پاسخ سه‌مرحله‌ای در مصاحبه</h3>
+<ol>
+<li><strong>تشخیص:</strong> چه داده و متریکی جمع می‌کنم؟</li>
+<li><strong>تصمیم:</strong> چه راه‌حلی می‌دهم و چرا؟</li>
+<li><strong>ریسک:</strong> چه Trade-off و مسیر Rollback یا کنترل صحت دارد؟</li>
+</ol>
+<h3>تمرین کوتاه تکمیلی</h3>
+<ul>
+<li>تفاوت Clustered و Non-Clustered را با مثال یک جدول توضیح بده.</li>
+<li>چرا Index Seek همیشه از Scan بهتر نیست؟</li>
+<li>چرا NOLOCK در گزارش مانده بانکی خطرناک است؟</li>
+<li>تفاوت RCSI و SNAPSHOT چیست؟</li>
+<li>چرا RowVersion جایگزین Idempotency Key نیست؟</li>
+</ul>
+<aside class="lesson-note"><strong>جمع‌بندی دوره</strong><span>دانستن تعریف اصطلاحات شرط لازم است؛ معیار سنیور، تحلیل داده واقعی، تشخیص گلوگاه، حفظ صحت مالی و توضیح روشن Trade-offهای تصمیم است.</span></aside>
+
+    <div class="lesson-quiz"><h3>سؤال 25 · آمادگی مصاحبه</h3><p><strong>برای تحلیل یک Query کند در Production، بهترین پاسخ سنیور کدام است؟</strong></p><ol class="quiz-options"><li><bdi class="option-letter">A</bdi><span>بدون بررسی Index تازه می‌سازم</span></li><li><bdi class="option-letter">B</bdi><span>همه Queryها را NOLOCK می‌کنم</span></li><li><bdi class="option-letter">C</bdi><span>Plan، Reads، Waits و آمار را اندازه می‌گیرم و تغییر کنترل‌شده می‌دهم</span></li><li><bdi class="option-letter">D</bdi><span>فقط Timeout را زیاد می‌کنم</span></li></ol>
+    <details><summary>نمایش پاسخ تشریحی</summary><div><strong>پاسخ صحیح: گزینه C</strong> — تشخیص مبتنی بر شواهد، تحلیل ریسک و بهبود قابل اندازه‌گیری پاسخ حرفه‌ای است.</div></details></div>
+    <div class="lesson-step-nav"><a href="#production">← درس قبل</a><a href="#course-title">↑ بازگشت به ابتدا</a></div>
+    </section></div>
+<footer class="study-source"><h2>منابع و نکات پایان دوره</h2>
+<p>این جزوه بر پایه مباحث همین گفت‌وگو و ادامه تکمیلی برنامه آموزشی SQL Server برای مصاحبه Senior .NET تنظیم شده است. نمونه‌های آموزشیِ SQL در دیتابیس آزمایشی اجرا شوند؛ همه نمونه‌ها برای Production، بدون بررسی ساختار و قواعد مالی، آماده اجرا نیستند.</p>
+<p>برای مطالعه مستندات اصلی: <a href="https://learn.microsoft.com/en-us/sql/relational-databases/indexes/indexes" target="_blank" rel="noopener noreferrer">ایندکس‌ها در SQL Server</a>، <a href="https://learn.microsoft.com/en-us/sql/t-sql/statements/set-transaction-isolation-level-transact-sql" target="_blank" rel="noopener noreferrer">سطوح Isolation</a>، <a href="https://learn.microsoft.com/en-us/ef/core/performance/efficient-querying" target="_blank" rel="noopener noreferrer">بهینه‌سازی EF Core</a> و <a href="https://learn.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency" target="_blank" rel="noopener noreferrer">Retry در EF Core</a>.</p>
+<a href="#course-title">↑ بازگشت به ابتدای جزوه</a></footer>
+</article></main></div><footer class="course-footer"><span>آکادمی دات‌نت · SQL Server · دوره ۲۵ درسی</span><a href="#course-title">بازگشت به بالا ↑</a></footer><script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const menuToggle = document.querySelector('[data-course-menu-toggle]');
+  const setTheme = theme => {
+    root.dataset.theme = theme;
+    toggle?.setAttribute('aria-pressed', String(theme === 'dark'));
+    toggle?.setAttribute('aria-label', theme === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
+  };
+  setTheme(root.dataset.theme || 'light');
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    try { localStorage.setItem('dotnet-academy-theme', next); } catch (_) {}
+  });
+  menuToggle?.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+    menuToggle.setAttribute('aria-expanded', String(document.body.classList.contains('menu-open')));
+  });
+  document.querySelectorAll('.course-sidebar a[href^="#"]').forEach(a => a.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  }));
+  document.querySelectorAll('.copy-code').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const val = btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+      if (!val) return;
+      try {
+        await navigator.clipboard.writeText(val);
+        btn.textContent = 'کپی شد';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      } catch (_) {
+        const textArea = document.createElement('textarea');
+        textArea.value = val;
+        document.body.append(textArea);
+        textArea.select();
+        const success = document.execCommand('copy');
+        textArea.remove();
+        btn.textContent = success ? 'کپی شد' : 'کپی ناموفق';
+        setTimeout(() => {btn.textContent = 'کپی';}, 1300);
+      }
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const links = [...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+    const index = Object.fromEntries(links.map(a => [a.getAttribute('href').slice(1), a]));
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        index[entry.target.id]?.classList.add('active');
+      }
+    }, {rootMargin:'-18% 0px -70% 0px', threshold:0});
+    document.querySelectorAll('.lesson-section').forEach(el => observer.observe(el));
+  }
+})();
+
+</script></body></html>
