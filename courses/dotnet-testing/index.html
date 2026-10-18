@@ -1,0 +1,537 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="دوره ۲۵ درسی Testing در .NET برای مصاحبه Senior، xUnit، Moq، Integration Test و تست سامانه پرداخت"><title>دوره جامع Testing در .NET | آکادمی دات‌نت</title><script>
+  (()=>{let t=null;try{t=localStorage.getItem('dotnet-academy-theme')}catch(_){};
+    const dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme=t==='dark'||t==='light'?t:dark?'dark':'light';})();
+  </script><style>
+/* Self-contained course CSS, inspired by the uploaded Academy .NET layout. */
+:root {
+  color-scheme:light;
+  --ink:#1f2937; --muted:#64748b; --line:#e2e8f0; --surface:#fff;
+  --background:#f8fafc; --cicd-surface:#fff7ed; --cicd-border:#fed7aa;
+  --cicd-accent:#c4550b; --cicd-accent-strong:#9a3c06; --cicd-warm:#f97316;
+  --code-bg:#101a2b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 30px rgba(32,43,59,.045);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ink:#e2e8f0; --muted:#94a3b8; --line:#334155; --surface:#152034;
+  --background:#0c1422; --cicd-surface:#352415; --cicd-border:#78512b;
+  --cicd-accent:#fb923c; --cicd-accent-strong:#fdba74;
+  --code-bg:#080f1b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 26px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:6.2rem}
+body{margin:0;background:var(--background);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2.05;}
+a{color:var(--cicd-accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--cicd-warm);outline-offset:3px}
+.skip-link{position:fixed;z-index:300;top:-120px;right:12px;padding:10px 15px;background:var(--surface);border:2px solid var(--cicd-accent);border-radius:7px}
+.skip-link:focus{top:12px}
+.course-header{position:sticky;z-index:40;top:0;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.025)}
+.course-nav{display:flex;align-items:center;gap:1.2rem;min-height:68px;max-width:1550px;margin:auto;padding:.55rem clamp(1rem,3vw,2.3rem)}
+.course-brand{font-weight:900;color:var(--ink);font-size:1.09rem}
+.course-name{padding-inline-start:1.2rem;border-inline-start:1px solid var(--line);color:var(--muted);font-size:.9rem}
+.back-link{margin-inline-start:auto;font-size:.82rem}
+.icon-button,.course-menu-button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:.7rem;padding:.35rem .8rem;min-height:38px}
+.icon-button{width:42px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none} [data-theme="dark"] .theme-icon-moon{display:none} [data-theme="dark"] .theme-icon-sun{display:block}
+.course-menu-button{display:none}
+.lesson-shell{max-width:1550px;margin:auto;display:grid;grid-template-columns:287px minmax(0,1fr);gap:clamp(1.1rem,3vw,3.3rem);padding:clamp(1rem,2.5vw,2.5rem)}
+.course-sidebar{align-self:start;position:sticky;top:90px;max-height:calc(100vh - 104px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;box-shadow:var(--card-shadow);}
+.sidebar-heading{padding:1.3rem 1.25rem .8rem;display:flex;flex-direction:column;gap:.15rem;border-bottom:1px solid var(--line);line-height:1.6}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading strong{font-size:1.1rem;line-height:1.7}
+.course-sidebar ol{list-style:none;padding:.5rem;margin:0}
+.course-sidebar li{margin:0}
+.course-sidebar li a{display:flex;align-items:center;gap:.7rem;border-radius:.55rem;padding:.52rem .73rem;font-size:.83rem;color:var(--ink);line-height:1.6}
+.course-sidebar li a span{font:700 .75rem/1.4 Tahoma,Arial,sans-serif;color:var(--muted);min-width:24px}
+.course-sidebar li a:hover,.course-sidebar li a.is-active{background:var(--cicd-surface);color:var(--cicd-accent-strong);text-decoration:none}
+.course-sidebar li a.is-active span{color:var(--cicd-accent-strong)}
+.source-download{border-top:1px solid var(--line);padding:1rem;margin:.4rem .65rem;display:block;font-size:.8rem}
+.lesson-content{min-width:0;max-width:1080px;width:100%;margin:auto}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1550px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.rabbitmq-hero{margin-block:1rem 2.25rem;padding:clamp(1.25rem,3vw,2.35rem);border:1px solid var(--cicd-border);border-radius:1.2rem;background:linear-gradient(135deg,var(--cicd-surface),var(--surface));}
+.eyebrow{color:var(--cicd-accent-strong);font-weight:800;font-size:.82rem;margin:0}
+.rabbitmq-hero h1{font-size:clamp(1.8rem,3.5vw,2.7rem);line-height:1.6;margin:.35rem 0 .65rem;font-weight:900;letter-spacing:-.02em}
+.course-lead{max-width:800px;color:var(--muted);line-height:2.1;margin:0}
+.study-meta,.study-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem 1rem;margin-block:1.2rem;color:var(--muted);font-size:.83rem}
+.study-status,.future-status{padding:.2rem .72rem;border:1px solid var(--cicd-border);border-radius:.65rem;background:var(--cicd-surface);color:var(--cicd-accent-strong);font-weight:800}
+.study-actions{margin-bottom:0}
+.button-link,.study-actions a{display:inline-flex;align-items:center;justify-content:center;padding:.46rem .85rem;min-height:36px;border:1px solid var(--cicd-border);border-radius:.62rem;background:var(--surface);font-weight:700;color:var(--cicd-accent-strong);text-decoration:none}
+.study-actions .button-link{background:var(--cicd-accent);color:#fff;border-color:var(--cicd-accent)}
+.lesson-note,.lesson-warning{padding:1rem 1.2rem;margin:1.4rem 0;border:1px solid var(--cicd-border);border-radius:.85rem;background:var(--cicd-surface);display:block}
+.lesson-warning{border-color:#f5c2b5;background:color-mix(in srgb,var(--surface) 82%,#f59e0b)}
+.lesson-note strong,.lesson-warning strong{display:block;color:var(--cicd-accent-strong);margin-bottom:.1rem}
+.lesson-note p{margin:.1rem 0}
+.lesson-body{background:var(--surface);border:1px solid var(--line);border-radius:1.2rem;padding:clamp(1.25rem,3vw,3.1rem);box-shadow:var(--card-shadow)}
+.lesson-section{scroll-margin-top:7rem;padding-top:2rem;padding-bottom:2.2rem;border-bottom:1px solid var(--line)}
+.lesson-section:first-child{padding-top:.1rem}
+.lesson-section:last-child{border-bottom:none;padding-bottom:0}
+.section-kicker{display:flex;align-items:center;gap:.6rem;color:var(--cicd-accent-strong);font-size:.78rem;font-weight:800;margin:0 0 .2rem}
+.lesson-section h2{font-size:clamp(1.28rem,2.3vw,1.7rem);line-height:1.75;margin:.2rem 0 1.3rem;letter-spacing:-.01em}
+.lesson-section h3{font-size:1.02rem;line-height:1.8;margin:1.65rem 0 .65rem}
+.lesson-section p{margin:.85rem 0;line-height:2.15}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{padding-inline-start:.15rem;margin:.35rem 0}
+.lesson-section li::marker{color:var(--cicd-accent)}
+.lesson-section :not(pre)>code{font: .91em/1.7 Consolas,"Courier New",monospace;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere;border-radius:.32rem;color:var(--cicd-accent-strong);background:var(--cicd-surface);padding:.08rem .35rem}
+.code-block{min-width:0;max-width:100%;margin:1.3rem 0;border:1px solid #334155;border-radius:.8rem;overflow:hidden;background:var(--code-bg);direction:ltr;}
+.code-label{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;padding:.43rem .85rem;background:#1e293b;color:#cbd5e1;font-size:.72rem;line-height:1.6;direction:rtl}
+.code-label>span:nth-child(2){margin-inline-start:auto;font-family:Consolas,monospace;direction:ltr}
+.copy-code{font-size:.72rem;color:#e2e8f0;background:#334155;border:1px solid #475569;border-radius:.4rem;padding:.25rem .55rem}
+.code-block pre{margin:0;padding:1.05rem 1.3rem;color:var(--code-ink);font: .91rem/1.85 Consolas,"Courier New",monospace;direction:ltr;text-align:left;white-space:pre;max-width:100%;overflow:auto;tab-size:4}
+.code-block pre code{font:inherit;color:inherit;background:transparent}
+.table-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:.85rem}
+.diagnostic-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.87rem;line-height:1.85}
+.diagnostic-table th,.diagnostic-table td{text-align:right;padding:.8rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+.diagnostic-table th{background:var(--cicd-surface);font-weight:800}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.diagnostic-table tr:nth-child(even) td{background:color-mix(in srgb,var(--surface) 94%,var(--cicd-surface))}
+.future-section{background:var(--cicd-surface);border:1px dashed var(--cicd-border);border-radius:.85rem;padding:.7rem 1rem;margin:1rem 0}
+.lesson-section details{border:1px solid var(--line);border-radius:.8rem;margin:.7rem 0;background:var(--background);padding:.5rem .95rem}
+.lesson-section details summary{cursor:pointer;font-weight:800;color:var(--cicd-accent-strong);list-style-position:inside}
+.lesson-section details p{margin:.45rem 0}
+.lesson-section blockquote{border-inline-start:4px solid var(--cicd-accent)}
+.study-source{margin-top:2rem;color:var(--muted);font-size:.81rem;line-height:2}
+.footer-actions{margin-top:2rem;display:flex;gap:.65rem;flex-wrap:wrap}
+.footer-actions a{padding:.5rem .9rem;border:1px solid var(--line);border-radius:.7rem}
+.tag-extended{color:#a16207;background:#fef3c7;border-radius:.4rem;padding:.1rem .4rem;font-size:.74rem;font-weight:800}
+[data-theme="dark"] .tag-extended{color:#fde68a;background:#6b4c1a}
+@media(max-width:1040px){.lesson-shell{grid-template-columns:250px minmax(0,1fr);gap:1.1rem}}
+@media(max-width:800px){
+  .course-nav{min-height:60px;gap:.55rem}
+  .course-brand{font-size:.95rem}
+  .back-link{display:none}
+  .course-menu-button{display:block;margin-inline-start:auto;font-size:.79rem;padding:.25rem .5rem}
+  .course-name{font-size:.75rem;padding-inline-start:.6rem}
+  .lesson-shell{display:block;padding:.75rem}
+  .course-sidebar{display:none;position:fixed;top:65px;bottom:0;right:0;left:auto;z-index:50;width:min(86vw,340px);height:calc(100vh - 65px);max-height:none;border-radius:0;box-shadow:0 0 0 200vw rgba(0,0,0,.5)}
+  body.sidebar-open .course-sidebar{display:block}
+  .lesson-content{max-width:none}
+  .rabbitmq-hero{margin-top:.75rem}
+  .lesson-body{padding:1.2rem}
+  .lesson-section{scroll-margin-top:5.8rem}
+  .diagnostic-table{min-width:480px}
+  .code-block pre{font-size:.79rem}
+  .study-actions{gap:.45rem}
+}
+@media print{
+  :root{--background:white;--surface:white;--ink:black;--line:#ccc}
+  .course-header,.course-sidebar,.footer-actions,.study-actions,.copy-code{display:none!important}
+  .lesson-shell{display:block;max-width:none;padding:0}
+  .lesson-content{max-width:none}
+  .lesson-body,.rabbitmq-hero{border:0;box-shadow:none;padding:.5rem}
+  .lesson-section{break-inside:auto}
+  .code-block{break-inside:avoid;print-color-adjust:exact}
+  a{color:inherit}
+}
+
+</style></head>
+<body class="lesson-page rabbitmq-page"><a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
+<header class="course-header"><nav class="course-nav" aria-label="ناوبری دوره"><a class="course-brand" href="../../index.html">آکادمی دات‌نت</a><span class="course-name">Testing در .NET</span><button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="false" aria-controls="course-sidebar">فهرست مطالب</button><button id="theme-toggle" class="icon-button" type="button" title="تغییر حالت نمایش" aria-label="تغییر تم" aria-pressed="false"><svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"/></svg><svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><a class="back-link" href="../../topics/">آموزش‌های موضوعی</a></nav></header>
+<nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../index.html">آکادمی دات‌نت</a><span aria-hidden="true">/</span><a href="../../topics/">آموزش‌های موضوعی</a><span aria-hidden="true">/</span><span aria-current="page">تست‌نویسی</span></nav>
+<div class="lesson-shell"><aside id="course-sidebar" class="course-sidebar"><div class="sidebar-heading"><span>دوره آمادگی مصاحبه</span><strong>Testing در .NET</strong><span>۲۵ درس · ۱۱ درس ارائه‌شده + ۱۴ درس تکمیلی</span></div><nav aria-label="فهرست مطالب تست‌نویسی"><ol><li><a href="#testing-basics"><span>01</span>Testing چیست و چرا اهمیت دارد؟</a></li>
+<li><a href="#testing-types"><span>02</span>تفاوت Unit، Integration و E2E</a></li>
+<li><a href="#test-pyramid"><span>03</span>Test Pyramid و استراتژی تست‌نویسی</a></li>
+<li><a href="#frameworks"><span>04</span>آشنایی با xUnit، NUnit و MSTest</a></li>
+<li><a href="#aaa"><span>05</span>الگوی Arrange، Act و Assert</a></li>
+<li><a href="#boundary"><span>06</span>Happy Path، Negative Test و Boundary Value</a></li>
+<li><a href="#fact-theory"><span>07</span>Fact، Theory و InlineData</a></li>
+<li><a href="#async-exception"><span>08</span>تست Async و Exception</a></li>
+<li><a href="#test-doubles"><span>09</span>Test Double: Mock، Stub و Fake</a></li>
+<li><a href="#moq"><span>10</span>Moq: تفاوت Setup و Verify</a></li>
+<li><a href="#state-behavior"><span>11</span>State Verification و Behavior Verification</a></li>
+<li><a href="#dependency-injection"><span>12</span>تست Service با Dependency Injection</a></li>
+<li><a href="#database-http"><span>13</span>تست وابستگی‌های Database و HTTP</a></li>
+<li><a href="#first-principles"><span>14</span>اصول FIRST و تست‌های پایدار</a></li>
+<li><a href="#integration-intro"><span>15</span>مبانی Integration Testing</a></li>
+<li><a href="#webapplicationfactory"><span>16</span>WebApplicationFactory و تست API</a></li>
+<li><a href="#testcontainers"><span>17</span>EF Core و Testcontainers</a></li>
+<li><a href="#auth-tests"><span>18</span>تست Authentication و Authorization در API</a></li>
+<li><a href="#test-data"><span>19</span>مدیریت Test Data و پاک‌سازی دیتابیس</a></li>
+<li><a href="#rabbitmq-background"><span>20</span>تست RabbitMQ و BackgroundService</a></li>
+<li><a href="#idempotency"><span>21</span>تست Idempotency، Transaction و Concurrency</a></li>
+<li><a href="#coverage-mutation"><span>22</span>Code Coverage و Mutation Testing</a></li>
+<li><a href="#cicd-tests"><span>23</span>اجرای تست‌ها در CI/CD</a></li>
+<li><a href="#payment-scenario"><span>24</span>سناریوی عملی پرداخت و مصاحبه نهایی</a></li>
+<li><a href="#final-interview"><span>25</span>مرور نهایی و پرسش‌های مصاحبه Senior .NET</a></li></ol></nav><a class="source-download" href="#final-interview">مرور نهایی مصاحبه ←</a></aside>
+<main id="lesson-content" class="lesson-content"><div class="rabbitmq-hero"><p class="eyebrow">آمادگی مصاحبه Senior .NET Developer</p><h1>دوره جامع تست‌نویسی در دات‌نت</h1><p class="course-lead">آموزش Unit Testing، Integration Testing، xUnit، Moq، تست API، پایگاه‌داده، پیام‌رسان و سناریوهای مالی همراه با مثال کد، نکته مصاحبه و سؤال مرور.</p><div class="study-meta"><span class="study-status">۲۵ درس</span><span>۱۱ درس مرور شده در گفتگو</span><span>۱۴ درس تکمیلی برای مطالعه</span></div><div class="study-actions"><a class="button-link" href="#testing-basics">شروع از درس اول</a><a href="#dependency-injection">ادامه از درس ۱۲</a><a href="#final-interview">مرور نهایی</a></div></div><div class="lesson-body"><section class="lesson-section" id="testing-basics" aria-labelledby="lesson-1">
+<p class="section-kicker">درس 01 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-1">Testing چیست و چرا اهمیت دارد؟</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>تست خودکار رفتار مورد انتظار نرم‌افزار را با نتیجه واقعی مقایسه می‌کند. هدف کشف زودهنگام باگ و جلوگیری از Regression است، نه اثبات نبودن تمام خطاها.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">public class PaymentService
+{
+    public bool ValidateAmount(decimal amount) =&gt; amount &gt; 0;
+}
+
+[Fact]
+public void PositiveAmount_IsValid()
+{
+    var service = new PaymentService();
+    Assert.True(service.ValidateAmount(1000m));
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>برای مرزهای مبلغ مثبت، صفر و منفی تست جداگانه داشته باش. تستی که فقط Exception ندادن متد را چک کند الزاماً درستی خروجی را اثبات نمی‌کند.</p></blockquote>
+<details><summary>سؤال مرور: برای مقدار ۰، خروجی مورد انتظار ValidateAmount چیست؟</summary><p><strong>پاسخ:</strong> false</p></details></section><section class="lesson-section" id="testing-types" aria-labelledby="lesson-2">
+<p class="section-kicker">درس 02 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-2">تفاوت Unit، Integration و E2E</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>در Unit Test منطق کوچک را مستقل آزمایش می‌کنیم. Integration Test همکاری چند جزء واقعی مثل Repository و دیتابیس را بررسی می‌کند. E2E مسیر کامل کسب‌وکار را از ورودی تا نتیجه آزمایش می‌کند.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// Unit: منطق بدون زیرساخت
+Assert.False(new PaymentService().ValidateAmount(0));
+
+// Integration (شبه‌کد):
+// POST /payments -&gt; read record from test database
+// Assert.Equal(PaymentStatus.Pending, saved.Status);
+
+// E2E: API Gateway -&gt; Payment -&gt; Broker -&gt; Ledger</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>ارسال HTTP به یک API الزاماً E2E نیست؛ ممکن است تست فقط چند جزء داخل برنامه را یکپارچه کند.</p></blockquote>
+<details><summary>سؤال مرور: برای اثبات ذخیره واقعی در SQL Server چه تستی لازم است؟</summary><p><strong>پاسخ:</strong> Integration Test با دیتابیس تست</p></details></section><section class="lesson-section" id="test-pyramid" aria-labelledby="lesson-3">
+<p class="section-kicker">درس 03 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-3">Test Pyramid و استراتژی تست‌نویسی</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>هرم تست پیشنهاد می‌کند تعداد زیادی Unit Test سریع، تعدادی Integration Test و تعداد محدودتری E2E Test داشته باشیم. این نسبت قانون ثابت نیست و به ریسک‌های محصول بستگی دارد.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// مثال توزیع فرضی برای 100 تست
+// 70 Unit: business rules, validation
+// 20 Integration: database, API, broker
+// 10 E2E: critical payment journeys</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>تمام منطق را فقط با E2E پوشش نده؛ زمان اجرا، ناپایداری و هزینه عیب‌یابی افزایش می‌یابد.</p></blockquote>
+<details><summary>سؤال مرور: اشکال اصلی ۱۰۰٪ E2E بودن تست‌ها چیست؟</summary><p><strong>پاسخ:</strong> کندی و دشواری عیب‌یابی</p></details></section><section class="lesson-section" id="frameworks" aria-labelledby="lesson-4">
+<p class="section-kicker">درس 04 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-4">آشنایی با xUnit، NUnit و MSTest</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>هر سه چارچوب تست دات‌نت هستند. در xUnit از Fact/Theory، در NUnit از Test/TestCase و در MSTest از TestMethod/DataRow استفاده می‌شود. این دوره با xUnit پیش می‌رود.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// dotnet new xunit -n Payments.Tests
+// dotnet add Payments.Tests reference Payments.Api
+// dotnet test
+
+public class CalculatorTests
+{
+    [Fact]
+    public void Add_TwoNumbers_ReturnsSum()
+        =&gt; Assert.Equal(5, 2 + 3);
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>از Test Explorer ویژوال استودیو یا دستور dotnet test استفاده کن؛ وجود Assert با انتظار اشتباه باعث شکست تست می‌شود.</p></blockquote>
+<details><summary>سؤال مرور: Assert.Equal(6, 2+3) موفق است؟</summary><p><strong>پاسخ:</strong> خیر، مقدار واقعی ۵ است</p></details></section><section class="lesson-section" id="aaa" aria-labelledby="lesson-5">
+<p class="section-kicker">درس 05 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-5">الگوی Arrange، Act و Assert</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>ساختار AAA شامل آماده‌سازی ورودی و وابستگی، اجرای یک عمل، و بررسی خروجی یا اثر قابل مشاهده است. هر تست بهتر است یک رفتار معنادار را پوشش دهد.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">[Fact]
+public void Amount_Valid_ReturnsTrue()
+{
+    // Arrange
+    var service = new PaymentService();
+    const decimal amount = 5000m;
+
+    // Act
+    bool result = service.ValidateAmount(amount);
+
+    // Assert
+    Assert.True(result);
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>چند Assert برای بررسی جنبه‌های یک رفتار واحد می‌تواند منطقی باشد؛ نیازی نیست کورکورانه هر تست فقط یک Assert داشته باشد.</p></blockquote>
+<details><summary>سؤال مرور: اجرای متد اصلی در کدام بخش AAA انجام می‌شود؟</summary><p><strong>پاسخ:</strong> Act</p></details></section><section class="lesson-section" id="boundary" aria-labelledby="lesson-6">
+<p class="section-kicker">درس 06 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-6">Happy Path، Negative Test و Boundary Value</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>فقط سناریوی موفق کافی نیست. برای مبلغی که باید بزرگ‌تر از صفر و حداکثر صد میلیون باشد، مقدار صفر، کمترین مبلغ مجاز، سقف و مقدار بیشتر از سقف را بررسی می‌کنیم.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">public static bool IsValidAmount(decimal amount)
+    =&gt; amount &gt; 0 &amp;&amp; amount &lt;= 100_000_000m;
+
+[Theory]
+[InlineData(0, false)]
+[InlineData(1, true)]
+[InlineData(100_000_000, true)]
+[InlineData(100_000_001, false)]
+public void AmountBoundaries(int input, bool expected)
+    =&gt; Assert.Equal(expected, IsValidAmount(input));</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>اگر واحد مالی دو رقم اعشار دارد، برای مرز ۰٫۰۱ یا ۱۰۰۰۰۰۰۰۰٫۰۱ از MemberData و decimal استفاده کن.</p></blockquote>
+<details><summary>سؤال مرور: آیا خود سقف ۱۰۰ میلیون معتبر است؟</summary><p><strong>پاسخ:</strong> بله، چون شرط &lt;= است</p></details></section><section class="lesson-section" id="fact-theory" aria-labelledby="lesson-7">
+<p class="section-kicker">درس 07 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-7">Fact، Theory و InlineData</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>Fact برای یک حالت بدون پارامتر داده‌ای مناسب است؛ Theory یک آزمون پارامتری است که به ازای هر ردیف داده تکرار می‌شود. InlineData فقط آرگومان‌های سازگار با Attribute می‌پذیرد.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">[Theory]
+[InlineData(1, true)]
+[InlineData(0, false)]
+[InlineData(-1, false)]
+public void IsPositive(int value, bool expected)
+{
+    Assert.Equal(expected, value &gt; 0);
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>برای اشیای پیچیده و decimal از MemberData یا ClassData استفاده کن. سه InlineData معمولاً سه Test Case تولید می‌کند.</p></blockquote>
+<details><summary>سؤال مرور: سه InlineData چند مورد آزمون تولید می‌کند؟</summary><p><strong>پاسخ:</strong> ۳</p></details></section><section class="lesson-section" id="async-exception" aria-labelledby="lesson-8">
+<p class="section-kicker">درس 08 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-8">تست Async و Exception</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>تست متد async باید Task برگرداند و عملیات را await کند. برای Exception ناهمگام از Assert.ThrowsAsync استفاده می‌کنیم تا شکست عملیات واقعاً مشاهده شود.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">public async Task&lt;int&gt; GetAmountAsync()
+{
+    await Task.Yield();
+    throw new InvalidOperationException("Payment failed");
+}
+
+[Fact]
+public async Task GetAmount_Throws()
+{
+    await Assert.ThrowsAsync&lt;InvalidOperationException&gt;(
+        () =&gt; GetAmountAsync());
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>استفاده از async void برای متد تست توصیه نمی‌شود. ThrowsAsync در xUnit نوع دقیق Exception را بررسی می‌کند؛ نوع مشتق لزوماً پذیرفته نمی‌شود.</p></blockquote>
+<details><summary>سؤال مرور: برای تست Exception یک Task از چه ابزاری استفاده می‌کنی؟</summary><p><strong>پاسخ:</strong> await Assert.ThrowsAsync</p></details></section><section class="lesson-section" id="test-doubles" aria-labelledby="lesson-9">
+<p class="section-kicker">درس 09 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-9">Test Double: Mock، Stub و Fake</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>Test Double جایگزین آزمایشی یک وابستگی است. Stub پاسخ قابل پیش‌بینی می‌دهد، Mock تعاملات را بررسی می‌کند، و Fake پیاده‌سازی ساده ولی فعال دارد (مثلاً ذخیره‌سازی در حافظه).</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">public interface IAccountRepository
+{
+    Task&lt;decimal&gt; GetBalanceAsync(int accountId);
+}
+
+public sealed class StubAccountRepository : IAccountRepository
+{
+    public Task&lt;decimal&gt; GetBalanceAsync(int accountId)
+        =&gt; Task.FromResult(5000m);
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>Mock یک ابزار خاص نیست؛ Moq می‌تواند هم به عنوان Stub و هم Mock به کار رود. Fake جایگزین کاملی برای رفتار Transaction در SQL Server نیست.</p></blockquote>
+<details><summary>سؤال مرور: برای بررسی «SaveAsync دقیقاً یک بار صدا شد» کدام مناسب است؟</summary><p><strong>پاسخ:</strong> Mock + Verify</p></details></section><section class="lesson-section" id="moq" aria-labelledby="lesson-10">
+<p class="section-kicker">درس 10 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-10">Moq: تفاوت Setup و Verify</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>Setup پاسخ یا رفتار وابستگی را تعریف می‌کند؛ Verify تعداد و آرگومان‌های فراخوانی را می‌سنجد. این دو را با نتیجه واقعی کسب‌وکار اشتباه نگیریم.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">var mock = new Mock&lt;IAccountRepository&gt;();
+mock.Setup(x =&gt; x.GetBalanceAsync(5))
+    .ReturnsAsync(2000m);
+
+var balance = await mock.Object.GetBalanceAsync(5);
+Assert.Equal(2000m, balance);
+
+mock.Verify(x =&gt; x.GetBalanceAsync(5), Times.Once());</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>اگر حساب ۲۰۰۰ موجودی دارد و درخواست پرداخت ۳۰۰۰ باشد، منطق کنترل موجودی باید false بدهد؛ Verify موفق تنها به معنای اجرای وابستگی است.</p></blockquote>
+<details><summary>سؤال مرور: کدام متد Moq تعداد فراخوانی را تأیید می‌کند؟</summary><p><strong>پاسخ:</strong> Verify</p></details></section><section class="lesson-section" id="state-behavior" aria-labelledby="lesson-11">
+<p class="section-kicker">درس 11 <span class="study-status">مطالعه‌شده</span></p><h2 id="lesson-11">State Verification و Behavior Verification</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>State Verification خروجی یا وضعیت نهایی را می‌سنجد. Behavior Verification تعامل با وابستگی را ارزیابی می‌کند. تست بیش از حد جزئیات داخلی می‌تواند Refactoring را پرهزینه کند.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// State: مقدار نهایی
+var balance = 5000m;
+balance -= 1000m;
+Assert.Equal(4000m, balance);
+
+// Behavior: تعامل با سرویس خارجی
+notificationMock.Verify(
+    x =&gt; x.SendAsync(10), Times.Once());</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>برای انتقال وجه، وضعیت حساب مبدأ و مقصد معیار اصلی صحت است. برای ارسال فرمان حیاتی به درگاه، Verify تعامل می‌تواند لازم باشد.</p></blockquote>
+<details><summary>سؤال مرور: بررسی موجودی نهایی دو حساب از کدام نوع است؟</summary><p><strong>پاسخ:</strong> State Verification</p></details></section><section class="lesson-section" id="dependency-injection" aria-labelledby="lesson-12">
+<p class="section-kicker">درس 12 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-12">تست Service با Dependency Injection</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>وابستگی‌ها را از طریق سازنده تزریق کنیم تا بتوانیم نسخه آزمایشی آن‌ها را جایگزین کنیم. Interface و تفکیک مسئولیت‌ها Testability را بهبود می‌دهند.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">public interface IFeeCalculator
+{
+    decimal Calculate(decimal amount);
+}
+public sealed class PaymentService(IFeeCalculator fees)
+{
+    public decimal Total(decimal amount)
+        =&gt; amount + fees.Calculate(amount);
+}
+
+[Fact]
+public void Total_IncludesFee()
+{
+    var fee = new Mock&lt;IFeeCalculator&gt;();
+    fee.Setup(x =&gt; x.Calculate(1000m)).Returns(20m);
+    var service = new PaymentService(fee.Object);
+    Assert.Equal(1020m, service.Total(1000m));
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>موقع تست تنها وابستگی‌های بیرونی یا پرهزینه را جایگزین کن؛ برای منطق ساده، Fake/پیاده‌سازی واقعی هم می‌تواند مناسب‌تر باشد.</p></blockquote>
+<details><summary>سؤال مرور: چرا Constructor Injection تست را آسان‌تر می‌کند؟</summary><p><strong>پاسخ:</strong> امکان جایگزین‌کردن وابستگی‌ها</p></details></section><section class="lesson-section" id="database-http" aria-labelledby="lesson-13">
+<p class="section-kicker">درس 13 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-13">تست وابستگی‌های Database و HTTP</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>در Unit Test فراخوانی Repository یا HttpClient را با مرز انتزاعی کنترل می‌کنیم. برای اطمینان از SQL واقعی یا HTTP واقعی باید Integration Test جداگانه داشت.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">public interface IBankGateway
+{
+    Task&lt;bool&gt; ChargeAsync(decimal amount, CancellationToken ct);
+}
+
+var gateway = new Mock&lt;IBankGateway&gt;();
+gateway.Setup(x =&gt; x.ChargeAsync(1000m, It.IsAny&lt;CancellationToken&gt;()))
+       .ReturnsAsync(true);
+
+Assert.True(await gateway.Object.ChargeAsync(
+    1000m, CancellationToken.None));</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>برای HttpClient می‌توان از HttpMessageHandler آزمایشی یا سرور تست استفاده کرد؛ Mock کردن مستقیم همه متدهای HttpClient معمولاً مناسب نیست.</p></blockquote>
+<details><summary>سؤال مرور: تست با Mock دیتابیس آیا صحت واقعی SQL را اثبات می‌کند؟</summary><p><strong>پاسخ:</strong> خیر</p></details></section><section class="lesson-section" id="first-principles" aria-labelledby="lesson-14">
+<p class="section-kicker">درس 14 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-14">اصول FIRST و تست‌های پایدار</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>FIRST یعنی Fast، Independent، Repeatable، Self-validating و Timely. تست مستقل نباید وابسته به ترتیب اجرای تست‌های دیگر یا شبکه پرنوسان باشد.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">[Fact]
+public void Fee_ForKnownAmount_IsDeterministic()
+{
+    const decimal amount = 1000m;
+    var fee = amount * 0.01m;
+    Assert.Equal(10m, fee);
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>از DateTime.Now، Random و اشتراک وضعیت mutable بدون کنترل پرهیز کن. ساعت را با TimeProvider یا Interface قابل جایگزینی تزریق کن.</p></blockquote>
+<details><summary>سؤال مرور: کدام اصل FIRST می‌گوید تست نباید به ترتیب تست‌ها وابسته باشد؟</summary><p><strong>پاسخ:</strong> Independent</p></details></section><section class="lesson-section" id="integration-intro" aria-labelledby="lesson-15">
+<p class="section-kicker">درس 15 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-15">مبانی Integration Testing</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>Integration Test مرز همکاری واقعی اجزا را بررسی می‌کند: تنظیمات DI، دیتابیس، serializer و routing. در محیط مجزا داده‌های تست را بساز و پاک کن.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// الگوی مفهومی
+// Arrange: start isolated test database
+// Act: call repository.SaveAsync(payment)
+// Assert: load record using a fresh DbContext
+// Cleanup: remove disposable test resources</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>برای تست دیتابیس مهم است با provider واقعی یا نزدیک به Production کار کنیم؛ InMemory رفتار SQL Server را شبیه‌سازی نمی‌کند.</p></blockquote>
+<details><summary>سؤال مرور: چه چیزی در تست با Mock Repository اثبات نمی‌شود؟</summary><p><strong>پاسخ:</strong> ذخیره‌سازی واقعی در DB</p></details></section><section class="lesson-section" id="webapplicationfactory" aria-labelledby="lesson-16">
+<p class="section-kicker">درس 16 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-16">WebApplicationFactory و تست API</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>در ASP.NET Core از WebApplicationFactory برای میزبانی آزمایشی برنامه و ساخت HttpClient استفاده می‌کنیم. با آن Endpoint، Middleware، Routing و Serialization را یکپارچه بررسی می‌کنیم.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// نیازمند Microsoft.AspNetCore.Mvc.Testing
+public class PaymentApiTests : IClassFixture&lt;WebApplicationFactory&lt;Program&gt;&gt;
+{
+    private readonly HttpClient _client;
+    public PaymentApiTests(WebApplicationFactory&lt;Program&gt; factory)
+        =&gt; _client = factory.CreateClient();
+
+    [Fact]
+    public async Task MissingRoute_Returns404()
+    {
+        var response = await _client.GetAsync("/route-that-does-not-exist");
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+}</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>کد نمونه نیازمند usingها، دسترسی به Program، بسته تست و پیکربندی مناسب سرویس‌هاست. خود WebApplicationFactory به معنی اجرای تمام سرویس‌های بیرونی نیست.</p></blockquote>
+<details><summary>سؤال مرور: آیا تست یک Endpoint با WebApplicationFactory الزاماً E2E است؟</summary><p><strong>پاسخ:</strong> خیر، غالباً Integration</p></details></section><section class="lesson-section" id="testcontainers" aria-labelledby="lesson-17">
+<p class="section-kicker">درس 17 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-17">EF Core و Testcontainers</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>Testcontainers می‌تواند در محیط تست کانتینر SQL Server یا دیتابیس دیگر بسازد. Migration واقعی را اجرا و کوئری/Constraint را روی موتور واقعی تست می‌کنیم.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// الگوی اجرا (شبه‌کد C#)
+// await sqlContainer.StartAsync();
+// options.UseSqlServer(sqlContainer.GetConnectionString());
+// await context.Database.MigrateAsync();
+// context.Payments.Add(new Payment { Amount = 1000m });
+// await context.SaveChangesAsync();
+// Assert.Single(await context.Payments.ToListAsync());
+// await sqlContainer.DisposeAsync();</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>نمونه بالا شبه‌کد است؛ نوع کانتینر، ساخت Entity و نسخه بسته‌ها به پروژه وابسته‌اند. تست‌های Integration باید محیط ایزوله داشته باشند.</p></blockquote>
+<details><summary>سؤال مرور: آیا EF Core InMemory همه Constraintهای SQL Server را بازتولید می‌کند؟</summary><p><strong>پاسخ:</strong> خیر</p></details></section><section class="lesson-section" id="auth-tests" aria-labelledby="lesson-18">
+<p class="section-kicker">درس 18 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-18">تست Authentication و Authorization در API</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>تست API باید پاسخ 401 برای کاربر بدون اعتبار، 403 برای کاربر معتبر بدون مجوز، و موفقیت برای مجوز مناسب را تفکیک کند. سیاست‌ها و Claimها را در Test Host تنظیم کن.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// سناریوها (پیشنهاد تست)
+// No Access Token       =&gt; 401 Unauthorized
+// Valid Access Token, wrong permission =&gt; 403 Forbidden
+// Valid Access Token, required permission =&gt; 200/201
+// Expired Access Token  =&gt; 401 Unauthorized</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>در تست‌ها Access Token و Refresh Token را دقیق نام‌گذاری کن. برای Integration می‌توان Authentication Scheme آزمایشی ثبت کرد؛ تست جداگانه‌ای هم برای پیکربندی اعتبارسنجی واقعی JWT لازم است.</p></blockquote>
+<details><summary>سؤال مرور: کاربر احراز هویت‌شده بدون مجوز معمولاً چه کدی می‌گیرد؟</summary><p><strong>پاسخ:</strong> 403</p></details></section><section class="lesson-section" id="test-data" aria-labelledby="lesson-19">
+<p class="section-kicker">درس 19 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-19">مدیریت Test Data و پاک‌سازی دیتابیس</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>هر تست باید داده مشخص خود را بسازد و اثرات آن را پاک‌سازی یا محیط را بازنشانی کند. برای تست‌های موازی، شناسه یکتا، Transaction rollback و دیتابیس مجزا روش‌های رایج‌اند.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// روش ساده برای Test Data
+var requestId = Guid.NewGuid();
+var payment = new PaymentRequest(
+    RequestId: requestId,
+    Amount: 1200m);
+
+// Arrange independent records, then cleanup in finally
+// or recreate/reset database per test fixture.</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>Rollback همیشه کافی نیست: کد تست ممکن است چند Connection یا Transaction مستقل باز کند. Fixture مشترک را با احتیاط در اجرای موازی استفاده کن.</p></blockquote>
+<details><summary>سؤال مرور: چرا تست‌ها نباید رکورد ثابت مشترک را تغییر دهند؟</summary><p><strong>پاسخ:</strong> وابستگی متقابل و ناپایداری</p></details></section><section class="lesson-section" id="rabbitmq-background" aria-labelledby="lesson-20">
+<p class="section-kicker">درس 20 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-20">تست RabbitMQ و BackgroundService</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>برای Unit Test مصرف‌کننده، Handler پیام را جدا از اتصال RabbitMQ تست کن. در Integration Test با Broker واقعی، Ack/Nack، Retry، DLQ و Idempotency را بسنج.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">public interface IPaymentEventHandler
+{
+    Task HandleAsync(PaymentSucceeded message, CancellationToken ct);
+}
+
+// Unit: handler.HandleAsync(...) with mocked dependencies
+// Integration: publish -&gt; queue -&gt; consume -&gt; assert DB effect
+// Verify duplicate MessageId does not create another payment effect.</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>برای BackgroundService از CancellationToken و کنترل چرخه عمر در تست استفاده کن؛ به Task.Delay ثابت برای هماهنگی وابسته نشو.</p></blockquote>
+<details><summary>سؤال مرور: برای اثبات routing واقعی RabbitMQ چه تستی نیاز است؟</summary><p><strong>پاسخ:</strong> Integration Test با Broker واقعی</p></details></section><section class="lesson-section" id="idempotency" aria-labelledby="lesson-21">
+<p class="section-kicker">درس 21 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-21">تست Idempotency، Transaction و Concurrency</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>در سیستم مالی تست کن تکرار درخواست یا تحویل دوباره پیام باعث کسر وجه دوباره نشود. همچنین شکست بین عملیات باید Rollback امن داشته باشد.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// سناریوهای ضروری
+// 1) Same IdempotencyKey twice -&gt; one financial effect
+// 2) Parallel commands with same key -&gt; one committed result
+// 3) Failure before commit -&gt; zero partial updates
+// 4) Retry after timeout -&gt; return previous result / safe recovery
+// 5) Inbox insert + balance change in one transaction</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>تنها استفاده از Mock برای اثبات تضمین هم‌زمانی و Unique Index کافی نیست؛ تست دیتابیس واقعی و race condition اهمیت دارد.</p></blockquote>
+<details><summary>سؤال مرور: دو درخواست هم‌زمان با IdempotencyKey یکسان چند اثر مالی باید ایجاد کنند؟</summary><p><strong>پاسخ:</strong> حداکثر یک اثر</p></details></section><section class="lesson-section" id="coverage-mutation" aria-labelledby="lesson-22">
+<p class="section-kicker">درس 22 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-22">Code Coverage و Mutation Testing</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>Coverage نشان می‌دهد چه میزان از کد در تست‌ها اجرا شده، نه اینکه assertions درست و قوی‌اند. Mutation Testing تغییرات عمدی کوچک در کد ایجاد می‌کند تا حساسیت تست‌ها را بسنجد.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// dotnet test --collect:"XPlat Code Coverage"
+
+public bool IsValid(decimal amount) =&gt; amount &gt; 0;
+// Mutation: &gt; تبدیل به &gt;= شود.
+// تست مقدار صفر باید mutant را شناسایی کند.</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>Coverage بالا تضمین کیفیت نیست؛ تستی بدون Assert هم می‌تواند خطوط زیادی را اجرا کند. Mutation Score نیز باید در کنار هزینه و اهمیت کد تفسیر شود.</p></blockquote>
+<details><summary>سؤال مرور: چرا ۱۰۰٪ Code Coverage تضمین نبودن باگ نیست؟</summary><p><strong>پاسخ:</strong> اجراشدن خطوط، درستی Assertها را اثبات نمی‌کند</p></details></section><section class="lesson-section" id="cicd-tests" aria-labelledby="lesson-23">
+<p class="section-kicker">درس 23 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-23">اجرای تست‌ها در CI/CD</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>تست‌ها در Pipeline پیش از Deploy اجرا می‌شوند. بهتر است Unit Test سریع روی هر تغییر، Integration Test در مرحله مناسب و E2E حیاتی پیش از انتشار اجرا شوند.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>YAML</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-yaml">stages:
+  - test
+  - deploy
+
+unit_tests:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet restore
+    - dotnet test --no-restore --configuration Release
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploy application"
+  when: manual</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>YAML نمونه ساده GitLab CI است و در پروژه واقعی به build، artifact، environment و وابستگی‌ها نیاز دارد. اگر تست‌های مرحله تست شکست بخورند، Deploy وابسته نباید اجرا شود.</p></blockquote>
+<details><summary>سؤال مرور: اگر Unit Test در مرحله test شکست بخورد، Deploy استاندارد باید چه کند؟</summary><p><strong>پاسخ:</strong> متوقف شود</p></details></section><section class="lesson-section" id="payment-scenario" aria-labelledby="lesson-24">
+<p class="section-kicker">درس 24 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-24">سناریوی عملی پرداخت و مصاحبه نهایی</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>با یک سناریوی انتقال وجه جمع‌بندی می‌کنیم: اعتبارسنجی مبلغ، ذخیره تراکنش، انتشار رویداد، تکرار درخواست، هم‌زمانی و خرابی‌های زیرساخت. هدف داشتن لایه‌های تست متناسب با ریسک است.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// Test matrix for TransferMoney
+// Unit: invalid amount, insufficient balance, fee rules
+// Integration: unique IdempotencyKey + SQL transaction
+// Integration: outbox row committed with payment
+// Broker integration: duplicate event -&gt; one ledger effect
+// E2E: API request -&gt; completed state -&gt; reconciliation
+// Load tests: throughput, retries and contention</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>در پاسخ مصاحبه، مرز هر تست، وابستگی‌های واقعی، معیار موفقیت و ریسک پوشش‌داده‌شده را نام ببر. تست E2E به تنهایی اثبات‌گر exactly-once delivery نیست.</p></blockquote>
+<details><summary>سؤال مرور: مهم‌ترین ترکیب برای جلوگیری از کسر تکراری پول چیست؟</summary><p><strong>پاسخ:</strong> Idempotency + قید یکتایی + Transaction + تست هم‌زمانی</p></details></section><section class="lesson-section" id="final-interview" aria-labelledby="lesson-25">
+<p class="section-kicker">درس 25 <span class="tag-extended">تکمیلی</span></p><h2 id="lesson-25">مرور نهایی و پرسش‌های مصاحبه Senior .NET</h2>
+<h3>مفهوم و کاربرد در مصاحبه</h3><p>در پاسخ نهایی مصاحبه توضیح بده هر لایه تست چه ریسکی را پوشش می‌دهد: Unit برای قوانین، Integration برای SQL و Broker، E2E برای جریان کامل و Load Test برای پایداری زیر بار.</p>
+<h3>مثال و پیاده‌سازی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / تمرین</span><span>CSHARP</span><button aria-label="کپی کد" class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">// Interview checklist
+// What to unit test? validation and business rules
+// What to integrate? SQL constraints, transactions, broker
+// How to test duplicates? concurrent requests + unique key
+// How to test failures? timeout, rollback, retry, DLQ
+// How to evaluate quality? risk coverage, mutation, reliability</code></pre></div>
+<blockquote class="lesson-note"><strong>نکته مصاحبه</strong><p>تست‌ها را با شواهد، محدودیت‌ها و مثال واقعی دفاع کن. هیچ مجموعه تستی جای مانیتورینگ، Reconciliation و کنترل‌های Production را نمی‌گیرد.</p></blockquote>
+<details><summary>سؤال مرور: آیا ۱۰۰٪ Coverage به معنای نبود باگ است؟</summary><p><strong>پاسخ:</strong> خیر</p></details></section></div><p class="study-source">این دوره با قالب فایل نمونه ساخته شده است. درس‌های ۱ تا ۱۱ بر پایه آموزش‌های این گفتگو و درس‌های ۱۲ تا ۲۵ به عنوان ادامه آموزشی تألیف شده‌اند. نمونه‌های شبه‌کد مشخص شده‌اند.</p><div class="footer-actions"><a href="#testing-basics">بازگشت به آغاز</a><a href="../../topics/">بازگشت به آموزش‌های موضوعی</a></div></main></div><script>
+(() => {
+  const root=document.documentElement;
+  const toggle=document.getElementById('theme-toggle');
+  const button=document.querySelector('[data-course-menu-toggle]');
+  const sidebar=document.getElementById('course-sidebar');
+  const navLinks=[...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+  const sections=[...document.querySelectorAll('section.lesson-section[id]')];
+  function theme(value) {
+    root.dataset.theme=value;
+    toggle?.setAttribute('aria-label',value==='dark'?'فعال‌کردن تم روشن':'فعال‌کردن تم تیره');
+    toggle?.setAttribute('aria-pressed', String(value==='dark'));
+    try {localStorage.setItem('dotnet-academy-theme',value)}catch(_){}
+  }
+  toggle?.addEventListener('click',()=>theme(root.dataset.theme==='dark'?'light':'dark'));
+  theme(root.dataset.theme||'light');
+  function closeSidebar(){document.body.classList.remove('sidebar-open');button?.setAttribute('aria-expanded','false')}
+  button?.addEventListener('click',()=>{
+    const isOpen=document.body.classList.toggle('sidebar-open');
+    button.setAttribute('aria-expanded',String(isOpen));
+  });
+  navLinks.forEach(a=>a.addEventListener('click',closeSidebar));
+  document.addEventListener('keydown', e=>{if(e.key==='Escape')closeSidebar()});
+  document.addEventListener('click',e=>{
+    const target=e.target;
+    if(document.body.classList.contains('sidebar-open')&&!sidebar?.contains(target)&&!button?.contains(target)) closeSidebar();
+  });
+  const setActive=id=>navLinks.forEach(a=>a.classList.toggle('is-active',a.getAttribute('href')==='#'+id));
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver(entries=>{
+      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
+      if(visible.length)setActive(visible[0].target.id);
+    },{rootMargin:'-80px 0px -68% 0px',threshold:0});
+    sections.forEach(s=>observer.observe(s));
+  }
+  const start=decodeURIComponent(location.hash.replace(/^#/,''))||sections[0]?.id;
+  if(start)setActive(start);
+  document.querySelectorAll('.copy-code').forEach(btn=>btn.addEventListener('click',async()=>{
+    const code=btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+    if(!code)return;
+    let copied=false;
+    try{await navigator.clipboard.writeText(code);copied=true;}catch(_){
+      try{const field=document.createElement('textarea');field.value=code;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();copied=document.execCommand('copy');field.remove();}catch(e){}
+    }
+    btn.textContent=copied?'کپی شد':'انتخاب کد';
+    if(!copied){const selection=window.getSelection();const range=document.createRange();range.selectNodeContents(btn.closest('.code-block').querySelector('code'));selection.removeAllRanges();selection.addRange(range)}
+    setTimeout(()=>btn.textContent='کپی کد',1500);
+  }));
+})();
+
+</script></body></html>
