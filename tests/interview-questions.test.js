@@ -9,6 +9,7 @@ const landingPath = path.join(interviewRoot, 'index.html');
 const sectionPath = path.join(interviewRoot, 'section-1.html');
 const oopSectionPath = path.join(interviewRoot, 'section-2.html');
 const behpardazPrepPath = path.join(interviewRoot, 'behpardaz-interview-prep.html');
+const hrInterviewPath = path.join(interviewRoot, 'hr-interview.html');
 const firstAnswerPath = path.join(interviewRoot, 'answers', '01-dotnet-core-vs-framework.html');
 
 test('interview questions are linked from the home navigation', () => {
@@ -39,14 +40,30 @@ test('the interview landing presents the Behpardaz preparation collection as a t
   const prep = fs.readFileSync(behpardazPrepPath, 'utf8');
   const cards = landing.match(/class="collection-card"/g) ?? [];
 
-  assert.equal(cards.length, 3);
+  assert.equal(cards.length, 4);
   assert.match(landing, /class="collection-card" href="behpardaz-interview-prep\.html"/);
   assert.match(landing, /آمادگی مصاحبه به‌پرداز/);
   assert.match(landing, /<strong>۸۴<\/strong><span>سوال<\/span>/);
   assert.match(landing, /<strong>۱۹<\/strong><span>بخش<\/span>/);
-  assert.match(landing, /<span class="collection-count">۳ مجموعه<\/span>/);
+  assert.match(landing, /<span class="collection-count">۴ مجموعه<\/span>/);
   assert.match(prep, /<h1>آمادگی مصاحبه \.NET Developer — بهپرداز همراه سامانه اول<\/h1>/);
   assert.equal((prep.match(/<details class="q">/g) ?? []).length, 84);
+});
+
+test('the interview landing presents the HR interview collection as a fourth card', () => {
+  const landing = fs.readFileSync(landingPath, 'utf8');
+  const hrInterview = fs.readFileSync(hrInterviewPath, 'utf8');
+
+  assert.match(landing, /class="collection-card" href="hr-interview\.html"/);
+  assert.match(landing, /سوالات مصاحبه منابع انسانی/);
+  assert.match(landing, /<strong>۲۵<\/strong><span>سوال<\/span>/);
+  assert.match(landing, /<strong>۵<\/strong><span>دسته<\/span>/);
+  assert.ok(fs.existsSync(hrInterviewPath));
+  assert.equal((hrInterview.match(/<details class="qa-card">/g) ?? []).length, 25);
+  assert.equal((hrInterview.match(/class="answer-note"/g) ?? []).length, 25);
+  assert.match(hrInterview, /خودتان را معرفی کنید/);
+  assert.match(hrInterview, /اگر پیشنهاد شرکت ۱۱۰ میلیون و انتظار شما ۱۵۰ میلیون باشد چه می‌کنید؟/);
+  assert.match(hrInterview, /آیا سوال دیگری از ما دارید؟/);
 });
 
 test('the interview landing uses the shared light and dark theme control', () => {
