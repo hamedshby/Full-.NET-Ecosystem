@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="سرفصل کامل آموزش Java Backend در ۱۵ فصل؛ از مبانی Java و JVM تا Spring Boot، میکروسرویس، استقرار و پروژهٔ واقعی.">
+  <meta property="og:title" content="آموزش Java Backend | آکادمی دات‌نت">
+  <meta property="og:description" content="نقشه راه ۱۵ فصلی توسعه Backend با Java، Spring Boot و Microservices.">
+  <title>آموزش Java Backend | آکادمی دات‌نت</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="course.css">
+  <script src="../../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+
+  <header class="site-header">
+    <nav class="site-nav" aria-label="ناوبری آموزش جاوا">
+      <a class="brand" href="../../index.html">آکادمی دات‌نت</a>
+      <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">منو</button>
+      <div id="primary-navigation" class="nav-links">
+        <a href="../../index.html#courses">همهٔ دوره‌ها</a>
+        <a href="#chapters" aria-current="page">فصل‌های جاوا</a>
+        <a href="../../roadmap/Java_Backend_15_Chapters.pdf">نسخهٔ PDF</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path>
+          </svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.7"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+        </button>
+        <a class="button-link" href="#chapters">مشاهدهٔ فصل‌ها</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section class="java-hero" aria-labelledby="java-title">
+      <div class="java-hero-copy">
+        <p class="eyebrow">نقشه راه یادگیری</p>
+        <h1 id="java-title">دورهٔ جامع <bdi>Java Backend</bdi></h1>
+        <p>از مبانی زبان <bdi>Java</bdi> و سازوکار <bdi>JVM</bdi> تا توسعه با <bdi>Spring Boot</bdi>، طراحی میکروسرویس و ساخت یک پروژهٔ پرداخت واقعی.</p>
+        <div class="hero-actions">
+          <a class="button-link" href="#chapters">شروع مرور سرفصل‌ها</a>
+          <a class="button-link button-secondary" href="../../roadmap/Java_Backend_15_Chapters.pdf">مشاهدهٔ PDF اصلی</a>
+        </div>
+      </div>
+      <div class="java-mark" aria-hidden="true">
+        <span>Java</span>
+        <small>BACKEND</small>
+      </div>
+      <dl class="java-stats" aria-label="مشخصات دوره">
+        <div><dt>فصل آموزشی</dt><dd>۱۵</dd></div>
+        <div><dt>ریزدَرس</dt><dd>۱۴۹</dd></div>
+        <div><dt>زمان پیشنهادی</dt><dd>۸ تا ۱۲ هفته</dd></div>
+      </dl>
+    </section>
+
+    <section id="chapters" class="chapters-section" aria-labelledby="chapters-title">
+      <div class="section-heading">
+        <p class="eyebrow">مسیر فصل‌به‌فصل</p>
+        <h2 id="chapters-title">سرفصل‌های آموزش <bdi>Java</bdi></h2>
+        <p>هر کارت نمایندهٔ یک فصل از نقشه راه است. ترتیب فصل‌ها از مبانی شروع می‌شود و به آمادگی کار در یک تیم واقعی می‌رسد.</p>
+      </div>
+
+      <div class="chapter-grid">
+        <article class="chapter-card chapter-card--available">
+          <div class="chapter-number" aria-hidden="true">۰۱</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۳ تا ۴ روز</span></p>
+          <h3><a class="chapter-title-link" href="chapters/chapter-01.html">مبانی زبان <bdi>Java</bdi></a></h3>
+          <p>آشنایی با <bdi>JDK</bdi>، <bdi>JRE</bdi> و <bdi>JVM</bdi> و ساخت اولین برنامه با متغیرها، شرط‌ها، حلقه‌ها و رشته‌ها.</p>
+          <ul class="topic-list"><li><bdi>JDK / JRE / JVM</bdi></li><li>انواع داده و متغیرها</li><li>شرط و حلقه</li><li><bdi>StringBuilder</bdi></li></ul>
+          <a class="chapter-action" href="chapters/chapter-01.html">مطالعهٔ فصل اول</a>
+        </article>
+
+        <article class="chapter-card chapter-card--available">
+          <div class="chapter-number" aria-hidden="true">۰۲</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۴ تا ۵ روز</span></p>
+          <h3><a class="chapter-title-link" href="chapters/Java_Chapter_02.html">برنامه‌نویسی شی‌گرا در <bdi>Java</bdi></a></h3>
+          <p>طراحی کلاس‌ها با <bdi>Encapsulation</bdi>، <bdi>Inheritance</bdi>، <bdi>Polymorphism</bdi> و انتخاب میان <bdi>Interface</bdi> و <bdi>Abstract Class</bdi>.</p>
+          <ul class="topic-list"><li>کلاس و شیء</li><li><bdi>Constructor</bdi></li><li><bdi>Inheritance</bdi></li><li><bdi>Interface</bdi></li></ul>
+          <a class="chapter-action" href="chapters/Java_Chapter_02.html">مطالعهٔ فصل دوم</a>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۰۳</div>
+          <p class="chapter-meta"><span>۸ ریزدرس</span><span>۳ تا ۴ روز</span></p>
+          <h3>مبانی ضروری و مدیریت خطا</h3>
+          <p>کار با <bdi>Wrapper Class</bdi>، محاسبات مالی، آرایه‌ها، <bdi>Optional</bdi> و مدیریت درست خطا و منابع.</p>
+          <ul class="topic-list"><li><bdi>BigDecimal</bdi></li><li><bdi>Optional</bdi></li><li><bdi>Exception</bdi></li><li><bdi>Try-with-resources</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۰۴</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۴ تا ۵ روز</span></p>
+          <h3><bdi>Collections</bdi> و <bdi>Generics</bdi></h3>
+          <p>انتخاب ساختار داده مناسب و ساخت APIهای Type-Safe با مجموعه‌ها، مرتب‌سازی، Hashing و <bdi>Generics</bdi>.</p>
+          <ul class="topic-list"><li><bdi>List / Set / Map</bdi></li><li><bdi>Queue</bdi></li><li><bdi>Comparable</bdi></li><li><bdi>Type Erasure</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۰۵</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۳ تا ۴ روز</span></p>
+          <h3><bdi>Lambda</bdi> و <bdi>Stream API</bdi></h3>
+          <p>پردازش داده به سبک Functional با <bdi>Lambda</bdi>، عملیات Stream، گروه‌بندی، کاهش و اجرای موازی.</p>
+          <ul class="topic-list"><li><bdi>Functional Interface</bdi></li><li><bdi>map / filter</bdi></li><li><bdi>reduce</bdi></li><li><bdi>Parallel Stream</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۰۶</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۴ تا ۵ روز</span></p>
+          <h3><bdi>JVM</bdi> و مدیریت حافظه</h3>
+          <p>مدل اجرای <bdi>Java</bdi> از <bdi>Bytecode</bdi> تا <bdi>JIT</bdi>، ساختار حافظه، <bdi>Garbage Collection</bdi> و ابزارهای پایش.</p>
+          <ul class="topic-list"><li><bdi>Class Loading</bdi></li><li><bdi>Heap / Stack</bdi></li><li><bdi>GC Algorithms</bdi></li><li><bdi>Profiling</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۰۷</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۵ تا ۶ روز</span></p>
+          <h3><bdi>Multithreading</bdi> و <bdi>Concurrency</bdi></h3>
+          <p>شناخت Threadها، جلوگیری از <bdi>Race Condition</bdi> و اجرای کارهای هم‌زمان با APIهای مدرن <bdi>Java</bdi>.</p>
+          <ul class="topic-list"><li><bdi>synchronized</bdi></li><li><bdi>Atomic Classes</bdi></li><li><bdi>CompletableFuture</bdi></li><li><bdi>Virtual Threads</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۰۸</div>
+          <p class="chapter-meta"><span>۷ ریزدرس</span><span>۲ تا ۳ روز</span></p>
+          <h3>ابزارهای توسعهٔ <bdi>Java</bdi></h3>
+          <p>مدیریت ساخت و وابستگی‌ها با <bdi>Maven</bdi>، مقایسه با <bdi>Gradle</bdi> و پیکربندی Logging و محیط اجرا.</p>
+          <ul class="topic-list"><li><bdi>Maven Lifecycle</bdi></li><li><bdi>Dependency Scope</bdi></li><li><bdi>SLF4J</bdi></li><li>پیکربندی محیط</li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۰۹</div>
+          <p class="chapter-meta"><span>۱۵ ریزدرس</span><span>۵ تا ۷ روز</span></p>
+          <h3><bdi>Spring Framework</bdi> و <bdi>Spring Boot</bdi></h3>
+          <p>ساخت <bdi>REST API</bdi> با <bdi>Dependency Injection</bdi>، Controller، Validation، مدیریت خطا و Profileها.</p>
+          <ul class="topic-list"><li><bdi>IoC Container</bdi></li><li><bdi>Bean Lifecycle</bdi></li><li><bdi>REST API</bdi></li><li><bdi>Validation</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۱۰</div>
+          <p class="chapter-meta"><span>۱۲ ریزدرس</span><span>۵ تا ۷ روز</span></p>
+          <h3>دیتابیس و <bdi>Hibernate</bdi></h3>
+          <p>دسترسی به داده با <bdi>JDBC</bdi>، <bdi>JPA</bdi> و <bdi>Spring Data</bdi> همراه با مدیریت Transaction و Performance.</p>
+          <ul class="topic-list"><li><bdi>JPA / ORM</bdi></li><li><bdi>Spring Data</bdi></li><li>مسئلهٔ <bdi>N+1</bdi></li><li><bdi>Locking</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۱۱</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۴ تا ۵ روز</span></p>
+          <h3>امنیت با <bdi>Spring Security</bdi></h3>
+          <p>پیاده‌سازی Authentication و Authorization با <bdi>JWT</bdi>، Roleها، Password Hashing و کنترل‌های امنیتی وب.</p>
+          <ul class="topic-list"><li><bdi>SecurityFilterChain</bdi></li><li><bdi>BCrypt</bdi></li><li><bdi>JWT</bdi></li><li><bdi>CORS / CSRF</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۱۲</div>
+          <p class="chapter-meta"><span>۸ ریزدرس</span><span>۳ تا ۴ روز</span></p>
+          <h3>تست‌نویسی در <bdi>Java</bdi></h3>
+          <p>نوشتن <bdi>Unit Test</bdi> و <bdi>Integration Test</bdi> برای Service، Controller و دیتابیس با ابزارهای استاندارد.</p>
+          <ul class="topic-list"><li><bdi>JUnit 5</bdi></li><li><bdi>Mockito</bdi></li><li><bdi>MockMvc</bdi></li><li><bdi>Testcontainers</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۱۳</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۵ تا ۷ روز</span></p>
+          <h3><bdi>Microservices</bdi> و <bdi>Messaging</bdi></h3>
+          <p>ارتباط پایدار سرویس‌ها با <bdi>REST</bdi> و Messaging، الگوهای تاب‌آوری و تضمین پردازش درست پیام‌ها.</p>
+          <ul class="topic-list"><li><bdi>OpenFeign</bdi></li><li><bdi>Resilience4j</bdi></li><li><bdi>RabbitMQ / Kafka</bdi></li><li><bdi>Outbox</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card">
+          <div class="chapter-number" aria-hidden="true">۱۴</div>
+          <p class="chapter-meta"><span>۹ ریزدرس</span><span>۳ تا ۴ روز</span></p>
+          <h3><bdi>Deployment</bdi> و <bdi>Production</bdi></h3>
+          <p>بسته‌بندی و اجرای امن برنامه، Containerization، Health Check، Metrics، Performance Tuning و استقرار.</p>
+          <ul class="topic-list"><li><bdi>Dockerfile</bdi></li><li><bdi>Actuator</bdi></li><li><bdi>Prometheus</bdi></li><li><bdi>Kubernetes</bdi></li></ul>
+        </article>
+
+        <article class="chapter-card chapter-card--final">
+          <div class="chapter-number" aria-hidden="true">۱۵</div>
+          <p class="chapter-meta"><span>۱۰ ریزدرس</span><span>۷ تا ۱۰ روز</span></p>
+          <h3>پروژهٔ واقعی و آمادگی ورود به تیم</h3>
+          <p>ساخت یک سیستم پرداخت با <bdi>Spring Boot</bdi> و کنار هم گذاشتن دیتابیس، امنیت، Messaging، تست و استقرار.</p>
+          <ul class="topic-list"><li><bdi>Payment API</bdi></li><li><bdi>Idempotency</bdi></li><li><bdi>JWT / RabbitMQ</bdi></li><li><bdi>Production Readiness</bdi></li></ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>آکادمی دات‌نت</strong>؛ مسیرهای روشن برای یادگیری مهندسی نرم‌افزار.</p>
+    <nav aria-label="پیوندهای پایانی">
+      <a href="../../index.html#courses">همهٔ دوره‌ها</a>
+      <a href="../../roadmap/Java_Backend_15_Chapters.pdf">PDF نقشه راه جاوا</a>
+    </nav>
+  </footer>
+</body>
+</html>
