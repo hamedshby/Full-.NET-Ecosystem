@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="آموزش فصل هفتم Java Backend: Thread, Runnable, Callable, ExecutorService, synchronized, volatile, AtomicInteger, CompletableFuture, Virtual Threads, ConcurrentHashMap و Deadlock." name="description"/>
+<title>فصل هفتم Java Backend | Multithreading و Concurrency | آکادمی مهندسی نرم‌افزار</title>
+<script>
+  (()=>{let t=null;try{t=localStorage.getItem('dotnet-academy-theme')}catch(_){};
+    const dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme=t==='dark'||t==='light'?t:dark?'dark':'light';})();
+  </script>
+<style>
+/* Self-contained course CSS, inspired by the uploaded Academy .NET layout. */
+:root {
+  color-scheme:light;
+  --ink:#1f2937; --muted:#64748b; --line:#e2e8f0; --surface:#fff;
+  --background:#f8fafc; --cicd-surface:#eff6ff; --cicd-border:#bfdbfe;
+  --cicd-accent:#2563eb; --cicd-accent-strong:#1d4ed8; --cicd-warm:#3b82f6;
+  --code-bg:#101a2b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 30px rgba(32,43,59,.045);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ink:#e2e8f0; --muted:#94a3b8; --line:#334155; --surface:#152034;
+  --background:#0c1422; --cicd-surface:#142b43; --cicd-border:#244f76;
+  --cicd-accent:#93c5fd; --cicd-accent-strong:#bfdbfe;
+  --code-bg:#080f1b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 26px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:6.2rem}
+body{margin:0;background:var(--background);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2.05;}
+a{color:var(--cicd-accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--cicd-warm);outline-offset:3px}
+.skip-link{position:fixed;z-index:300;top:-120px;right:12px;padding:10px 15px;background:var(--surface);border:2px solid var(--cicd-accent);border-radius:7px}
+.skip-link:focus{top:12px}
+.course-header{position:sticky;z-index:40;top:0;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.025)}
+.course-nav{display:flex;align-items:center;gap:1.2rem;min-height:68px;max-width:1550px;margin:auto;padding:.55rem clamp(1rem,3vw,2.3rem)}
+.course-brand{font-weight:900;color:var(--ink);font-size:1.09rem}
+.course-name{padding-inline-start:1.2rem;border-inline-start:1px solid var(--line);color:var(--muted);font-size:.9rem}
+.back-link{margin-inline-start:auto;font-size:.82rem}
+.icon-button,.course-menu-button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:.7rem;padding:.35rem .8rem;min-height:38px}
+.icon-button{width:42px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none} [data-theme="dark"] .theme-icon-moon{display:none} [data-theme="dark"] .theme-icon-sun{display:block}
+.course-menu-button{display:none}
+.lesson-shell{max-width:1550px;margin:auto;display:grid;grid-template-columns:287px minmax(0,1fr);gap:clamp(1.1rem,3vw,3.3rem);padding:clamp(1rem,2.5vw,2.5rem)}
+.course-sidebar{align-self:start;position:sticky;top:90px;max-height:calc(100vh - 104px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;box-shadow:var(--card-shadow);}
+.sidebar-heading{padding:1.3rem 1.25rem .8rem;display:flex;flex-direction:column;gap:.15rem;border-bottom:1px solid var(--line);line-height:1.6}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading strong{font-size:1.1rem;line-height:1.7}
+.course-sidebar ol{list-style:none;padding:.5rem;margin:0}
+.course-sidebar li{margin:0}
+.course-sidebar li a{display:flex;align-items:center;gap:.7rem;border-radius:.55rem;padding:.52rem .73rem;font-size:.83rem;color:var(--ink);line-height:1.6}
+.course-sidebar li a span{font:700 .75rem/1.4 Tahoma,Arial,sans-serif;color:var(--muted);min-width:24px}
+.course-sidebar li a:hover,.course-sidebar li a.is-active{background:var(--cicd-surface);color:var(--cicd-accent-strong);text-decoration:none}
+.course-sidebar li a.is-active span{color:var(--cicd-accent-strong)}
+.source-download{border-top:1px solid var(--line);padding:1rem;margin:.4rem .65rem;display:block;font-size:.8rem}
+.lesson-content{min-width:0;max-width:1080px;width:100%;margin:auto}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1550px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.rabbitmq-hero{margin-block:1rem 2.25rem;padding:clamp(1.25rem,3vw,2.35rem);border:1px solid var(--cicd-border);border-radius:1.2rem;background:linear-gradient(135deg,var(--cicd-surface),var(--surface));}
+.eyebrow{color:var(--cicd-accent-strong);font-weight:800;font-size:.82rem;margin:0}
+.rabbitmq-hero h1{font-size:clamp(1.8rem,3.5vw,2.7rem);line-height:1.6;margin:.35rem 0 .65rem;font-weight:900;letter-spacing:-.02em}
+.course-lead{max-width:800px;color:var(--muted);line-height:2.1;margin:0}
+.study-meta,.study-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem 1rem;margin-block:1.2rem;color:var(--muted);font-size:.83rem}
+.study-status,.future-status{padding:.2rem .72rem;border:1px solid var(--cicd-border);border-radius:.65rem;background:var(--cicd-surface);color:var(--cicd-accent-strong);font-weight:800}
+.study-actions{margin-bottom:0}
+.button-link,.study-actions a{display:inline-flex;align-items:center;justify-content:center;padding:.46rem .85rem;min-height:36px;border:1px solid var(--cicd-border);border-radius:.62rem;background:var(--surface);font-weight:700;color:var(--cicd-accent-strong);text-decoration:none}
+.study-actions .button-link{background:var(--cicd-accent);color:#fff;border-color:var(--cicd-accent)}
+.lesson-note,.lesson-warning{padding:1rem 1.2rem;margin:1.4rem 0;border:1px solid var(--cicd-border);border-radius:.85rem;background:var(--cicd-surface);display:block}
+.lesson-warning{border-color:#f5c2b5;background:color-mix(in srgb,var(--surface) 82%,#f59e0b)}
+.lesson-note strong,.lesson-warning strong{display:block;color:var(--cicd-accent-strong);margin-bottom:.1rem}
+.lesson-note p{margin:.1rem 0}
+.lesson-body{background:var(--surface);border:1px solid var(--line);border-radius:1.2rem;padding:clamp(1.25rem,3vw,3.1rem);box-shadow:var(--card-shadow)}
+.lesson-section{scroll-margin-top:7rem;padding-top:2rem;padding-bottom:2.2rem;border-bottom:1px solid var(--line)}
+.lesson-section:first-child{padding-top:.1rem}
+.lesson-section:last-child{border-bottom:none;padding-bottom:0}
+.section-kicker{display:flex;align-items:center;gap:.6rem;color:var(--cicd-accent-strong);font-size:.78rem;font-weight:800;margin:0 0 .2rem}
+.lesson-section h2{font-size:clamp(1.28rem,2.3vw,1.7rem);line-height:1.75;margin:.2rem 0 1.3rem;letter-spacing:-.01em}
+.lesson-section h3{font-size:1.02rem;line-height:1.8;margin:1.65rem 0 .65rem}
+.lesson-section p{margin:.85rem 0;line-height:2.15}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{padding-inline-start:.15rem;margin:.35rem 0}
+.lesson-section li::marker{color:var(--cicd-accent)}
+.lesson-section :not(pre)>code{font: .91em/1.7 Consolas,"Courier New",monospace;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere;border-radius:.32rem;color:var(--cicd-accent-strong);background:var(--cicd-surface);padding:.08rem .35rem}
+.code-block{min-width:0;max-width:100%;margin:1.3rem 0;border:1px solid #334155;border-radius:.8rem;overflow:hidden;background:var(--code-bg);direction:ltr;}
+.code-label{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;padding:.43rem .85rem;background:#1e293b;color:#cbd5e1;font-size:.72rem;line-height:1.6;direction:rtl}
+.code-label>span:nth-child(2){margin-inline-start:auto;font-family:Consolas,monospace;direction:ltr}
+.copy-code{font-size:.72rem;color:#e2e8f0;background:#334155;border:1px solid #475569;border-radius:.4rem;padding:.25rem .55rem}
+.code-block pre{margin:0;padding:1.05rem 1.3rem;color:var(--code-ink);font: .91rem/1.85 Consolas,"Courier New",monospace;direction:ltr;text-align:left;white-space:pre;max-width:100%;overflow:auto;tab-size:4}
+.code-block pre code{font:inherit;color:inherit;background:transparent}
+.table-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:.85rem}
+.diagnostic-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.87rem;line-height:1.85}
+.diagnostic-table th,.diagnostic-table td{text-align:right;padding:.8rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+.diagnostic-table th{background:var(--cicd-surface);font-weight:800}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.diagnostic-table tr:nth-child(even) td{background:color-mix(in srgb,var(--surface) 94%,var(--cicd-surface))}
+.future-section{background:var(--cicd-surface);border:1px dashed var(--cicd-border);border-radius:.85rem;padding:.7rem 1rem;margin:1rem 0}
+.lesson-section details{border:1px solid var(--line);border-radius:.8rem;margin:.7rem 0;background:var(--background);padding:.5rem .95rem}
+.lesson-section details summary{cursor:pointer;font-weight:800;color:var(--cicd-accent-strong);list-style-position:inside}
+.lesson-section details p{margin:.45rem 0}
+.lesson-section blockquote{border-inline-start:4px solid var(--cicd-accent)}
+.study-source{margin-top:2rem;color:var(--muted);font-size:.81rem;line-height:2}
+.footer-actions{margin-top:2rem;display:flex;gap:.65rem;flex-wrap:wrap}
+.footer-actions a{padding:.5rem .9rem;border:1px solid var(--line);border-radius:.7rem}
+.tag-extended{color:#a16207;background:#fef3c7;border-radius:.4rem;padding:.1rem .4rem;font-size:.74rem;font-weight:800}
+[data-theme="dark"] .tag-extended{color:#fde68a;background:#6b4c1a}
+@media(max-width:1040px){.lesson-shell{grid-template-columns:250px minmax(0,1fr);gap:1.1rem}}
+@media(max-width:800px){
+  .course-nav{min-height:60px;gap:.55rem}
+  .course-brand{font-size:.95rem}
+  .back-link{display:none}
+  .course-menu-button{display:block;margin-inline-start:auto;font-size:.79rem;padding:.25rem .5rem}
+  .course-name{font-size:.75rem;padding-inline-start:.6rem}
+  .lesson-shell{display:block;padding:.75rem}
+  .course-sidebar{display:none;position:fixed;top:65px;bottom:0;right:0;left:auto;z-index:50;width:min(86vw,340px);height:calc(100vh - 65px);max-height:none;border-radius:0;box-shadow:0 0 0 200vw rgba(0,0,0,.5)}
+  body.sidebar-open .course-sidebar{display:block}
+  .lesson-content{max-width:none}
+  .rabbitmq-hero{margin-top:.75rem}
+  .lesson-body{padding:1.2rem}
+  .lesson-section{scroll-margin-top:5.8rem}
+  .diagnostic-table{min-width:480px}
+  .code-block pre{font-size:.79rem}
+  .study-actions{gap:.45rem}
+}
+@media print{
+  :root{--background:white;--surface:white;--ink:black;--line:#ccc}
+  .course-header,.course-sidebar,.footer-actions,.study-actions,.copy-code{display:none!important}
+  .lesson-shell{display:block;max-width:none;padding:0}
+  .lesson-content{max-width:none}
+  .lesson-body,.rabbitmq-hero{border:0;box-shadow:none;padding:.5rem}
+  .lesson-section{break-inside:auto}
+  .code-block{break-inside:avoid;print-color-adjust:exact}
+  a{color:inherit}
+}
+
+</style>
+</head>
+<body class="lesson-page rabbitmq-page">
+<a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
+<header class="course-header"><nav aria-label="ناوبری دوره" class="course-nav">
+<a class="course-brand" href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+<span class="course-name">Java Concurrency · فصل ۷</span>
+<a class="back-link" href="../">بازگشت به سرفصل‌های جاوا</a>
+<button aria-controls="course-sidebar" aria-expanded="false" class="course-menu-button" data-course-menu-toggle="" type="button">فهرست مطالب</button>
+<button aria-label="تغییر تم" aria-pressed="false" class="icon-button" id="theme-toggle" title="تغییر حالت نمایش" type="button">
+<svg aria-hidden="true" class="nav-icon theme-icon-moon" viewbox="0 0 24 24"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+<svg aria-hidden="true" class="nav-icon theme-icon-sun" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+</button>
+</nav></header>
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span><a href="../">آموزش Java</a><span>/</span><span>فصل هفتم</span></nav>
+<div class="lesson-shell">
+<aside class="course-sidebar" data-current-lesson="java-concurrency" id="course-sidebar"><div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>فصل هفتم Java Backend</strong><span>۱۰ درس · همراه با کد و تمرین</span></div><nav aria-label="فهرست فصل هفتم Java"><ol><li><a href="#threads"><span>01</span>مفهوم Thread و تفاوت start و run</a></li><li><a href="#runnable-callable"><span>02</span>تفاوت Runnable و Callable و مفهوم Future</a></li><li><a href="#thread-pool"><span>03</span>مدیریت Thread Pool با ExecutorService</a></li><li><a href="#synchronized"><span>04</span>مفهوم Race Condition و synchronized</a></li><li><a href="#volatile"><span>05</span>مفهوم volatile و تفاوت Visibility با Atomicity</a></li><li><a href="#atomic-lock"><span>06</span>مفهوم AtomicInteger و ReentrantLock</a></li><li><a href="#completable-future"><span>07</span>مفهوم Future و CompletableFuture</a></li><li><a href="#virtual-threads"><span>08</span>مفهوم Virtual Threads در Java</a></li><li><a href="#concurrent-map"><span>09</span>تفاوت ConcurrentHashMap و HashMap</a></li><li><a href="#deadlock"><span>10</span>مفهوم Deadlock و ترتیب دریافت قفل‌ها</a></li></ol></nav><a class="source-download" href="#deadlock">مرور آخرین درس ←</a></aside>
+<main class="lesson-content" id="lesson-content"><article aria-label="آموزش فصل هفتم Java" id="course-title"><section class="rabbitmq-hero"><p class="eyebrow">آکادمی جاوا · فصل ۷ از ۱۵</p><h1>هم‌زمانی و چندنخی در Java — مخصوص توسعه‌دهنده دات‌نت</h1><p class="course-lead">ده درس کامل درباره Thread، Thread Pool، Race Condition، volatile، AtomicInteger، CompletableFuture، Virtual Threads، ConcurrentHashMap و Deadlock؛ همراه با مثال‌های پرداخت و مقایسه با #C.</p><div class="study-meta"><span class="study-status">فصل ۷ تکمیل‌شده</span><span>۱۰ درس</span><span>مطالعه آفلاین · تک‌فایلی</span></div><div class="study-actions"><a class="button-link" href="#threads">شروع مطالعه ←</a><a href="#deadlock">رفتن به درس آخر</a></div></section><div class="lesson-body"><section aria-labelledby="title-1" class="lesson-section" id="threads"><p class="section-kicker">درس 01 · فصل هفتم</p><h2 id="title-1">مفهوم Thread و تفاوت start و run</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>هر Thread مسیر اجرای مستقلی در یک Process است. در Java فراخوانی <code>start()</code> اجرای یک Thread جدید را آغاز می‌کند، ولی <code>run()</code> فراخوانی معمولی روی Thread فعلی است. در #C نیز <code>Thread.Start()</code> آغاز اجرای Thread جدید است.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — Thread</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Thread t = new Thread(() -&gt;
+            System.out.println(Thread.currentThread().getName()));
+        t.run();   // typically prints main
+        t.start(); // runs in a separate thread
+        t.join();
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 01 — نمایش پاسخ</summary><p><strong>سؤال: </strong>اگر از داخل main متد <code>t.run()</code> را صدا بزنیم چه اتفاقی می‌افتد؟</p><p><strong>پاسخ: </strong>روی Thread فعلی اجرا می‌شود و معمولاً نام <code>main</code> چاپ خواهد شد.</p></details></section><section aria-labelledby="title-2" class="lesson-section" id="runnable-callable"><p class="section-kicker">درس 02 · فصل هفتم</p><h2 id="title-2">تفاوت Runnable و Callable و مفهوم Future</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>اینترفیس <code>Runnable</code> متد <code>run()</code> بدون مقدار بازگشتی دارد، اما <code>Callable&lt;T&gt;</code> با متد <code>call()</code> نتیجه تولید می‌کند و می‌تواند Checked Exception اعلام کند. نتیجه کار ثبت‌شده در Executor را می‌توان از <code>Future&lt;T&gt;</code> دریافت کرد؛ <code>get()</code> در صورت آماده‌نبودن نتیجه مسدودکننده است.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — Callable</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.concurrent.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Callable&lt;Integer&gt; fee = () -&gt; 100 + 200;
+            Future&lt;Integer&gt; result = executor.submit(fee);
+            System.out.println(result.get()); // 300
+        } finally {
+            executor.shutdown();
+        }
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 02 — نمایش پاسخ</summary><p><strong>سؤال: </strong>برای محاسبه کارمزد و دریافت نتیجه کدام ترکیب مناسب‌تر است؟</p><p><strong>پاسخ: </strong><code>Callable&lt;Integer&gt;</code> همراه با <code>Future&lt;Integer&gt;</code>؛ گزینه C.</p></details></section><section aria-labelledby="title-3" class="lesson-section" id="thread-pool"><p class="section-kicker">درس 03 · فصل هفتم</p><h2 id="title-3">مدیریت Thread Pool با ExecutorService</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>ایجاد یک Thread برای هر درخواست هزینه‌بر است. <code>ExecutorService</code> کارها را مدیریت می‌کند. <code>newFixedThreadPool(2)</code> حداکثر دو کار را هم‌زمان روی Threadهای همان Pool اجرا می‌کند؛ بقیه منتظر می‌مانند. <code>shutdown()</code> از پذیرش کار جدید جلوگیری می‌کند، نه اینکه کارهای پذیرفته‌شده را خودکار لغو کند. صف پیش‌فرض این Factory نامحدود است و در فشار زیاد می‌تواند رشد کند.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — ExecutorService</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.concurrent.*;
+
+public class Main {
+    public static void main(String[] args) {
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        for (int i = 1; i &lt;= 5; i++) {
+            int id = i;
+            pool.submit(() -&gt; System.out.println("Payment " + id));
+        }
+        pool.shutdown();
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 03 — نمایش پاسخ</summary><p><strong>سؤال: </strong>اگر به Pool دو Threadی ده کار بدهیم، حداکثر چند کار هم‌زمان اجرا می‌شوند؟</p><p><strong>پاسخ: </strong>حداکثر ۲ کار؛ گزینه C.</p></details></section><section aria-labelledby="title-4" class="lesson-section" id="synchronized"><p class="section-kicker">درس 04 · فصل هفتم</p><h2 id="title-4">مفهوم Race Condition و synchronized</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>عملیات <code>balance = balance - 100</code> از خواندن، محاسبه و نوشتن تشکیل شده و بدون هماهنگی ممکن است افزایش یا برداشت از دست برود. <code>synchronized</code> برای Threadهایی که از یک مانیتور یکسان استفاده می‌کنند ورود هم‌زمان به بخش حساس را محدود می‌کند. در #C با <code>lock</code> قابل مقایسه است. این قفل فقط درون یک فرایند معتبر است، نه بین چند Instance سرویس پرداخت.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — synchronized</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">class Counter {
+    private int value = 0;
+
+    public synchronized void increment() {
+        value++;
+    }
+
+    public synchronized int getValue() {
+        return value;
+    }
+}
+// Two threads each call increment() 1000 times on SAME Counter.
+// After both threads finish, getValue() is 2000.</code></pre></div><details><summary>سؤال مرور درس 04 — نمایش پاسخ</summary><p><strong>سؤال: </strong>اگر دو Thread روی یک شیء مشترک هرکدام هزار بار increment همگام‌شده را اجرا کنند، نتیجه چیست؟</p><p><strong>پاسخ: </strong>پس از پایان هر دو Thread دقیقاً <code>2000</code>؛ گزینه B.</p></details></section><section aria-labelledby="title-5" class="lesson-section" id="volatile"><p class="section-kicker">درس 05 · فصل هفتم</p><h2 id="title-5">مفهوم volatile و تفاوت Visibility با Atomicity</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>کلمه <code>volatile</code> برای خواندن و نوشتن یک فیلد، تضمین‌های Visibility و ترتیب حافظه فراهم می‌کند؛ اما یک عملیات مرکب مانند <code>value++</code> را اتمیک نمی‌کند. برای افزایش هم‌زمان به ابزارهایی مانند <code>AtomicInteger</code> یا قفل نیاز داریم.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — volatile</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">class PaymentWorker {
+    private volatile boolean running = true;
+    void stop() { running = false; }
+    void process() {
+        while (running) { /* independent work */ }
+    }
+}
+
+class UnsafeCounter {
+    private volatile int value = 0;
+    void increment() { value++; } // NOT atomic
+}</code></pre></div><details><summary>سؤال مرور درس 05 — نمایش پاسخ</summary><p><strong>سؤال: </strong>آیا volatile روی int موجب می‌شود value++ همیشه بدون از دست رفتن افزایش‌ها باشد؟</p><p><strong>پاسخ: </strong>خیر؛ ممکن است نتیجه کمتر از مقدار مورد انتظار باشد، زیرا افزایش اتمیک نیست؛ گزینه C.</p></details></section><section aria-labelledby="title-6" class="lesson-section" id="atomic-lock"><p class="section-kicker">درس 06 · فصل هفتم</p><h2 id="title-6">مفهوم AtomicInteger و ReentrantLock</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>کلاس <code>AtomicInteger</code> برای عملیات اتمیک مانند <code>incrementAndGet()</code> کاربرد دارد؛ مشابه <code>Interlocked.Increment()</code> در دات‌نت. برای چند دستور وابسته می‌توان از <code>ReentrantLock</code> استفاده کرد و حتماً <code>unlock()</code> را در <code>finally</code> قرار داد.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — AtomicInteger</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.concurrent.atomic.AtomicInteger;
+
+class Counter {
+    private final AtomicInteger value = new AtomicInteger(0);
+    void increment() { value.incrementAndGet(); }
+    int getValue() { return value.get(); }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / Java — ReentrantLock</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.concurrent.locks.ReentrantLock;
+
+class Account {
+    private int balance = 1000;
+    private final ReentrantLock lock = new ReentrantLock();
+    void withdraw(int amount) {
+        lock.lock();
+        try {
+            if (balance &gt;= amount) balance -= amount;
+        } finally {
+            lock.unlock();
+        }
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 06 — نمایش پاسخ</summary><p><strong>سؤال: </strong>اگر دو Thread هرکدام هزار بار incrementAndGet را اجرا کنند، نتیجه چیست؟</p><p><strong>پاسخ: </strong>پس از پایان هر دو Thread دقیقاً <code>2000</code>؛ گزینه C.</p></details></section><section aria-labelledby="title-7" class="lesson-section" id="completable-future"><p class="section-kicker">درس 07 · فصل هفتم</p><h2 id="title-7">مفهوم Future و CompletableFuture</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>کلاس <code>CompletableFuture&lt;T&gt;</code> امکان زنجیره‌سازی عملیات پس از آماده‌شدن نتیجه را فراهم می‌کند. <code>supplyAsync()</code> کار نتیجه‌دار شروع می‌کند؛ <code>thenApply()</code> نتیجه را تبدیل می‌کند و <code>thenAccept()</code> از نتیجه استفاده می‌کند. متد <code>join()</code> در صورت تکمیل‌نشدن Future، Thread فراخوان را مسدود می‌کند. این مدل با <code>Task&lt;T&gt;</code> در دات‌نت شباهت دارد اما یکسان با async/await نیست.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — CompletableFuture</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.concurrent.CompletableFuture;
+
+public class Main {
+    public static void main(String[] args) {
+        CompletableFuture&lt;Integer&gt; future =
+            CompletableFuture.supplyAsync(() -&gt; 100);
+        CompletableFuture&lt;Integer&gt; doubled =
+            future.thenApply(x -&gt; x * 2);
+        System.out.println(doubled.join()); // 200
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 07 — نمایش پاسخ</summary><p><strong>سؤال: </strong>خروجی supplyAsync(() -&gt; 100).thenApply(x -&gt; x * 2).join() چیست؟</p><p><strong>پاسخ: </strong>عدد <code>200</code>؛ گزینه B.</p></details></section><section aria-labelledby="title-8" class="lesson-section" id="virtual-threads"><p class="section-kicker">درس 08 · فصل هفتم</p><h2 id="title-8">مفهوم Virtual Threads در Java</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>از Java 21، Virtual Threads به‌صورت پایدار در دسترس‌اند. JVM تعداد زیادی Thread سبک‌وزن را مدیریت می‌کند و برای وظایفی با انتظار I/O زیاد مناسب‌اند. آن‌ها سرعت CPU، ظرفیت دیتابیس یا ایمنی هم‌زمانی را خودکار افزایش نمی‌دهند. در دات‌نت async/await برای مقیاس‌پذیری I/O هدف مشابهی دارد اما مدل اجرایی متفاوت است.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — Virtual Thread (Java 21+)</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Thread t = Thread.startVirtualThread(() -&gt;
+            System.out.println("Payment started"));
+        t.join();
+        System.out.println("Finished");
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 08 — نمایش پاسخ</summary><p><strong>سؤال: </strong>مزیت اصلی Virtual Threads در سرویس‌های منتظر I/O چیست؟</p><p><strong>پاسخ: </strong>مدیریت تعداد زیاد کار هم‌زمان با هزینه Thread کمتر؛ گزینه D.</p></details></section><section aria-labelledby="title-9" class="lesson-section" id="concurrent-map"><p class="section-kicker">درس 09 · فصل هفتم</p><h2 id="title-9">تفاوت ConcurrentHashMap و HashMap</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>کلاس <code>ConcurrentHashMap</code> برای دسترسی هم‌زمان چند Thread به یک Map مشترک طراحی شده است. اشتراک‌گذاری خودکار رخ نمی‌دهد: همه Threadها باید به همان شیء اشاره کنند. حتی روی این Map، عملیات مرکب <code>get()</code> سپس <code>put()</code> لزوماً اتمیک نیست؛ برای شمارنده از <code>merge()</code> استفاده می‌کنیم. این ابزار حافظه چند Instance مستقل سرویس را مشترک نمی‌کند.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — ConcurrentHashMap</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.concurrent.ConcurrentHashMap;
+
+public class Main {
+    public static void main(String[] args) {
+        ConcurrentHashMap&lt;String, Integer&gt; counts =
+            new ConcurrentHashMap&lt;&gt;();
+        counts.merge("Success", 1, Integer::sum);
+        counts.merge("Success", 1, Integer::sum);
+        System.out.println(counts.get("Success")); // 2
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 09 — نمایش پاسخ</summary><p><strong>سؤال: </strong>دو Thread هرکدام هزار بار merge روی کلید Success انجام دهند؛ نتیجه چیست؟</p><p><strong>پاسخ: </strong>پس از تکمیل هر دو Thread مقدار <code>2000</code>؛ گزینه C.</p></details></section><section aria-labelledby="title-10" class="lesson-section" id="deadlock"><p class="section-kicker">درس 10 · فصل هفتم</p><h2 id="title-10">مفهوم Deadlock و ترتیب دریافت قفل‌ها</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>اگر Thread اول قفل A را داشته باشد و منتظر B بماند، درحالی‌که Thread دوم B را داشته و منتظر A است، چرخه انتظار یا Deadlock رخ می‌دهد. یک راه پیشگیری این است که همه Threadها قفل‌های مشترک را با ترتیب یکسان دریافت کنند. این وضعیت در هر اجرای کد با ترتیب‌های معکوس لزوماً رخ نمی‌دهد؛ به زمان‌بندی وابسته است.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java — risky order</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">final Object lockA = new Object();
+final Object lockB = new Object();
+
+Thread t1 = new Thread(() -&gt; {
+    synchronized (lockA) {
+        synchronized (lockB) { System.out.println("Pay"); }
+    }
+});
+Thread t2 = new Thread(() -&gt; {
+    synchronized (lockB) {
+        synchronized (lockA) { System.out.println("Refund"); }
+    }
+});
+t1.start();
+t2.start(); // possible deadlock</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / Java — consistent lock order</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">// Both operations acquire A before B:
+synchronized (lockA) {
+    synchronized (lockB) {
+        // critical section
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 10 — نمایش پاسخ</summary><p><strong>سؤال: </strong>بهترین روش کاهش خطر Deadlock این دو قفل چیست؟</p><p><strong>پاسخ: </strong>همه Threadها قفل‌ها را با ترتیب یکسان دریافت کنند؛ گزینه C.</p></details></section></div><footer class="study-source"><p>محتوای کامل فصل هفتم دوره Java Backend؛ شامل ۱۰ درس، مثال‌های عملی و سؤال‌های مرور.</p><div class="footer-actions"><a href="#course-title">بازگشت به بالای صفحه ↑</a><a href="../">بازگشت به همهٔ فصل‌ها</a></div></footer></article></main>
+</div>
+<script>
+(() => {
+  const root=document.documentElement;
+  const toggle=document.getElementById('theme-toggle');
+  const button=document.querySelector('[data-course-menu-toggle]');
+  const sidebar=document.getElementById('course-sidebar');
+  const navLinks=[...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+  const sections=[...document.querySelectorAll('section.lesson-section[id]')];
+  function theme(value) {
+    root.dataset.theme=value;
+    toggle?.setAttribute('aria-label',value==='dark'?'فعال‌کردن تم روشن':'فعال‌کردن تم تیره');
+    toggle?.setAttribute('aria-pressed', String(value==='dark'));
+    try {localStorage.setItem('dotnet-academy-theme',value)}catch(_){}
+  }
+  toggle?.addEventListener('click',()=>theme(root.dataset.theme==='dark'?'light':'dark'));
+  theme(root.dataset.theme||'light');
+  function closeSidebar(){document.body.classList.remove('sidebar-open');button?.setAttribute('aria-expanded','false')}
+  button?.addEventListener('click',()=>{
+    const isOpen=document.body.classList.toggle('sidebar-open');
+    button.setAttribute('aria-expanded',String(isOpen));
+  });
+  navLinks.forEach(a=>a.addEventListener('click',closeSidebar));
+  document.addEventListener('keydown', e=>{if(e.key==='Escape')closeSidebar()});
+  document.addEventListener('click',e=>{
+    const target=e.target;
+    if(document.body.classList.contains('sidebar-open')&&!sidebar?.contains(target)&&!button?.contains(target)) closeSidebar();
+  });
+  const setActive=id=>navLinks.forEach(a=>a.classList.toggle('is-active',a.getAttribute('href')==='#'+id));
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver(entries=>{
+      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
+      if(visible.length)setActive(visible[0].target.id);
+    },{rootMargin:'-80px 0px -68% 0px',threshold:0});
+    sections.forEach(s=>observer.observe(s));
+  }
+  const start=decodeURIComponent(location.hash.replace(/^#/,''))||sections[0]?.id;
+  if(start)setActive(start);
+  document.querySelectorAll('.copy-code').forEach(btn=>btn.addEventListener('click',async()=>{
+    const code=btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+    if(!code)return;
+    let copied=false;
+    try{await navigator.clipboard.writeText(code);copied=true;}catch(_){
+      try{const field=document.createElement('textarea');field.value=code;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();copied=document.execCommand('copy');field.remove();}catch(e){}
+    }
+    btn.textContent=copied?'کپی شد':'انتخاب کد';
+    if(!copied){const selection=window.getSelection();const range=document.createRange();range.selectNodeContents(btn.closest('.code-block').querySelector('code'));selection.removeAllRanges();selection.addRange(range)}
+    setTimeout(()=>btn.textContent='کپی کد',1500);
+  }));
+})();
+
+</script>
+</body>
+</html>
+

@@ -62,7 +62,7 @@ function renderLanding() {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="سرفصل‌های آموزش یک‌روزه CI/CD در GitLab؛ از Build و Test پروژهٔ .NET تا Docker Registry و Deploy در Kubernetes.">
-  <title>آموزش یک‌روزه CI/CD در GitLab | آکادمی دات‌نت</title>
+  <title>آموزش یک‌روزه CI/CD در GitLab | آکادمی مهندسی نرم‌افزار</title>
   <script>${themeBootstrap}
   </script>
   <link rel="stylesheet" href="../../styles.css">
@@ -73,7 +73,7 @@ function renderLanding() {
   <a class="skip-link" href="#course-content">پرش به محتوای دوره</a>
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری دوره">
-      <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+      <a class="course-brand" href="../../index.html">آکادمی مهندسی نرم‌افزار</a>
       <span class="course-name"><bdi>GitLab CI/CD</bdi></span>
       <a class="back-link" href="../../topics/">بازگشت به آموزش‌های موضوعی</a>${themeButton}
     </nav>
@@ -105,7 +105,7 @@ function renderLanding() {
   </main>
   <footer class="course-footer">
     <a href="../../topics/">بازگشت به آموزش‌های موضوعی</a>
-    <p>آکادمی دات‌نت؛ آموزش برای کار واقعی</p>
+    <p>آکادمی مهندسی نرم‌افزار؛ آموزش برای کار واقعی</p>
   </footer>
 </body>
 </html>
@@ -840,7 +840,7 @@ function renderLesson(lesson, index) {
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری دوره">
-      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="course-brand" href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
       <span class="course-name"><bdi>GitLab CI/CD</bdi></span>
       <a class="back-link" href="../index.html">سرفصل‌های دوره</a>
       <button class="course-menu-button" type="button" data-course-menu-toggle aria-expanded="true" aria-controls="course-sidebar">فهرست درس‌ها</button>${themeButton}

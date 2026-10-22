@@ -66,7 +66,7 @@ function lessonPage(current, previous, next) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="صفحهٔ درس ${escapeHtml(current.title)} از راهنمای طراحی سیستم در آکادمی دات‌نت.">
+  <meta name="description" content="صفحهٔ درس ${escapeHtml(current.title)} از راهنمای طراحی سیستم در آکادمی مهندسی نرم‌افزار.">
   <title>${escapeHtml(current.title)} | راهنمای طراحی سیستم</title>
   <script>${themeScript}
   </script>
@@ -80,7 +80,7 @@ function lessonPage(current, previous, next) {
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری درس">
-      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="course-brand" href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
       <span class="course-name">راهنمای طراحی سیستم</span>
       <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>${themeButton}
     </nav>

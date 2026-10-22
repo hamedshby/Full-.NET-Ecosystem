@@ -133,7 +133,7 @@ const indexHtml = `<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="سرفصل‌های دورهٔ AI Agent؛ ساخت Agentهای حرفه‌ای و Production-Grade با C# و .NET.">
-  <title>AI Agent | آکادمی دات‌نت</title>
+  <title>AI Agent | آکادمی مهندسی نرم‌افزار</title>
   <script>${themeScript}
   </script>
   <link rel="stylesheet" href="../../styles.css">
@@ -144,7 +144,7 @@ const indexHtml = `<!doctype html>
   <a class="skip-link" href="#course-content">پرش به محتوای دوره</a>
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری دوره">
-      <a class="course-brand" href="../../index.html">آکادمی دات‌نت</a>
+      <a class="course-brand" href="../../index.html">آکادمی مهندسی نرم‌افزار</a>
       <span class="course-name"><bdi>AI Agent</bdi></span>
       <a class="back-link" href="../../index.html#courses">بازگشت به دوره‌ها</a>${themeButton}
     </nav>
@@ -182,7 +182,7 @@ ${partsMarkup}
   </main>
   <footer class="course-footer">
     <a href="../../index.html#courses">بازگشت به فهرست دوره‌ها</a>
-    <p>آکادمی دات‌نت</p>
+    <p>آکادمی مهندسی نرم‌افزار</p>
   </footer>
 </body>
 </html>
@@ -194,7 +194,7 @@ function lessonPage(current, previous, next) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="درس ${escapeHtml(current.title)} از دورهٔ AI Agent در آکادمی دات‌نت.">
+  <meta name="description" content="درس ${escapeHtml(current.title)} از دورهٔ AI Agent در آکادمی مهندسی نرم‌افزار.">
   <title>${escapeHtml(current.title)} | AI Agent</title>
   <script>${themeScript}
   </script>
@@ -207,7 +207,7 @@ function lessonPage(current, previous, next) {
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری درس">
-      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="course-brand" href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
       <span class="course-name"><bdi>AI Agent</bdi></span>
       <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>${themeButton}
     </nav>

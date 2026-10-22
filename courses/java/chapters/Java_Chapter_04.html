@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="فصل چهارم آموزش Java Backend: مجموعه‌ها و Generics در ۱۰ درس همراه مثال پرداخت، مقایسه با سی‌شارپ و پرسش مرور." name="description"/>
+<title>فصل چهارم Java Backend | Collections و Generics | آکادمی مهندسی نرم‌افزار</title>
+<script>
+  (()=>{let t=null;try{t=localStorage.getItem('dotnet-academy-theme')}catch(_){};
+    const dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme=t==='dark'||t==='light'?t:dark?'dark':'light';})();
+  </script>
+<style>
+/* Self-contained course CSS, inspired by the uploaded Academy .NET layout. */
+:root {
+  color-scheme:light;
+  --ink:#1f2937; --muted:#64748b; --line:#e2e8f0; --surface:#fff;
+  --background:#f8fafc; --cicd-surface:#eff6ff; --cicd-border:#bfdbfe;
+  --cicd-accent:#2563eb; --cicd-accent-strong:#1d4ed8; --cicd-warm:#3b82f6;
+  --code-bg:#101a2b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 30px rgba(32,43,59,.045);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ink:#e2e8f0; --muted:#94a3b8; --line:#334155; --surface:#152034;
+  --background:#0c1422; --cicd-surface:#142b43; --cicd-border:#244f76;
+  --cicd-accent:#93c5fd; --cicd-accent-strong:#bfdbfe;
+  --code-bg:#080f1b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 26px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:6.2rem}
+body{margin:0;background:var(--background);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2.05;}
+a{color:var(--cicd-accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--cicd-warm);outline-offset:3px}
+.skip-link{position:fixed;z-index:300;top:-120px;right:12px;padding:10px 15px;background:var(--surface);border:2px solid var(--cicd-accent);border-radius:7px}
+.skip-link:focus{top:12px}
+.course-header{position:sticky;z-index:40;top:0;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.025)}
+.course-nav{display:flex;align-items:center;gap:1.2rem;min-height:68px;max-width:1550px;margin:auto;padding:.55rem clamp(1rem,3vw,2.3rem)}
+.course-brand{font-weight:900;color:var(--ink);font-size:1.09rem}
+.course-name{padding-inline-start:1.2rem;border-inline-start:1px solid var(--line);color:var(--muted);font-size:.9rem}
+.back-link{margin-inline-start:auto;font-size:.82rem}
+.icon-button,.course-menu-button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:.7rem;padding:.35rem .8rem;min-height:38px}
+.icon-button{width:42px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none} [data-theme="dark"] .theme-icon-moon{display:none} [data-theme="dark"] .theme-icon-sun{display:block}
+.course-menu-button{display:none}
+.lesson-shell{max-width:1550px;margin:auto;display:grid;grid-template-columns:287px minmax(0,1fr);gap:clamp(1.1rem,3vw,3.3rem);padding:clamp(1rem,2.5vw,2.5rem)}
+.course-sidebar{align-self:start;position:sticky;top:90px;max-height:calc(100vh - 104px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;box-shadow:var(--card-shadow);}
+.sidebar-heading{padding:1.3rem 1.25rem .8rem;display:flex;flex-direction:column;gap:.15rem;border-bottom:1px solid var(--line);line-height:1.6}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading strong{font-size:1.1rem;line-height:1.7}
+.course-sidebar ol{list-style:none;padding:.5rem;margin:0}
+.course-sidebar li{margin:0}
+.course-sidebar li a{display:flex;align-items:center;gap:.7rem;border-radius:.55rem;padding:.52rem .73rem;font-size:.83rem;color:var(--ink);line-height:1.6}
+.course-sidebar li a span{font:700 .75rem/1.4 Tahoma,Arial,sans-serif;color:var(--muted);min-width:24px}
+.course-sidebar li a:hover,.course-sidebar li a.is-active{background:var(--cicd-surface);color:var(--cicd-accent-strong);text-decoration:none}
+.course-sidebar li a.is-active span{color:var(--cicd-accent-strong)}
+.source-download{border-top:1px solid var(--line);padding:1rem;margin:.4rem .65rem;display:block;font-size:.8rem}
+.lesson-content{min-width:0;max-width:1080px;width:100%;margin:auto}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1550px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.rabbitmq-hero{margin-block:1rem 2.25rem;padding:clamp(1.25rem,3vw,2.35rem);border:1px solid var(--cicd-border);border-radius:1.2rem;background:linear-gradient(135deg,var(--cicd-surface),var(--surface));}
+.eyebrow{color:var(--cicd-accent-strong);font-weight:800;font-size:.82rem;margin:0}
+.rabbitmq-hero h1{font-size:clamp(1.8rem,3.5vw,2.7rem);line-height:1.6;margin:.35rem 0 .65rem;font-weight:900;letter-spacing:-.02em}
+.course-lead{max-width:800px;color:var(--muted);line-height:2.1;margin:0}
+.study-meta,.study-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem 1rem;margin-block:1.2rem;color:var(--muted);font-size:.83rem}
+.study-status,.future-status{padding:.2rem .72rem;border:1px solid var(--cicd-border);border-radius:.65rem;background:var(--cicd-surface);color:var(--cicd-accent-strong);font-weight:800}
+.study-actions{margin-bottom:0}
+.button-link,.study-actions a{display:inline-flex;align-items:center;justify-content:center;padding:.46rem .85rem;min-height:36px;border:1px solid var(--cicd-border);border-radius:.62rem;background:var(--surface);font-weight:700;color:var(--cicd-accent-strong);text-decoration:none}
+.study-actions .button-link{background:var(--cicd-accent);color:#fff;border-color:var(--cicd-accent)}
+.lesson-note,.lesson-warning{padding:1rem 1.2rem;margin:1.4rem 0;border:1px solid var(--cicd-border);border-radius:.85rem;background:var(--cicd-surface);display:block}
+.lesson-warning{border-color:#f5c2b5;background:color-mix(in srgb,var(--surface) 82%,#f59e0b)}
+.lesson-note strong,.lesson-warning strong{display:block;color:var(--cicd-accent-strong);margin-bottom:.1rem}
+.lesson-note p{margin:.1rem 0}
+.lesson-body{background:var(--surface);border:1px solid var(--line);border-radius:1.2rem;padding:clamp(1.25rem,3vw,3.1rem);box-shadow:var(--card-shadow)}
+.lesson-section{scroll-margin-top:7rem;padding-top:2rem;padding-bottom:2.2rem;border-bottom:1px solid var(--line)}
+.lesson-section:first-child{padding-top:.1rem}
+.lesson-section:last-child{border-bottom:none;padding-bottom:0}
+.section-kicker{display:flex;align-items:center;gap:.6rem;color:var(--cicd-accent-strong);font-size:.78rem;font-weight:800;margin:0 0 .2rem}
+.lesson-section h2{font-size:clamp(1.28rem,2.3vw,1.7rem);line-height:1.75;margin:.2rem 0 1.3rem;letter-spacing:-.01em}
+.lesson-section h3{font-size:1.02rem;line-height:1.8;margin:1.65rem 0 .65rem}
+.lesson-section p{margin:.85rem 0;line-height:2.15}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{padding-inline-start:.15rem;margin:.35rem 0}
+.lesson-section li::marker{color:var(--cicd-accent)}
+.lesson-section :not(pre)>code{font: .91em/1.7 Consolas,"Courier New",monospace;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere;border-radius:.32rem;color:var(--cicd-accent-strong);background:var(--cicd-surface);padding:.08rem .35rem}
+.code-block{min-width:0;max-width:100%;margin:1.3rem 0;border:1px solid #334155;border-radius:.8rem;overflow:hidden;background:var(--code-bg);direction:ltr;}
+.code-label{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;padding:.43rem .85rem;background:#1e293b;color:#cbd5e1;font-size:.72rem;line-height:1.6;direction:rtl}
+.code-label>span:nth-child(2){margin-inline-start:auto;font-family:Consolas,monospace;direction:ltr}
+.copy-code{font-size:.72rem;color:#e2e8f0;background:#334155;border:1px solid #475569;border-radius:.4rem;padding:.25rem .55rem}
+.code-block pre{margin:0;padding:1.05rem 1.3rem;color:var(--code-ink);font: .91rem/1.85 Consolas,"Courier New",monospace;direction:ltr;text-align:left;white-space:pre;max-width:100%;overflow:auto;tab-size:4}
+.code-block pre code{font:inherit;color:inherit;background:transparent}
+.table-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:.85rem}
+.diagnostic-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.87rem;line-height:1.85}
+.diagnostic-table th,.diagnostic-table td{text-align:right;padding:.8rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+.diagnostic-table th{background:var(--cicd-surface);font-weight:800}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.diagnostic-table tr:nth-child(even) td{background:color-mix(in srgb,var(--surface) 94%,var(--cicd-surface))}
+.future-section{background:var(--cicd-surface);border:1px dashed var(--cicd-border);border-radius:.85rem;padding:.7rem 1rem;margin:1rem 0}
+.lesson-section details{border:1px solid var(--line);border-radius:.8rem;margin:.7rem 0;background:var(--background);padding:.5rem .95rem}
+.lesson-section details summary{cursor:pointer;font-weight:800;color:var(--cicd-accent-strong);list-style-position:inside}
+.lesson-section details p{margin:.45rem 0}
+.lesson-section blockquote{border-inline-start:4px solid var(--cicd-accent)}
+.study-source{margin-top:2rem;color:var(--muted);font-size:.81rem;line-height:2}
+.footer-actions{margin-top:2rem;display:flex;gap:.65rem;flex-wrap:wrap}
+.footer-actions a{padding:.5rem .9rem;border:1px solid var(--line);border-radius:.7rem}
+.tag-extended{color:#a16207;background:#fef3c7;border-radius:.4rem;padding:.1rem .4rem;font-size:.74rem;font-weight:800}
+[data-theme="dark"] .tag-extended{color:#fde68a;background:#6b4c1a}
+@media(max-width:1040px){.lesson-shell{grid-template-columns:250px minmax(0,1fr);gap:1.1rem}}
+@media(max-width:800px){
+  .course-nav{min-height:60px;gap:.55rem}
+  .course-brand{font-size:.95rem}
+  .back-link{display:none}
+  .course-menu-button{display:block;margin-inline-start:auto;font-size:.79rem;padding:.25rem .5rem}
+  .course-name{font-size:.75rem;padding-inline-start:.6rem}
+  .lesson-shell{display:block;padding:.75rem}
+  .course-sidebar{display:none;position:fixed;top:65px;bottom:0;right:0;left:auto;z-index:50;width:min(86vw,340px);height:calc(100vh - 65px);max-height:none;border-radius:0;box-shadow:0 0 0 200vw rgba(0,0,0,.5)}
+  body.sidebar-open .course-sidebar{display:block}
+  .lesson-content{max-width:none}
+  .rabbitmq-hero{margin-top:.75rem}
+  .lesson-body{padding:1.2rem}
+  .lesson-section{scroll-margin-top:5.8rem}
+  .diagnostic-table{min-width:480px}
+  .code-block pre{font-size:.79rem}
+  .study-actions{gap:.45rem}
+}
+@media print{
+  :root{--background:white;--surface:white;--ink:black;--line:#ccc}
+  .course-header,.course-sidebar,.footer-actions,.study-actions,.copy-code{display:none!important}
+  .lesson-shell{display:block;max-width:none;padding:0}
+  .lesson-content{max-width:none}
+  .lesson-body,.rabbitmq-hero{border:0;box-shadow:none;padding:.5rem}
+  .lesson-section{break-inside:auto}
+  .code-block{break-inside:avoid;print-color-adjust:exact}
+  a{color:inherit}
+}
+
+</style>
+</head>
+<body class="lesson-page rabbitmq-page">
+<a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
+<header class="course-header"><nav aria-label="ناوبری دوره" class="course-nav">
+<a class="course-brand" href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+<span class="course-name">Collections و Generics · فصل ۴</span>
+<a class="back-link" href="../">بازگشت به سرفصل‌های جاوا</a>
+<button aria-controls="course-sidebar" aria-expanded="false" class="course-menu-button" data-course-menu-toggle="" type="button">فهرست مطالب</button>
+<button aria-label="تغییر تم" aria-pressed="false" class="icon-button" id="theme-toggle" title="تغییر حالت نمایش" type="button">
+<svg aria-hidden="true" class="nav-icon theme-icon-moon" viewbox="0 0 24 24"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+<svg aria-hidden="true" class="nav-icon theme-icon-sun" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+</button>
+</nav></header>
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span><a href="../">آموزش Java</a><span>/</span><span>فصل چهارم</span></nav>
+<div class="lesson-shell">
+<aside class="course-sidebar" data-current-lesson="java-oop" id="course-sidebar"><div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>فصل چهارم Java Backend</strong><span>۱۰ درس · همراه با کد و تمرین</span></div><nav aria-label="فهرست فصل چهارم Java"><ol><li><a href="#collection-framework"><span>01</span>Collection Framework و ساختار مجموعه‌ها</a></li><li><a href="#list-arraylist"><span>02</span>List و ArrayList و عملیات پایه</a></li><li><a href="#arraylist-linkedlist"><span>03</span>تفاوت ArrayList و LinkedList</a></li><li><a href="#hashset"><span>04</span>HashSet و جلوگیری از مقادیر تکراری</a></li><li><a href="#hashmap"><span>05</span>HashMap و نگهداری کلید و مقدار</a></li><li><a href="#equals-hashcode"><span>06</span>equals و hashCode در مجموعه‌های هش‌محور</a></li><li><a href="#comparable-comparator"><span>07</span>Comparable و Comparator برای مرتب‌سازی</a></li><li><a href="#generic-erasure"><span>08</span>Generics و Type Erasure</a></li><li><a href="#bounds-wildcards"><span>09</span>Generic Bounds و Wildcards</a></li><li><a href="#queue-deque"><span>10</span>Queue و Deque و الگوی FIFO</a></li></ol></nav><a class="source-download" href="#queue-deque">مرور آخرین درس ←</a></aside>
+<main class="lesson-content" id="lesson-content"><article aria-label="آموزش فصل چهارم Java" id="course-title"><section class="rabbitmq-hero"><p class="eyebrow">آکادمی جاوا · فصل ۴ از ۱۵</p><h1>مجموعه‌ها و Generics در Java — مخصوص توسعه‌دهنده دات‌نت</h1><p class="course-lead">ده درس کامل درباره Collection Framework، لیست‌ها، مجموعه‌ها، Map، قرارداد equals و hashCode، مرتب‌سازی، Type Erasure، Wildcards و صف‌ها؛ با مثال‌های مالی، نکات مصاحبه و مقایسه با #C.</p><div class="study-meta"><span class="study-status">فصل ۴ تکمیل‌شده</span><span>۱۰ درس</span><span>مطالعه آفلاین · تک‌فایلی</span></div><div class="study-actions"><a class="button-link" href="#collection-framework">شروع مطالعه ←</a><a href="#queue-deque">رفتن به درس آخر</a></div></section><div class="lesson-body"><section aria-labelledby="title-1" class="lesson-section" id="collection-framework"><p class="section-kicker">درس 01 · فصل چهارم</p><h2 id="title-1">Collection Framework و ساختار مجموعه‌ها</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>در Java اینترفیس <code>Collection</code> از <code>Iterable</code> گسترش می‌یابد و اینترفیس‌های <code>List</code>، <code>Set</code> و <code>Queue</code> از آن مشتق می‌شوند. اما <code>Map</code> شاخه‌ای مستقل است. هنگام انتخاب ساختار مناسب، ترتیب، امکان تکرار، نوع دسترسی و پیچیدگی زمانی اهمیت دارد.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>عملیات</th><th>Java / ویژگی اول</th><th>C# / ویژگی دوم</th></tr></thead><tbody><tr><td>ArrayList&lt;E&gt;</td><td>List&lt;T&gt;</td><td>لیست ترتیبی با امکان تکرار</td></tr><tr><td>HashSet&lt;E&gt;</td><td>HashSet&lt;T&gt;</td><td>مقادیر یکتا</td></tr><tr><td>HashMap&lt;K,V&gt;</td><td>Dictionary&lt;K,V&gt;</td><td>کلید و مقدار</td></tr><tr><td>ArrayDeque&lt;E&gt;</td><td>Queue&lt;T&gt;</td><td>صف و پشته درون‌حافظه‌ای</td></tr></tbody></table></div><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        List&lt;Integer&gt; payments = new ArrayList&lt;&gt;();
+        payments.add(1001);
+        payments.add(1002);
+        payments.add(1001);
+        System.out.println(payments.size()); // 3
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 01 — نمایش پاسخ</summary><p><strong>سؤال: </strong>چرا خروجی کد بالا ۳ است؟</p><p><strong>پاسخ: </strong>زیرا ArrayList مقدار تکراری را مجاز می‌داند.</p></details></section><section aria-labelledby="title-2" class="lesson-section" id="list-arraylist"><p class="section-kicker">درس 02 · فصل چهارم</p><h2 id="title-2">List و ArrayList و عملیات پایه</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>در Java، <code>List</code> اینترفیس و <code>ArrayList</code> یک پیاده‌سازی آن است. مشابه <code>IList&lt;T&gt;</code> و <code>List&lt;T&gt;</code> در سی‌شارپ. متد <code>get(index)</code> برای خواندن، <code>set(index,value)</code> برای جایگزینی و <code>add(value)</code> برای افزودن استفاده می‌شود. متد <code>set</code> تعداد عناصر را تغییر نمی‌دهد.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>عملیات</th><th>Java / ویژگی اول</th><th>C# / ویژگی دوم</th></tr></thead><tbody><tr><td>add(100)</td><td>Add(100)</td><td>افزودن</td></tr><tr><td>get(0)</td><td>list[0]</td><td>خواندن</td></tr><tr><td>set(0,500)</td><td>list[0] = 500</td><td>جایگزینی</td></tr><tr><td>remove(0)</td><td>RemoveAt(0)</td><td>حذف با اندیس در List&lt;Integer&gt;</td></tr><tr><td>size()</td><td>Count</td><td>تعداد</td></tr></tbody></table></div><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+        numbers.add(10);
+        numbers.add(20);
+        numbers.add(30);
+        numbers.set(1, 99);
+        System.out.println(numbers.size()); // 3
+        System.out.println(numbers.get(1)); // 99
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 02 — نمایش پاسخ</summary><p><strong>سؤال: </strong>بعد از set(1,99)، خروجی size و get(1) چیست؟</p><p><strong>پاسخ: </strong>به ترتیب ۳ و ۹۹؛ set عنصر را جایگزین می‌کند.</p></details></section><section aria-labelledby="title-3" class="lesson-section" id="arraylist-linkedlist"><p class="section-kicker">درس 03 · فصل چهارم</p><h2 id="title-3">تفاوت ArrayList و LinkedList</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>کلاس <code>ArrayList</code> از آرایه پویا استفاده می‌کند؛ بنابراین خواندن با اندیس در آن <code>O(1)</code> است. کلاس <code>LinkedList</code> فهرست پیوندی دوطرفه است و برای دسترسی به اندیس میانی معمولاً پیمایش <code>O(n)</code> لازم دارد. درج یا حذف در ابتدای LinkedList پس از دسترسی به ابتدا <code>O(1)</code> است. در اغلب کاربردهای عمومی ArrayList انتخاب پیش‌فرض بهتری است.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>عملیات</th><th>Java / ویژگی اول</th><th>C# / ویژگی دوم</th></tr></thead><tbody><tr><td>دسترسی بر اساس اندیس</td><td>O(1)</td><td>O(n)</td></tr><tr><td>افزودن در انتها</td><td>O(1) سرشکن</td><td>O(1)</td></tr><tr><td>درج در ابتدای ساختار</td><td>O(n)</td><td>O(1)</td></tr><tr><td>حذف در وسط بر اساس اندیس</td><td>O(n)</td><td>O(n) با جست‌وجو</td></tr></tbody></table></div><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        List&lt;Integer&gt; a = new ArrayList&lt;&gt;();
+        List&lt;Integer&gt; b = new LinkedList&lt;&gt;();
+        a.add(100); b.add(100);
+        System.out.println(a.get(0)); // 100
+        System.out.println(b.get(0)); // 100
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 03 — نمایش پاسخ</summary><p><strong>سؤال: </strong>برای دسترسی مکرر به payments.get(50000) کدام انتخاب بهتر است؟</p><p><strong>پاسخ: </strong>ArrayList؛ زیرا دسترسی با اندیس O(1) است.</p></details></section><section aria-labelledby="title-4" class="lesson-section" id="hashset"><p class="section-kicker">درس 04 · فصل چهارم</p><h2 id="title-4">HashSet و جلوگیری از مقادیر تکراری</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>در Java، اینترفیس <code>Set</code> اجازه نگهداری مقدار تکراری را نمی‌دهد. <code>HashSet</code> معمولاً عملیات افزودن و جست‌وجو را به‌طور میانگین با پیچیدگی <code>O(1)</code> انجام می‌دهد. ترتیب پیمایش HashSet تضمین نمی‌شود. متد <code>add</code> برای عضو تازه true و برای عضو موجود false برمی‌گرداند.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Set&lt;String&gt; ids = new HashSet&lt;&gt;();
+        System.out.println(ids.add("TX-100")); // true
+        System.out.println(ids.add("TX-200")); // true
+        System.out.println(ids.add("TX-100")); // false
+        System.out.println(ids.size()); // 2
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 04 — نمایش پاسخ</summary><p><strong>سؤال: </strong>پس از افزودن دوباره TX-100، خروجی add و اندازه مجموعه چیست؟</p><p><strong>پاسخ: </strong>به‌ترتیب false و ۲. برای جلوگیری از تراکنش تکراری در سرویس توزیع‌شده، HashSet حافظه‌ای به‌تنهایی کافی نیست و به تضمین پایدار مثل Unique Constraint نیاز داریم.</p></details></section><section aria-labelledby="title-5" class="lesson-section" id="hashmap"><p class="section-kicker">درس 05 · فصل چهارم</p><h2 id="title-5">HashMap و نگهداری کلید و مقدار</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>در Java، اینترفیس <code>Map&lt;K,V&gt;</code> برای نگهداری زوج کلید و مقدار است و کلاس <code>HashMap</code> یکی از پیاده‌سازی‌های آن است. کلیدها یکتا هستند. برخلاف متد Add در Dictionary سی‌شارپ، <code>put</code> برای کلید موجود مقدار را جایگزین می‌کند. متد <code>get</code> برای کلید ناموجود null می‌دهد؛ البته null می‌تواند خودش یک مقدار ذخیره‌شده باشد.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>عملیات</th><th>Java / ویژگی اول</th><th>C# / ویژگی دوم</th></tr></thead><tbody><tr><td>put(key,value)</td><td>dict[key] = value</td><td>افزودن یا جایگزینی</td></tr><tr><td>get(key)</td><td>dict[key]</td><td>دریافت (رفتار کلید ناموجود متفاوت است)</td></tr><tr><td>containsKey(key)</td><td>ContainsKey(key)</td><td>بررسی کلید</td></tr><tr><td>size()</td><td>Count</td><td>تعداد</td></tr></tbody></table></div><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Map&lt;Integer, String&gt; payments = new HashMap&lt;&gt;();
+        payments.put(1001, "Pending");
+        payments.put(1002, "Success");
+        payments.put(1001, "Failed");
+        System.out.println(payments.size()); // 2
+        System.out.println(payments.get(1001)); // Failed
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 05 — نمایش پاسخ</summary><p><strong>سؤال: </strong>چرا پس از سه بار put، اندازه Map برابر ۲ است؟</p><p><strong>پاسخ: </strong>چون کلید ۱۰۰۱ تکراری بوده و مقدار Failed جایگزین Pending شده است.</p></details></section><section aria-labelledby="title-6" class="lesson-section" id="equals-hashcode"><p class="section-kicker">درس 06 · فصل چهارم</p><h2 id="title-6">equals و hashCode در مجموعه‌های هش‌محور</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>در Java، عملگر <code>==</code> روی ارجاعات هویت شیء را مقایسه می‌کند. پیاده‌سازی پیش‌فرض <code>equals()</code> در Object نیز برابری هویت را بررسی می‌کند. اگر اشیای دارای شناسه یکسان باید برابر باشند، <code>equals</code> و <code>hashCode</code> را به‌صورت هماهنگ بازنویسی کن. اشیای برابر باید هش برابر داشته باشند؛ اما هش برابر لزوماً به معنای برابر بودن اشیا نیست.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+class Payment {
+    private final int id;
+    Payment(int id) { this.id = id; }
+    @Override public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Payment other)) return false;
+        return id == other.id;
+    }
+    @Override public int hashCode() {
+        return Integer.hashCode(id);
+    }
+}
+public class Main {
+    public static void main(String[] args) {
+        Set&lt;Payment&gt; payments = new HashSet&lt;&gt;();
+        payments.add(new Payment(1001));
+        payments.add(new Payment(1001));
+        System.out.println(payments.size()); // 1
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 06 — نمایش پاسخ</summary><p><strong>سؤال: </strong>اگر equals و hashCode را Override نکنیم، دو شیء new Payment(1001) در HashSet چند عنصر خواهند بود؟</p><p><strong>پاسخ: </strong>دو عنصر؛ چون به‌طور پیش‌فرض برابری مبتنی بر هویت شیء است.</p></details></section><section aria-labelledby="title-7" class="lesson-section" id="comparable-comparator"><p class="section-kicker">درس 07 · فصل چهارم</p><h2 id="title-7">Comparable و Comparator برای مرتب‌سازی</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>اینترفیس <code>Comparable&lt;T&gt;</code> ترتیب طبیعی را با متد <code>compareTo</code> تعیین می‌کند؛ مشابه <code>IComparable&lt;T&gt;</code> در سی‌شارپ. اینترفیس <code>Comparator&lt;T&gt;</code> ترتیب سفارشی را فراهم می‌کند؛ مشابه <code>IComparer&lt;T&gt;</code>. خروجی مقایسه باید در صورت کمتر بودن منفی، برابر بودن صفر و بیشتر بودن مثبت باشد.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>عملیات</th><th>Java / ویژگی اول</th><th>C# / ویژگی دوم</th></tr></thead><tbody><tr><td>Comparable&lt;T&gt;</td><td>IComparable&lt;T&gt;</td><td>ترتیب طبیعی</td></tr><tr><td>Comparator&lt;T&gt;</td><td>IComparer&lt;T&gt;</td><td>ترتیب سفارشی</td></tr></tbody></table></div><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        List&lt;Integer&gt; amounts =
+            new ArrayList&lt;&gt;(List.of(300, 100, 200));
+        amounts.sort(Comparator.reverseOrder());
+        System.out.println(amounts); // [300, 200, 100]
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 07 — نمایش پاسخ</summary><p><strong>سؤال: </strong>Comparator.reverseOrder() چه ترتیبی ایجاد می‌کند؟</p><p><strong>پاسخ: </strong>مرتب‌سازی نزولی؛ خروجی مثال [300, 200, 100] است.</p></details></section><section aria-labelledby="title-8" class="lesson-section" id="generic-erasure"><p class="section-kicker">درس 08 · فصل چهارم</p><h2 id="title-8">Generics و Type Erasure</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>در Java می‌توانیم کلاس عمومی <code>Response&lt;T&gt;</code> تعریف کنیم؛ اما بخش عمده اطلاعات نوع Generic هنگام کامپایل با <code>Type Erasure</code> حذف می‌شود. بنابراین <code>getClass()</code> دو نمونه ArrayList با پارامترهای نوع متفاوت، کلاس یکسانی برمی‌گرداند. همچنین پارامترهای Generic نمی‌توانند primitive باشند: به‌جای <code>List&lt;int&gt;</code> از <code>List&lt;Integer&gt;</code> استفاده می‌کنیم.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+class Response&lt;T&gt; {
+    private final T data;
+    Response(T data) { this.data = data; }
+    T getData() { return data; }
+}
+public class Main {
+    public static void main(String[] args) {
+        List&lt;String&gt; names = new ArrayList&lt;&gt;();
+        List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+        System.out.println(
+            names.getClass() == numbers.getClass()); // true
+        Response&lt;String&gt; r = new Response&lt;&gt;("Success");
+        System.out.println(r.getData());
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 08 — نمایش پاسخ</summary><p><strong>سؤال: </strong>چرا names.getClass() == numbers.getClass() خروجی true دارد؟</p><p><strong>پاسخ: </strong>به دلیل Type Erasure و اینکه هر دو نمونه از کلاس ArrayList هستند.</p></details></section><section aria-labelledby="title-9" class="lesson-section" id="bounds-wildcards"><p class="section-kicker">درس 09 · فصل چهارم</p><h2 id="title-9">Generic Bounds و Wildcards</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>در Java عبارت <code>&lt;T extends Payment&gt;</code> نوع Generic را به Payment یا زیرنوع آن محدود می‌کند. برای نوع‌های ناشناخته از Wildcard <code>?</code> استفاده می‌کنیم. عبارت <code>? extends Number</code> بیشتر برای خواندن به‌عنوان Number و <code>? super Integer</code> برای افزودن Integer مناسب است. قانون معروف <strong>PECS</strong> یعنی Producer Extends، Consumer Super.</p><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        List&lt;? extends Number&gt; source =
+            new ArrayList&lt;Integer&gt;();
+        // source.add(100); // Compile Error
+
+        List&lt;? super Integer&gt; target =
+            new ArrayList&lt;Number&gt;();
+        target.add(100); // OK
+        System.out.println(target.get(0)); // 100
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 09 — نمایش پاسخ</summary><p><strong>سؤال: </strong>چرا source.add(100) برای List&lt;? extends Number&gt; کامپایل نمی‌شود؟</p><p><strong>پاسخ: </strong>زیرا نوع دقیق پارامتر لیست ناشناخته است؛ شاید لیست Double یا زیرنوع دیگری از Number باشد.</p></details></section><section aria-labelledby="title-10" class="lesson-section" id="queue-deque"><p class="section-kicker">درس 10 · فصل چهارم</p><h2 id="title-10">Queue و Deque و الگوی FIFO</h2><h3>توضیح مفهوم و مقایسه با دات‌نت</h3><p>اینترفیس <code>Queue&lt;E&gt;</code> برای صف است و <code>ArrayDeque</code> پیاده‌سازی مناسبی برای صف و پشته در حافظه است. در صف FIFO، عنصر اول زودتر خارج می‌شود. متد <code>offer</code> عنصر را اضافه، <code>poll</code> آن را حذف و برمی‌گرداند و <code>peek</code> فقط مشاهده می‌کند. در صف خالی، poll و peek مقدار null می‌دهند؛ remove و element استثنا پرتاب می‌کنند. <code>Deque</code> افزودن و حذف از هر دو سر را پشتیبانی می‌کند.</p><div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>عملیات</th><th>Java / ویژگی اول</th><th>C# / ویژگی دوم</th></tr></thead><tbody><tr><td>poll()</td><td>null</td><td>برداشتن ابتدای صف</td></tr><tr><td>remove()</td><td>NoSuchElementException</td><td>برداشتن ابتدای صف</td></tr><tr><td>peek()</td><td>null</td><td>مشاهده ابتدای صف</td></tr><tr><td>element()</td><td>NoSuchElementException</td><td>مشاهده ابتدای صف</td></tr></tbody></table></div><h3>مثال عملی</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Java</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Queue&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
+        queue.offer(100);
+        queue.offer(200);
+        queue.offer(300);
+        System.out.println(queue.poll()); // 100
+        System.out.println(queue.peek()); // 200
+        System.out.println(queue.size()); // 2
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 10 — نمایش پاسخ</summary><p><strong>سؤال: </strong>خروجی poll، peek و size در مثال چیست؟</p><p><strong>پاسخ: </strong>به ترتیب ۱۰۰، ۲۰۰ و ۲؛ چون peek عضو را حذف نمی‌کند.</p></details></section></div><footer class="study-source"><p>محتوای کامل فصل چهارم دوره Java Backend؛ شامل ۱۰ درس، مثال‌های عملی و سؤال‌های مرور.</p><div class="footer-actions"><a href="#course-title">بازگشت به بالای صفحه ↑</a><a href="../">بازگشت به همهٔ فصل‌ها</a></div></footer></article></main>
+</div>
+<script>
+(() => {
+  const root=document.documentElement;
+  const toggle=document.getElementById('theme-toggle');
+  const button=document.querySelector('[data-course-menu-toggle]');
+  const sidebar=document.getElementById('course-sidebar');
+  const navLinks=[...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+  const sections=[...document.querySelectorAll('section.lesson-section[id]')];
+  function theme(value) {
+    root.dataset.theme=value;
+    toggle?.setAttribute('aria-label',value==='dark'?'فعال‌کردن تم روشن':'فعال‌کردن تم تیره');
+    toggle?.setAttribute('aria-pressed', String(value==='dark'));
+    try {localStorage.setItem('dotnet-academy-theme',value)}catch(_){}
+  }
+  toggle?.addEventListener('click',()=>theme(root.dataset.theme==='dark'?'light':'dark'));
+  theme(root.dataset.theme||'light');
+  function closeSidebar(){document.body.classList.remove('sidebar-open');button?.setAttribute('aria-expanded','false')}
+  button?.addEventListener('click',()=>{
+    const isOpen=document.body.classList.toggle('sidebar-open');
+    button.setAttribute('aria-expanded',String(isOpen));
+  });
+  navLinks.forEach(a=>a.addEventListener('click',closeSidebar));
+  document.addEventListener('keydown', e=>{if(e.key==='Escape')closeSidebar()});
+  document.addEventListener('click',e=>{
+    const target=e.target;
+    if(document.body.classList.contains('sidebar-open')&&!sidebar?.contains(target)&&!button?.contains(target)) closeSidebar();
+  });
+  const setActive=id=>navLinks.forEach(a=>a.classList.toggle('is-active',a.getAttribute('href')==='#'+id));
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver(entries=>{
+      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
+      if(visible.length)setActive(visible[0].target.id);
+    },{rootMargin:'-80px 0px -68% 0px',threshold:0});
+    sections.forEach(s=>observer.observe(s));
+  }
+  const start=decodeURIComponent(location.hash.replace(/^#/,''))||sections[0]?.id;
+  if(start)setActive(start);
+  document.querySelectorAll('.copy-code').forEach(btn=>btn.addEventListener('click',async()=>{
+    const code=btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+    if(!code)return;
+    let copied=false;
+    try{await navigator.clipboard.writeText(code);copied=true;}catch(_){
+      try{const field=document.createElement('textarea');field.value=code;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();copied=document.execCommand('copy');field.remove();}catch(e){}
+    }
+    btn.textContent=copied?'کپی شد':'انتخاب کد';
+    if(!copied){const selection=window.getSelection();const range=document.createRange();range.selectNodeContents(btn.closest('.code-block').querySelector('code'));selection.removeAllRanges();selection.addRange(range)}
+    setTimeout(()=>btn.textContent='کپی کد',1500);
+  }));
+})();
+
+</script>
+</body>
+</html>
+

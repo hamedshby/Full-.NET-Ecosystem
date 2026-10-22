@@ -29,6 +29,12 @@ test('Java curriculum exposes all 15 PDF chapters as cards', () => {
   assert.match(page, /Java_Backend_15_Chapters\.pdf/);
   assert.match(page, /href="chapters\/chapter-01\.html"/);
   assert.match(page, /href="chapters\/Java_Chapter_02\.html"/);
+  assert.match(page, /href="chapters\/Java_Chapter_03\.html"/);
+  assert.match(page, /href="chapters\/Java_Chapter_04\.html"/);
+  assert.match(page, /href="chapters\/Java_Chapter_05\.html"/);
+  assert.match(page, /href="chapters\/Java_Chapter_06\.html"/);
+  assert.match(page, /href="chapters\/Java_Chapter_07\.html"/);
+  assert.match(page, /href="chapters\/Java_Chapter_08\.html"/);
 });
 
 test('Java chapter one contains all 10 supplied lessons', () => {
@@ -49,6 +55,72 @@ test('Java chapter two contains all 10 supplied OOP lessons', () => {
   assert.equal(lessonSections.length, 10);
   assert.match(chapter, /Class و Object در Java/);
   assert.match(chapter, /Record و Enum در Java/);
+  assert.match(chapter, /href="\.\.\/"[^>]*>بازگشت به سرفصل‌های جاوا/);
+  assert.match(chapter, /class="copy-code"/);
+});
+
+test('Java chapter three contains all 8 supplied essentials lessons', () => {
+  const chapter = fs.readFileSync(path.join(root, 'courses', 'java', 'chapters', 'Java_Chapter_03.html'), 'utf8');
+  const lessonSections = chapter.match(/class="lesson-section"/g) || [];
+
+  assert.equal(lessonSections.length, 8);
+  assert.match(chapter, /Wrapper Classes و Autoboxing/);
+  assert.match(chapter, /Try-with-resources و AutoCloseable/);
+  assert.match(chapter, /href="\.\.\/"[^>]*>بازگشت به سرفصل‌های جاوا/);
+  assert.match(chapter, /class="copy-code"/);
+});
+
+test('Java chapter four contains all 10 supplied collections lessons', () => {
+  const chapter = fs.readFileSync(path.join(root, 'courses', 'java', 'chapters', 'Java_Chapter_04.html'), 'utf8');
+  const lessonSections = chapter.match(/class="lesson-section"/g) || [];
+
+  assert.equal(lessonSections.length, 10);
+  assert.match(chapter, /Collection Framework و ساختار مجموعه‌ها/);
+  assert.match(chapter, /Queue و Deque و الگوی FIFO/);
+  assert.match(chapter, /href="\.\.\/"[^>]*>بازگشت به سرفصل‌های جاوا/);
+  assert.match(chapter, /class="copy-code"/);
+});
+
+test('Java chapter five contains all 10 supplied stream lessons', () => {
+  const chapter = fs.readFileSync(path.join(root, 'courses', 'java', 'chapters', 'Java_Chapter_05.html'), 'utf8');
+  const lessonSections = chapter.match(/class="lesson-section"/g) || [];
+
+  assert.equal(lessonSections.length, 10);
+  assert.match(chapter, /Lambda Expression و Functional Interface/);
+  assert.match(chapter, /تفاوت Stream و Parallel Stream/);
+  assert.match(chapter, /href="\.\.\/"[^>]*>بازگشت به سرفصل‌های جاوا/);
+  assert.match(chapter, /class="copy-code"/);
+});
+
+test('Java chapter six contains all 8 supplied JVM memory lessons', () => {
+  const chapter = fs.readFileSync(path.join(root, 'courses', 'java', 'chapters', 'Java_Chapter_06.html'), 'utf8');
+  const lessonSections = chapter.match(/class="lesson-section"/g) || [];
+
+  assert.equal(lessonSections.length, 8);
+  assert.match(chapter, /مفهوم Stack و Heap در Java/);
+  assert.match(chapter, /ابزارهای عیب‌یابی با Heap Dump و JFR/);
+  assert.match(chapter, /href="\.\.\/"[^>]*>بازگشت به سرفصل‌های جاوا/);
+  assert.match(chapter, /class="copy-code"/);
+});
+
+test('Java chapter seven contains all 10 supplied concurrency lessons', () => {
+  const chapter = fs.readFileSync(path.join(root, 'courses', 'java', 'chapters', 'Java_Chapter_07.html'), 'utf8');
+  const lessonSections = chapter.match(/class="lesson-section"/g) || [];
+
+  assert.equal(lessonSections.length, 10);
+  assert.match(chapter, /مفهوم Thread و تفاوت start و run/);
+  assert.match(chapter, /مفهوم Deadlock و ترتیب دریافت قفل‌ها/);
+  assert.match(chapter, /href="\.\.\/"[^>]*>بازگشت به سرفصل‌های جاوا/);
+  assert.match(chapter, /class="copy-code"/);
+});
+
+test('Java chapter eight contains all 10 supplied build-tool lessons', () => {
+  const chapter = fs.readFileSync(path.join(root, 'courses', 'java', 'chapters', 'Java_Chapter_08.html'), 'utf8');
+  const lessonSections = chapter.match(/class="lesson-section"/g) || [];
+
+  assert.equal(lessonSections.length, 10);
+  assert.match(chapter, /Maven و Gradle؛ ابزارهای Build/);
+  assert.match(chapter, /مفهوم Maven Profile و Spring Profile/);
   assert.match(chapter, /href="\.\.\/"[^>]*>بازگشت به سرفصل‌های جاوا/);
   assert.match(chapter, /class="copy-code"/);
 });

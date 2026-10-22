@@ -129,14 +129,6 @@ button { cursor: pointer; }
   text-decoration: none;
   letter-spacing: -0.04em;
 }
-.brand::before {
-  content: "<>";
-  display: inline-block;
-  margin-inline-end: 0.45rem;
-  color: var(--aqua);
-  direction: ltr;
-  font-family: ui-monospace, monospace;
-}
 .nav-links, .nav-actions { display: flex; align-items: center; gap: 1.1rem; }
 .nav-links { margin-inline-start: auto; flex-wrap: wrap; }
 .nav-links a { color: var(--muted); font-weight: 700; text-decoration: none; }
@@ -485,7 +477,6 @@ h1 { max-width: 13ch; margin: 0; font-size: clamp(2.35rem, 6vw, 5rem); letter-sp
 @media (max-width: 480px) {
   body { font-size: 0.95rem; }
   .brand { font-size: 1rem; }
-  .brand::before { display: none; }
   .nav-actions button { font-size: 0.72rem; }
   .hero { min-height: auto; }
   h1 { font-size: clamp(2.15rem, 12vw, 3rem); }

@@ -32,7 +32,7 @@ function renderLessonPage(chapter, lesson) {
 <body>
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
-    <a href="../../../index.html">آکادمی دات‌نت</a>
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
     <span class="course-name">مسیر حرفه‌ای <bdi>.NET</bdi></span>
     <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
     <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>

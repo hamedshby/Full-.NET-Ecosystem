@@ -77,8 +77,8 @@ const placeholderPage = (current, previous, next) => `<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="درس ${escapeHtml(current.title)} از دورهٔ AI-Driven Software Architecture در آکادمی دات‌نت.">
-  <title>${escapeHtml(current.title)} | آکادمی دات‌نت</title>
+  <meta name="description" content="درس ${escapeHtml(current.title)} از دورهٔ AI-Driven Software Architecture در آکادمی مهندسی نرم‌افزار.">
+  <title>${escapeHtml(current.title)} | آکادمی مهندسی نرم‌افزار</title>
   <script>
     (() => {
       document.documentElement.classList.add('js');
@@ -99,7 +99,7 @@ const placeholderPage = (current, previous, next) => `<!doctype html>
   <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
   <header class="course-header">
     <nav class="course-nav" aria-label="ناوبری درس">
-      <a class="course-brand" href="../../../index.html">آکادمی دات‌نت</a>
+      <a class="course-brand" href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
       <span class="course-name"><bdi>AI-Driven Software Architecture</bdi></span>
       <a class="back-link" href="../index.html">بازگشت به سرفصل‌های دوره</a>
       <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">

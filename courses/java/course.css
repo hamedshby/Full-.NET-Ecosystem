@@ -26,6 +26,7 @@ main > section {
   grid-template-columns: minmax(0, 1fr) minmax(11rem, 0.34fr);
   gap: clamp(1.5rem, 4vw, 4rem);
   align-items: center;
+  padding: clamp(1.5rem, 3vw, 3rem);
   margin-top: clamp(1rem, 3vw, 2rem);
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--java) 30%, var(--line));
