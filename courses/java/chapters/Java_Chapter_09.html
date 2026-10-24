@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="آموزش فصل نهم Java Backend: ده درس Spring Framework و Spring Boot، Bean، Dependency Injection، Controller، Configuration، Exception Handling، REST API و معماری لایه‌ای پرداخت." name="description"/>
+<title>فصل نهم Java Backend | Spring Framework و Spring Boot | آکادمی مهندسی نرم‌افزار</title>
+<script>
+  (()=>{let t=null;try{t=localStorage.getItem('dotnet-academy-theme')}catch(_){};
+    const dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme=t==='dark'||t==='light'?t:dark?'dark':'light';})();
+  </script>
+<style>
+/* Self-contained course CSS, inspired by the uploaded Academy .NET layout. */
+:root {
+  color-scheme:light;
+  --ink:#1f2937; --muted:#64748b; --line:#e2e8f0; --surface:#fff;
+  --background:#f8fafc; --cicd-surface:#eff6ff; --cicd-border:#bfdbfe;
+  --cicd-accent:#2563eb; --cicd-accent-strong:#1d4ed8; --cicd-warm:#3b82f6;
+  --code-bg:#101a2b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 30px rgba(32,43,59,.045);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ink:#e2e8f0; --muted:#94a3b8; --line:#334155; --surface:#152034;
+  --background:#0c1422; --cicd-surface:#142b43; --cicd-border:#244f76;
+  --cicd-accent:#93c5fd; --cicd-accent-strong:#bfdbfe;
+  --code-bg:#080f1b; --code-ink:#e2e8f0;
+  --card-shadow: 0 8px 26px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:6.2rem}
+body{margin:0;background:var(--background);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:2.05;}
+a{color:var(--cicd-accent-strong);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--cicd-warm);outline-offset:3px}
+.skip-link{position:fixed;z-index:300;top:-120px;right:12px;padding:10px 15px;background:var(--surface);border:2px solid var(--cicd-accent);border-radius:7px}
+.skip-link:focus{top:12px}
+.course-header{position:sticky;z-index:40;top:0;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:0 2px 12px rgba(0,0,0,.025)}
+.course-nav{display:flex;align-items:center;gap:1.2rem;min-height:68px;max-width:1550px;margin:auto;padding:.55rem clamp(1rem,3vw,2.3rem)}
+.course-brand{font-weight:900;color:var(--ink);font-size:1.09rem}
+.course-name{padding-inline-start:1.2rem;border-inline-start:1px solid var(--line);color:var(--muted);font-size:.9rem}
+.back-link{margin-inline-start:auto;font-size:.82rem}
+.icon-button,.course-menu-button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:.7rem;padding:.35rem .8rem;min-height:38px}
+.icon-button{width:42px;display:flex;align-items:center;justify-content:center}
+.nav-icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-icon-sun{display:none} [data-theme="dark"] .theme-icon-moon{display:none} [data-theme="dark"] .theme-icon-sun{display:block}
+.course-menu-button{display:none}
+.lesson-shell{max-width:1550px;margin:auto;display:grid;grid-template-columns:287px minmax(0,1fr);gap:clamp(1.1rem,3vw,3.3rem);padding:clamp(1rem,2.5vw,2.5rem)}
+.course-sidebar{align-self:start;position:sticky;top:90px;max-height:calc(100vh - 104px);overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:1.1rem;box-shadow:var(--card-shadow);}
+.sidebar-heading{padding:1.3rem 1.25rem .8rem;display:flex;flex-direction:column;gap:.15rem;border-bottom:1px solid var(--line);line-height:1.6}
+.sidebar-heading>span{font-size:.75rem;color:var(--muted)}
+.sidebar-heading strong{font-size:1.1rem;line-height:1.7}
+.course-sidebar ol{list-style:none;padding:.5rem;margin:0}
+.course-sidebar li{margin:0}
+.course-sidebar li a{display:flex;align-items:center;gap:.7rem;border-radius:.55rem;padding:.52rem .73rem;font-size:.83rem;color:var(--ink);line-height:1.6}
+.course-sidebar li a span{font:700 .75rem/1.4 Tahoma,Arial,sans-serif;color:var(--muted);min-width:24px}
+.course-sidebar li a:hover,.course-sidebar li a.is-active{background:var(--cicd-surface);color:var(--cicd-accent-strong);text-decoration:none}
+.course-sidebar li a.is-active span{color:var(--cicd-accent-strong)}
+.source-download{border-top:1px solid var(--line);padding:1rem;margin:.4rem .65rem;display:block;font-size:.8rem}
+.lesson-content{min-width:0;max-width:1080px;width:100%;margin:auto}
+.breadcrumb{font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:.35rem .7rem;align-items:center;max-width:1550px;margin:0 auto;padding:16px clamp(14px,2vw,34px) 0;overflow-wrap:anywhere}
+.rabbitmq-hero{margin-block:1rem 2.25rem;padding:clamp(1.25rem,3vw,2.35rem);border:1px solid var(--cicd-border);border-radius:1.2rem;background:linear-gradient(135deg,var(--cicd-surface),var(--surface));}
+.eyebrow{color:var(--cicd-accent-strong);font-weight:800;font-size:.82rem;margin:0}
+.rabbitmq-hero h1{font-size:clamp(1.8rem,3.5vw,2.7rem);line-height:1.6;margin:.35rem 0 .65rem;font-weight:900;letter-spacing:-.02em}
+.course-lead{max-width:800px;color:var(--muted);line-height:2.1;margin:0}
+.study-meta,.study-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.65rem 1rem;margin-block:1.2rem;color:var(--muted);font-size:.83rem}
+.study-status,.future-status{padding:.2rem .72rem;border:1px solid var(--cicd-border);border-radius:.65rem;background:var(--cicd-surface);color:var(--cicd-accent-strong);font-weight:800}
+.study-actions{margin-bottom:0}
+.button-link,.study-actions a{display:inline-flex;align-items:center;justify-content:center;padding:.46rem .85rem;min-height:36px;border:1px solid var(--cicd-border);border-radius:.62rem;background:var(--surface);font-weight:700;color:var(--cicd-accent-strong);text-decoration:none}
+.study-actions .button-link{background:var(--cicd-accent);color:#fff;border-color:var(--cicd-accent)}
+.lesson-note,.lesson-warning{padding:1rem 1.2rem;margin:1.4rem 0;border:1px solid var(--cicd-border);border-radius:.85rem;background:var(--cicd-surface);display:block}
+.lesson-warning{border-color:#f5c2b5;background:color-mix(in srgb,var(--surface) 82%,#f59e0b)}
+.lesson-note strong,.lesson-warning strong{display:block;color:var(--cicd-accent-strong);margin-bottom:.1rem}
+.lesson-note p{margin:.1rem 0}
+.lesson-body{background:var(--surface);border:1px solid var(--line);border-radius:1.2rem;padding:clamp(1.25rem,3vw,3.1rem);box-shadow:var(--card-shadow)}
+.lesson-section{scroll-margin-top:7rem;padding-top:2rem;padding-bottom:2.2rem;border-bottom:1px solid var(--line)}
+.lesson-section:first-child{padding-top:.1rem}
+.lesson-section:last-child{border-bottom:none;padding-bottom:0}
+.section-kicker{display:flex;align-items:center;gap:.6rem;color:var(--cicd-accent-strong);font-size:.78rem;font-weight:800;margin:0 0 .2rem}
+.lesson-section h2{font-size:clamp(1.28rem,2.3vw,1.7rem);line-height:1.75;margin:.2rem 0 1.3rem;letter-spacing:-.01em}
+.lesson-section h3{font-size:1.02rem;line-height:1.8;margin:1.65rem 0 .65rem}
+.lesson-section p{margin:.85rem 0;line-height:2.15}
+.lesson-section ul,.lesson-section ol{padding-inline-start:1.6rem}
+.lesson-section li{padding-inline-start:.15rem;margin:.35rem 0}
+.lesson-section li::marker{color:var(--cicd-accent)}
+.lesson-section :not(pre)>code{font: .91em/1.7 Consolas,"Courier New",monospace;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere;border-radius:.32rem;color:var(--cicd-accent-strong);background:var(--cicd-surface);padding:.08rem .35rem}
+.code-block{min-width:0;max-width:100%;margin:1.3rem 0;border:1px solid #334155;border-radius:.8rem;overflow:hidden;background:var(--code-bg);direction:ltr;}
+.code-label{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;padding:.43rem .85rem;background:#1e293b;color:#cbd5e1;font-size:.72rem;line-height:1.6;direction:rtl}
+.code-label>span:nth-child(2){margin-inline-start:auto;font-family:Consolas,monospace;direction:ltr}
+.copy-code{font-size:.72rem;color:#e2e8f0;background:#334155;border:1px solid #475569;border-radius:.4rem;padding:.25rem .55rem}
+.code-block pre{margin:0;padding:1.05rem 1.3rem;color:var(--code-ink);font: .91rem/1.85 Consolas,"Courier New",monospace;direction:ltr;text-align:left;white-space:pre;max-width:100%;overflow:auto;tab-size:4}
+.code-block pre code{font:inherit;color:inherit;background:transparent}
+.table-wrap{max-width:100%;overflow-x:auto;margin:1.5rem 0;border:1px solid var(--line);border-radius:.85rem}
+.diagnostic-table{width:100%;border-collapse:collapse;min-width:520px;font-size:.87rem;line-height:1.85}
+.diagnostic-table th,.diagnostic-table td{text-align:right;padding:.8rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+.diagnostic-table th{background:var(--cicd-surface);font-weight:800}
+.diagnostic-table tr:last-child td{border-bottom:0}
+.diagnostic-table tr:nth-child(even) td{background:color-mix(in srgb,var(--surface) 94%,var(--cicd-surface))}
+.future-section{background:var(--cicd-surface);border:1px dashed var(--cicd-border);border-radius:.85rem;padding:.7rem 1rem;margin:1rem 0}
+.lesson-section details{border:1px solid var(--line);border-radius:.8rem;margin:.7rem 0;background:var(--background);padding:.5rem .95rem}
+.lesson-section details summary{cursor:pointer;font-weight:800;color:var(--cicd-accent-strong);list-style-position:inside}
+.lesson-section details p{margin:.45rem 0}
+.lesson-section blockquote{border-inline-start:4px solid var(--cicd-accent)}
+.study-source{margin-top:2rem;color:var(--muted);font-size:.81rem;line-height:2}
+.footer-actions{margin-top:2rem;display:flex;gap:.65rem;flex-wrap:wrap}
+.footer-actions a{padding:.5rem .9rem;border:1px solid var(--line);border-radius:.7rem}
+.tag-extended{color:#a16207;background:#fef3c7;border-radius:.4rem;padding:.1rem .4rem;font-size:.74rem;font-weight:800}
+[data-theme="dark"] .tag-extended{color:#fde68a;background:#6b4c1a}
+@media(max-width:1040px){.lesson-shell{grid-template-columns:250px minmax(0,1fr);gap:1.1rem}}
+@media(max-width:800px){
+  .course-nav{min-height:60px;gap:.55rem}
+  .course-brand{font-size:.95rem}
+  .back-link{display:none}
+  .course-menu-button{display:block;margin-inline-start:auto;font-size:.79rem;padding:.25rem .5rem}
+  .course-name{font-size:.75rem;padding-inline-start:.6rem}
+  .lesson-shell{display:block;padding:.75rem}
+  .course-sidebar{display:none;position:fixed;top:65px;bottom:0;right:0;left:auto;z-index:50;width:min(86vw,340px);height:calc(100vh - 65px);max-height:none;border-radius:0;box-shadow:0 0 0 200vw rgba(0,0,0,.5)}
+  body.sidebar-open .course-sidebar{display:block}
+  .lesson-content{max-width:none}
+  .rabbitmq-hero{margin-top:.75rem}
+  .lesson-body{padding:1.2rem}
+  .lesson-section{scroll-margin-top:5.8rem}
+  .diagnostic-table{min-width:480px}
+  .code-block pre{font-size:.79rem}
+  .study-actions{gap:.45rem}
+}
+@media print{
+  :root{--background:white;--surface:white;--ink:black;--line:#ccc}
+  .course-header,.course-sidebar,.footer-actions,.study-actions,.copy-code{display:none!important}
+  .lesson-shell{display:block;max-width:none;padding:0}
+  .lesson-content{max-width:none}
+  .lesson-body,.rabbitmq-hero{border:0;box-shadow:none;padding:.5rem}
+  .lesson-section{break-inside:auto}
+  .code-block{break-inside:avoid;print-color-adjust:exact}
+  a{color:inherit}
+}
+
+</style>
+</head>
+<body class="lesson-page rabbitmq-page">
+<a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
+<header class="course-header"><nav aria-label="ناوبری دوره" class="course-nav">
+<a class="course-brand" href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+<span class="course-name">Spring Boot · فصل ۹</span>
+<a class="back-link" href="../">بازگشت به سرفصل‌های جاوا</a>
+<button aria-controls="course-sidebar" aria-expanded="false" class="course-menu-button" data-course-menu-toggle="" type="button">فهرست مطالب</button>
+<button aria-label="تغییر تم" aria-pressed="false" class="icon-button" id="theme-toggle" title="تغییر حالت نمایش" type="button">
+<svg aria-hidden="true" class="nav-icon theme-icon-moon" viewbox="0 0 24 24"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+<svg aria-hidden="true" class="nav-icon theme-icon-sun" viewbox="0 0 24 24"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+</button>
+</nav></header>
+<nav aria-label="مسیر راهنما" class="breadcrumb"><a href="../../../index.html#courses">دوره‌ها</a><span>/</span><a href="../">آموزش Java</a><span>/</span><span>فصل نهم</span></nav>
+<div class="lesson-shell">
+<aside class="course-sidebar" data-current-lesson="java-spring-boot" id="course-sidebar">
+<div class="sidebar-heading"><span>یادداشت‌های یادگیری</span><strong>فصل نهم Java Backend</strong><span>۱۰ درس · کد و تمرین</span></div>
+<nav aria-label="فهرست فصل نهم Java"><ol><li><a href="#framework-boot"><span>01</span>تفاوت Spring Framework و Spring Boot</a></li><li><a href="#first-app"><span>02</span>ساخت و اجرای اولین پروژه Spring Boot</a></li><li><a href="#ioc-beans"><span>03</span>مفهوم Spring IoC Container و Bean</a></li><li><a href="#constructor-injection"><span>04</span>Dependency Injection و Constructor Injection</a></li><li><a href="#stereotypes"><span>05</span>تفاوت @Component و @Service و @Repository</a></li><li><a href="#rest-controller"><span>06</span>ساخت REST API با @RestController و @GetMapping</a></li><li><a href="#request-input"><span>07</span>دریافت ورودی با @PathVariable و @RequestParam و @RequestBody</a></li><li><a href="#configuration"><span>08</span>تنظیمات با application.properties و application.yml</a></li><li><a href="#exception-handling"><span>09</span>مدیریت Exception با @RestControllerAdvice و @ExceptionHandler</a></li><li><a href="#layered-payment-api"><span>10</span>معماری Controller، Service و Repository در Spring Boot</a></li></ol></nav>
+<a class="source-download" href="#layered-payment-api">مرور آخرین درس ←</a>
+</aside>
+<main class="lesson-content" id="lesson-content">
+<article aria-label="آموزش فصل نهم Java" id="course-title"><section class="rabbitmq-hero"><p class="eyebrow">آکادمی جاوا · فصل ۹ از ۱۵</p><h1>آموزش Spring Framework و Spring Boot برای توسعه‌دهندگان دات‌نت</h1><p class="course-lead">۱۰ درس کاربردی از ایجاد پروژه Spring Boot و DI تا ساخت REST API، مدیریت تنظیمات و خطا، و لایه‌بندی سرویس پرداخت؛ همراه با مثال Java و مقایسه با ASP.NET Core.</p><div class="study-meta"><span class="study-status">فصل ۹ تکمیل‌شده</span><span>۱۰ درس</span><span>آفلاین و تک‌فایلی</span></div><div class="study-actions"><a class="button-link" href="#framework-boot">شروع مطالعه ←</a><a href="#layered-payment-api">پروژه پرداخت</a></div></section>
+<div class="lesson-body"><section aria-labelledby="lesson-title-1" class="lesson-section" id="framework-boot"><p class="section-kicker">درس 01 · فصل نهم</p><h2 id="lesson-title-1">تفاوت Spring Framework و Spring Boot</h2><h3>مفهوم و نکات کلیدی</h3><p>فریم‌ورک Spring امکانات اصلی مانند IoC و Dependency Injection، Spring MVC و مدیریت تراکنش را فراهم می‌کند. Spring Boot روی همین فریم‌ورک ساخته شده و با Starterها، Auto-Configuration و راه‌اندازی آسان، تنظیمات دستی را کاهش می‌دهد. Boot جایگزین Framework نیست. از نظر تجربه توسعه وب، با راه‌اندازی ASP.NET Core قابل مقایسه است.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / راه‌اندازی برنامه Spring Boot</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class PaymentApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentApplication.class, args);
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 01 — نمایش پاسخ</summary><p><strong>سؤال: </strong>آیا Spring Boot مستقل از Spring Framework است؟</p><p><strong>پاسخ: </strong>خیر. Spring Boot روی Spring Framework ساخته شده و پیکربندی و راه‌اندازی را ساده می‌کند. گزینه B.</p></details></section><section aria-labelledby="lesson-title-2" class="lesson-section" id="first-app"><p class="section-kicker">درس 02 · فصل نهم</p><h2 id="lesson-title-2">ساخت و اجرای اولین پروژه Spring Boot</h2><h3>مفهوم و نکات کلیدی</h3><p>با Spring Initializr در start.spring.io یک پروژه Java با Maven، Java 21، Packaging از نوع Jar و وابستگی Spring Web بسازید. فایل اصلی با @SpringBootApplication و SpringApplication.run اجرا می‌شود. با Spring Web و وب‌سرور Embedded مناسب، پیش‌فرض معمول پورت 8080 است؛ نبودن Endpoint برای مسیر / می‌تواند به 404 منجر شود.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / ساختار نمونه پروژه</span><span>TEXT</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-text">payment-service/
+├── pom.xml
+├── mvnw
+├── mvnw.cmd
+└── src/main/
+    ├── java/com/example/paymentservice/PaymentServiceApplication.java
+    └── resources/application.properties</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / کلاس ورودی برنامه</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">package com.example.paymentservice;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class PaymentServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentServiceApplication.class, args);
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / اجرای Maven Wrapper در ویندوز</span><span>BASH</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-bash">.\mvnw.cmd spring-boot:run</code></pre></div><details><summary>سؤال مرور درس 02 — نمایش پاسخ</summary><p><strong>سؤال: </strong>با Spring Web و تنظیمات پیش‌فرض، Spring Boot چه سرویسی را راه می‌اندازد؟</p><p><strong>پاسخ: </strong>وب‌سرور Embedded مانند Tomcat، معمولاً روی پورت 8080؛ گزینه C.</p></details></section><section aria-labelledby="lesson-title-3" class="lesson-section" id="ioc-beans"><p class="section-kicker">درس 03 · فصل نهم</p><h2 id="lesson-title-3">مفهوم Spring IoC Container و Bean</h2><h3>مفهوم و نکات کلیدی</h3><p>Bean به شیئی گفته می‌شود که Spring Container آن را مدیریت می‌کند. ساخت دستی شیء با new به‌تنهایی به معنی Bean بودن نیست. @Service و سایر Stereotypeها در محدوده Component Scanning کلاس را ثبت می‌کنند. Scope پیش‌فرض یک Bean، Singleton در محدوده Container است؛ Singleton لزوماً Thread-safe نیست.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / یک Spring Bean</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.stereotype.Service;
+
+@Service
+public class PaymentService {
+    public void process() {
+        System.out.println("Payment processed");
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / مقایسه دات‌نت</span><span>CSHARP</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">builder.Services.AddSingleton&lt;PaymentService&gt;();</code></pre></div><details><summary>سؤال مرور درس 03 — نمایش پاسخ</summary><p><strong>سؤال: </strong>Scope پیش‌فرض Bean با @Service چیست؟</p><p><strong>پاسخ: </strong>Singleton؛ گزینه B. Bean مشترک بودن به معنی Thread-safe بودن نیست.</p></details></section><section aria-labelledby="lesson-title-4" class="lesson-section" id="constructor-injection"><p class="section-kicker">درس 04 · فصل نهم</p><h2 id="lesson-title-4">Dependency Injection و Constructor Injection</h2><h3>مفهوم و نکات کلیدی</h3><p>کلاس نباید Dependency مهم خود را با new بسازد. با Constructor Injection، Container وابستگی ثبت‌شده را به سازنده می‌دهد. اگر Bean فقط یک Constructor داشته باشد، در Spring معمولاً @Autowired لازم نیست. اگر چند Bean سازگار وجود داشته باشند، باید ابهام با روش‌هایی مانند @Qualifier یا @Primary برطرف شود.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Repository و Service با Constructor Injection</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+
+interface PaymentRepository { void save(); }
+
+@Repository
+class SqlPaymentRepository implements PaymentRepository {
+    public void save() { System.out.println("Payment saved"); }
+}
+
+@Service
+class PaymentService {
+    private final PaymentRepository repository;
+    public PaymentService(PaymentRepository repository) {
+        this.repository = repository;
+    }
+    public void process() { repository.save(); }
+}</code></pre></div><details><summary>سؤال مرور درس 04 — نمایش پاسخ</summary><p><strong>سؤال: </strong>آیا با تنها یک Constructor به @Autowired نیاز داریم؟</p><p><strong>پاسخ: </strong>خیر؛ Spring می‌تواند وابستگی را خودکار از طریق Constructor تزریق کند. گزینه B.</p></details></section><section aria-labelledby="lesson-title-5" class="lesson-section" id="stereotypes"><p class="section-kicker">درس 05 · فصل نهم</p><h2 id="lesson-title-5">تفاوت @Component و @Service و @Repository</h2><h3>مفهوم و نکات کلیدی</h3><p>هر سه Annotation برای شناسایی کلاس‌های قابل مدیریت توسط Container کاربرد دارند. @Component عمومی است؛ @Service نقش منطق کسب‌وکار و @Repository نقش دسترسی به داده را نشان می‌دهد. @Repository می‌تواند در شرایط مناسب در ترجمه استثناهای Persistence نیز نقش داشته باشد.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / سه لایه با Annotation مناسب</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
+
+@Component
+class PaymentValidator {
+    boolean isValid(long amount) { return amount &gt; 0; }
+}
+
+@Service
+class PaymentService { }
+
+@Repository
+class PaymentRepository { }</code></pre></div><details><summary>سؤال مرور درس 05 — نمایش پاسخ</summary><p><strong>سؤال: </strong>برای Validator، Service و Repository چه Annotationهایی مناسب‌اند؟</p><p><strong>پاسخ: </strong>به‌ترتیب @Component، @Service و @Repository؛ گزینه C.</p></details></section><section aria-labelledby="lesson-title-6" class="lesson-section" id="rest-controller"><p class="section-kicker">درس 06 · فصل نهم</p><h2 id="lesson-title-6">ساخت REST API با @RestController و @GetMapping</h2><h3>مفهوم و نکات کلیدی</h3><p>@RestController برای مدیریت Endpointهایی مناسب است که نتیجه را در HTTP Response Body می‌نویسند. @RequestMapping مسیر پایه و @GetMapping متد GET را تعیین می‌کند. این مدل با [ApiController]، [Route] و [HttpGet] در ASP.NET Core قابل مقایسه است. برای تبدیل اشیا به JSON باید Message Converter مناسب، معمولاً Jackson، در دسترس باشد.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / REST API ساده</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/payments")
+public class PaymentController {
+    @GetMapping
+    public String getPayments() {
+        return "Payment API";
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / پاسخ DTO در Spring</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">record PaymentResponse(long id, int amount, String status) {}
+
+// With Jackson available:
+// return new PaymentResponse(1001, 50000, "Success");</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / مقایسه Controller در دات‌نت</span><span>CSHARP</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-csharp">[ApiController]
+[Route("api/payments")]
+public class PaymentsController : ControllerBase {
+    [HttpGet]
+    public IActionResult Get() =&gt; Ok("Payment API");
+}</code></pre></div><details><summary>سؤال مرور درس 06 — نمایش پاسخ</summary><p><strong>سؤال: </strong>چه ترکیب Annotation برای GET /api/payments صحیح است؟</p><p><strong>پاسخ: </strong>@RestController و @RequestMapping روی کلاس، @GetMapping روی متد؛ گزینه D.</p></details></section><section aria-labelledby="lesson-title-7" class="lesson-section" id="request-input"><p class="section-kicker">درس 07 · فصل نهم</p><h2 id="lesson-title-7">دریافت ورودی با @PathVariable و @RequestParam و @RequestBody</h2><h3>مفهوم و نکات کلیدی</h3><p>@PathVariable مقدار را از بخش متغیر مسیر URL می‌خواند؛ @RequestParam برای Query Parameter است؛ @RequestBody محتوای Body را با کمک مبدل مناسب به Object نگاشت می‌کند. در ASP.NET Core به‌ترتیب مشابه [FromRoute]، [FromQuery] و [FromBody] هستند. @RequestBody به‌تنهایی Bean Validation را فعال نمی‌کند.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / سه روش دریافت ورودی</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.web.bind.annotation.*;
+
+record CreatePaymentRequest(long customerId, int amount) {}
+
+@RestController
+@RequestMapping("/api/payments")
+class PaymentController {
+    @GetMapping("/{id}")
+    public Long get(@PathVariable Long id) { return id; }
+
+    @GetMapping
+    public String search(@RequestParam String status) { return status; }
+
+    @PostMapping
+    public String create(@RequestBody CreatePaymentRequest req) {
+        return "Amount: " + req.amount();
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / نمونه درخواست</span><span>HTTP</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-http">POST /api/payments
+Content-Type: application/json
+
+{"customerId":100,"amount":50000}</code></pre></div><details><summary>سؤال مرور درس 07 — نمایش پاسخ</summary><p><strong>سؤال: </strong>کار @RequestBody چیست؟</p><p><strong>پاسخ: </strong>تبدیل Body درخواست به Object جاوا با Converter مناسب؛ گزینه C.</p></details></section><section aria-labelledby="lesson-title-8" class="lesson-section" id="configuration"><p class="section-kicker">درس 08 · فصل نهم</p><h2 id="lesson-title-8">تنظیمات با application.properties و application.yml</h2><h3>مفهوم و نکات کلیدی</h3><p>Spring Boot تنظیمات را از قالب Properties یا YAML می‌خواند. @Value یک مقدار مشخص را تزریق می‌کند و @ConfigurationProperties برای تنظیمات گروهی مفید است. با application-prod.yml و فعال‌کردن Spring Profile، تنظیمات آن محیط بارگذاری می‌شوند. Spring Profile زمان اجرا را نباید با Maven Profile زمان Build اشتباه گرفت. اسرار را در Git نگهداری نکنید.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / application.yml</span><span>YAML</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-yaml">server:
+  port: 8081
+payment:
+  max-amount: 5000000
+  currency: IRR</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / application-prod.yml</span><span>YAML</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-yaml">server:
+  port: 9090</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / خواندن پیکربندی در Service</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+@Service
+class PaymentService {
+    private final long maxAmount;
+    public PaymentService(@Value("${payment.max-amount}") long maxAmount) {
+        this.maxAmount = maxAmount;
+    }
+    public boolean isValid(long amount) {
+        return amount &gt; 0 &amp;&amp; amount &lt;= maxAmount;
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / فعال‌کردن تنظیمات Production</span><span>BASH</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-bash">java -jar payment-service.jar --spring.profiles.active=prod</code></pre></div><details><summary>سؤال مرور درس 08 — نمایش پاسخ</summary><p><strong>سؤال: </strong>با فعال‌بودن prod و application-prod.yml دارای server.port=9090، پورت چیست؟</p><p><strong>پاسخ: </strong>با فرض نبود تنظیم بازنویس دیگر، 9090؛ گزینه B.</p></details></section><section aria-labelledby="lesson-title-9" class="lesson-section" id="exception-handling"><p class="section-kicker">درس 09 · فصل نهم</p><h2 id="lesson-title-9">مدیریت Exception با @RestControllerAdvice و @ExceptionHandler</h2><h3>مفهوم و نکات کلیدی</h3><p>برای مدیریت مرکزی استثناهای Controller می‌توان از @RestControllerAdvice و @ExceptionHandler استفاده کرد. خطای معتبرسازی دامنه مانند مبلغ منفی می‌تواند به 400 Bad Request نگاشت شود؛ خطاهای پیش‌بینی‌نشده را نباید همگی 400 کرد یا جزئیات حساسشان را به Client نشان داد. در دات‌نت مفهوم مشابه IExceptionHandler است.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / Service که Exception تولید می‌کند</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.stereotype.Service;
+@Service
+class PaymentService {
+    public void createPayment(long amount) {
+        if (amount &lt;= 0)
+            throw new IllegalArgumentException("Payment amount must be positive");
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / Global REST Exception Handler</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+record ErrorResponse(String message) {}
+
+@RestControllerAdvice
+class GlobalExceptionHandler {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handle(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorResponse(ex.getMessage()));
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 09 — نمایش پاسخ</summary><p><strong>سؤال: </strong>چه ابزاری برای Handler مشترک IllegalArgumentException مناسب است؟</p><p><strong>پاسخ: </strong>@RestControllerAdvice و @ExceptionHandler؛ گزینه C.</p></details></section><section aria-labelledby="lesson-title-10" class="lesson-section" id="layered-payment-api"><p class="section-kicker">درس 10 · فصل نهم</p><h2 id="lesson-title-10">معماری Controller، Service و Repository در Spring Boot</h2><h3>مفهوم و نکات کلیدی</h3><p>Controller مسئول قرارداد HTTP، Service مسئول قوانین کسب‌وکار و Repository مسئول ذخیره و بازیابی داده است. Dependencyها را با Constructor Injection تزریق می‌کنیم. نمونه زیر در حافظه ذخیره می‌کند و برای محیط واقعی پرداخت نیست؛ در فصل دهم به JPA و Hibernate می‌رسیم. در Production باید Idempotency، Transaction و Concurrency را نیز بررسی کرد.</p><h3>نمونه کد و مقایسه</h3><div class="code-block"><div class="code-label"><span>نمونه کد / ساختار پروژه</span><span>TEXT</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-text">src/main/java/com/example/payment/
+├── PaymentApplication.java
+├── controller/PaymentController.java
+├── service/PaymentService.java
+├── repository/PaymentRepository.java
+└── dto/CreatePaymentRequest.java</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / DTO (در فایل CreatePaymentRequest.java)</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">package com.example.payment.dto;
+public record CreatePaymentRequest(long customerId, long amount) {}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / Repository در حافظه (در فایل PaymentRepository.java)</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">package com.example.payment.repository;
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class PaymentRepository {
+    private final ConcurrentHashMap&lt;Long, Long&gt; payments =
+        new ConcurrentHashMap&lt;&gt;();
+    public void save(long customerId, long amount) {
+        payments.put(customerId, amount);
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / لایه Service (در فایل PaymentService.java)</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">package com.example.payment.service;
+import com.example.payment.repository.PaymentRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class PaymentService {
+    private final PaymentRepository repository;
+    public PaymentService(PaymentRepository repository) {
+        this.repository = repository;
+    }
+    public void createPayment(long customerId, long amount) {
+        if (amount &lt;= 0) throw new IllegalArgumentException("Amount must be positive");
+        repository.save(customerId, amount);
+    }
+}</code></pre></div><div class="code-block"><div class="code-label"><span>نمونه کد / لایه Controller (در فایل PaymentController.java)</span><span>JAVA</span><button class="copy-code" type="button">کپی کد</button></div><pre dir="ltr" tabindex="0"><code class="language-java">package com.example.payment.controller;
+import com.example.payment.dto.CreatePaymentRequest;
+import com.example.payment.service.PaymentService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/payments")
+public class PaymentController {
+    private final PaymentService paymentService;
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+    @PostMapping
+    public ResponseEntity&lt;String&gt; create(@RequestBody CreatePaymentRequest request) {
+        paymentService.createPayment(request.customerId(), request.amount());
+        return ResponseEntity.ok("Payment created");
+    }
+}</code></pre></div><details><summary>سؤال مرور درس 10 — نمایش پاسخ</summary><p><strong>سؤال: </strong>تقسیم مسئولیت درست در API پرداخت چیست؟</p><p><strong>پاسخ: </strong>Controller برای HTTP، Service برای منطق کسب‌وکار، Repository برای داده؛ گزینه C.</p></details></section></div>
+<footer class="study-source"><p>محتوای کامل فصل نهم دوره Java Backend؛ شامل ۱۰ درس، مثال‌های عملی و سؤال‌های مرور.</p><div class="footer-actions"><a href="#course-title">بازگشت به بالای صفحه ↑</a><a href="../">بازگشت به همهٔ فصل‌ها</a></div></footer>
+</article>
+</main>
+</div>
+<script>
+(() => {
+  const root=document.documentElement;
+  const toggle=document.getElementById('theme-toggle');
+  const button=document.querySelector('[data-course-menu-toggle]');
+  const sidebar=document.getElementById('course-sidebar');
+  const navLinks=[...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+  const sections=[...document.querySelectorAll('section.lesson-section[id]')];
+  function theme(value) {
+    root.dataset.theme=value;
+    toggle?.setAttribute('aria-label',value==='dark'?'فعال‌کردن تم روشن':'فعال‌کردن تم تیره');
+    toggle?.setAttribute('aria-pressed', String(value==='dark'));
+    try {localStorage.setItem('dotnet-academy-theme',value)}catch(_){}
+  }
+  toggle?.addEventListener('click',()=>theme(root.dataset.theme==='dark'?'light':'dark'));
+  theme(root.dataset.theme||'light');
+  function closeSidebar(){document.body.classList.remove('sidebar-open');button?.setAttribute('aria-expanded','false')}
+  button?.addEventListener('click',()=>{
+    const isOpen=document.body.classList.toggle('sidebar-open');
+    button.setAttribute('aria-expanded',String(isOpen));
+  });
+  navLinks.forEach(a=>a.addEventListener('click',closeSidebar));
+  document.addEventListener('keydown', e=>{if(e.key==='Escape')closeSidebar()});
+  document.addEventListener('click',e=>{
+    const target=e.target;
+    if(document.body.classList.contains('sidebar-open')&&!sidebar?.contains(target)&&!button?.contains(target)) closeSidebar();
+  });
+  const setActive=id=>navLinks.forEach(a=>a.classList.toggle('is-active',a.getAttribute('href')==='#'+id));
+  if('IntersectionObserver' in window){
+    const observer=new IntersectionObserver(entries=>{
+      const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);
+      if(visible.length)setActive(visible[0].target.id);
+    },{rootMargin:'-80px 0px -68% 0px',threshold:0});
+    sections.forEach(s=>observer.observe(s));
+  }
+  const start=decodeURIComponent(location.hash.replace(/^#/,''))||sections[0]?.id;
+  if(start)setActive(start);
+  document.querySelectorAll('.copy-code').forEach(btn=>btn.addEventListener('click',async()=>{
+    const code=btn.closest('.code-block')?.querySelector('pre code')?.textContent;
+    if(!code)return;
+    let copied=false;
+    try{await navigator.clipboard.writeText(code);copied=true;}catch(_){
+      try{const field=document.createElement('textarea');field.value=code;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();copied=document.execCommand('copy');field.remove();}catch(e){}
+    }
+    btn.textContent=copied?'کپی شد':'انتخاب کد';
+    if(!copied){const selection=window.getSelection();const range=document.createRange();range.selectNodeContents(btn.closest('.code-block').querySelector('code'));selection.removeAllRanges();selection.addRange(range)}
+    setTimeout(()=>btn.textContent='کپی کد',1500);
+  }));
+})();
+
+</script>
+</body>
+</html>
+
