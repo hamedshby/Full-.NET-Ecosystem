@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش مکالمه انگلیسی برای توسعه‌دهندگان .NET؛ معرفی خود، مصاحبه شغلی، معماری نرم‌افزار، RabbitMQ و JWT.">
+  <title>English for .NET Developers | آکادمی مهندسی نرم‌افزار</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../styles.css">
+  <script src="../script.js" defer></script>
+  <style>
+    .english-page { width: min(100% - 2rem, 1080px); margin: 0 auto; padding: 3rem 0 5rem; }
+    .english-hero { padding: clamp(1.5rem, 5vw, 3.5rem); border-radius: 1.5rem; color: #fff; background: radial-gradient(circle at 15% 15%, rgb(80 215 222 / 22%), transparent 32%), linear-gradient(125deg,#07152d,#0b4560); }
+    .english-hero .eyebrow { color: #72e1dc; }
+    .english-hero h1 { max-width: 18ch; font-size: clamp(2rem,5vw,3.3rem); }
+    .english-hero p:not(.eyebrow) { max-width: 48rem; color: #d7e7f2; line-height: 1.9; }
+    .english-meta { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1.25rem; }
+    .english-meta span { padding:.35rem .75rem; border:1px solid rgb(255 255 255 / 24%); border-radius:99px; color:#e5f5fa; font-size:.82rem; }
+    .english-layout { display:grid; grid-template-columns: minmax(0,1fr) 260px; gap:1.5rem; align-items:start; margin-top:2rem; }
+    .english-content { min-width:0; }
+    .english-sidebar { position:sticky; top:6rem; padding:1rem; border:1px solid var(--line); border-radius:1rem; background:var(--surface); }
+    .english-sidebar h2 { margin:.2rem 0 .8rem; font-size:1rem; }
+    .english-sidebar a { display:block; padding:.48rem .55rem; border-radius:.5rem; color:var(--muted); text-decoration:none; font-size:.88rem; }
+    .english-sidebar a:hover,.english-sidebar a:focus-visible { background:var(--surface-soft); color:var(--brand); }
+    .lesson { margin-bottom:1.25rem; padding:clamp(1.1rem,3vw,1.7rem); border:1px solid var(--line); border-radius:1rem; background:var(--surface); box-shadow:var(--shadow-sm); scroll-margin-top:6rem; }
+    .lesson h2 { margin:.2rem 0 .8rem; font-size:clamp(1.25rem,2.4vw,1.7rem); }
+    .lesson h3 { margin:1.35rem 0 .55rem; font-size:1.08rem; }
+    .lesson p,.lesson li { line-height:1.9; }
+    .lesson-intro { color:var(--muted); margin-top:0; }
+    .lesson-number { display:inline-flex; align-items:center; justify-content:center; min-width:2rem; height:2rem; margin-inline-end:.4rem; border-radius:.65rem; background:var(--surface-soft); color:var(--brand); font-weight:900; direction:ltr; }
+    .english-example { margin:.75rem 0; padding:1rem 1.1rem; border-inline-start:3px solid var(--aqua); border-radius:.6rem; background:var(--surface-soft); direction:ltr; text-align:left; color:var(--ink); line-height:1.85; }
+    .english-example strong { color:var(--brand); }
+    .translation { margin:.35rem 0 .8rem; color:var(--muted); font-size:.9rem; }
+    .word-table { width:100%; border-collapse:collapse; margin:.7rem 0; }
+    .word-table th,.word-table td { padding:.65rem .7rem; border-bottom:1px solid var(--line); text-align:right; }
+    .word-table th { color:var(--muted); font-size:.84rem; }
+    .word-table td:first-child { direction:ltr; text-align:left; font-weight:750; }
+    .grammar-note { padding:.9rem 1rem; border:1px dashed var(--line); border-radius:.7rem; background:var(--surface-soft); }
+    .grammar-note code { direction:ltr; unicode-bidi:isolate; display:inline-block; color:var(--brand); font-weight:800; }
+    .mistake-list { display:grid; grid-template-columns:1fr 1fr; gap:.5rem .8rem; padding:0; list-style:none; }
+    .mistake-list li { padding:.55rem .7rem; border-radius:.55rem; background:var(--surface-soft); }
+    .mistake-list del { color:var(--muted); }
+    .mistake-list bdi { color:var(--brand); font-weight:800; }
+    .practice { margin-top:1rem; padding:1rem; border-radius:.8rem; background:var(--surface-soft); }
+    .practice label { display:block; margin:.65rem 0 .35rem; font-weight:750; }
+    .practice input,.practice textarea { width:100%; padding:.7rem .8rem; border:1px solid var(--line); border-radius:.55rem; background:var(--surface); color:var(--ink); font:inherit; }
+    .practice textarea { min-height:5.5rem; resize:vertical; }
+    .practice button { margin-top:.65rem; }
+    .feedback { min-height:1.5rem; margin:.5rem 0 0; color:var(--brand); font-weight:750; }
+    details.answer { margin:.7rem 0; padding:.7rem .9rem; border:1px solid var(--line); border-radius:.65rem; }
+    details.answer summary { cursor:pointer; font-weight:800; color:var(--brand); }
+    .progress-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:1.2rem 0; }
+    .progress-track { height:.55rem; flex:1; overflow:hidden; border-radius:99px; background:var(--surface-soft); }
+    .progress-fill { width:0; height:100%; border-radius:inherit; background:var(--aqua); transition:width .2s ease; }
+    .callout { padding:.9rem 1rem; border-radius:.7rem; background:var(--surface-soft); color:var(--muted); }
+    .ltr { direction:ltr; text-align:left; unicode-bidi:isolate; }
+    @media(max-width:820px) { .english-layout { grid-template-columns:1fr; } .english-sidebar { position:static; } .english-sidebar nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:520px) { .mistake-list { grid-template-columns:1fr; } .english-page { width:min(100% - 1rem,1080px); } .word-table th,.word-table td { padding:.55rem .4rem; font-size:.88rem; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+  <header class="site-header">
+    <nav class="site-nav" aria-label="ناوبری اصلی">
+      <a class="brand" href="../index.html">آکادمی مهندسی نرم‌افزار</a>
+      <div class="nav-links">
+        <a href="../index.html#courses">دوره‌ها</a>
+        <a href="../index.html">صفحهٔ اصلی</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content" class="english-page">
+    <header class="english-hero">
+      <p class="eyebrow">English for .NET Developers</p>
+      <h1>انگلیسی کاربردی برای برنامه‌نویسان</h1>
+      <p>از معرفی خود تا توضیح معماری نرم‌افزار در مصاحبه‌های بین‌المللی. هر درس شامل مکالمه، اصلاح اشتباهات واقعی، گرامر، واژگان فنی و تمرین نوشتاری است.</p>
+      <div class="english-meta"><span>سطح شروع: A2</span><span>هدف: مکالمه شغلی B1–B2</span><span>تمرکز: .NET و Backend</span></div>
+    </header>
+
+    <div class="progress-row" aria-label="پیشرفت درس‌ها">
+      <strong>پیشرفت مطالعه</strong>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <span id="progress-label">۰ از ۷ درس</span>
+    </div>
+
+    <div class="english-layout">
+      <div class="english-content">
+        <section class="lesson" id="lesson-1" data-lesson>
+          <p class="eyebrow">Lesson 01 · Introducing Yourself</p>
+          <h2><span class="lesson-number">01</span> معرفی خود</h2>
+          <p class="lesson-intro">در این درس یاد می‌گیری در یک گفت‌وگوی دوستانه یا شروع مصاحبه شغلی خودت را معرفی کنی.</p>
+          <h3>مکالمه نمونه</h3>
+          <div class="english-example">Hello! My name is Hamed.<br>I'm from Iran, but I live in Turkey.<br>I'm a software developer.</div>
+          <p class="translation">سلام! اسم من حامد است. اهل ایران هستم، اما در ترکیه زندگی می‌کنم. من توسعه‌دهنده نرم‌افزار هستم.</p>
+          <h3>واژگان جدید</h3>
+          <table class="word-table"><thead><tr><th>English</th><th>معنی</th></tr></thead><tbody>
+            <tr><td>Introduce</td><td>معرفی کردن</td></tr><tr><td>Originally</td><td>اصالتاً</td></tr><tr><td>Currently</td><td>در حال حاضر</td></tr><tr><td>Developer</td><td>توسعه‌دهنده</td></tr><tr><td>Passionate</td><td>مشتاق و علاقه‌مند</td></tr><tr><td>Improve</td><td>بهتر کردن</td></tr>
+          </tbody></table>
+          <h3>گرامر: I am / I have / I want to</h3>
+          <div class="grammar-note"><p><code>I am + noun/adjective</code> برای معرفی و ویژگی‌ها: <bdi>I am a developer.</bdi></p><p><code>I have + noun</code> برای بیان داشتن یا تجربه: <bdi>I have experience in C#.</bdi></p><p><code>I want to + base verb</code> برای هدف و خواسته: <bdi>I want to improve my English.</bdi></p></div>
+          <div class="english-example">I want to become a confident English speaker.</div>
+          <p class="translation">می‌خواهم به فردی تبدیل شوم که با اعتمادبه‌نفس انگلیسی صحبت می‌کند.</p>
+          <div class="practice"><strong>تمرین ۱</strong><label for="practice-1">خودت را در سه جمله به انگلیسی معرفی کن.</label><textarea id="practice-1" placeholder="Hello, my name is..."></textarea></div>
+        </section>
+
+        <section class="lesson" id="lesson-2" data-lesson>
+          <p class="eyebrow">Lesson 02 · Goals & Career</p>
+          <h2><span class="lesson-number">02</span> هدف‌ها و مسیر شغلی</h2>
+          <h3>جمله‌های کلیدی</h3>
+          <div class="english-example">I want to find a remote job and communicate with people from all around the world.<br>I want to work for an international company.<br>I want to improve my communication skills.</div>
+          <p class="translation">می‌خواهم شغل دورکاری پیدا کنم و با مردم سراسر دنیا ارتباط برقرار کنم. می‌خواهم برای یک شرکت بین‌المللی کار کنم. می‌خواهم مهارت‌های ارتباطی‌ام را تقویت کنم.</p>
+          <h3>واژگان و عبارت‌ها</h3>
+          <table class="word-table"><tbody><tr><td>Remote job</td><td>شغل دورکاری</td></tr><tr><td>International company</td><td>شرکت بین‌المللی</td></tr><tr><td>Communication skills</td><td>مهارت‌های ارتباطی</td></tr><tr><td>Career opportunities</td><td>فرصت‌های شغلی</td></tr><tr><td>Around the world</td><td>در سراسر دنیا</td></tr><tr><td>Become fluent</td><td>مسلط و روان شدن</td></tr></tbody></table>
+          <h3>گرامر: But و Become</h3>
+          <div class="grammar-note"><p><code>but</code> برای نشان دادن تضاد: <bdi>I'm from Iran, but I live in Turkey.</bdi></p><p><code>become + adjective/noun</code> برای «شدن»: <bdi>I want to become fluent.</bdi></p></div>
+          <h3>سؤال مکالمه</h3>
+          <p><strong>Why do you want to improve your English?</strong> — چرا می‌خواهی انگلیسی‌ات را تقویت کنی؟</p>
+          <details class="answer"><summary>یک پاسخ نمونه ببین</summary><div class="english-example">I want to improve my English because I want to find a remote job and work with international teams.</div></details>
+          <div class="practice"><strong>تمرین ۲</strong><label for="practice-2">با استفاده از because درباره هدفت توضیح بده.</label><textarea id="practice-2" placeholder="I want to improve my English because..."></textarea></div>
+        </section>
+
+        <section class="lesson" id="lesson-3" data-lesson>
+          <p class="eyebrow">Lesson 03 · Work Experience</p>
+          <h2><span class="lesson-number">03</span> معرفی تجربه کاری</h2>
+          <div class="english-example">I'm a software developer. I have seven years of experience in software development. I work with C#, ASP.NET Core, SQL Server, and Entity Framework.</div>
+          <p class="translation">من توسعه‌دهنده نرم‌افزار هستم. هفت سال سابقه توسعه نرم‌افزار دارم و با C#، ASP.NET Core، SQL Server و Entity Framework کار می‌کنم.</p>
+          <h3>نسخه طبیعی‌تر برای مصاحبه</h3>
+          <div class="english-example">I have seven years of experience <strong>working with</strong> C#, ASP.NET Core, SQL Server, and Entity Framework.</div>
+          <h3>گرامر: Present Simple و Present Perfect</h3>
+          <div class="grammar-note"><p><strong>Present Simple:</strong> برای شغل و کارهای معمول: <bdi>I work with C#.</bdi></p><p><strong>Present Perfect:</strong> برای تجربه تا زمان حال: <bdi>I have worked with SQL Server.</bdi></p><p><code>have/has + past participle</code></p><p><strong>For</strong> مدت زمان است: <bdi>for seven years</bdi>. <strong>Since</strong> زمان شروع مشخص است: <bdi>since 2019</bdi>.</p></div>
+          <h3>Work with در برابر Work on</h3>
+          <ul><li><strong>Work with:</strong> کار کردن با ابزار یا فناوری — <bdi>I work with RabbitMQ.</bdi></li><li><strong>Work on:</strong> کار کردن روی پروژه یا مسئله — <bdi>I work on a payment system.</bdi></li></ul>
+          <h3>واژگان</h3>
+          <table class="word-table"><tbody><tr><td>Professional background</td><td>پیشینه حرفه‌ای</td></tr><tr><td>Achievement</td><td>دستاورد</td></tr><tr><td>Responsibility</td><td>مسئولیت</td></tr><tr><td>Backend development</td><td>توسعه بک‌اند</td></tr><tr><td>Scalable systems</td><td>سیستم‌های مقیاس‌پذیر</td></tr></tbody></table>
+          <div class="practice"><strong>تمرین ۳</strong><label for="practice-3">درباره سابقه کاری و فناوری‌هایی که استفاده می‌کنی، چهار جمله بنویس.</label><textarea id="practice-3" placeholder="I have seven years of experience..."></textarea></div>
+        </section>
+
+        <section class="lesson" id="lesson-4" data-lesson>
+          <p class="eyebrow">Lesson 04 · Describing a Project</p>
+          <h2><span class="lesson-number">04</span> توضیح پروژه پرداخت و معماری</h2>
+          <h3>نسخه اصلاح‌شده پاسخ تو</h3>
+          <div class="english-example">I worked on a payment system based on microservices architecture.<br><br>We used ASP.NET Core, SQL Server, gRPC for synchronous communication, and RabbitMQ for asynchronous communication.<br><br>We implemented CQRS to separate command and query operations.<br><br>We had two SQL Server databases: a primary database and a secondary database. The primary database was used for write operations, while the secondary database was used for read operations.<br><br>We used Entity Framework Core as our ORM.</div>
+          <p class="translation">این متن درباره سیستم پرداخت مبتنی بر میکروسرویس، ارتباط هم‌زمان و غیرهم‌زمان، CQRS، جداسازی خواندن و نوشتن و استفاده از EF Core است.</p>
+          <h3>اشتباهات پرتکرار</h3>
+          <ul class="mistake-list"><li><del>on payment system</del> → <bdi>on a payment system</bdi></li><li><del>architeture</del> → <bdi>architecture</bdi></li><li><del>sync communication</del> → <bdi>synchronous communication</bdi></li><li><del>async communication</del> → <bdi>asynchronous communication</bdi></li><li><del>command and query segregation</del> → <bdi>separation of command and query operations</bdi></li><li><del>ORM</del> → <bdi>an ORM</bdi></li></ul>
+          <h3>گرامر: Passive Voice</h3>
+          <div class="grammar-note"><p><code>Subject + was/were + past participle</code></p><p>Active: <bdi>We used RabbitMQ.</bdi></p><p>Passive: <bdi>RabbitMQ was used for asynchronous communication.</bdi></p><p>مثال: <bdi>CQRS was implemented in our system.</bdi></p></div>
+          <div class="practice"><strong>تمرین ۴</strong><label for="practice-4">پروژه‌ای را که روی آن کار کرده‌ای در ۴ تا ۶ جمله توضیح بده.</label><textarea id="practice-4" placeholder="I worked on a..."></textarea></div>
+        </section>
+
+        <section class="lesson" id="lesson-5" data-lesson>
+          <p class="eyebrow">Lesson 05 · gRPC & RabbitMQ</p>
+          <h2><span class="lesson-number">05</span> توضیح ارتباط هم‌زمان و غیرهم‌زمان</h2>
+          <div class="english-example">We used gRPC for synchronous communication between the API Gateway and microservices.<br><br>We used RabbitMQ for asynchronous communication. For example, after a transaction was completed, we used RabbitMQ to send SMS messages and notifications to clients.</div>
+          <p class="translation">از gRPC برای ارتباط هم‌زمان بین API Gateway و میکروسرویس‌ها استفاده کردیم. از RabbitMQ برای ارتباط غیرهم‌زمان، مثلاً ارسال پیامک و اعلان پس از تکمیل تراکنش، استفاده کردیم.</p>
+          <h3>عبارت‌های حرفه‌ای</h3>
+          <table class="word-table"><tbody><tr><td>Message broker</td><td>واسط پیام</td></tr><tr><td>Decoupling</td><td>کاهش وابستگی بین اجزا</td></tr><tr><td>Background processing</td><td>پردازش پس‌زمینه</td></tr><tr><td>Event-driven architecture</td><td>معماری رویدادمحور</td></tr><tr><td>Transaction completed</td><td>تراکنش تکمیل شد</td></tr></tbody></table>
+          <div class="english-example">RabbitMQ helped us decouple services and handle background tasks asynchronously.</div>
+          <p class="translation">RabbitMQ کمک کرد وابستگی بین سرویس‌ها را کاهش دهیم و وظایف پس‌زمینه را غیرهم‌زمان پردازش کنیم.</p>
+          <h3>گرامر: After + clause</h3>
+          <p>برای روایت اتفاقات گذشته:</p>
+          <div class="english-example">After the payment was completed, we sent a notification.<br>After the order was created, we published an event.</div>
+          <div class="practice"><strong>تمرین ۵</strong><label for="practice-5">با استفاده از because توضیح بده چرا از gRPC و RabbitMQ استفاده کردید.</label><textarea id="practice-5" placeholder="We used gRPC because..."></textarea></div>
+        </section>
+
+        <section class="lesson" id="lesson-6" data-lesson>
+          <p class="eyebrow">Lesson 06 · RabbitMQ Reliability</p>
+          <h2><span class="lesson-number">06</span> پیام، Consumer، ACK و Idempotency</h2>
+          <h3>توضیح اصلاح‌شده</h3>
+          <div class="english-example">The message stays in the queue until the consumer becomes available and consumes it.<br><br>If a consumer processes a message but crashes before sending an ACK, RabbitMQ can redeliver the message, provided manual acknowledgments are used.<br><br>The consumer checks the idempotency key to determine whether the message has already been processed. If it is a duplicate, the consumer skips the business operation and acknowledges the message.</div>
+          <p class="translation">پیام تا زمان در دسترس قرار گرفتن Consumer در صف باقی می‌ماند. اگر Consumer بعد از پردازش و قبل از ACK متوقف شود، با فعال بودن تأیید دستی، RabbitMQ می‌تواند پیام را دوباره تحویل دهد. Consumer با بررسی کلید Idempotency از اجرای دوباره عملیات جلوگیری می‌کند.</p>
+          <h3>واژگان فنی</h3>
+          <table class="word-table"><tbody><tr><td>Producer</td><td>تولیدکننده پیام</td></tr><tr><td>Consumer</td><td>مصرف‌کننده پیام</td></tr><tr><td>Queue</td><td>صف</td></tr><tr><td>Acknowledge (ACK)</td><td>تأیید پیام</td></tr><tr><td>Redeliver</td><td>تحویل مجدد</td></tr><tr><td>Duplicate</td><td>پیام تکراری</td></tr><tr><td>Retry</td><td>تلاش مجدد</td></tr><tr><td>Idempotent processing</td><td>پردازش تکرارپذیرِ امن</td></tr></tbody></table>
+          <div class="callout"><strong>نکته فنی:</strong> تحویل مجدد به تنظیمات ACK و وضعیت صف وابسته است. برای جلوگیری مطمئن از اجرای دوباره، ثبت Idempotency Key باید به‌شکل پایدار و هماهنگ با عملیات کسب‌وکار انجام شود. ACK را فقط پس از اتمام موفق یا مدیریت قطعی پیام ارسال کن.</div>
+          <h3>گرامر: Until</h3>
+          <div class="grammar-note"><p><code>until + present simple</code></p><p><bdi>The message stays in the queue until the consumer becomes available.</bdi></p><p>بعد از until برای اشاره به آینده معمولاً از حال ساده استفاده می‌کنیم.</p></div>
+          <div class="practice"><strong>تمرین ۶</strong><label for="practice-6">به انگلیسی توضیح بده اگر Consumer قبل از ACK متوقف شود چه اتفاقی می‌افتد.</label><textarea id="practice-6" placeholder="If the consumer crashes before sending an ACK..."></textarea></div>
+        </section>
+
+        <section class="lesson" id="lesson-7" data-lesson>
+          <p class="eyebrow">Lesson 07 · Authentication & JWT</p>
+          <h2><span class="lesson-number">07</span> Authentication، Authorization و JWT</h2>
+          <h3>تفاوت دو مفهوم</h3>
+          <div class="english-example"><strong>Authentication</strong> determines who the user is.<br><strong>Authorization</strong> checks whether the user has permission to access a specific resource.</div>
+          <p class="translation">Authentication هویت کاربر را مشخص می‌کند. Authorization بررسی می‌کند کاربر اجازه دسترسی به منبع مشخصی را دارد یا خیر.</p>
+          <h3>توضیح JWT به انگلیسی</h3>
+          <div class="english-example">A JWT contains claims that provide information about the user, such as their identity and roles.<br><br>When the client sends a JWT with a request, the server validates the token's signature using the configured signing key.<br><br>If the signature is valid and the token passes all validation checks, authentication is successful.</div>
+          <p class="translation">JWT شامل Claimهایی درباره کاربر، مانند هویت و نقش‌هاست. وقتی کلاینت توکن را همراه درخواست می‌فرستد، سرور امضای آن را با کلید پیکربندی‌شده بررسی می‌کند. اگر امضا و سایر بررسی‌های اعتبارسنجی موفق باشند، احراز هویت موفق است.</p>
+          <h3>ساختار JWT</h3>
+          <div class="english-example"><strong>Header</strong> — token type and signing algorithm<br><strong>Payload</strong> — claims such as subject, roles, issuer, and expiration<br><strong>Signature</strong> — helps verify token integrity and authenticity</div>
+          <h3>واژگان</h3>
+          <table class="word-table"><tbody><tr><td>Identity</td><td>هویت</td></tr><tr><td>Permission</td><td>مجوز</td></tr><tr><td>Validate</td><td>اعتبارسنجی کردن</td></tr><tr><td>Signing key</td><td>کلید امضا</td></tr><tr><td>Expiration</td><td>زمان انقضا</td></tr><tr><td>Credential</td><td>اطلاعات ورود</td></tr><tr><td>Claim</td><td>ادعای هویتی / داده توکن</td></tr></tbody></table>
+          <div class="callout"><strong>نکته فنی:</strong> اعتبارسنجی JWT فقط بررسی Signature نیست. مواردی مانند انقضا (exp)، صادرکننده (iss)، مخاطب (aud) و الگوریتم مجاز نیز باید بررسی شوند. Claimهای JWT رمزگذاری‌شده نیستند مگر از سازوکار رمزگذاری جداگانه استفاده شود؛ بنابراین اطلاعات محرمانه را در Payload قرار نده.</div>
+          <h3>سؤال مصاحبه</h3>
+          <p><strong>Can you explain how JWT authentication works in ASP.NET Core?</strong></p>
+          <details class="answer"><summary>یک پاسخ نمونه ببین</summary><div class="english-example">The user sends their login credentials to the server. The server validates the credentials and issues a JWT. The client includes the token in the Authorization header of subsequent requests. The JWT bearer middleware validates the token, and the application uses the claims to establish the user's identity and apply authorization policies.</div></details>
+          <div class="practice"><strong>تمرین ۷</strong><label for="practice-7">در چهار جمله توضیح بده JWT Authentication در ASP.NET Core چگونه کار می‌کند.</label><textarea id="practice-7" placeholder="JWT authentication works as follows..."></textarea></div>
+        </section>
+
+        <section class="lesson" id="review">
+          <p class="eyebrow">Review & Next Steps</p>
+          <h2>مرور و برنامه تمرین</h2>
+          <ul>
+            <li>هر روز یکی از درس‌ها را با صدای بلند بخوان.</li>
+            <li>پاسخ تمرین را بدون نگاه کردن به نمونه‌ها بنویس.</li>
+            <li>اشتباهات را اصلاح کن و نسخه درست را دوباره با صدای بلند بگو.</li>
+            <li>در پایان هفته، معرفی خود و پروژه پرداخت را در یک مکالمه پنج‌دقیقه‌ای تمرین کن.</li>
+          </ul>
+          <div class="practice"><strong>چک‌لیست مطالعه</strong>
+            <label><input type="checkbox" data-complete="1"> درس ۱: معرفی خود</label>
+            <label><input type="checkbox" data-complete="2"> درس ۲: اهداف شغلی</label>
+            <label><input type="checkbox" data-complete="3"> درس ۳: تجربه کاری</label>
+            <label><input type="checkbox" data-complete="4"> درس ۴: معرفی پروژه</label>
+            <label><input type="checkbox" data-complete="5"> درس ۵: gRPC و RabbitMQ</label>
+            <label><input type="checkbox" data-complete="6"> درس ۶: ACK و Idempotency</label>
+            <label><input type="checkbox" data-complete="7"> درس ۷: JWT و امنیت</label>
+          </div>
+        </section>
+      </div>
+
+      <aside class="english-sidebar">
+        <h2>فهرست درس‌ها</h2>
+        <nav aria-label="فهرست درس‌های انگلیسی">
+          <a href="#lesson-1">۱. معرفی خود</a>
+          <a href="#lesson-2">۲. اهداف و شغل</a>
+          <a href="#lesson-3">۳. تجربه کاری</a>
+          <a href="#lesson-4">۴. معرفی پروژه</a>
+          <a href="#lesson-5">۵. gRPC و RabbitMQ</a>
+          <a href="#lesson-6">۶. ACK و Idempotency</a>
+          <a href="#lesson-7">۷. JWT و امنیت</a>
+          <a href="#review">مرور و پیشرفت</a>
+        </nav>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>آکادمی مهندسی نرم‌افزار</strong>؛ آموزش حرفه‌ای برای ساختن نرم‌افزارهای بهتر.</p>
+    <nav aria-label="پیوندهای پایانی"><a href="../index.html">صفحهٔ اصلی</a><a href="../index.html#courses">دوره‌ها</a></nav>
+    <p>© ۱۴۰۵ آکادمی مهندسی نرم‌افزار</p>
+  </footer>
+
+  <script>
+    (() => {
+      const checks = [...document.querySelectorAll('[data-complete]')];
+      const fill = document.getElementById('progress-fill');
+      const label = document.getElementById('progress-label');
+      const key = 'dotnet-academy-english-progress';
+      let saved = [];
+      try { saved = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) {}
+      checks.forEach((item) => {
+        item.checked = saved.includes(item.dataset.complete);
+        item.addEventListener('change', () => {
+          const completed = checks.filter((check) => check.checked).map((check) => check.dataset.complete);
+          try { localStorage.setItem(key, JSON.stringify(completed)); } catch (_) {}
+          render();
+        });
+      });
+      function render() {
+        const count = checks.filter((item) => item.checked).length;
+        fill.style.width = (count / checks.length * 100) + '%';
+        label.textContent = count + ' از ' + checks.length + ' درس';
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>
