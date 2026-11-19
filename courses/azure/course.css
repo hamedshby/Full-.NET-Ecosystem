@@ -1,0 +1,211 @@
+@import url("../../styles.css");
+
+:root {
+  --azure: #0078d4;
+  --azure-accent: #38bdf8;
+  --azure-soft: #eaf6ff;
+}
+
+[data-theme="dark"] {
+  --azure: #58b7ff;
+  --azure-accent: #67d5ed;
+  --azure-soft: #172c3b;
+}
+
+.nav-links a[aria-current="page"] { color: var(--azure); }
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  width: var(--content);
+  margin: 1.2rem auto 0;
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.breadcrumb a { color: var(--azure); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
+.azure-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, .3fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+  width: var(--content);
+  margin: 1.4rem auto 0;
+  padding: clamp(1.5rem, 4vw, 3.2rem);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--azure) 30%, var(--line));
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 12% 15%, color-mix(in srgb, var(--azure-accent) 18%, transparent), transparent 18rem),
+    linear-gradient(145deg, var(--surface), var(--azure-soft));
+  box-shadow: var(--shadow-lg);
+}
+
+.azure-hero::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: .35rem;
+  background: linear-gradient(90deg, var(--azure), var(--azure-accent), var(--brand));
+  content: "";
+}
+
+.azure-hero-copy, .azure-mark, .azure-stats { position: relative; z-index: 1; }
+.azure-hero .eyebrow { color: var(--azure); }
+.azure-hero h1 { max-width: 19ch; margin: .5rem 0 0; font-size: clamp(2.15rem, 5vw, 4rem); }
+.azure-hero-copy > p:not(.eyebrow):not(.availability-badge) { max-width: 66ch; margin: 1rem 0 0; color: var(--muted); font-size: 1.05rem; }
+
+.availability-badge {
+  display: inline-flex;
+  margin: 0;
+  padding: .2rem .65rem;
+  border-radius: 99rem;
+  background: color-mix(in srgb, var(--azure) 12%, transparent);
+  color: var(--azure);
+  font-size: .77rem;
+  font-weight: 850;
+}
+
+.azure-mark {
+  display: grid;
+  min-height: 12rem;
+  place-content: center;
+  border: 1px solid color-mix(in srgb, var(--azure-accent) 40%, transparent);
+  border-radius: 2rem 2rem 2rem .6rem;
+  background: linear-gradient(145deg, #0078d4, #005a9e 72%);
+  color: #fff;
+  direction: ltr;
+  box-shadow: 0 1.5rem 3rem rgb(0 120 212 / 24%);
+  text-align: center;
+  transform: rotate(-2deg);
+}
+
+.azure-mark span { font: 900 clamp(1.9rem, 4vw, 3rem)/1 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.azure-mark small { margin-top: .65rem; font-size: .7rem; font-weight: 900; letter-spacing: .24em; }
+
+.azure-stats {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .8rem;
+  margin: 0;
+}
+
+.azure-stats div {
+  padding: .8rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--azure) 20%, var(--line));
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+}
+
+.azure-stats dt { color: var(--muted); font-size: .78rem; font-weight: 750; }
+.azure-stats dd { margin: .1rem 0 0; color: var(--azure); font-size: 1.25rem; font-weight: 900; }
+
+.modules-section, .course-note { width: var(--content); margin-inline: auto; padding-block: clamp(3.5rem, 7vw, 6rem); }
+.modules-section { padding-bottom: 2rem; }
+.section-heading { max-width: 52rem; margin-bottom: 2rem; }
+.section-heading .eyebrow { color: var(--azure); }
+.section-heading h2 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.65rem); }
+.section-heading p:last-child { margin: .75rem 0 0; color: var(--muted); }
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.module-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 22rem;
+  flex-direction: column;
+  padding: 1.3rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.module-card::after {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 4.5rem;
+  height: .25rem;
+  border-radius: 0 0 99rem 0;
+  background: linear-gradient(90deg, var(--azure), var(--azure-accent));
+  content: "";
+}
+
+.module-card:hover, .module-card:focus-within {
+  border-color: color-mix(in srgb, var(--azure) 45%, var(--line));
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.module-number {
+  display: grid;
+  inline-size: 3.2rem;
+  block-size: 3.2rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--azure) 22%, var(--line));
+  border-radius: 1rem 1rem 1rem .3rem;
+  background: var(--azure-soft);
+  color: var(--azure);
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.module-meta { display: flex; flex-wrap: wrap; gap: .45rem; margin: 1rem 0 0; }
+.module-meta span { padding: .18rem .55rem; border-radius: 99rem; background: var(--surface-soft); color: var(--muted); font-size: .72rem; font-weight: 800; }
+.module-card h3 { margin: .85rem 0 0; font-size: 1.15rem; line-height: 1.65; }
+.module-card > p:not(.module-meta) { margin: .6rem 0 1rem; color: var(--muted); font-size: .9rem; }
+
+.topic-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: auto 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.topic-list li {
+  padding: .22rem .55rem;
+  border: 1px solid color-mix(in srgb, var(--azure) 18%, var(--line));
+  border-radius: .55rem;
+  background: color-mix(in srgb, var(--surface-soft) 72%, transparent);
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.module-card--final { border-color: color-mix(in srgb, var(--azure-accent) 45%, var(--line)); background: linear-gradient(145deg, var(--surface), var(--azure-soft)); }
+.course-note { padding-top: 2rem; }
+.course-note h2 { margin: 0; font-size: 1.5rem; }
+.course-note p { max-width: 70ch; color: var(--muted); }
+
+@media (max-width: 1024px) { .module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+@media (max-width: 760px) {
+  .azure-hero { grid-template-columns: 1fr; }
+  .azure-mark { min-height: 9rem; transform: none; }
+  .azure-stats { grid-template-columns: 1fr; }
+  .module-grid { grid-template-columns: 1fr; }
+  .module-card { min-height: auto; }
+}
+
+@media (max-width: 480px) {
+  .azure-hero { width: calc(100% - 1rem); padding-inline: 1rem; }
+  .azure-hero h1 { font-size: clamp(2rem, 11vw, 3rem); }
+  .azure-mark span { font-size: 2.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .module-card { transition: none; }
+}

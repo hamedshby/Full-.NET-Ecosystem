@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="سرفصل ۱۲ ماژول آموزش Azure برای توسعه‌دهندگان .NET؛ از استقرار ASP.NET Core تا پروژهٔ نهایی Microservices.">
+  <meta property="og:title" content="آموزش Azure برای توسعه‌دهندگان .NET | آکادمی مهندسی نرم‌افزار">
+  <meta property="og:description" content="نقشه راه پروژه‌محور Azure با ASP.NET Core، پایگاه‌داده، هویت، پیام‌رسانی، Docker و CI/CD.">
+  <title>آموزش Azure برای توسعه‌دهندگان .NET | آکادمی مهندسی نرم‌افزار</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="course.css">
+  <script src="../../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+
+  <header class="site-header">
+    <nav class="site-nav" aria-label="ناوبری آموزش Azure">
+      <a class="brand" href="../../index.html">آکادمی مهندسی نرم‌افزار</a>
+      <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">منو</button>
+      <div id="primary-navigation" class="nav-links">
+        <a href="../../index.html#courses">همهٔ دوره‌ها</a>
+        <a href="#modules" aria-current="page">سرفصل‌های Azure</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+        <a class="button-link" href="#modules">مشاهدهٔ سرفصل‌ها</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <nav class="breadcrumb" aria-label="مسیر راهنما">
+      <a href="../../index.html">صفحهٔ اصلی</a><span aria-hidden="true">/</span>
+      <a href="../../index.html#courses">دوره‌ها</a><span aria-hidden="true">/</span>
+      <span aria-current="page">آموزش Azure</span>
+    </nav>
+
+    <section class="azure-hero" aria-labelledby="azure-title">
+      <div class="azure-hero-copy">
+        <p class="eyebrow">نقشهٔ راه پروژه‌محور</p>
+        <p class="availability-badge">سرفصل‌ها آماده · محتوای درس‌ها به‌تدریج تکمیل می‌شود</p>
+        <h1 id="azure-title">آموزش <bdi>Azure</bdi> برای توسعه‌دهندگان <bdi>.NET</bdi></h1>
+        <p>از مفاهیم Cloud شروع می‌کنیم، یک برنامهٔ <bdi>ASP.NET Core</bdi> را روی Azure منتشر می‌کنیم و قدم‌به‌قدم به امنیت، پایش و ساخت پروژهٔ نهایی می‌رسیم.</p>
+        <div class="hero-actions">
+          <a class="button-link" href="#modules">شروع مرور سرفصل‌ها</a>
+          <a class="button-link button-secondary" href="../../index.html#courses">بازگشت به دوره‌ها</a>
+        </div>
+      </div>
+      <div class="azure-mark" aria-hidden="true"><span>AZURE</span><small>FOR .NET</small></div>
+      <dl class="azure-stats" aria-label="مشخصات دوره">
+        <div><dt>ماژول آموزشی</dt><dd>۱۲</dd></div>
+        <div><dt>زمان پیشنهادی</dt><dd>۱۶ هفته</dd></div>
+        <div><dt>پروژهٔ نهایی</dt><dd>Microservices</dd></div>
+      </dl>
+    </section>
+
+    <section id="modules" class="modules-section" aria-labelledby="modules-title">
+      <div class="section-heading">
+        <p class="eyebrow">مسیر فصل‌به‌فصل</p>
+        <h2 id="modules-title">سرفصل‌های آموزش <bdi>Azure</bdi></h2>
+        <p>ترتیب ماژول‌ها از شناخت Cloud آغاز می‌شود و در پروژهٔ نهایی، سرویس‌ها را در کنار هم به‌کار می‌گیریم. موضوع‌های پرکاربرد برای توسعه‌دهندهٔ .NET تمرین عملی دارند؛ سرویس‌های تخصصی‌تر در حد نیاز معرفی می‌شوند.</p>
+      </div>
+
+      <div class="module-grid">
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۱</div>
+          <p class="module-meta"><span>مبانی</span><span>Cloud و Azure</span></p>
+          <h3>مفاهیم پایه و معماری Azure</h3>
+          <p>با مدل‌های Cloud و ساختار منابع Azure آشنا می‌شویم تا بدانیم هر سرویس کجا قرار می‌گیرد و چه کسی مسئول مدیریت آن است.</p>
+          <ul class="topic-list"><li>IaaS، PaaS و SaaS</li><li>Region و Availability Zone</li><li>Subscription و Resource Group</li><li>هزینه و Shared Responsibility</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۲</div>
+          <p class="module-meta"><span>میزبانی</span><span>تمرین .NET</span></p>
+          <h3><bdi>Azure App Service</bdi></h3>
+          <p>یک <bdi>Web API</bdi> را منتشر می‌کنیم و تفاوت محیط محلی و محیط ابری را با تنظیمات واقعی می‌بینیم.</p>
+          <ul class="topic-list"><li>ساخت و انتشار ASP.NET Core API</li><li>App Service Plan و Scale</li><li>Configuration و Environment Variables</li><li>Deployment Slots و HTTPS</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۳</div>
+          <p class="module-meta"><span>Compute</span><span>انتخاب سرویس</span></p>
+          <h3>انتخاب سرویس میزبانی مناسب</h3>
+          <p>برای هر نوع پردازش، سرویسی انتخاب می‌کنیم که پیچیدگی عملیاتی و هزینهٔ متناسب با نیاز داشته باشد.</p>
+          <ul class="topic-list"><li>Azure Functions</li><li>Virtual Machines</li><li>Container Apps</li><li>آشنایی با AKS و زمان استفاده از آن</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۴</div>
+          <p class="module-meta"><span>داده</span><span>تمرین EF Core</span></p>
+          <h3><bdi>Azure SQL</bdi> و اتصال برنامه</h3>
+          <p>پایگاه‌داده را ایجاد می‌کنیم، API را به آن متصل می‌کنیم و با دسترسی، مهاجرت و پشتیبان‌گیری آشنا می‌شویم.</p>
+          <ul class="topic-list"><li>Azure SQL Database</li><li>Firewall و اتصال امن</li><li>EF Core و Database Migration</li><li>Backup و دسترس‌پذیری</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۵</div>
+          <p class="module-meta"><span>ذخیره‌سازی</span><span>SDK در C#</span></p>
+          <h3><bdi>Azure Storage</bdi></h3>
+          <p>یاد می‌گیریم فایل و دادهٔ ساده را در Storage نگهداری کنیم و از طریق برنامهٔ .NET به آن دسترسی داشته باشیم.</p>
+          <ul class="topic-list"><li>Storage Account و Blob Storage</li><li>File، Queue و Table Storage</li><li>Access Tier و SAS</li><li>Azure Storage SDK</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۶</div>
+          <p class="module-meta"><span>امنیت</span><span>هویت و دسترسی</span></p>
+          <h3><bdi>Microsoft Entra ID</bdi> و مدیریت رازها</h3>
+          <p>برنامه را با هویت امن به سرویس‌های Azure وصل می‌کنیم تا رمزها و کلیدها داخل سورس‌کد قرار نگیرند.</p>
+          <ul class="topic-list"><li>Authentication و Authorization</li><li>Managed Identity و RBAC</li><li>Key Vault و Secrets</li><li>App Registration و OAuth / OIDC</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۷</div>
+          <p class="module-meta"><span>Messaging</span><span>معماری رویدادمحور</span></p>
+          <h3><bdi>Azure Service Bus</bdi></h3>
+          <p>ارتباط غیرهم‌زمان میان سرویس‌ها را پیاده می‌کنیم و رفتار پیام‌ها هنگام خطا یا تکرار را بررسی می‌کنیم.</p>
+          <ul class="topic-list"><li>Queue، Topic و Subscription</li><li>Dead Letter Queue و Retry</li><li>Duplicate Detection و Sessions</li><li>SDK سرویس با C#</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۸</div>
+          <p class="module-meta"><span>Container</span><span>میکروسرویس</span></p>
+          <h3><bdi>Docker</bdi> و سرویس‌های کانتینری Azure</h3>
+          <p>سرویس .NET را کانتینری می‌کنیم و آن را در محیط مدیریت‌شده اجرا می‌کنیم؛ تفاوت این مسیر با Kubernetes را هم می‌سنجیم.</p>
+          <ul class="topic-list"><li>Dockerfile و Docker Compose</li><li>Azure Container Registry</li><li>Azure Container Apps</li><li>AKS و شبکهٔ Containerها</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۰۹</div>
+          <p class="module-meta"><span>DevOps</span><span>انتشار خودکار</span></p>
+          <h3><bdi>CI/CD</bdi> و زیرساخت به‌صورت کد</h3>
+          <p>فرآیند Build، بررسی و انتشار را خودکار می‌کنیم تا تغییرات برنامه با مراحل قابل تکرار به Azure برسند.</p>
+          <ul class="topic-list"><li>GitHub Actions</li><li>Build، Test و Deploy</li><li>محیط‌ها، Rollback و راهبرد انتشار</li><li>Bicep و Infrastructure as Code</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۱۰</div>
+          <p class="module-meta"><span>پایش</span><span>عیب‌یابی Production</span></p>
+          <h3>Monitoring و مشاهده‌پذیری</h3>
+          <p>با Metrics، Logs و Traceها، مسیر درخواست را دنبال می‌کنیم و خطاها و کندی‌ها را پیدا می‌کنیم.</p>
+          <ul class="topic-list"><li>Azure Monitor و Application Insights</li><li>Log Analytics و Alerts</li><li>Distributed Tracing</li><li>Health Checks و OpenTelemetry</li></ul>
+        </article>
+
+        <article class="module-card">
+          <div class="module-number" aria-hidden="true">۱۱</div>
+          <p class="module-meta"><span>طراحی</span><span>مقیاس و تاب‌آوری</span></p>
+          <h3>شبکه، API و معماری ابری</h3>
+          <p>مرزهای شبکه و API را مشخص می‌کنیم و برای افزایش بار، اختلال و هزینه تصمیم‌های معماری می‌گیریم.</p>
+          <ul class="topic-list"><li>VNet و Private Endpoint</li><li>API Management و API Gateway</li><li>Cache و Horizontal Scaling</li><li>Retry، Circuit Breaker و Cost Optimization</li></ul>
+        </article>
+
+        <article class="module-card module-card--final">
+          <div class="module-number" aria-hidden="true">۱۲</div>
+          <p class="module-meta"><span>پروژهٔ نهایی</span><span>مرور مصاحبه</span></p>
+          <h3>ساخت و استقرار سیستم پرداخت Microservices</h3>
+          <p>سرویس‌های پرداخت و اعلان را به Azure متصل می‌کنیم و اجزای دوره را در یک مسیر قابل نمایش کنار هم می‌گذاریم.</p>
+          <ul class="topic-list"><li>ASP.NET Core و Azure SQL</li><li>Service Bus و Blob Storage</li><li>Key Vault و Managed Identity</li><li>Docker، CI/CD و Application Insights</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="course-note" aria-labelledby="course-note-title">
+      <h2 id="course-note-title">روش پیشروی در دوره</h2>
+      <p>برای هر ماژول، ابتدا مفهوم را با یک مثال روشن می‌کنیم، سپس سرویس را در Azure می‌سازیم و در برنامهٔ <bdi>C#</bdi> به‌کار می‌بریم. سرویس‌های پولی را فقط هنگام تمرین و با بررسی هزینه فعال می‌کنیم.</p>
+      <a class="button-link" href="../../index.html#courses">بازگشت به همهٔ دوره‌ها</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>آکادمی مهندسی نرم‌افزار</strong>؛ آموزش حرفه‌ای برای ساختن نرم‌افزارهای بهتر.</p>
+    <nav aria-label="پیوندهای پایانی"><a href="../../index.html">صفحهٔ اصلی</a><a href="../../index.html#courses">همهٔ دوره‌ها</a></nav>
+  </footer>
+</body>
+</html>

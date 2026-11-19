@@ -363,6 +363,14 @@
   box-shadow: 0 0.8rem 2rem rgb(10 51 108 / 34%), inset 0 1px rgb(255 255 255 / 14%);
 }
 
+[data-home-theme="modern"] .course-card--azure .course-art {
+  background: linear-gradient(145deg, #0078d4, #4ea5ff);
+}
+
+[data-home-theme="modern"] .course-card--az900 .course-art {
+  background: linear-gradient(145deg, #0078d4, #4ea5ff);
+}
+
 [data-home-theme="modern"] .course-card:nth-child(3) .course-art {
   background: linear-gradient(145deg, #704dbb, #315fbd);
 }

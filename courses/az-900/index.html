@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="مسیر آمادگی Exam AZ-900: Microsoft Azure Fundamentals با مرور ۱۳ سرفصل Cloud، سرویس‌های Azure، امنیت، مدیریت و حاکمیت.">
+  <meta property="og:title" content="Exam AZ-900: Microsoft Azure Fundamentals | آکادمی مهندسی نرم‌افزار">
+  <meta property="og:description" content="سرفصل‌های آزمون مبانی Microsoft Azure در سه حوزه و ۱۳ موضوع آموزشی.">
+  <title>Exam AZ-900: Microsoft Azure Fundamentals | آکادمی مهندسی نرم‌افزار</title>
+  <script>
+    (() => {
+      document.documentElement.classList.add('js');
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="course.css">
+  <script src="../../script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+
+  <header class="site-header">
+    <nav class="site-nav" aria-label="ناوبری دورهٔ AZ-900">
+      <a class="brand" href="../../index.html">آکادمی مهندسی نرم‌افزار</a>
+      <button id="menu-toggle" class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">منو</button>
+      <div id="primary-navigation" class="nav-links">
+        <a href="../../index.html#courses">همهٔ دوره‌ها</a>
+        <a href="#chapters" aria-current="page">سرفصل‌های AZ-900</a>
+      </div>
+      <div class="nav-actions">
+        <button id="theme-toggle" class="icon-button" type="button" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره" aria-pressed="false">
+          <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+          <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+        </button>
+        <a class="button-link" href="#chapters">مشاهدهٔ سرفصل‌ها</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <nav class="breadcrumb" aria-label="مسیر راهنما">
+      <a href="../../index.html">صفحهٔ اصلی</a><span aria-hidden="true">/</span>
+      <a href="../../index.html#courses">دوره‌ها</a><span aria-hidden="true">/</span>
+      <span aria-current="page"><bdi>AZ-900</bdi></span>
+    </nav>
+
+    <section class="az900-hero" aria-labelledby="az900-title">
+      <div class="az900-hero-copy">
+        <p class="eyebrow">نقشهٔ راه آمادگی آزمون</p>
+        <h1 id="az900-title"><bdi>Exam AZ-900: Microsoft Azure Fundamentals</bdi></h1>
+        <p>در این مسیر، مفاهیم پایهٔ Cloud، معماری و سرویس‌های Azure و ابزارهای مدیریت و حاکمیت را بر اساس سرفصل‌های آزمون مرور می‌کنید.</p>
+        <div class="hero-actions">
+          <a class="button-link" href="#chapters">شروع مرور سرفصل‌ها</a>
+          <a class="button-link button-secondary" href="../../index.html#courses">بازگشت به دوره‌ها</a>
+        </div>
+      </div>
+      <div class="az900-mark" aria-hidden="true"><span>AZ-900</span><small>AZURE FUNDAMENTALS</small></div>
+      <dl class="az900-stats" aria-label="مشخصات مسیر">
+        <div><dt>حوزهٔ آزمون</dt><dd>۳ Domain</dd></div>
+        <div><dt>سرفصل آموزشی</dt><dd>۱۳ موضوع</dd></div>
+        <div><dt>سطح</dt><dd>مقدماتی</dd></div>
+      </dl>
+    </section>
+
+    <section id="chapters" class="az900-chapters" aria-labelledby="chapters-title">
+      <div class="section-heading">
+        <p class="eyebrow">مسیر فصل‌به‌فصل</p>
+        <h2 id="chapters-title">سرفصل‌های آزمون <bdi>AZ-900</bdi></h2>
+        <p>این ۱۳ موضوع در سه حوزهٔ آزمون دسته‌بندی شده‌اند. عنوان هر فصل مطابق سرفصل‌های ارائه‌شده تنظیم شده است.</p>
+      </div>
+
+      <div class="az900-chapter-grid">
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۱</div>
+          <p class="az900-chapter-meta"><span>Domain 1</span><span>مبانی Cloud</span></p>
+          <h3><bdi>Describe Cloud Computing</bdi></h3>
+          <p>مفهوم Cloud Computing و شیوهٔ ارائهٔ منابع محاسباتی از طریق اینترنت را بشناسید.</p>
+          <ul class="topic-list"><li>Cloud Computing</li><li>منابع و سرویس‌های ابری</li><li>مدل مصرف بر اساس نیاز</li></ul>
+          <a class="button-link button-secondary" href="https://www.linkedin.com/learning/microsoft-azure-fundamentals-az-900-cert-prep-by-microsoft-press/module-introduction-cloud-concepts?resume=false" target="_blank" rel="noopener noreferrer" aria-label="مشاهدهٔ درس Introduction Cloud Concepts در LinkedIn Learning؛ بازشدن در زبانهٔ جدید">مشاهدهٔ درس در LinkedIn Learning</a>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۲</div>
+          <p class="az900-chapter-meta"><span>Domain 1</span><span>مزایای Cloud</span></p>
+          <h3><bdi>Describe the Benefits of Using Cloud Services</bdi></h3>
+          <p>مزایای استفاده از سرویس‌های ابری را از نظر هزینه، مقیاس‌پذیری و دسترس‌پذیری مرور کنید.</p>
+          <ul class="topic-list"><li>High Availability</li><li>Scalability و Elasticity</li><li>هزینهٔ مصرفی</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۳</div>
+          <p class="az900-chapter-meta"><span>Domain 1</span><span>مدل‌های سرویس</span></p>
+          <h3><bdi>Describe Cloud Service Types</bdi></h3>
+          <p>تفاوت مسئولیت‌ها و سطح مدیریت در مدل‌های اصلی سرویس ابری را مشخص کنید.</p>
+          <ul class="topic-list"><li>IaaS</li><li>PaaS</li><li>SaaS</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۴</div>
+          <p class="az900-chapter-meta"><span>Domain 2</span><span>معماری Azure</span></p>
+          <h3><bdi>Describe Azure Architecture and Services</bdi></h3>
+          <p>با ساختار کلی Azure و اجزایی که سرویس‌های ابری را در دسترس قرار می‌دهند آشنا شوید.</p>
+          <ul class="topic-list"><li>ساختار Azure</li><li>دسته‌بندی سرویس‌ها</li><li>مفاهیم معماری ابری</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۵</div>
+          <p class="az900-chapter-meta"><span>Domain 2</span><span>اجزای اصلی</span></p>
+          <h3><bdi>Describe the Core Architectural Components of Azure</bdi></h3>
+          <p>اجزای پایه‌ای سازمان‌دهی منابع Azure و رابطهٔ میان آن‌ها را یاد بگیرید.</p>
+          <ul class="topic-list"><li>Region و Availability Zone</li><li>Subscription</li><li>Resource Group</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۶</div>
+          <p class="az900-chapter-meta"><span>Domain 2</span><span>Compute و Network</span></p>
+          <h3><bdi>Describe Azure Compute and Networking Services</bdi></h3>
+          <p>سرویس‌های اجرای برنامه و اتصال منابع در Azure را مرور کنید.</p>
+          <ul class="topic-list"><li>Virtual Machines</li><li>Containers و Azure Functions</li><li>Virtual Network</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۷</div>
+          <p class="az900-chapter-meta"><span>Domain 2</span><span>ذخیره‌سازی</span></p>
+          <h3><bdi>Describe Azure Storage Services</bdi></h3>
+          <p>گزینه‌های ذخیره‌سازی داده و انتقال فایل در سرویس‌های Azure را بشناسید.</p>
+          <ul class="topic-list"><li>Blob Storage</li><li>Disk و File Storage</li><li>Storage Tiers و Redundancy</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۸</div>
+          <p class="az900-chapter-meta"><span>Domain 2</span><span>هویت و امنیت</span></p>
+          <h3><bdi>Describe Azure Identity, Access, and Security</bdi></h3>
+          <p>هویت‌ها، دسترسی‌ها و لایه‌های محافظت از منابع Azure را مرور کنید.</p>
+          <ul class="topic-list"><li>Microsoft Entra ID</li><li>Authentication و Authorization</li><li>MFA و Conditional Access</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۰۹</div>
+          <p class="az900-chapter-meta"><span>Domain 3</span><span>مدیریت و حاکمیت</span></p>
+          <h3><bdi>Describe Azure Management and Governance</bdi></h3>
+          <p>ابزارهای مدیریت چرخهٔ عمر منابع و اعمال سیاست‌های سازمانی را بشناسید.</p>
+          <ul class="topic-list"><li>Azure Policy</li><li>Resource Locks</li><li>مدیریت منابع</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۱۰</div>
+          <p class="az900-chapter-meta"><span>Domain 3</span><span>مدیریت هزینه</span></p>
+          <h3><bdi>Describe Cost Management in Azure</bdi></h3>
+          <p>هزینهٔ سرویس‌ها را برآورد، پایش و با ابزارهای Azure مدیریت کنید.</p>
+          <ul class="topic-list"><li>Pricing Calculator</li><li>Total Cost of Ownership</li><li>Cost Management</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۱۱</div>
+          <p class="az900-chapter-meta"><span>Domain 3</span><span>Governance</span></p>
+          <h3><bdi>Describe Features and Tools for Governance and Compliance</bdi></h3>
+          <p>ابزارها و قابلیت‌هایی را بشناسید که انطباق و حاکمیت منابع را پشتیبانی می‌کنند.</p>
+          <ul class="topic-list"><li>Azure Policy</li><li>Microsoft Purview</li><li>Compliance و Audit</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۱۲</div>
+          <p class="az900-chapter-meta"><span>Domain 3</span><span>مدیریت منابع</span></p>
+          <h3><bdi>Describe Features and Tools for Managing and Deploying Resources</bdi></h3>
+          <p>راه‌های مدیریت و استقرار منابع را از Portal تا ابزارهای خط فرمان و قالب‌های زیرساخت مقایسه کنید.</p>
+          <ul class="topic-list"><li>Azure Portal و Cloud Shell</li><li>Azure CLI و PowerShell</li><li>ARM Templates</li></ul>
+        </article>
+
+        <article class="az900-chapter-card">
+          <div class="az900-chapter-number" aria-hidden="true">۱۳</div>
+          <p class="az900-chapter-meta"><span>Domain 3</span><span>پایش</span></p>
+          <h3><bdi>Describe Monitoring Tools</bdi></h3>
+          <p>ابزارهای مشاهدهٔ سلامت، رخدادها و وضعیت سرویس‌های Azure را مرور کنید.</p>
+          <ul class="topic-list"><li>Azure Monitor</li><li>Service Health</li><li>Advisor</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="az900-note" aria-labelledby="study-note-title">
+      <h2 id="study-note-title">نکته دربارهٔ این مسیر</h2>
+      <p>این صفحه نقشهٔ سرفصل‌هاست. توضیحات هر کارت برای جهت‌دهی به مطالعه آمده و جایگزین محتوای کامل درس یا راهنمای رسمی آزمون نیست.</p>
+      <a class="button-link" href="../../index.html#courses">بازگشت به همهٔ دوره‌ها</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>آکادمی مهندسی نرم‌افزار</strong>؛ آموزش حرفه‌ای برای ساختن نرم‌افزارهای بهتر.</p>
+    <nav aria-label="پیوندهای پایانی"><a href="../../index.html">صفحهٔ اصلی</a><a href="../../index.html#courses">همهٔ دوره‌ها</a></nav>
+  </footer>
+</body>
+</html>
