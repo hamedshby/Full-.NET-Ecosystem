@@ -47,7 +47,124 @@
         <p class="eyebrow">فصل 9 از ۱۰</p>
         <p class="lesson-chapter"><bdi>Observability</bdi></p>
         <h1><bdi>Logging</bdi></h1>
-        <div id="lesson-body" class="lesson-empty" data-content-status="empty" aria-label="محتوای آموزشی درس"></div>
+        <div id="lesson-body" class="lesson-article" data-content-status="published" aria-label="محتوای آموزشی درس">
+          <article>
+            <section class="lesson-intro">
+              <p class="eyebrow">قاعدهٔ ۸۰/۲۰ در طراحی Logging</p>
+              <h2>وقتی یک سفارش گیر می‌کند، چه چیزی باید در Log ببینیم؟</h2>
+              <p class="lesson-lead">هدف Logging جمع‌کردن همهٔ اتفاقات برنامه نیست؛ باید بتوانیم از روی چند رویداد دقیق بفهمیم چه اتفاقی افتاده، در کدام سرویس رخ داده و به کدام درخواست مربوط بوده است. در این درس روی همان بخش کوچکی تمرکز می‌کنیم که بیشترین کمک را هنگام عیب‌یابی می‌کند.</p>
+            </section>
+
+            <section class="lesson-section">
+              <h2>۱. Logging چه مسئله‌ای را حل می‌کند؟</h2>
+              <p>فرض کنید مشتری می‌گوید سفارش ثبت شده، اما پرداخت نهایی نشده است. <strong>Log</strong> رکوردی از یک اتفاق در زمان اجرای سیستم است؛ مثلاً «درخواست پرداخت برای سفارش ۴۲ ارسال شد» یا «درگاه پرداخت پاسخ نداد». این رکورد باید به ما کمک کند مسیر رخداد را بازسازی کنیم، نه اینکه فقط چند خط متن مبهم نشان دهد.</p>
+              <p>در <bdi>Observability</bdi>، سه نوع داده سؤال‌های متفاوتی را پاسخ می‌دهند:</p>
+              <ul>
+                <li><bdi>Logs</bdi>: در یک مورد مشخص چه اتفاقی افتاد؟</li>
+                <li><bdi>Metrics</bdi>: در طول زمان چند بار یا با چه نرخ و تأخیری رخ داده است؟</li>
+                <li><bdi>Traces</bdi>: یک درخواست از کدام سرویس‌ها عبور کرده و کجا زمان برده است؟</li>
+              </ul>
+              <p>برای یافتن یک سفارش ناموفق معمولاً سراغ Log می‌رویم؛ برای فهمیدن افزایش خطا در کل سیستم Metrics را می‌بینیم؛ و برای دنبال‌کردن درخواست میان چند سرویس Trace را بررسی می‌کنیم.</p>
+            </section>
+
+            <section class="lesson-section">
+              <h2>۲. بیشترین ارزش: رویداد ساختاریافته و قابل جست‌وجو</h2>
+              <p>Log صرفاً یک جملهٔ متنی نیست. در <strong>Structured Logging</strong>، پیام همراه فیلدهای جداگانه ذخیره می‌شود تا بتوانیم بر اساس آن‌ها جست‌وجو و گروه‌بندی کنیم؛ مثلاً همهٔ خطاهای سرویس پرداخت برای سفارش مشخص را پیدا کنیم.</p>
+              <div class="lesson-example">
+                <p><strong>مبهم:</strong></p>
+                <pre dir="ltr"><code>Payment failed for order 42</code></pre>
+                <p><strong>ساختاریافته:</strong></p>
+                <pre dir="ltr"><code>EventName = "PaymentFailed"
+OrderId   = 42
+Provider  = "ExamplePay"
+Level     = Error</code></pre>
+              </div>
+              <p>در نمونهٔ دوم، ابزار Log می‌تواند بر اساس <code>OrderId</code> یا <code>EventName</code> جست‌وجو کند؛ لازم نیست متن پیام را با عبارت‌های شکنندهٔ متنی تحلیل کنیم. نام فیلدها را ثابت و معنادار انتخاب کنید تا همهٔ سرویس‌ها مثلاً از <code>OrderId</code> یکسان استفاده کنند.</p>
+              <p>در .NET، <code>ILogger</code> از <bdi>Message Template</bdi> پشتیبانی می‌کند. Placeholderها را داخل قالب نگه دارید تا مقدارها به‌صورت فیلد ثبت شوند:</p>
+              <pre dir="ltr"><code>logger.LogWarning(
+    "Payment attempt failed for order {OrderId} with provider {Provider}",
+    orderId,
+    provider);</code></pre>
+              <p>از ساختن رشته با الحاق یا Interpolation برای داده‌های متغیر پرهیز کنید؛ قالب ثابت و Placeholder نام‌دار به ثبت ساختاریافته کمک می‌کند. برای نقاط پرتکرار و حساس به کارایی، .NET از <code>LoggerMessage</code> و Source Generator هم پشتیبانی می‌کند.</p>
+            </section>
+
+            <section class="lesson-section">
+              <h2>۳. هر Log باید زمینهٔ کافی داشته باشد</h2>
+              <p>در معماری چندسرویسی، یک کار ممکن است از API Gateway به Order Service و بعد به Payment Service برسد. بدون شناسهٔ مشترک، هر سرویس فقط تکه‌ای از داستان را ثبت می‌کند.</p>
+              <p>برای رویدادهای مهم، این زمینه معمولاً بیشترین ارزش را دارد:</p>
+              <ul>
+                <li><code>Timestamp</code> و <code>Level</code>؛ زمان و شدت رویداد.</li>
+                <li><code>Service</code> و <code>Environment</code>؛ نام سرویس و محیط اجرا مانند Production.</li>
+                <li><code>EventName</code>؛ نام ثابت رویداد، مانند <code>PaymentFailed</code>.</li>
+                <li><code>TraceId</code> یا شناسهٔ هم‌بستگی؛ برای یافتن رویدادهای مربوط به یک درخواست بین سرویس‌ها.</li>
+                <li>شناسهٔ دامنه‌ای لازم برای بررسی، مانند <code>OrderId</code>؛ نه تمام اطلاعات مشتری یا درخواست.</li>
+              </ul>
+              <p>در .NET می‌توان با <code>ILogger.BeginScope</code> دادهٔ مشترکی مانند <code>OrderId</code> را به Logهای یک عملیات اضافه کرد. شناسهٔ Trace باید در مرز سرویس‌ها همراه درخواست یا پیام منتقل شود؛ ساختن یک شناسهٔ تازه در هر سرویس، زنجیره را می‌شکند. Trace دقیق مسیر اجرا را نشان می‌دهد و Log جزئیات رخداد را؛ این دو با هم مفیدند.</p>
+            </section>
+
+            <section class="lesson-section">
+              <h2>۴. شدت Log را بر اساس اقدام لازم انتخاب کنید</h2>
+              <p>سطح اشتباه باعث هشدارهای زیاد یا پنهان‌شدن خطای واقعی می‌شود. این یک راهنمای ساده برای انتخاب سطح است:</p>
+              <ul>
+                <li><code>Information</code>: اتفاق عادی و مهمی که برای دنبال‌کردن جریان کار مفید است؛ مثل ثبت موفق سفارش.</li>
+                <li><code>Warning</code>: وضعیت غیرعادی که سیستم مدیریت کرده، اما ممکن است نیازمند بررسی باشد؛ مثل Retry موفق پس از Timeout.</li>
+                <li><code>Error</code>: یک عملیات مشخص شکست خورده و نیاز به رسیدگی دارد؛ مثل خطای نهایی پرداخت.</li>
+                <li><code>Critical</code>: خرابی جدی که بخش بزرگی از سیستم را از کار انداخته یا نیازمند واکنش فوری است.</li>
+                <li><code>Debug</code> و <code>Trace</code>: جزئیات فنی برای عیب‌یابی؛ معمولاً در Production محدود یا موقتاً فعال می‌شوند.</li>
+              </ul>
+              <p>سطح Log باید بیانگر شدت و نیاز به اقدام باشد، نه صرفاً نظر نویسنده. اگر یک خطا با Retry حل شد، آن را طوری ثبت کنید که معلوم باشد عملیات نهایی شکست نخورده است؛ وگرنه داشبوردها تعداد خطاها را بیش از واقع نشان می‌دهند.</p>
+            </section>
+
+            <section class="lesson-section">
+              <h2>۵. اطلاعات حساس و نویز را وارد Log نکنید</h2>
+              <p>Log ممکن است در چند ابزار کپی و برای مدت طولانی نگهداری شود. بنابراین Password، Access Token، کلید API، اطلاعات کامل کارت بانکی و محتوای حساس Request را ثبت نکنید. در صورت نیاز به شناسایی کاربر، از شناسهٔ داخلی یا مقدار ماسک‌شده استفاده کنید و دسترسی و مدت نگهداری Log را محدود کنید.</p>
+              <p>ثبت بدنهٔ کامل هر درخواست هم ریسک حریم خصوصی دارد و هم حجم، هزینه و نویز را بالا می‌برد. به‌جای «هر چیزی را Log کنیم تا شاید روزی لازم شود»، رویدادهای مهم کسب‌وکار، شکست‌های نهایی، Retryها و تغییر وضعیت‌های مهم را انتخاب کنید. فیلتر یا Sampling باید با دقت تنظیم شود تا رویدادهای کمیاب اما مهم حذف نشوند.</p>
+            </section>
+
+            <section class="lesson-section">
+              <h2>۶. یک خطای قابل‌عیب‌یابی چه شکلی است؟</h2>
+              <p>در زمان ثبت Exception، خود شیء Exception را به API بدهید تا Stack Trace و نوع خطا در خروجی ساختاریافته حفظ شود. متن Exception را دستی به پیام نچسبانید.</p>
+              <pre dir="ltr"><code>try
+{
+    await paymentGateway.ChargeAsync(orderId, cancellationToken);
+}
+catch (TimeoutException ex)
+{
+    logger.LogError(
+        ex,
+        "Payment timed out for order {OrderId} at provider {Provider}",
+        orderId,
+        provider);
+
+    throw;
+}</code></pre>
+              <p>این Log می‌گوید چه عملیاتی برای کدام سفارش و کدام Provider شکست خورده و اطلاعات Exception را نیز حفظ می‌کند. اگر عملیات Retry می‌شود، تلاش‌های موقت و نتیجهٔ نهایی را از هم قابل تشخیص ثبت کنید.</p>
+            </section>
+
+            <section class="lesson-section lesson-summary">
+              <h2>چک‌لیست ۸۰/۲۰ برای Logging</h2>
+              <p>برای شروع طراحی، همین موارد بخش بزرگی از نیاز عیب‌یابی را پوشش می‌دهند:</p>
+              <ol>
+                <li>رویدادهای مهم کسب‌وکار و شکست‌های نهایی را ثبت کنید، نه هر خط اجرای برنامه را.</li>
+                <li>از پیام‌های ساختاریافته با نام رویداد و فیلدهای ثابت استفاده کنید.</li>
+                <li>شناسهٔ Trace یا Correlation را بین سرویس‌ها حفظ کنید و شناسهٔ دامنه‌ای لازم را اضافه کنید.</li>
+                <li>Level را با شدت واقعی و نیاز به اقدام هماهنگ کنید؛ Exception را به‌صورت Exception ثبت کنید.</li>
+                <li>Secret و دادهٔ حساس را حذف یا ماسک کنید؛ حجم، دسترسی و Retention را هم مدیریت کنید.</li>
+                <li>Logها را در مقصدی متمرکز و قابل جست‌وجو جمع کنید تا هنگام Incident مجبور به اتصال دستی فایل‌ها نباشیم.</li>
+              </ol>
+              <p><strong>قاعدهٔ تصمیم:</strong> برای هر Log بپرسید «این رکورد در زمان Incident به چه سؤالی پاسخ می‌دهد؟» اگر پاسخ روشن نیست، احتمالاً باید آن را حذف، دقیق‌تر یا به Metric تبدیل کرد.</p>
+            </section>
+
+            <section class="lesson-section">
+              <h2>منابع رسمی</h2>
+              <ul>
+                <li><a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/overview" target="_blank" rel="noopener noreferrer">Logging in C# — .NET</a></li>
+                <li><a href="https://learn.microsoft.com/en-us/dotnet/core/extensions/logging/high-performance-logging" target="_blank" rel="noopener noreferrer">High-performance logging — .NET</a></li>
+                <li><a href="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-logging/?view=aspnetcore-10.0" target="_blank" rel="noopener noreferrer">HTTP logging in ASP.NET Core</a></li>
+              </ul>
+            </section>
+          </article>
+        </div>
         <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
           <a href="ch8-6.html">درس قبلی: <bdi>Event-Driven Architecture</bdi></a>
           <a href="ch9-2.html">درس بعدی: <bdi>Metrics</bdi></a>

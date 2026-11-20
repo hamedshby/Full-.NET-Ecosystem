@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="فصل اول آمادگی AZ-900: Cloud concepts، مسئولیت مشترک، مدل‌های Cloud و مدل مصرف‌محور؛ در شش بخش همراه با مثال و سؤال مرور.">
+  <title>Domain 1: Describe Cloud Computing | آمادگی AZ-900</title>
+  <script>
+    (() => {
+      let theme = null;
+      try { theme = localStorage.getItem('dotnet-academy-theme'); } catch (_) {}
+      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = theme === 'dark' || theme === 'light' ? theme : dark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="chapter.css">
+</head>
+<body class="lesson-page rabbitmq-page">
+  <a class="skip-link" href="#lesson-content">پرش به محتوای آموزشی</a>
+  <header class="course-header">
+    <nav class="course-nav" aria-label="ناوبری دوره">
+      <a class="course-brand" href="../../index.html">آکادمی مهندسی نرم‌افزار</a>
+      <span class="course-name">آمادگی آزمون <bdi>AZ-900</bdi></span>
+      <a class="back-link" href="index.html">بازگشت به سرفصل‌های AZ-900</a>
+      <button class="course-menu-button" data-course-menu-toggle type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست مطالب</button>
+      <button class="icon-button" id="theme-toggle" type="button" aria-label="تغییر تم" aria-pressed="false" title="تغییر حالت نمایش">
+        <svg class="nav-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.6 8.6 0 1 0 20.4 15.2Z"></path></svg>
+        <svg class="nav-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.7"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+      </button>
+    </nav>
+  </header>
+
+  <nav class="breadcrumb" aria-label="مسیر راهنما">
+    <a href="../../index.html#courses">دوره‌ها</a><span aria-hidden="true">/</span>
+    <a href="index.html">آمادگی AZ-900</a><span aria-hidden="true">/</span>
+    <span aria-current="page">Domain 1</span>
+  </nav>
+
+  <div class="lesson-shell">
+    <aside class="course-sidebar" id="course-sidebar" aria-label="فهرست بخش‌های Domain 1">
+      <div class="sidebar-heading"><span>آمادگی آزمون AZ-900</span><strong>Domain 1</strong><span>۶ بخش · همراه مثال و سؤال مرور</span></div>
+      <nav aria-label="فهرست مطالب فصل اول">
+        <ol>
+          <li><a href="#module-intro"><span>01</span>Module introduction: Cloud concepts</a></li>
+          <li><a href="#learning-objectives"><span>02</span>Learning objectives</a></li>
+          <li><a href="#define-cloud"><span>03</span>Define cloud computing</a></li>
+          <li><a href="#shared-responsibility"><span>04</span>Describe the shared responsibility model</a></li>
+          <li><a href="#cloud-models"><span>05</span>Define cloud models</a></li>
+          <li><a href="#consumption-based"><span>06</span>Consumption-based model</a></li>
+        </ol>
+      </nav>
+      <a class="source-download" href="#consumption-based">مرور آخرین بخش فصل ←</a>
+    </aside>
+
+    <main class="lesson-content" id="lesson-content">
+      <article id="course-title" aria-label="فصل اول آزمون AZ-900">
+        <section class="rabbitmq-hero">
+          <p class="eyebrow">آمادگی آزمون AZ-900 · Domain 1</p>
+          <h1>1. Domain 1: Describe Cloud Computing</h1>
+          <p class="course-lead">در این فصل، مفهوم Cloud، مسئولیت مشترک بین مشتری و ارائه‌دهنده، مدل‌های استقرار و شیوهٔ پرداخت بر اساس مصرف را می‌آموزید. شش بخش زیر مطابق ترتیب و عنوان‌های تصویر تنظیم شده‌اند.</p>
+          <div class="study-meta">
+            <span class="study-status">فصل ۱ · Cloud concepts</span>
+            <span>۶ بخش آموزشی</span>
+            <span>هر بخش همراه سؤال مرور</span>
+          </div>
+          <div class="study-actions">
+            <a class="button-link" href="#module-intro">شروع مطالعه ←</a>
+            <a href="index.html">بازگشت به سرفصل‌ها</a>
+          </div>
+        </section>
+
+        <div class="lesson-body">
+          <section class="lesson-section" id="module-intro" aria-labelledby="title-1">
+            <p class="section-kicker">بخش 01 · ویدئو: 1m 11s</p>
+            <h2 id="title-1">Module introduction: Cloud concepts</h2>
+            <h3>این فصل دربارهٔ چیست؟</h3>
+            <p>این بخش نقشهٔ راه مفاهیم Cloud را معرفی می‌کند: با Cloud Computing و مدل‌های مختلف آن آشنا می‌شویم و بررسی می‌کنیم هر مدل چه زمانی مناسب است. سپس مزایای Cloud Services، از جمله <bdi>High Availability</bdi>، <bdi>Scalability</bdi>، <bdi>Reliability</bdi> و <bdi>Predictability</bdi> را مرور می‌کنیم. در ادامه سه نوع Cloud Service و دلیل انتخاب هرکدام را می‌بینیم و در پایان با یک سناریوی تمرینی، انتخاب مدل Cloud و نوع سرویس مناسب برای آزمون Azure Fundamentals را تمرین می‌کنیم.</p>
+            <div class="lesson-note"><strong>منبع ویدئوی مرجع</strong><p><a href="https://www.linkedin.com/learning/microsoft-azure-fundamentals-az-900-cert-prep-by-microsoft-press/module-introduction-cloud-concepts?resume=false" target="_blank" rel="noopener noreferrer">Module introduction: Cloud concepts — LinkedIn Learning</a></p></div>
+            <details><summary>سؤال مرور بخش 01 — نمایش پاسخ</summary><p><strong>سؤال:</strong> این فصل چه چهار ایدهٔ اصلی را معرفی می‌کند؟</p><p><strong>پاسخ:</strong> تعریف Cloud Computing، مسئولیت مشترک، مدل‌های Cloud و مدل مصرف‌محور.</p></details>
+          </section>
+
+          <section class="lesson-section" id="learning-objectives" aria-labelledby="title-2">
+            <p class="section-kicker">بخش 02 · ویدئو: 57s</p>
+            <h2 id="title-2">Learning objectives</h2>
+            <h3>در پایان فصل باید بتوانید</h3>
+            <ol>
+              <li>Cloud Computing را با اشاره به ارائهٔ منابع محاسباتی از طریق شبکه توضیح دهید.</li>
+              <li>توضیح دهید مشتری و Cloud Provider هرکدام چه مسئولیت‌هایی دارند.</li>
+              <li>Public Cloud، Private Cloud و Hybrid Cloud را از هم تشخیص دهید.</li>
+              <li>تفاوت مدل هزینهٔ اولیهٔ مالکیت با هزینهٔ مبتنی بر مصرف را شرح دهید.</li>
+            </ol>
+            <p>برای پاسخ‌دادن به سؤال‌های آزمون، فقط حفظ‌کردن نام‌ها کافی نیست؛ باید بتوانید از روی یک سناریو مدل درست و مسئولیت هر طرف را پیدا کنید.</p>
+            <details><summary>سؤال مرور بخش 02 — نمایش پاسخ</summary><p><strong>سؤال:</strong> اگر در سناریویی سازمان باید دربارهٔ نگهداری ساختمان مرکز داده تصمیم بگیرد، کدام مفهوم این مسئولیت را مشخص می‌کند؟</p><p><strong>پاسخ:</strong> مدل مسئولیت مشترک؛ باید نوع سرویس و مرز مسئولیت مشتری و ارائه‌دهنده را بررسی کرد.</p></details>
+          </section>
+
+          <section class="lesson-section" id="define-cloud" aria-labelledby="title-3">
+            <p class="section-kicker">بخش 03 · ویدئو: 1m 21s</p>
+            <h2 id="title-3">Define cloud computing</h2>
+            <h3>تعریف ساده با یک مثال</h3>
+            <p><strong>Cloud Computing</strong> یعنی دسترسی به منابعی مانند سرور، شبکه، ذخیره‌سازی و نرم‌افزار از طریق شبکه، معمولاً اینترنت؛ منابع را زمانی می‌گیریم که نیاز داریم و میزان استفاده را می‌توان افزایش یا کاهش داد.</p>
+            <p>برای مثال، به‌جای خرید سرور برای فروش ویژهٔ سالانه، یک فروشگاه می‌تواند ظرفیت محاسباتی بیشتری را در زمان اوج ترافیک فعال کند و پس از پایان رویداد آن را کاهش دهد. زیرساخت فیزیکی در مرکز دادهٔ ارائه‌دهنده قرار دارد، اما سازمان از راه سرویس به آن دسترسی می‌گیرد.</p>
+            <div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>ویژگی</th><th>معنای عملی</th></tr></thead><tbody><tr><td>On-demand</td><td>منبع را هنگام نیاز تهیه یا آزاد می‌کنیم.</td></tr><tr><td>دسترسی از شبکه</td><td>کاربر یا برنامه از مسیر شبکه به سرویس وصل می‌شود.</td></tr><tr><td>قابلیت تغییر ظرفیت</td><td>منابع متناسب با نیاز قابل افزایش یا کاهش‌اند.</td></tr><tr><td>اندازه‌گیری مصرف</td><td>مصرف منابع قابل پایش و در مدل‌های مربوطه قابل محاسبه است.</td></tr></tbody></table></div>
+            <p>Cloud به معنی «همه‌چیز روی اینترنت و بدون مسئولیت مشتری» نیست؛ مشتری هنوز باید دسترسی‌ها، داده‌ها و تنظیمات تحت کنترل خود را مدیریت کند.</p>
+            <details><summary>سؤال مرور بخش 03 — نمایش پاسخ</summary><p><strong>سؤال:</strong> فروشگاه برای چند ساعت ظرفیت سرور را بالا می‌برد و بعد آن را پایین می‌آورد. کدام ویژگی Cloud این کار را ممکن می‌کند؟</p><p><strong>پاسخ:</strong> قابلیت تغییر ظرفیت منابع متناسب با تقاضا؛ معمولاً با Elasticity شناخته می‌شود.</p></details>
+          </section>
+
+          <section class="lesson-section" id="shared-responsibility" aria-labelledby="title-4">
+            <p class="section-kicker">بخش 04 · ویدئو: 1m 28s</p>
+            <h2 id="title-4">Describe the shared responsibility model</h2>
+            <h3>امنیت بین مشتری و ارائه‌دهنده تقسیم می‌شود</h3>
+            <p><strong>Shared Responsibility Model</strong> مرز مسئولیت‌های Cloud Provider و مشتری را مشخص می‌کند. ارائه‌دهنده معمولاً امنیت زیرساخت فیزیکی و اجزایی را که خودش اداره می‌کند بر عهده دارد؛ مشتری نیز مسئول داده، هویت‌ها، دسترسی‌ها و تنظیماتی است که در اختیارش قرار گرفته‌اند.</p>
+            <p>مرز دقیق مسئولیت به نوع سرویس بستگی دارد. هرچه سرویس مدیریت‌شده‌تر باشد، ارائه‌دهنده بخش بیشتری از زیرساخت را اداره می‌کند؛ اما مسئولیت داده و نحوهٔ دسترسی به آن همچنان برای مشتری مهم است.</p>
+            <div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>نوع مسئولیت</th><th>نمونهٔ معمول</th></tr></thead><tbody><tr><td>Cloud Provider</td><td>امنیت مرکز دادهٔ فیزیکی و سخت‌افزار پایه‌ای که ارائه‌دهنده اداره می‌کند.</td></tr><tr><td>مشتری</td><td>مدیریت حساب‌ها و مجوزها، محافظت از داده و امن‌کردن تنظیماتی که کنترلشان را دارد.</td></tr><tr><td>بسته به سرویس</td><td>مدیریت سیستم‌عامل، Runtime و برنامه؛ این مرز در IaaS، PaaS و SaaS یکسان نیست.</td></tr></tbody></table></div>
+            <p>در <bdi>IaaS</bdi> مشتری معمولاً کنترل بیشتری بر سیستم‌عامل و تنظیمات ماشین دارد. در <bdi>PaaS</bdi> بخشی از مدیریت سیستم‌عامل و Runtime به ارائه‌دهنده سپرده می‌شود. در <bdi>SaaS</bdi> ارائه‌دهنده خود برنامه را هم اداره می‌کند، ولی مشتری همچنان باید کاربران، دسترسی‌ها و داده‌های خود را مدیریت کند.</p>
+            <details><summary>سؤال مرور بخش 04 — نمایش پاسخ</summary><p><strong>سؤال:</strong> آیا استفاده از Cloud Provider مسئولیت محافظت از حساب‌های کاربران و مجوزهای آن‌ها را کاملاً از مشتری می‌گیرد؟</p><p><strong>پاسخ:</strong> خیر. مدیریت هویت و دسترسی‌هایی که مشتری تعریف می‌کند همچنان از مسئولیت‌های مهم مشتری است.</p></details>
+          </section>
+
+          <section class="lesson-section" id="cloud-models" aria-labelledby="title-5">
+            <p class="section-kicker">بخش 05 · ویدئو: 9m 10s</p>
+            <h2 id="title-5">Define cloud models</h2>
+            <h3>Public، Private و Hybrid Cloud</h3>
+            <p><strong>Cloud Model</strong> در این بخش به شیوهٔ استقرار و استفاده از زیرساخت اشاره دارد. سه مدل اصلی را با این پرسش از هم جدا کنید: زیرساخت کجا و برای چه کسانی فراهم شده و آیا محیط داخلی با Cloud عمومی ترکیب شده است؟</p>
+            <div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>مدل</th><th>توضیح</th><th>نمونهٔ سناریو</th></tr></thead><tbody><tr><td>Public Cloud</td><td>سرویس‌ها را ارائه‌دهندهٔ ابری روی زیرساخت خود در اختیار چند مشتری قرار می‌دهد؛ منابع هر مشتری به‌صورت منطقی جدا می‌مانند.</td><td>راه‌اندازی وب‌سایت روی Azure بدون خرید سرور فیزیکی.</td></tr><tr><td>Private Cloud</td><td>محیط ابری برای استفادهٔ یک سازمان اختصاص داده شده و می‌تواند داخل مرکز دادهٔ سازمان یا به میزبانی ارائه‌دهنده باشد.</td><td>سازمان زیرساخت اختصاصی خود را برای نیازهای کنترلی خاص اداره می‌کند.</td></tr><tr><td>Hybrid Cloud</td><td>محیط محلی یا Private Cloud با Public Cloud یکپارچه می‌شود و داده یا برنامه می‌تواند میان آن‌ها جابه‌جا شود.</td><td>سامانهٔ قدیمی داخل سازمان می‌ماند و وب‌سایت عمومی در Azure اجرا می‌شود.</td></tr></tbody></table></div>
+            <p>Public به معنی عمومی‌بودن داده‌ها نیست؛ واژه به مدل ارائه و استفاده از زیرساخت اشاره دارد. همچنین Hybrid فقط داشتن دو محیط جدا نیست؛ برای این مدل، هماهنگی یا اتصال میان محیط‌ها اهمیت دارد.</p>
+            <details><summary>سؤال مرور بخش 05 — نمایش پاسخ</summary><p><strong>سؤال:</strong> شرکت بخشی از برنامه را در مرکز دادهٔ خودش نگه می‌دارد و بخشی را در Azure اجرا می‌کند. کدام Cloud Model به این سناریو نزدیک است؟</p><p><strong>پاسخ:</strong> Hybrid Cloud، چون محیط محلی و Public Cloud در کنار هم استفاده می‌شوند.</p></details>
+          </section>
+
+          <section class="lesson-section" id="consumption-based" aria-labelledby="title-6">
+            <p class="section-kicker">بخش 06 · ویدئو: 2m 9s</p>
+            <h2 id="title-6">Consumption-based model</h2>
+            <h3>هزینه متناسب با میزان استفاده</h3>
+            <p>در <strong>Consumption-based model</strong>، هزینه بر اساس منابع یا میزان استفادهٔ اندازه‌گیری‌شده محاسبه می‌شود. سازمان لازم نیست همیشه ظرفیت اوج مصرف را از ابتدا بخرد؛ می‌تواند منابع را متناسب با تقاضا تنظیم کند و مصرف را پایش کند.</p>
+            <div class="table-wrap"><table class="diagnostic-table"><thead><tr><th>خرید و نگهداری سنتی</th><th>مدل مصرف‌محور</th></tr></thead><tbody><tr><td>هزینهٔ اولیه برای تهیهٔ سخت‌افزار و ظرفیت آینده.</td><td>پرداخت بر اساس منابع و واحدهای مصرف‌شده طبق قیمت‌گذاری سرویس.</td></tr><tr><td>ظرفیت بلااستفاده هم هزینهٔ خرید و نگهداری داشته است.</td><td>می‌توان منابع غیرضروری را کاهش داد یا خاموش کرد تا هزینهٔ قابل‌کنترل‌تری داشت.</td></tr><tr><td>افزایش ظرفیت به خرید و نصب تجهیزات وابسته است.</td><td>تغییر ظرفیت معمولاً سریع‌تر انجام می‌شود، اما هزینه همچنان باید پایش شود.</td></tr></tbody></table></div>
+            <p>مثلاً اگر سامانه‌ای شب‌ها ترافیک کمی دارد، کاهش اندازه یا خاموش‌کردن منابع غیرضروری می‌تواند مصرف را کم کند. اما اگر منبعی روشن و بلااستفاده بماند، ممکن است همچنان هزینه ایجاد کند؛ پس «پرداخت بر اساس مصرف» به معنی «همیشه ارزان‌تر» یا «بدون نیاز به مدیریت هزینه» نیست.</p>
+            <details><summary>سؤال مرور بخش 06 — نمایش پاسخ</summary><p><strong>سؤال:</strong> تیمی یک ماشین مجازی را برای آزمایش می‌سازد و پس از پایان کار فراموش می‌کند آن را متوقف کند. آیا مصرف‌محور بودن تضمین می‌کند هزینه‌ای ایجاد نشود؟</p><p><strong>پاسخ:</strong> خیر. منبع فعال ممکن است طبق واحدهای قیمت‌گذاری هزینه داشته باشد؛ باید مصرف و منابع بلااستفاده را پایش و مدیریت کرد.</p></details>
+          </section>
+        </div>
+
+        <footer class="study-source">
+          <p>Domain 1: Describe Cloud Computing؛ شش بخش بر اساس عنوان‌ها و زمان ویدئوهای تصویر مرجع، با توضیح فارسی، مثال و سؤال مرور.</p>
+          <div class="footer-actions"><a href="#course-title">بازگشت به ابتدای فصل ↑</a><a href="index.html">بازگشت به همهٔ سرفصل‌ها</a></div>
+        </footer>
+      </article>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const themeButton = document.getElementById('theme-toggle');
+      const menuButton = document.querySelector('[data-course-menu-toggle]');
+      const sidebar = document.getElementById('course-sidebar');
+      const navLinks = [...document.querySelectorAll('.course-sidebar a[href^="#"]')];
+      const sections = [...document.querySelectorAll('section.lesson-section[id]')];
+      function setTheme(value) {
+        root.dataset.theme = value;
+        themeButton.setAttribute('aria-label', value === 'dark' ? 'فعال‌کردن تم روشن' : 'فعال‌کردن تم تیره');
+        themeButton.setAttribute('aria-pressed', String(value === 'dark'));
+        try { localStorage.setItem('dotnet-academy-theme', value); } catch (_) {}
+      }
+      themeButton.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+      setTheme(root.dataset.theme || 'light');
+      function closeSidebar() {
+        document.body.classList.remove('sidebar-open');
+        menuButton.setAttribute('aria-expanded', 'false');
+      }
+      menuButton.addEventListener('click', () => {
+        const isOpen = document.body.classList.toggle('sidebar-open');
+        menuButton.setAttribute('aria-expanded', String(isOpen));
+      });
+      navLinks.forEach(link => link.addEventListener('click', closeSidebar));
+      document.addEventListener('keydown', event => { if (event.key === 'Escape') closeSidebar(); });
+      document.addEventListener('click', event => {
+        if (document.body.classList.contains('sidebar-open') && !sidebar.contains(event.target) && !menuButton.contains(event.target)) closeSidebar();
+      });
+      const setActive = id => navLinks.forEach(link => link.classList.toggle('is-active', link.getAttribute('href') === `#${id}`));
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => {
+          const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          if (visible.length) setActive(visible[0].target.id);
+        }, { rootMargin: '-80px 0px -68% 0px', threshold: 0 });
+        sections.forEach(section => observer.observe(section));
+      }
+      const startingSection = decodeURIComponent(location.hash.replace(/^#/, '')) || sections[0]?.id;
+      if (startingSection) setActive(startingSection);
+    })();
+  </script>
+</body>
+</html>

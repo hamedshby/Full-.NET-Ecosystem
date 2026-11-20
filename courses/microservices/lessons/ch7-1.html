@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آموزش Introduction در MassTransit؛ آشنایی با MassTransit، Message Bus، پیام‌ها، Producer، Consumer و ارتباط Asynchronous در برنامه‌های .NET">
+  <title>Introduction to MassTransit | آکادمی مهندسی نرم‌افزار</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+    <span class="course-name">راهنمای جامع <bdi>Microservices</bdi></span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست فصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست درس‌های Microservices" data-current-lesson="ch7-1">
+      <h2>راهنمای جامع <bdi>Microservices</bdi></h2>
+      <p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../index.html">دوره‌ها</a><span>/</span><bdi>7 - MassTransit</bdi></nav>
+      <div class="lesson-meta"><span class="availability-badge">در دسترس</span></div>
+      <div class="lesson-body">
+<div class="article-header">
+    <div class="article-tag">🚍 MassTransit</div>
+    <h1>Introduction to MassTransit</h1>
+    <div class="article-meta">
+        <div class="meta-item">📅 به‌روزرسانی: 1405/08/29</div>
+        <div class="meta-item">⏱️ زمان مطالعه: ۸ دقیقه</div>
+        <div class="meta-item">👤 آکادمی مهندسی نرم‌افزار</div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<p>
+    <strong>MassTransit</strong> یک فریم‌ورک متن‌باز برای ساخت برنامه‌های توزیع‌شده و
+    <strong>Message-Based</strong> در محیط .NET است. این فریم‌ورک به ما کمک می‌کند
+    سرویس‌ها را از طریق پیام‌ها و به‌صورت Asynchronous با یکدیگر ارتباط دهیم.
+</p>
+
+<p>
+    به‌جای اینکه هر سرویس مستقیماً به سرویس دیگر وابسته باشد، می‌توانیم پیام ارسال کنیم،
+    پیام‌ها را منتشر کنیم و سرویس‌های دیگر آن‌ها را دریافت و پردازش کنند.
+    MassTransit بخش زیادی از زیرساخت Messaging را در قالب APIهای ساده و یکپارچه فراهم می‌کند.
+</p>
+
+<div class="callout callout-info">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-content">
+        MassTransit خودِ Message Broker نیست. یک Framework و Abstraction برای برنامه‌های
+        .NET است که روی Transportهایی مانند RabbitMQ یا Azure Service Bus کار می‌کند.
+    </div>
+</div>
+
+<hr>
+
+<h2>چرا MassTransit به وجود آمده است؟</h2>
+
+<p>
+    تصور کنید چند Microservice داریم. برای ارتباط آن‌ها ممکن است از RabbitMQ استفاده کنیم.
+    بدون یک Framework مناسب، باید بخش زیادی از کدهای اتصال، ارسال و دریافت پیام،
+    مدیریت Consumerها، خطاها، Retry، Serialization و Lifecycle را خودمان پیاده‌سازی و مدیریت کنیم.
+</p>
+
+<p>
+    MassTransit یک Programming Model یکپارچه ارائه می‌دهد تا بتوانیم به‌جای درگیرشدن
+    با جزئیات Transport، بیشتر روی منطق برنامه و قرارداد پیام‌ها تمرکز کنیم.
+</p>
+
+<ul>
+    <li>تعریف Message Contractها</li>
+    <li>ساخت Producer برای ارسال یا Publish پیام</li>
+    <li>ساخت Consumer برای دریافت و پردازش پیام</li>
+    <li>مدیریت ارتباط با Transport</li>
+    <li>پشتیبانی از Retry، Redelivery و Fault Handling</li>
+    <li>امکانات Outbox، Scheduling و Workflowها</li>
+    <li>قابلیت تست Consumerها و جریان پیام‌ها</li>
+</ul>
+
+<hr>
+
+<h2>MassTransit در معماری چه جایگاهی دارد؟</h2>
+
+<p>
+    MassTransit بین کد برنامه و Message Transport قرار می‌گیرد. برنامه ما با APIهای
+    MassTransit کار می‌کند و MassTransit از Transport انتخاب‌شده برای انتقال واقعی پیام استفاده می‌کند.
+</p>
+
+<div class="code-block">
+    <div class="code-header"><span class="code-lang">Architecture</span></div>
+    <pre><code>
+┌──────────────────────┐
+│     .NET Service    │
+│  Producer / Consumer│
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│     MassTransit     │
+│ Messaging Framework│
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   Message Transport │
+│ RabbitMQ / ASB / SQS│
+└──────────┬───────────┘
+           │
+           ▼
+      Other Services
+</code></pre>
+</div>
+
+<div class="callout callout-info">
+    <span class="callout-icon">💡</span>
+    <div class="callout-content">
+        <strong>Transport</strong> مسئول انتقال واقعی پیام‌هاست. MassTransit API و
+        رفتارهای Messaging را برای برنامه .NET فراهم می‌کند و جزئیات هر Transport را تا حد
+        زیادی پشت یک مدل مشترک قرار می‌دهد.
+    </div>
+</div>
+
+<hr>
+
+<h2>Message چیست؟</h2>
+
+<p>
+    Message یک قرارداد داده‌ای است که اطلاعات موردنیاز برای ارتباط بین بخش‌های مختلف سیستم
+    را حمل می‌کند. در MassTransit پیام‌ها معمولاً به شکل Class، Record یا Interface در C# تعریف می‌شوند.
+</p>
+
+<div class="code-block">
+    <div class="code-header"><span class="code-lang">C# — Message Contract</span></div>
+    <pre><code>
+public record OrderCreated
+{
+    public Guid OrderId { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public decimal TotalPrice { get; init; }
+}
+</code></pre>
+</div>
+
+<p>
+    این پیام بیان می‌کند که یک سفارش ایجاد شده و سرویس‌های دیگر می‌توانند با دریافت آن،
+    کارهای مرتبط را انجام دهند؛ مثلاً ارسال ایمیل، رزرو موجودی یا ثبت اطلاعات تحلیلی.
+</p>
+
+<div class="callout callout-warning">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+        Message Contract را یک قرارداد بین سرویس‌ها در نظر بگیرید. تغییر ناسازگار در
+        ساختار پیام ممکن است Consumerهای دیگر را خراب کند؛ بنابراین طراحی و Versioning
+        پیام‌ها اهمیت دارد.
+    </div>
+</div>
+
+<hr>
+
+<h2>Producer و Consumer</h2>
+
+<table class="table">
+    <thead>
+        <tr><th>مفهوم</th><th>وظیفه</th></tr>
+    </thead>
+    <tbody>
+        <tr><td>Producer</td><td>پیام را ایجاد کرده و Send یا Publish می‌کند.</td></tr>
+        <tr><td>Consumer</td><td>پیام را دریافت کرده و منطق مرتبط با آن را اجرا می‌کند.</td></tr>
+        <tr><td>Message</td><td>قرارداد و داده‌ای که بین اجزای سیستم منتقل می‌شود.</td></tr>
+        <tr><td>Transport</td><td>زیرساخت انتقال پیام؛ برای مثال RabbitMQ یا Azure Service Bus.</td></tr>
+    </tbody>
+</table>
+
+<p>
+    Producer و Consumer لازم نیست در یک Process یا حتی در یک سرویس باشند.
+    ممکن است Producer در Order Service و Consumer در Notification Service قرار داشته باشد.
+</p>
+
+<hr>
+
+<h2>یک مثال واقعی: ثبت سفارش</h2>
+
+<p>
+    فرض کنید کاربر سفارشی ثبت می‌کند. Order Service سفارش را در دیتابیس ذخیره کرده و
+    پیام <code>OrderCreated</code> را منتشر می‌کند. سرویس‌های دیگر می‌توانند مستقل از
+    Order Service به این رویداد واکنش نشان دهند.
+</p>
+
+<div class="code-block">
+    <div class="code-header"><span class="code-lang">Message Flow</span></div>
+    <pre><code>
+             Customer
+                │
+                ▼
+          Order Service
+                │
+        Publish OrderCreated
+                │
+                ▼
+           MassTransit
+                │
+                ▼
+        Message Transport
+          /      |       \
+         /       |        \
+        ▼        ▼         ▼
+   Inventory  Email    Analytics
+    Service   Service   Service
+</code></pre>
+</div>
+
+<ul>
+    <li><strong>Inventory Service:</strong> موجودی محصول را بررسی یا رزرو می‌کند.</li>
+    <li><strong>Email Service:</strong> ایمیل تأیید سفارش را ارسال می‌کند.</li>
+    <li><strong>Analytics Service:</strong> اطلاعات سفارش را برای گزارش‌گیری ثبت می‌کند.</li>
+</ul>
+
+<p>
+    Order Service لازم نیست بداند کدام سرویس‌ها به پیام واکنش نشان می‌دهند یا چگونه
+    عملیاتشان را انجام می‌دهند. این موضوع باعث کاهش Coupling می‌شود.
+</p>
+
+<hr>
+
+<h2>Send و Publish چه تفاوتی دارند؟</h2>
+
+<p>
+    در MassTransit دو الگوی مهم برای ارسال پیام وجود دارد:
+</p>
+
+<table class="table">
+    <thead>
+        <tr><th>روش</th><th>مفهوم</th><th>کاربرد معمول</th></tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><b>Send</b></td>
+            <td>ارسال پیام به مقصد مشخص؛ معمولاً برای یک Consumer یا Endpoint مشخص</td>
+            <td>Command مانند <code>ProcessPayment</code></td>
+        </tr>
+        <tr>
+            <td><b>Publish</b></td>
+            <td>انتشار پیام به‌صورت رویداد؛ هر Consumer دارای Subscription مناسب می‌تواند آن را دریافت کند</td>
+            <td>Event مانند <code>OrderCreated</code></td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="callout callout-info">
+    <span class="callout-icon">📌</span>
+    <div class="callout-content">
+        به‌عنوان یک قاعده ذهنی: Command معمولاً با Send و Event معمولاً با Publish
+        استفاده می‌شود. این قاعده کمک‌کننده است، اما انتخاب نهایی باید با طراحی پیام و
+        Routing سیستم هماهنگ باشد.
+    </div>
+</div>
+
+<hr>
+
+<h2>MassTransit از چه Transportهایی پشتیبانی می‌کند؟</h2>
+
+<p>
+    MassTransit می‌تواند با Transportهای مختلفی کار کند. API اصلی تا حد زیادی یکسان است،
+    اما هر Transport قابلیت‌ها، محدودیت‌ها و رفتارهای عملیاتی خاص خود را دارد.
+</p>
+
+<table class="table">
+    <thead><tr><th>Transport</th><th>توضیح کوتاه</th></tr></thead>
+    <tbody>
+        <tr><td>RabbitMQ</td><td>Message Broker محبوب برای Queue، Exchange و Routing</td></tr>
+        <tr><td>Azure Service Bus</td><td>سرویس Messaging مدیریت‌شده در Azure</td></tr>
+        <tr><td>Amazon SQS</td><td>Queue service مدیریت‌شده در AWS</td></tr>
+        <tr><td>ActiveMQ</td><td>Message Broker با قابلیت‌های Messaging</td></tr>
+        <tr><td>SQL Transport</td><td>Transport مبتنی بر دیتابیس‌های پشتیبانی‌شده</td></tr>
+    </tbody>
+</table>
+
+<div class="callout callout-warning">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+        یکسان‌بودن API به معنی یکسان‌بودن تمام قابلیت‌ها، هزینه‌ها، ترتیب پیام‌ها یا
+        رفتارهای Brokerها نیست. هنگام طراحی Production باید ویژگی‌های Transport انتخاب‌شده را بررسی کنیم.
+    </div>
+</div>
+
+<hr>
+
+<h2>MassTransit چه امکاناتی فراتر از ارسال پیام دارد؟</h2>
+
+<p>MassTransit امکانات و الگوهای متعددی برای ساخت سیستم‌های قابل‌اعتمادتر فراهم می‌کند:</p>
+
+<ul>
+    <li><strong>Retry:</strong> تلاش مجدد برای پردازش پیام پس از خطای موقت</li>
+    <li><strong>Delayed Redelivery:</strong> دریافت مجدد پیام پس از یک بازه زمانی</li>
+    <li><strong>Fault Handling:</strong> مدیریت پیام‌هایی که پردازششان شکست خورده است</li>
+    <li><strong>Outbox:</strong> هماهنگ‌کردن ذخیره تغییرات و پیام‌های خروجی برای کاهش مشکل Dual Write</li>
+    <li><strong>Saga State Machine:</strong> مدیریت فرآیندهای Business چندمرحله‌ای و طولانی</li>
+    <li><strong>Scheduling:</strong> زمان‌بندی ارسال یا پردازش پیام</li>
+    <li><strong>Testing:</strong> ابزارهایی برای تست Consumerها و رفتار Message Flow</li>
+</ul>
+
+<p>
+    در فصل‌های بعدی این دوره، هرکدام از این مفاهیم را جداگانه و با مثال‌های عملی بررسی خواهیم کرد.
+</p>
+
+<hr>
+
+<h2>MassTransit در برابر استفاده مستقیم از RabbitMQ</h2>
+
+<table class="table">
+    <thead><tr><th>استفاده مستقیم از RabbitMQ Client</th><th>استفاده از MassTransit</th></tr></thead>
+    <tbody>
+        <tr><td>کار با API سطح پایین Broker</td><td>کار با Abstraction و API سطح بالاتر</td></tr>
+        <tr><td>بخش بیشتری از Plumbing Code را خودمان مدیریت می‌کنیم</td><td>ساختار Producer/Consumer و Lifecycle ساده‌تر می‌شود</td></tr>
+        <tr><td>پیاده‌سازی الگوهای Reliability ممکن است دستی‌تر باشد</td><td>الگوهایی مانند Retry، Outbox و Fault Handling در دسترس‌اند</td></tr>
+        <tr><td>وابستگی مستقیم‌تر به RabbitMQ</td><td>امکان استفاده از Transportهای مختلف با مدل برنامه‌نویسی مشترک</td></tr>
+    </tbody>
+</table>
+
+<p>
+    MassTransit جای RabbitMQ را نمی‌گیرد؛ اگر RabbitMQ را انتخاب کنیم، MassTransit می‌تواند
+    لایه برنامه‌نویسی ما برای کار با آن باشد.
+</p>
+
+<hr>
+
+<h2>MassTransit یا REST؟</h2>
+
+<table class="table">
+    <thead><tr><th>REST / HTTP</th><th>MassTransit / Messaging</th></tr></thead>
+    <tbody>
+        <tr><td>اغلب Request/Response و ارتباط مستقیم</td><td>اغلب ارتباط Asynchronous و Message-Based</td></tr>
+        <tr><td>Caller معمولاً منتظر پاسخ می‌ماند</td><td>Producer معمولاً منتظر اجرای Consumer نمی‌ماند</td></tr>
+        <tr><td>مناسب APIهای فوری و Queryهای مستقیم</td><td>مناسب کارهای پس‌زمینه و ارتباط بین سرویس‌ها</td></tr>
+        <tr><td>در دسترس‌بودن مقصد برای پاسخ فوری اهمیت دارد</td><td>پیام می‌تواند در زیرساخت Messaging منتظر پردازش بماند</td></tr>
+    </tbody>
+</table>
+
+<div class="callout callout-warning">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+        MassTransit جایگزین کامل REST یا gRPC نیست. در معماری واقعی ممکن است برای APIهای
+        فوری از HTTP و برای پردازش‌های پس‌زمینه و Eventها از Messaging استفاده کنیم.
+    </div>
+</div>
+
+<hr>
+
+<h2>مزایا و چالش‌ها</h2>
+
+<h3>مزایا</h3>
+<ul>
+    <li>کاهش Coupling بین Microserviceها</li>
+    <li>سادگی توسعه Message-Based Application در .NET</li>
+    <li>امکان استفاده از Transportهای متنوع</li>
+    <li>ابزارهای آماده برای Reliability، Workflow و Testing</li>
+    <li>مناسب برای پردازش Asynchronous و پس‌زمینه</li>
+</ul>
+
+<h3>چالش‌ها</h3>
+<ul>
+    <li>پیچیدگی بیشتر در Debugging سیستم‌های توزیع‌شده</li>
+    <li>احتمال Duplicate Message و ضرورت طراحی Idempotent Consumer</li>
+    <li>نیاز به Monitoring، مدیریت Retry و بررسی Queue Backlog</li>
+    <li>نیاز به طراحی صحیح Message Contract و Versioning</li>
+    <li>پیام‌رسانی Asynchronous به معنی تضمین خودکار موفقیت Business Operation نیست</li>
+</ul>
+
+<hr>
+
+<h2>نکته مصاحبه</h2>
+
+<div class="callout callout-info">
+    <span class="callout-icon">🎓</span>
+    <div class="callout-content">
+        <strong>سؤال:</strong> MassTransit چیست و چه تفاوتی با RabbitMQ دارد؟
+        <br><br>
+        <strong>پاسخ پیشنهادی:</strong>
+        MassTransit یک Framework برای ساخت برنامه‌های Message-Based و Distributed در .NET
+        است. این فریم‌ورک APIهایی برای تعریف Message Contract، ارسال و Publish پیام،
+        Consumerها و الگوهایی مانند Retry و Outbox ارائه می‌دهد. RabbitMQ یک Message Broker
+        یا Transport است که پیام‌ها را در زیرساخت خود انتقال می‌دهد و نگهداری می‌کند.
+        MassTransit می‌تواند به RabbitMQ متصل شود و توسعه Messaging را در برنامه .NET ساده‌تر کند.
+    </div>
+</div>
+
+<hr>
+
+<h2>جمع‌بندی</h2>
+
+<p>
+    MassTransit یک Framework برای پیاده‌سازی ارتباط Message-Based در برنامه‌های .NET است.
+    ما Message Contract تعریف می‌کنیم، پیام‌ها را Send یا Publish می‌کنیم و Consumerها
+    آن‌ها را پردازش می‌کنند. MassTransit با Transportهایی مانند RabbitMQ و Azure Service Bus
+    کار می‌کند و ابزارهایی برای مدیریت خطا، Retry، Outbox، Scheduling و Workflow در اختیارمان می‌گذارد.
+</p>
+
+<div class="callout callout-success">
+    <span class="callout-icon">➡️</span>
+    <div class="callout-content">
+        در درس بعدی با مفهوم <strong>Why MassTransit?</strong> عمیق‌تر آشنا می‌شویم و
+        بررسی می‌کنیم چرا در پروژه‌های .NET استفاده از این Framework می‌تواند مفید باشد.
+    </div>
+</div>
+
+<hr>
+
+<h2>منابع</h2>
+<ul>
+    <li><a href="https://masstransit.massient.com/concepts" target="_blank" rel="noopener noreferrer">MassTransit Official Documentation — Introduction to Concepts</a></li>
+    <li><a href="https://masstransit.massient.com/concepts/messages" target="_blank" rel="noopener noreferrer">MassTransit Official Documentation — Messages</a></li>
+    <li><a href="https://masstransit.massient.com/concepts/transports" target="_blank" rel="noopener noreferrer">MassTransit Official Documentation — Transports</a></li>
+</ul>
+      </div>
+      <nav class="lesson-pager" aria-label="درس قبلی و بعدی">
+        <a rel="next" href="ch7-2.html">درس بعدی: <bdi>7.2 Why MassTransit</bdi></a>
+      </nav>
+    </main>
+  </div>
+  <div id="copy-status" role="status" aria-live="polite"></div>
+</body>
+</html>
