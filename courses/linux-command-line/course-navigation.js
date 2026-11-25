@@ -14,7 +14,16 @@
       ['what-is-the-command-line', 'What is the command line?'],
       ['command-structure', 'Understand how commands are structured'],
       ['shell-prompt', 'Write commands in a shell at the prompt'],
-      ['finding-help', 'Finding help for commands']
+      ['finding-help', 'Finding help for commands'],
+      ['terminal-keyboard-shortcuts', 'Helpful keyboard shortcuts in the terminal'],
+      ['challenge-find-command-information', 'Challenge: Find command information'],
+      ['solution-find-command-information', 'Solution: Find command information']
+    ]],
+    ['3. Files, Directories, and Permissions', [
+      ['linux-file-system', 'The Linux file system'],
+      ['understanding-file-paths', 'Understanding file paths'],
+      ['navigating-file-system', 'Navigating the file system'],
+      ['finding-directory-and-file-information', 'Finding directory and file information']
     ]]
   ];
 
@@ -31,7 +40,7 @@
       <details class="course-chapter" open>
         <summary lang="en" dir="ltr">${escapeHtml(title)}</summary>
         <ol>${lessons.map(([id, label]) => `
-          <li><a href="${id}.html"${id === currentLesson ? ' aria-current="page"' : ''}><bdi>${escapeHtml(label)}</bdi></a></li>
+          <li><a href="${id}.html"${id === currentLesson ? ' aria-current="page"' : ''}><bdi lang="en">${escapeHtml(label)}</bdi></a></li>
         `).join('')}</ol>
       </details>
     `).join('')}`;

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="سرفصل‌های دورهٔ مقدماتی آموزش لینوکس توسط چت‌جی‌پی‌تی برای برنامه‌نویسان .NET.">
+  <title>آموزش لینوکس توسط چت‌جی‌پی‌تی | آکادمی مهندسی نرم‌افزار</title>
+  <script>
+    (() => {
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../microservices/course.css">
+  <style>
+    .outline-nav ol {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+      gap: .4rem 2rem;
+      padding-inline-start: 1.5rem;
+    }
+    .outline-nav a {
+      display: block;
+      padding-block: .25rem;
+      text-underline-offset: .2em;
+    }
+    .outline-chapter {
+      margin-block: 1rem;
+      padding: 1rem clamp(1rem, 3vw, 1.5rem);
+      scroll-margin-block-start: 5.5rem;
+      border: 1px solid var(--line);
+      border-radius: .75rem;
+      background: var(--panel);
+    }
+    .outline-chapter h2 { margin: 0 0 .5rem; }
+    .outline-chapter :is(ol, ul) { margin: 0; padding-inline-start: 1.35rem; }
+    .outline-chapter li + li { margin-block-start: .3rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#course-content">پرش به سرفصل‌ها</a>
+  <header class="course-header">
+    <a href="../../index.html">آکادمی مهندسی نرم‌افزار</a>
+  </header>
+  <main id="course-content" class="lesson-content">
+    <nav class="breadcrumb" aria-label="مسیر راهنما">
+      <a href="../../devops/">آموزش‌های دوآپس</a>
+    </nav>
+    <header class="article-header">
+      <p class="article-tag">مقدماتی · ویژهٔ برنامه‌نویسان <bdi lang="en">.NET</bdi></p>
+      <h1>آموزش لینوکس توسط چت‌جی‌پی‌تی</h1>
+    </header>
+    <nav class="outline-nav" aria-labelledby="outline-title">
+      <h2 id="outline-title">فهرست سرفصل‌ها</h2>
+      <ol>
+        <li><a href="#getting-started">آشنایی و آماده‌سازی محیط</a></li>
+        <li><a href="#files-and-paths">فایل‌ها و مسیرها</a></li>
+        <li><a href="#text-and-search">خواندن متن و جست‌وجو</a></li>
+        <li><a href="#permissions">کاربران و مجوزها</a></li>
+        <li><a href="#developer-environment">ابزارها و تنظیمات توسعه</a></li>
+        <li><a href="#processes-and-network">پردازه‌ها و شبکهٔ محلی</a></li>
+        <li><a href="#dotnet-on-linux">توسعهٔ <bdi lang="en">.NET</bdi> در لینوکس</a></li>
+      </ol>
+    </nav>
+    <section id="getting-started" class="outline-chapter">
+      <h2>۱. آشنایی و آماده‌سازی محیط</h2>
+      <ol>
+        <li><a href="lessons/linux-and-ubuntu.html">آشنایی با لینوکس، توزیع‌ها و <bdi lang="en">Ubuntu</bdi></a></li>
+        <li><a href="lessons/practice-environment.html">محیط تمرین: <bdi lang="en">WSL</bdi> در ویندوز، ماشین مجازی یا لینوکس موجود</a></li>
+        <li><a href="lessons/terminal-and-bash.html">تفاوت ترمینال، خط فرمان و <bdi lang="en">Bash</bdi></a></li>
+        <li><a href="lessons/commands-and-help.html">ساختار دستور، راهنمای <bdi lang="en"><code>man</code></bdi> و <bdi dir="ltr"><code>--help</code></bdi>، تکمیل خودکار و تاریخچه</a></li>
+      </ol>
+    </section>
+    <section id="files-and-paths" class="outline-chapter">
+      <h2>۲. فایل‌ها و مسیرها</h2>
+      <ul>
+        <li>ساختار پوشه‌ها: ریشه، پوشهٔ شخصی و پوشه‌های سیستمی</li>
+        <li>مسیر مطلق و نسبی، پوشهٔ جاری و حرکت با <bdi lang="en"><code>pwd</code></bdi>، <bdi lang="en"><code>ls</code></bdi> و <bdi lang="en"><code>cd</code></bdi></li>
+        <li>ساخت، کپی، جابه‌جایی و حذف فایل و پوشه</li>
+        <li>فایل‌های مخفی، نام‌های دارای فاصله و حساسیت به بزرگی و کوچکی حروف</li>
+      </ul>
+    </section>
+    <section id="text-and-search" class="outline-chapter">
+      <h2>۳. خواندن متن و جست‌وجو</h2>
+      <ul>
+        <li>خواندن فایل و دنبال کردن گزارش‌ها با <bdi lang="en"><code>cat</code></bdi>، <bdi lang="en"><code>less</code></bdi> و <bdi lang="en"><code>tail</code></bdi></li>
+        <li>پیدا کردن فایل با <bdi lang="en"><code>find</code></bdi> و جست‌وجوی متن با <bdi lang="en"><code>grep</code></bdi></li>
+        <li>خروجی معمولی، خروجی خطا، تغییر مسیر خروجی و <bdi lang="en">Pipe</bdi></li>
+        <li>ویرایش فایل تنظیمات با <bdi lang="en"><code>nano</code></bdi></li>
+      </ul>
+    </section>
+    <section id="permissions" class="outline-chapter">
+      <h2>۴. کاربران و مجوزها</h2>
+      <ul>
+        <li>کاربر، گروه و مالکیت فایل</li>
+        <li>خواندن مجوزهای فایل و پوشه و تغییر آن‌ها با <bdi lang="en"><code>chmod</code></bdi></li>
+        <li>کاربر <bdi lang="en"><code>root</code></bdi> و کاربرد <bdi lang="en"><code>sudo</code></bdi></li>
+      </ul>
+    </section>
+    <section id="developer-environment" class="outline-chapter">
+      <h2>۵. ابزارها و تنظیمات توسعه</h2>
+      <ul>
+        <li>نصب و به‌روزرسانی بسته‌ها در <bdi lang="en">Ubuntu</bdi> با <bdi lang="en"><code>apt</code></bdi></li>
+        <li>متغیرهای محیطی، <bdi lang="en"><code>PATH</code></bdi> و پیدا کردن محل یک دستور</li>
+        <li>تنظیمات <bdi lang="en">Bash</bdi> و تفاوت تنظیم موقت با تنظیم در <bdi dir="ltr"><code>.bashrc</code></bdi></li>
+        <li>کار روی یک مخزن <bdi lang="en">Git</bdi> از ترمینال</li>
+      </ul>
+    </section>
+    <section id="processes-and-network" class="outline-chapter">
+      <h2>۶. پردازه‌ها و شبکهٔ محلی</h2>
+      <ul>
+        <li>پردازه چیست و چطور برنامه‌های در حال اجرا را پیدا و متوقف کنیم؟</li>
+        <li>نشانی <bdi lang="en">IP</bdi>، پورت و <bdi lang="en"><code>localhost</code></bdi></li>
+        <li>آزمایش پاسخ یک برنامهٔ محلی با <bdi lang="en"><code>curl</code></bdi></li>
+        <li>عیب‌یابی اولیه: خروجی برنامه، پورت اشغال‌شده و مجوز دسترسی</li>
+      </ul>
+    </section>
+    <section id="dotnet-on-linux" class="outline-chapter">
+      <h2>۷. توسعهٔ <bdi lang="en">.NET</bdi> در لینوکس</h2>
+      <ul>
+        <li>تفاوت <bdi lang="en">.NET SDK</bdi> و <bdi lang="en">Runtime</bdi> و بررسی نصب با <bdi dir="ltr"><code>dotnet --info</code></bdi></li>
+        <li>ساخت، اجرا و تست یک پروژهٔ <bdi lang="en">.NET</bdi> از ترمینال</li>
+        <li>تفاوت‌های ویندوز و لینوکس در پروژه: مسیرها، نام فایل‌ها و پایان خط</li>
+        <li>تمرین پایانی: اجرای یک <bdi lang="en">ASP.NET Core Web API</bdi>، تنظیم محیط و بررسی پاسخ محلی</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

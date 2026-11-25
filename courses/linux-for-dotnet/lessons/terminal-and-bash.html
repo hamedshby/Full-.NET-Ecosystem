@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="فرق بین برنامهٔ ترمینال، خط فرمان و Bash در یک مثال.">
+  <title>تفاوت ترمینال، خط فرمان و Bash | آموزش لینوکس توسط چت‌جی‌پی‌تی</title>
+  <script>
+    (() => {
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../">آموزش لینوکس توسط چت‌جی‌پی‌تی</a>
+  </header>
+  <main id="lesson-content" class="lesson-content">
+    <nav class="breadcrumb" aria-label="مسیر راهنما">
+      <a href="../../../devops/">دوآپس</a>
+      <span aria-hidden="true">/</span>
+      <a href="../#getting-started">آشنایی و آماده‌سازی محیط</a>
+    </nav>
+    <article class="lesson-body">
+      <header class="article-header">
+        <span class="article-tag">فصل اول · درس ۳ از ۴</span>
+        <h1>تفاوت ترمینال، خط فرمان و <bdi lang="en">Bash</bdi></h1>
+      </header>
+      <div class="divider"></div>
+      <p>در برنامهٔ Terminal این خط را بنویس و <kbd>Enter</kbd> بزن. همین رفت‌وبرگشت کوتاه نشان می‌دهد ترمینال، خط فرمان و Bash چه کاری انجام می‌دهند.</p>
+      <div class="code-block"><div class="code-header" lang="en">Bash</div><pre><code>echo "Hello, Linux"</code></pre></div>
+      <div class="code-block"><div class="code-header" lang="fa">خروجی نمونه</div><pre><code>Hello, Linux</code></pre></div>
+      <h2>در این چند ثانیه چه اتفاقی افتاد؟</h2>
+      <ol>
+        <li><strong>ترمینال</strong> برنامه‌ای است که در پنجرهٔ آن تایپ می‌کنی و نتیجه را می‌بینی. اینجا جملهٔ انگلیسی را در ترمینال دیدی.</li>
+        <li><strong>خط فرمان</strong> روش کار با نوشتن فرمان و دیدن نتیجه است. خطی که تایپ کردی به برنامه گفت چه کاری انجام دهد.</li>
+        <li><strong>پوسته یا <bdi lang="en">Shell</bdi></strong> برنامه‌ای است که خط نوشته‌شده را می‌خواند و فرمان را اجرا می‌کند. <bdi lang="en">Bash</bdi> یک نوع پوسته است. در این مثال Bash عبارت داخل علامت‌های نقل‌قول را یک متن در نظر می‌گیرد و دستور داخلی <code>echo</code> آن را چاپ می‌کند.</li>
+      </ol>
+      <p>در <bdi lang="en">Windows Terminal</bdi> می‌توانی یک زبانه برای PowerShell و یک زبانه برای Bash در Ubuntu داشته باشی. در هر دو زبانه ترمینال یک برنامه است، اما پوسته‌ای که فرمان‌ها را تفسیر می‌کند فرق دارد.</p>
+      <h2>علامت <bdi dir="ltr"><code>$</code></bdi> ابتدای خط چیست؟</h2>
+      <p>به متنی که پیش از محل تایپ ظاهر می‌شود <bdi lang="en">Prompt</bdi> می‌گویند؛ مثلاً <bdi dir="ltr"><code>sara@ubuntu:~$</code></bdi>. این متن نشان می‌دهد پوسته منتظر فرمان بعدی است. ظاهرش به تنظیمات بستگی دارد. وقتی نمونه‌ای با Prompt می‌بینی، فقط خود دستور را وارد کن.</p>
+      <h2>چطور نسخهٔ Bash را در یک نشست ببینم؟</h2>
+      <p>خط‌ها را یکی‌یکی اجرا کن. خط اول یک Bash جدید باز می‌کند. خط دوم با <code>printf</code> مقدار <bdi dir="ltr"><code>$BASH_VERSION</code></bdi> را چاپ می‌کند؛ این مقدار شمارهٔ نسخهٔ Bash است. در الگوی <bdi dir="ltr"><code>%s&#92;n</code></bdi>، بخش <code>%s</code> جای متن است و <bdi dir="ltr"><code>&#92;n</code></bdi> نشان می‌دهد بعد از آن به خط بعد برو.</p>
+      <div class="code-block"><div class="code-header" lang="en">Bash</div><pre><code>bash&#10;printf '%s\n' "$BASH_VERSION"&#10;exit</code></pre></div>
+      <p>بعد از خط دوم، عددی مثل <bdi dir="ltr"><code>5.2.21(1)-release</code></bdi> می‌بینی. خط سوم با <code>exit</code> از Bash جدید خارج می‌شود و به پوستهٔ قبلی برمی‌گردد.</p>
+      <h2>تمرین کوتاه</h2>
+      <p>دستور چاپ پیام را دوباره اجرا کن و متن را به <bdi lang="en" dir="ltr">Hello, .NET</bdi> تغییر بده. چه چیزی پیام را روی صفحه نشان می‌دهد؟ چه چیزی فرمان را تفسیر و اجرا می‌کند؟</p>
+      <details>
+        <summary>پاسخ تمرین</summary>
+        <p>ترمینال نتیجه را نشان می‌دهد. Bash فرمان <bdi dir="ltr"><code>echo "Hello, .NET"</code></bdi> را می‌خواند و اجرا می‌کند. خروجی یک خط شامل <bdi lang="en" dir="ltr">Hello, .NET</bdi> است.</p>
+      </details>
+      <p>برای مطالعهٔ بیشتر: <a href="https://www.gnu.org/software/bash/manual/html_node/What-is-a-shell_003f.html">تعریف پوسته در راهنمای GNU Bash</a>.</p>
+    </article>
+    <nav class="lesson-pager" aria-label="درس‌های فصل اول">
+      <a rel="prev" href="practice-environment.html">درس قبلی: راه‌اندازی محیط تمرین</a>
+      <a href="../#getting-started">بازگشت به سرفصل‌های فصل اول</a>
+      <a rel="next" href="commands-and-help.html">درس بعدی: ساختار و راهنمای دستورها</a>
+    </nav>
+  </main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="حل تمرین پیدا کردن گزینه‌های ls و توضیح تفاوت خروجی با ls ساده.">
+  <title>Solution: Find command information | Linux Command Line</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+    <span class="course-name" lang="en" dir="ltr">Learning Linux Command Line</span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست سرفصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست سرفصل‌های دوره" data-current-lesson="solution-find-command-information">
+      <h2 lang="en" dir="ltr">Learning Linux Command Line</h2><p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../devops/">دوآپس</a><span>/</span><a href="intro.html"><bdi lang="en">2. Command-Line Basics</bdi></a></nav>
+      <div class="lesson-meta"><span class="availability-badge">یادداشت دوره</span><span>مدت ویدیو: <bdi>2m 47s</bdi></span></div>
+      <article class="lesson-body">
+        <header class="article-header"><div class="article-tag">حل تمرین راهنمای دستورها</div><h1 lang="en" dir="ltr">Solution: Find command information</h1></header>
+        <div class="divider"></div>
+        <p>ابتدا <bdi><code>man ls</code></bdi> یا <bdi><code>ls --help</code></bdi> را اجرا کنید. در راهنما دنبال گزینه‌های <bdi><code>-l</code></bdi>، <bdi><code>-a</code></bdi> و <bdi><code>-h</code></bdi> بگردید:</p>
+        <ul>
+          <li><bdi><code>-l</code></bdi> فهرست را با جزئیاتی مثل اندازه و زمان تغییر نمایش می‌دهد.</li>
+          <li><bdi><code>-a</code></bdi> نام‌های شروع‌شده با نقطه را هم نشان می‌دهد. به همین دلیل <bdi><code>.</code></bdi> و <bdi><code>..</code></bdi> هم دیده می‌شوند.</li>
+          <li><bdi><code>-h</code></bdi> همراه با <bdi><code>-l</code></bdi>، اندازه‌ها را در صورت نیاز با واحدهایی مثل <bdi><code>K</code></bdi> و <bdi><code>M</code></bdi> نمایش می‌دهد.</li>
+        </ul>
+        <h2>مقایسهٔ خروجی</h2>
+        <div class="code-block"><div class="code-header">Bash</div><pre><code>ls
+ls -lah</code></pre></div>
+        <p>در خروجی دستور دوم برای هر مورد یک سطرِ جزئیات می‌بینید. اگر پوشه فایلی مثل <bdi><code>.gitignore</code></bdi> داشته باشد، در خروجی دوم ظاهر می‌شود. شکل کوتاه <bdi><code>ls -lah</code></bdi> معادل <bdi><code>ls -l -a -h</code></bdi> است.</p>
+      </article>
+      <nav class="lesson-pager" aria-label="درس‌های دوره">
+        <a rel="prev" href="challenge-find-command-information.html">درس قبلی: <bdi lang="en">Challenge: Find command information</bdi></a>
+        <a rel="next" href="linux-file-system.html">درس بعدی: <bdi lang="en">The Linux file system</bdi></a>
+      </nav>
+    </main>
+  </div>
+</body>
+</html>

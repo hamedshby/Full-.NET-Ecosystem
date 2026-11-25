@@ -30,14 +30,24 @@
       max-width: 28rem;
     }
 
+    @media (min-width: 50rem) {
+      .devops-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-width: 57.15rem;
+      }
+    }
+
     .devops-card .course-art {
       background: linear-gradient(145deg, #1659d7, #087b78);
+    }
+
+    .devops-card--linux-dotnet .course-art {
+      background: linear-gradient(145deg, #5634a8, #176b62);
     }
 
     .devops-card h2 {
       margin: 0.85rem 0 0;
       font-size: 1.25rem;
-      direction: ltr;
       text-align: start;
     }
 
@@ -93,6 +103,18 @@
         <p>دوره‌ها و منابع کاربردی برای کار با Linux، ابزارهای توسعه و عملیات نرم‌افزار.</p>
       </div>
       <div class="course-grid devops-grid">
+        <article class="course-card devops-card devops-card--linux-dotnet">
+          <div class="course-art" dir="ltr" aria-hidden="true">LINUX / .NET</div>
+          <p class="status">دورهٔ مستقل · مقدماتی</p>
+          <h2><a href="../courses/linux-for-dotnet/">آموزش لینوکس توسط چت‌جی‌پی‌تی</a></h2>
+          <p>مسیر یادگیری لینوکس از صفر برای برنامه‌نویسان <bdi lang="en">.NET</bdi>.</p>
+          <ul>
+            <li>راه‌اندازی محیط تمرین و کار با ترمینال</li>
+            <li>فایل‌ها، مجوزها، پردازه‌ها و شبکهٔ محلی</li>
+            <li>ساخت، اجرا و تست پروژهٔ <bdi lang="en">.NET</bdi> روی لینوکس</li>
+          </ul>
+          <a class="button-link" href="../courses/linux-for-dotnet/">مشاهدهٔ سرفصل‌ها</a>
+        </article>
         <article class="course-card devops-card">
           <div class="course-art" aria-hidden="true">LINUX</div>
           <p class="status">دورهٔ LinkedIn Learning</p>

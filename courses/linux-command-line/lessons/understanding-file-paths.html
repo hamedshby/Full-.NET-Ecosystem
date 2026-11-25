@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="شناخت مسیر مطلق و نسبی، پوشهٔ جاری، پوشهٔ والد و علامت ~ در Bash.">
+  <title>Understanding file paths | Linux Command Line</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+    <span class="course-name" lang="en" dir="ltr">Learning Linux Command Line</span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست سرفصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست سرفصل‌های دوره" data-current-lesson="understanding-file-paths">
+      <h2 lang="en" dir="ltr">Learning Linux Command Line</h2><p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../devops/">دوآپس</a><span>/</span><a href="intro.html"><bdi lang="en">3. Files, Directories, and Permissions</bdi></a></nav>
+      <div class="lesson-meta"><span class="availability-badge">یادداشت دوره</span><span>مدت ویدیو: <bdi>4m 47s</bdi></span></div>
+      <article class="lesson-body">
+        <header class="article-header"><div class="article-tag">مسیر فایل‌ها</div><h1 lang="en" dir="ltr">Understanding file paths</h1></header>
+        <div class="divider"></div>
+        <p>مسیر آدرس یک فایل یا پوشه است. وقتی به Bash می‌گویید <bdi><code>ls /etc/hosts</code></bdi>، علامت <bdi><code>/</code></bdi> در ابتدای آدرس یعنی از ریشه شروع کن، وارد پوشهٔ <code>etc</code> شو و مدخل <code>hosts</code> را نشان بده.</p>
+        <h2>مسیر مطلق و مسیر نسبی</h2>
+        <ul>
+          <li>مسیر مطلق از ریشه شروع می‌شود؛ <bdi><code>/etc/hosts</code></bdi> در هر پوشه‌ای به همان فایل اشاره می‌کند.</li>
+          <li>مسیر نسبی از پوشهٔ کاری فعلی شروع می‌شود؛ اگر در <bdi><code>/etc</code></bdi> باشید، مسیر <code>hosts</code> به همان فایل اشاره می‌کند.</li>
+          <li><bdi><code>.</code></bdi> نام کوتاه پوشهٔ فعلی و <bdi><code>..</code></bdi> نام کوتاه پوشهٔ والد است. Bash همچنین <bdi><code>~</code></bdi> را در ابتدای مسیر بدون نقل‌قول به پوشهٔ شخصی شما تبدیل می‌کند.</li>
+        </ul>
+        <div class="code-block"><div class="code-header">Bash</div><pre><code>cd /etc
+ls /etc/hosts
+ls ./hosts</code></pre></div>
+        <p>هر دو دستور <code>ls</code> یک فایل را نشان می‌دهند؛ نامی که در خروجی چاپ می‌شود ممکن است شکل همان مسیری باشد که وارد کرده‌اید. اگر در پوشهٔ دیگری باشید، <bdi><code>./hosts</code></bdi> در همان پوشهٔ دیگر جست‌وجو می‌شود.</p>
+      </article>
+      <nav class="lesson-pager" aria-label="درس‌های دوره">
+        <a rel="prev" href="linux-file-system.html">درس قبلی: <bdi lang="en">The Linux file system</bdi></a>
+        <a rel="next" href="navigating-file-system.html">درس بعدی: <bdi lang="en">Navigating the file system</bdi></a>
+      </nav>
+    </main>
+  </div>
+</body>
+</html>

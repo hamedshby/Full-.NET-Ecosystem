@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آشنایی با ریشهٔ سیستم فایل Linux و کاربرد چند پوشهٔ اصلی.">
+  <title>The Linux file system | Linux Command Line</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+    <span class="course-name" lang="en" dir="ltr">Learning Linux Command Line</span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست سرفصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست سرفصل‌های دوره" data-current-lesson="linux-file-system">
+      <h2 lang="en" dir="ltr">Learning Linux Command Line</h2><p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../devops/">دوآپس</a><span>/</span><a href="intro.html"><bdi lang="en">3. Files, Directories, and Permissions</bdi></a></nav>
+      <div class="lesson-meta"><span class="availability-badge">یادداشت دوره</span><span>مدت ویدیو: <bdi>5m 48s</bdi></span></div>
+      <article class="lesson-body">
+        <header class="article-header"><div class="article-tag">فایل‌ها و پوشه‌ها</div><h1 lang="en" dir="ltr">The Linux file system</h1></header>
+        <div class="divider"></div>
+        <p>دستور <bdi><code>ls /</code></bdi> را اجرا کنید. فهرستی از پوشه‌های بالاترین سطح Linux می‌بینید. آن سطح «ریشهٔ سیستم فایل» است و با <bdi><code>/</code></bdi> نشان داده می‌شود. فایل‌ها و پوشه‌ها مثل شاخه‌های یک درخت از همین نقطه در دسترس‌اند.</p>
+        <h2>پوشه‌هایی که زیاد می‌بینید</h2>
+        <ul>
+          <li><bdi><code>/home</code></bdi>: محل معمول پوشهٔ شخصی کاربران عادی، مانند <bdi><code>/home/sara</code></bdi>.</li>
+          <li><bdi><code>/etc</code></bdi>: تنظیمات سیستم و بسیاری از برنامه‌ها؛ برای نمونه <bdi><code>/etc/hosts</code></bdi>.</li>
+          <li><bdi><code>/var</code></bdi>: داده‌هایی که در زمان کار سیستم تغییر می‌کنند؛ برای نمونه گزارش‌های ثبت‌شده در <bdi><code>/var/log</code></bdi>.</li>
+          <li><bdi><code>/tmp</code></bdi>: محل فایل‌های موقت. برای نگهداری دائمی فایل‌ها روی این پوشه حساب نکنید.</li>
+          <li><bdi><code>/root</code></bdi>: نام رایج پوشهٔ شخصی کاربر مدیر سیستم (<code>root</code>). ریشهٔ درخت همان <bdi><code>/</code></bdi> است.</li>
+        </ul>
+        <p>حالا <bdi><code>ls /etc</code></bdi> را اجرا کنید. این بار به جای کل ریشه فقط محتویات یک پوشه را می‌بینید. نام‌ها ممکن است بین توزیع‌های Linux متفاوت باشند.</p>
+      </article>
+      <nav class="lesson-pager" aria-label="درس‌های دوره">
+        <a rel="prev" href="solution-find-command-information.html">درس قبلی: <bdi lang="en">Solution: Find command information</bdi></a>
+        <a rel="next" href="understanding-file-paths.html">درس بعدی: <bdi lang="en">Understanding file paths</bdi></a>
+      </nav>
+    </main>
+  </div>
+</body>
+</html>

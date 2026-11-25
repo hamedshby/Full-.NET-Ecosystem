@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="خواندن ساختار دستور، پیدا کردن راهنما و استفاده از تاریخچه در Bash.">
+  <title>ساختار دستور، راهنما، تکمیل خودکار و تاریخچه | آموزش لینوکس توسط چت‌جی‌پی‌تی</title>
+  <script>
+    (() => {
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../">آموزش لینوکس توسط چت‌جی‌پی‌تی</a>
+  </header>
+  <main id="lesson-content" class="lesson-content">
+    <nav class="breadcrumb" aria-label="مسیر راهنما">
+      <a href="../../../devops/">دوآپس</a>
+      <span aria-hidden="true">/</span>
+      <a href="../#getting-started">آشنایی و آماده‌سازی محیط</a>
+    </nav>
+    <article class="lesson-body">
+      <header class="article-header">
+        <span class="article-tag">فصل اول · درس ۴ از ۴</span>
+        <h1>ساختار دستور، راهنمای <bdi lang="en"><code>man</code></bdi> و <bdi lang="en" dir="ltr"><code>--help</code></bdi>، تکمیل خودکار و تاریخچه</h1>
+      </header>
+      <div class="divider"></div>
+      <p>هر دو دستور زیر پوشهٔ شخصی را فهرست می‌کنند. دستور دوم نام‌های شروع‌شده با نقطه را هم نشان می‌دهد. با همین یک تفاوت می‌توانی ساختار دستور را بخوانی و بعد گزینه‌های تازه را از راهنما پیدا کنی.</p>
+      <div class="code-block"><div class="code-header" lang="en">Bash</div><pre><code>ls ~&#10;ls -a ~</code></pre></div>
+      <h2>یک خط فرمان را چطور بخوانیم؟</h2>
+      <ul>
+        <li><code>ls</code> <strong>نام دستور</strong> است: فهرست کردن فایل‌ها و پوشه‌ها.</li>
+        <li><bdi dir="ltr"><code>-a</code></bdi> یک <strong>گزینه</strong> است: به دستور می‌گوید چگونه رفتار کند. با آن، مواردی مثل <bdi dir="ltr"><code>.</code></bdi> و <bdi dir="ltr"><code>..</code></bdi> هم در فهرست ظاهر می‌شوند.</li>
+        <li><bdi dir="ltr"><code>~</code></bdi> در این مثال <strong>آرگومان</strong> است: می‌گوید دستور روی چه چیزی عمل کند. Bash آن را به مسیر پوشهٔ شخصی تبدیل می‌کند.</li>
+      </ul>
+      <h2>وقتی گزینه‌ای را نمی‌دانی، کجا نگاه کنی؟</h2>
+      <ol>
+        <li><bdi dir="ltr"><code>ls --help</code></bdi>: راهنمای فشردهٔ دستور را در ترمینال چاپ می‌کند. برای پیدا کردن سریع یک گزینه مناسب است.</li>
+        <li><bdi dir="ltr"><code>man ls</code></bdi>: اگر صفحهٔ راهنما نصب باشد، توضیح بیشتری دربارهٔ دستور و گزینه‌هایش نشان می‌دهد. معمولاً با فلش‌ها حرکت می‌کنی و با <kbd>q</kbd> بیرون می‌آیی. اگر خود <code>man</code> یا صفحهٔ آن دستور نصب نبود، از <bdi dir="ltr"><code>--help</code></bdi> استفاده کن.</li>
+        <li><bdi dir="ltr"><code>help cd</code></bdi>: برای دستورهای داخلی Bash مثل <code>cd</code> از راهنمای خود Bash استفاده کن. اگر نمی‌دانی دستور داخلی است یا یک برنامهٔ جدا، <bdi dir="ltr"><code>type cd</code></bdi> را بزن. در تنظیمات معمول Bash عبارت <bdi lang="en">cd is a shell builtin</bdi> ظاهر می‌شود.</li>
+      </ol>
+      <h2>تکمیل خودکار و تاریخچه</h2>
+      <ul>
+        <li><bdi dir="ltr"><code>cat /etc/os-rele</code></bdi> را تایپ کن و قبل از <kbd>Enter</kbd> کلید <kbd>Tab</kbd> را بزن. اگر فقط همان نام منطبق باشد، Bash خط را به <bdi dir="ltr"><code>cat /etc/os-release</code></bdi> کامل می‌کند. اگر چند نام منطبق باشند، در تنظیمات معمول می‌توانی با دوبار زدن <kbd>Tab</kbd> آن‌ها را ببینی. با <kbd>Enter</kbd> فرمان کامل‌شده را اجرا کن.</li>
+        <li>فلش بالا دستور قبلی را برای ویرایش برمی‌گرداند؛ آن را اجرا نمی‌کند. در تنظیمات پیش‌فرض Bash با <kbd dir="ltr">Ctrl+R</kbd> در تاریخچه به عقب بگرد؛ مثلاً <bdi dir="ltr"><code>os-release</code></bdi> را تایپ کن. وقتی فرمان را دیدی، با <kbd>Enter</kbd> اجرا و با <kbd dir="ltr">Ctrl+G</kbd> جست‌وجو را لغو کن.</li>
+      </ul>
+      <h2>تمرین کوتاه</h2>
+      <p>با یکی از روش‌های راهنما، گزینه‌ای را پیدا کن که <code>ls</code> برای هر فایل یک سطر با اطلاعاتی مثل مالک و اندازه نشان دهد. آن را روی پوشهٔ شخصی امتحان کن و با فلش بالا فرمان را دوباره برای ویرایش برگردان.</p>
+      <details>
+        <summary>پاسخ تمرین</summary>
+        <p>گزینهٔ <bdi dir="ltr"><code>-l</code></bdi> (حرف کوچک L) نمایش جزئیات را فعال می‌کند: <bdi dir="ltr"><code>ls -l ~</code></bdi>. اگر پوشه موارد قابل نمایش داشته باشد، برای هر مورد اطلاعاتی مثل مالک، اندازه و زمان آخرین تغییر می‌بینی. با فلش بالا فرمان را به خط تایپ برگردان و <bdi dir="ltr"><code>-a</code></bdi> را هم اضافه کن تا نام‌های شروع‌شده با نقطه را ببینی.</p>
+      </details>
+      <p>برای مطالعهٔ بیشتر: <a href="https://www.gnu.org/software/coreutils/manual/html_node/ls-invocation.html">راهنمای GNU برای <code>ls</code></a> و <a href="https://www.gnu.org/software/bash/manual/html_node/Readline-Interaction.html">راهنمای تکمیل و تاریخچهٔ Bash</a>.</p>
+    </article>
+    <nav class="lesson-pager" aria-label="درس‌های فصل اول">
+      <a rel="prev" href="terminal-and-bash.html">درس قبلی: ترمینال و Bash</a>
+      <a href="../#getting-started">بازگشت به سرفصل‌های فصل اول</a>
+    </nav>
+  </main>
+</body>
+</html>

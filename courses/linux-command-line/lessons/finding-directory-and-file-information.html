@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="مشاهده و خواندن جزئیات فایل‌ها و پوشه‌ها با گزینه‌های ls در Linux.">
+  <title>Finding directory and file information | Linux Command Line</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+    <span class="course-name" lang="en" dir="ltr">Learning Linux Command Line</span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست سرفصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست سرفصل‌های دوره" data-current-lesson="finding-directory-and-file-information">
+      <h2 lang="en" dir="ltr">Learning Linux Command Line</h2><p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../devops/">دوآپس</a><span>/</span><a href="intro.html"><bdi lang="en">3. Files, Directories, and Permissions</bdi></a></nav>
+      <div class="lesson-meta"><span class="availability-badge">یادداشت دوره</span><span>مدت ویدیو: <bdi>4m 46s</bdi></span></div>
+      <article class="lesson-body">
+        <header class="article-header"><div class="article-tag">جزئیات فایل‌ها و پوشه‌ها</div><h1 lang="en" dir="ltr">Finding directory and file information</h1></header>
+        <div class="divider"></div>
+        <p>وقتی <bdi><code>ls /etc</code></bdi> را اجرا می‌کنید، نام موارد داخل پوشه را می‌بینید. برای دیدن اطلاعات خود پوشه، مثل زمان آخرین تغییر یا مالک آن، باید به <code>ls</code> بگویید محتویات پوشه را باز نکند.</p>
+        <div class="code-block"><div class="code-header">Bash</div><pre><code>ls -l /etc
+ls -ld /etc
+ls -lh /etc/hosts</code></pre></div>
+        <ul>
+          <li><bdi><code>ls -l /etc</code></bdi> جزئیات موارد داخل <bdi><code>/etc</code></bdi> را نشان می‌دهد.</li>
+          <li><bdi><code>ls -ld /etc</code></bdi> با گزینهٔ <bdi><code>-d</code></bdi> جزئیات خود پوشه را در یک سطر نشان می‌دهد.</li>
+          <li><bdi><code>ls -lh /etc/hosts</code></bdi> جزئیات یک فایل را می‌دهد. <bdi><code>-h</code></bdi> برای اندازه‌های بزرگ‌تر از واحدهای خوانایی مثل <bdi><code>K</code></bdi> استفاده می‌کند.</li>
+        </ul>
+        <h2>چطور یک سطر را بخوانیم؟</h2>
+        <p>این یک نمونه از خروجی است؛ اندازه، نام مالک و تاریخ ممکن است در سیستم شما متفاوت باشند:</p>
+        <div class="code-block"><div class="code-header">نمونهٔ خروجی</div><pre><code>-rw-r--r-- 1 root root 221 Nov 25 09:30 /etc/hosts</code></pre></div>
+        <p>نویسهٔ اول نوع را نشان می‌دهد: <bdi><code>-</code></bdi> برای فایل معمولی و <bdi><code>d</code></bdi> برای پوشه. نویسه‌های بعدی مجوزهای دسترسی‌اند؛ یعنی چه کسانی می‌توانند فایل را بخوانند، تغییر دهند یا اجرا کنند. در این مثال مالک <bdi><code>root</code></bdi>، اندازه ۲۲۱ بایت و مسیر <bdi><code>/etc/hosts</code></bdi> است.</p>
+      </article>
+      <nav class="lesson-pager" aria-label="درس‌های دوره">
+        <a rel="prev" href="navigating-file-system.html">درس قبلی: <bdi lang="en">Navigating the file system</bdi></a>
+        <a href="../../../devops/">بازگشت به آموزش‌های دوآپس</a>
+      </nav>
+    </main>
+  </div>
+</body>
+</html>

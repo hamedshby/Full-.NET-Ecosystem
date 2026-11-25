@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="تمرین میان‌برهای Bash برای ویرایش دستور، تکمیل مسیر و جست‌وجو در تاریخچه.">
+  <title>Helpful keyboard shortcuts in the terminal | Linux Command Line</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+    <span class="course-name" lang="en" dir="ltr">Learning Linux Command Line</span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست سرفصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست سرفصل‌های دوره" data-current-lesson="terminal-keyboard-shortcuts">
+      <h2 lang="en" dir="ltr">Learning Linux Command Line</h2><p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../devops/">دوآپس</a><span>/</span><a href="intro.html"><bdi lang="en">2. Command-Line Basics</bdi></a></nav>
+      <div class="lesson-meta"><span class="availability-badge">یادداشت دوره</span><span>مدت ویدیو: <bdi>5m 44s</bdi></span></div>
+      <article class="lesson-body">
+        <header class="article-header"><div class="article-tag">میان‌برهای ترمینال</div><h1 lang="en" dir="ltr">Helpful keyboard shortcuts in the terminal</h1></header>
+        <div class="divider"></div>
+        <p>در Bash می‌توانید دستوری را که هنوز اجرا نشده ویرایش کنید. برای نمونه، <code>echo hello</code> را تایپ کنید و هنوز <kbd>Enter</kbd> نزنید. با <kbd dir="ltr">Ctrl+A</kbd> نشانگر به اول خط و با <kbd dir="ltr">Ctrl+E</kbd> به آخر آن می‌رود. حالا می‌توانید متن را تغییر دهید و با <kbd>Enter</kbd> نسخهٔ تازه را اجرا کنید.</p>
+        <h2>تکمیل نام‌ها و استفاده از دستورهای قبلی</h2>
+        <ul>
+          <li>با <kbd>Tab</kbd>، Bash تلاش می‌کند نام دستور یا مسیر را کامل کند. برای نمونه، در یک سیستم Linux معمولی <bdi><code>cd /et</code></bdi> را بنویسید و <kbd>Tab</kbd> بزنید تا مسیر <bdi><code>/etc/</code></bdi> کامل شود. برای اجرای دستور همچنان باید <kbd>Enter</kbd> بزنید.</li>
+          <li>فلش بالا دستور قبلی را به خط فرمان برمی‌گرداند. اگر چند بار بالا رفته‌اید، با فلش پایین به دستورهای جدیدتر برگردید.</li>
+          <li><kbd dir="ltr">Ctrl+R</kbd> در تاریخچه به عقب جست‌وجو می‌کند. بعد از اجرای <code>echo hello</code>، این میان‌بر را بزنید و <code>hello</code> را تایپ کنید تا همان دستور را پیدا کنید.</li>
+        </ul>
+        <p>این میان‌برها بر اساس تنظیمات پیش‌فرض Bash در حالت ویرایش <bdi lang="en">Emacs</bdi> هستند؛ اگر حالت ویرایش یا تنظیمات کلیدها را عوض کرده‌اید، رفتار بعضی کلیدها فرق می‌کند.</p>
+      </article>
+      <nav class="lesson-pager" aria-label="درس‌های دوره">
+        <a rel="prev" href="finding-help.html">درس قبلی: <bdi lang="en">Finding help for commands</bdi></a>
+        <a rel="next" href="challenge-find-command-information.html">درس بعدی: <bdi lang="en">Challenge: Find command information</bdi></a>
+      </nav>
+    </main>
+  </div>
+</body>
+</html>

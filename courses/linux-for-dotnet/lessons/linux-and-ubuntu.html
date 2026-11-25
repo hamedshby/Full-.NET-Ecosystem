@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="شناخت هستهٔ Linux و توزیع Ubuntu با دو فرمان ساده.">
+  <title>آشنایی با لینوکس، توزیع‌ها و Ubuntu | آموزش لینوکس توسط چت‌جی‌پی‌تی</title>
+  <script>
+    (() => {
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../">آموزش لینوکس توسط چت‌جی‌پی‌تی</a>
+  </header>
+  <main id="lesson-content" class="lesson-content">
+    <nav class="breadcrumb" aria-label="مسیر راهنما">
+      <a href="../../../devops/">دوآپس</a>
+      <span aria-hidden="true">/</span>
+      <a href="../#getting-started">آشنایی و آماده‌سازی محیط</a>
+    </nav>
+    <article class="lesson-body">
+      <header class="article-header">
+        <span class="article-tag">فصل اول · درس ۱ از ۴</span>
+        <h1>آشنایی با لینوکس، توزیع‌ها و <bdi lang="en">Ubuntu</bdi></h1>
+      </header>
+      <div class="divider"></div>
+      <p>فرض کن همکارت می‌گوید «برنامه روی لینوکس اجرا می‌شود» و وقتی نام محیطش را می‌پرسی، می‌گوید «Ubuntu». هر دو جواب درست‌اند. این دو دستور نشان می‌دهند هر کدام به چه چیزی اشاره می‌کند.</p>
+      <h2>نام هسته و نام توزیع را ببین</h2>
+      <p>اگر ترمینال لینوکس داری، دستورها را یکی‌یکی اجرا کن. اگر هنوز محیط نداری، خروجی نمونه را بخوان و بعد از <a href="practice-environment.html">درس راه‌اندازی</a> به اینجا برگرد.</p>
+      <div class="code-block"><div class="code-header" lang="en">Bash</div><pre><code>uname -s&#10;cat /etc/os-release</code></pre></div>
+      <div class="code-block"><div class="code-header" lang="fa">خروجی نمونه</div><pre><code>Linux&#10;&#10;PRETTY_NAME="Ubuntu 24.04 LTS"&#10;NAME="Ubuntu"&#10;ID=ubuntu</code></pre></div>
+      <ul>
+        <li><bdi dir="ltr"><code>uname -s</code></bdi> نام <strong>هسته</strong> را چاپ می‌کند. هسته بخش اصلی سیستم‌عامل است که منابعی مثل حافظه و پردازنده را بین برنامه‌ها مدیریت می‌کند. در خط اول خروجی نام آن را می‌بینی: <bdi lang="en">Linux</bdi>.</li>
+        <li><bdi dir="ltr"><code>cat /etc/os-release</code></bdi> محتوای فایل شناسایی <strong>توزیع</strong> را نشان می‌دهد. توزیع یک مجموعهٔ قابل نصب است که هستهٔ Linux را همراه با ابزارها و بسته‌های نرم‌افزاری فراهم می‌کند. خط <code>PRETTY_NAME</code> نام قابل خواندن توزیع را نشان می‌دهد و <code>ID</code> شناسهٔ کوتاه آن است. فایل واقعی معمولاً خط‌های بیشتری دارد.</li>
+      </ul>
+      <h2>چرا برای برنامه‌نویس ‎.NET مهم است؟</h2>
+      <p>Ubuntu و Fedora هر دو از هستهٔ Linux استفاده می‌کنند، ولی ابزار نصب نرم‌افزار و بسته‌هایشان می‌تواند فرق کند. مثلاً برای نصب <bdi lang="en">.NET SDK</bdi>، یعنی ابزارهای ساخت و تست برنامهٔ .NET، اول نام و نسخهٔ توزیع را از <bdi dir="ltr"><code>/etc/os-release</code></bdi> بخوان. با این اطلاعات می‌توانی راهنمای نصب مناسب محیطت را انتخاب کنی.</p>
+      <h2>تمرین کوتاه</h2>
+      <p>از روی نمونه بگو اگر همکارت به جای Ubuntu از Fedora استفاده کند، انتظار داری خروجی کدام دستور تغییر کند؟ اگر محیط آماده داری، نام هسته و توزیع خودت را هم یادداشت کن.</p>
+      <details>
+        <summary>پاسخ تمرین</summary>
+        <p>خروجی <bdi dir="ltr"><code>uname -s</code></bdi> همچنان <code>Linux</code> است. نام توزیع و شناسهٔ آن در خروجی <bdi dir="ltr"><code>cat /etc/os-release</code></bdi> با هم فرق می‌کنند.</p>
+      </details>
+      <p>برای مطالعهٔ بیشتر: <a href="https://www.gnu.org/software/coreutils/manual/html_node/uname-invocation.html">راهنمای GNU برای <code>uname</code></a> و <a href="https://learn.microsoft.com/dotnet/core/install/linux">راهنمای نصب .NET برای توزیع‌های لینوکس</a>.</p>
+    </article>
+    <nav class="lesson-pager" aria-label="درس‌های فصل اول">
+      <a href="../#getting-started">بازگشت به سرفصل‌های فصل اول</a>
+      <a rel="next" href="practice-environment.html">درس بعدی: راه‌اندازی محیط تمرین</a>
+    </nav>
+  </main>
+</body>
+</html>

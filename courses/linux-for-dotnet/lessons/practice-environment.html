@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="آماده کردن محیط تمرین لینوکس و بررسی آن از ترمینال.">
+  <title>محیط تمرین: WSL در ویندوز، ماشین مجازی یا لینوکس موجود | آموزش لینوکس توسط چت‌جی‌پی‌تی</title>
+  <script>
+    (() => {
+      let storedTheme = null;
+      try { storedTheme = localStorage.getItem('dotnet-academy-theme'); } catch (_) { }
+      const systemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = storedTheme === 'dark' || storedTheme === 'light'
+        ? storedTheme
+        : systemDark ? 'dark' : 'light';
+    })();
+  </script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../">آموزش لینوکس توسط چت‌جی‌پی‌تی</a>
+  </header>
+  <main id="lesson-content" class="lesson-content">
+    <nav class="breadcrumb" aria-label="مسیر راهنما">
+      <a href="../../../devops/">دوآپس</a>
+      <span aria-hidden="true">/</span>
+      <a href="../#getting-started">آشنایی و آماده‌سازی محیط</a>
+    </nav>
+    <article class="lesson-body">
+      <header class="article-header">
+        <span class="article-tag">فصل اول · درس ۲ از ۴</span>
+        <h1>محیط تمرین: <bdi lang="en">WSL</bdi> در ویندوز، ماشین مجازی یا لینوکس موجود</h1>
+      </header>
+      <div class="divider"></div>
+      <p>قرار است یک محیط لینوکس باز کنی و از داخل آن نام کاربر، نام هسته و مسیر پوشهٔ شخصی‌ات را ببینی. برای این فصل یک ترمینال با <bdi lang="en">Bash</bdi> کافی است؛ نصب <bdi lang="en">.NET SDK</bdi> را در فصل توسعه دنبال می‌کنیم.</p>
+      <h2>مسیر اول: <bdi lang="en">WSL</bdi> روی ویندوز</h2>
+      <p>اگر ویندوز داری و می‌توانی روی آن نرم‌افزار نصب کنی، از این مسیر شروع کن. <bdi lang="en">WSL</bdi>، کوتاه‌شدهٔ <bdi lang="en">Windows Subsystem for Linux</bdi>، به تو اجازه می‌دهد در کنار برنامه‌های ویندوز، ابزارهای لینوکس را هم اجرا کنی.</p>
+      <ol>
+        <li>در <strong>PowerShell ویندوز</strong>، <bdi dir="ltr"><code>wsl --list --verbose</code></bdi> را اجرا کن. اگر Ubuntu در فهرست است، از منوی Start آن را باز کن و به مرحلهٔ بررسی برو.</li>
+        <li>اگر Ubuntu را نداری، <strong>PowerShell را با دسترسی Administrator</strong> باز کن و دستور زیر را بزن. پس از نصب، ویندوز را راه‌اندازی مجدد کن اگر برای تکمیل نصب از تو خواسته شد.</li>
+      </ol>
+      <div class="code-block"><div class="code-header" lang="en">PowerShell</div><pre><code>wsl --install -d Ubuntu</code></pre></div>
+      <p>Ubuntu را از منوی Start باز کن. در اولین اجرا، وقتی از تو خواست، نام کاربری و رمز عبور لینوکس را بساز. هنگام تایپ رمز ممکن است هیچ نویسه‌ای روی صفحه نبینی؛ این رفتار عادی است. دستورهای تمرین را <strong>در پنجرهٔ Ubuntu</strong> وارد کن.</p>
+      <p>اگر گزینهٔ نصب شناخته نشد یا پیغام مجازی‌سازی دیدی، به <a href="https://learn.microsoft.com/windows/wsl/install">راهنمای WSL در Microsoft Learn</a> مراجعه کن. اگر روی سیستم سازمانی دسترسی نصب نداری، از محیط لینوکسی که سازمان در اختیارت می‌گذارد استفاده کن.</p>
+      <h2>مسیر دوم: Ubuntu در ماشین مجازی</h2>
+      <p>ماشین مجازی مثل یک کامپیوتر جدا درون کامپیوتر اصلی است. اگر می‌خواهی خود دسکتاپ Ubuntu را هم ببینی، یک ماشین مجازی بساز، فایل نصب Ubuntu را به آن بده و Ubuntu را روی <strong>دیسک مجازی همان ماشین</strong> نصب کن. بعد از ورود به Ubuntu، برنامهٔ Terminal را در ماشین مجازی باز کن. <a href="https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox">راهنمای تصویری Ubuntu برای VirtualBox</a> انتخاب فایل نصب و ساخت ماشین را نشان می‌دهد.</p>
+      <h2>مسیر سوم: لینوکس از قبل آماده است</h2>
+      <p>اگر همین حالا از لینوکس استفاده می‌کنی، Terminal را باز کن. برای هماهنگی با مثال‌ها می‌توانی در ترمینال <code>bash</code> را اجرا کنی تا وارد Bash شوی، به شرطی که نصب باشد.</p>
+      <h2>بررسی: آیا محیط تمرین آماده است؟</h2>
+      <p>این دستورها را در <strong>ترمینال لینوکس</strong> اجرا کن:</p>
+      <div class="code-block"><div class="code-header" lang="en">Bash</div><pre><code>whoami&#10;uname -s&#10;cd ~&#10;pwd</code></pre></div>
+      <div class="code-block"><div class="code-header" lang="fa">خروجی نمونه</div><pre><code>sara&#10;Linux&#10;/home/sara</code></pre></div>
+      <p><code>whoami</code> نام کاربر فعلی و <bdi dir="ltr"><code>uname -s</code></bdi> نام هسته را چاپ می‌کند. <bdi dir="ltr"><code>cd ~</code></bdi> به پوشهٔ شخصی می‌رود و معمولاً چیزی چاپ نمی‌کند؛ <code>pwd</code> مسیر فعلی را نشان می‌دهد. نام کاربر و مسیر تو ممکن است متفاوت باشند. اگر <code>whoami</code> کاربر <code>root</code> را نشان داد، تمرین‌ها را با حساب عادی خودت ادامه بده.</p>
+      <h2>تمرین کوتاه</h2>
+      <p>یک پوشه برای تمرین‌های دوره بساز و مسیرش را ببین. <bdi dir="ltr"><code>mkdir -p</code></bdi> پوشه را می‌سازد و اگر همان پوشه از قبل وجود داشته باشد، خطا نمی‌دهد. <bdi dir="ltr"><code>$HOME</code></bdi> به مسیر پوشهٔ شخصی‌ات تبدیل می‌شود.</p>
+      <div class="code-block"><div class="code-header" lang="en">Bash</div><pre><code>mkdir -p "$HOME/linux-practice"&#10;cd "$HOME/linux-practice"&#10;pwd</code></pre></div>
+      <p>خروجی باید به <bdi dir="ltr"><code>/linux-practice</code></bdi> ختم شود؛ برای مثال <bdi dir="ltr"><code>/home/sara/linux-practice</code></bdi>.</p>
+    </article>
+    <nav class="lesson-pager" aria-label="درس‌های فصل اول">
+      <a rel="prev" href="linux-and-ubuntu.html">درس قبلی: لینوکس و Ubuntu</a>
+      <a href="../#getting-started">بازگشت به سرفصل‌های فصل اول</a>
+      <a rel="next" href="terminal-and-bash.html">درس بعدی: ترمینال و Bash</a>
+    </nav>
+  </main>
+</body>
+</html>

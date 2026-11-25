@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="پیدا کردن پوشهٔ جاری و جابه‌جایی میان پوشه‌ها با pwd، cd و ls.">
+  <title>Navigating the file system | Linux Command Line</title>
+  <script>(()=>{document.documentElement.classList.add('js');try{const t=localStorage.getItem('dotnet-academy-theme');document.documentElement.dataset.theme=t==='dark'||t==='light'?t:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{}})()</script>
+  <link rel="stylesheet" href="../../microservices/course.css">
+  <script defer src="../course-navigation.js"></script>
+  <script defer src="../course.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson-content">پرش به محتوای درس</a>
+  <header class="course-header">
+    <a href="../../../index.html">آکادمی مهندسی نرم‌افزار</a>
+    <span class="course-name" lang="en" dir="ltr">Learning Linux Command Line</span>
+    <button id="course-menu-toggle" type="button" aria-expanded="false" aria-controls="course-sidebar">فهرست سرفصل‌ها</button>
+    <button id="theme-toggle" type="button" aria-pressed="false" aria-label="فعال‌کردن تم تیره" title="فعال‌کردن تم تیره">تم</button>
+  </header>
+  <div class="course-shell">
+    <aside id="course-sidebar" class="course-sidebar" aria-label="فهرست سرفصل‌های دوره" data-current-lesson="navigating-file-system">
+      <h2 lang="en" dir="ltr">Learning Linux Command Line</h2><p>برای مشاهدهٔ فهرست کامل، JavaScript را فعال کنید.</p>
+    </aside>
+    <main id="lesson-content" class="lesson-content">
+      <nav class="breadcrumb" aria-label="مسیر راهنما"><a href="../../../devops/">دوآپس</a><span>/</span><a href="intro.html"><bdi lang="en">3. Files, Directories, and Permissions</bdi></a></nav>
+      <div class="lesson-meta"><span class="availability-badge">یادداشت دوره</span><span>مدت ویدیو: <bdi>5m 42s</bdi></span></div>
+      <article class="lesson-body">
+        <header class="article-header"><div class="article-tag">حرکت بین پوشه‌ها</div><h1 lang="en" dir="ltr">Navigating the file system</h1></header>
+        <div class="divider"></div>
+        <p>هر پنجرهٔ ترمینال برای اجرای فرمان‌ها یک «پوشهٔ کاری فعلی» دارد. دستور <code>pwd</code> مسیر آن را نشان می‌دهد، <code>ls</code> محتویاتش را فهرست می‌کند و <code>cd</code> آن را تغییر می‌دهد.</p>
+        <h2>یک رفت‌وبرگشت کوتاه</h2>
+        <div class="code-block"><div class="code-header">Bash</div><pre><code>cd ~
+pwd
+cd /etc
+ls
+cd ..
+pwd
+cd -
+pwd</code></pre></div>
+        <ol>
+          <li><bdi><code>cd ~</code></bdi> به پوشهٔ شخصی می‌رود. <code>pwd</code> مسیر واقعی آن را چاپ می‌کند.</li>
+          <li><bdi><code>cd /etc</code></bdi> پوشه را تغییر می‌دهد. حالا <code>ls</code> محتویات <bdi><code>/etc</code></bdi> را فهرست می‌کند.</li>
+          <li><bdi><code>cd ..</code></bdi> یک سطح بالا می‌رود؛ از <bdi><code>/etc</code></bdi> به <bdi><code>/</code></bdi> می‌رسید. <bdi><code>cd -</code></bdi> به پوشهٔ قبلی، یعنی <bdi><code>/etc</code></bdi>، برمی‌گردد.</li>
+        </ol>
+        <p>اگر نام پوشه فاصله دارد، کل مسیر را در نقل‌قول بگذارید؛ مثل <bdi><code>cd "my notes"</code></bdi>. این مثال وقتی کار می‌کند که پوشهٔ <bdi><code>my notes</code></bdi> در مسیر فعلی وجود داشته باشد.</p>
+      </article>
+      <nav class="lesson-pager" aria-label="درس‌های دوره">
+        <a rel="prev" href="understanding-file-paths.html">درس قبلی: <bdi lang="en">Understanding file paths</bdi></a>
+        <a rel="next" href="finding-directory-and-file-information.html">درس بعدی: <bdi lang="en">Finding directory and file information</bdi></a>
+      </nav>
+    </main>
+  </div>
+</body>
+</html>
