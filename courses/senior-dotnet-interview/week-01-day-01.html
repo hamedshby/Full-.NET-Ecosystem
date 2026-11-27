@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="fa" dir="rtl" class="senior-program">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="روز اول دورهٔ ۲۴ هفته‌ای Senior .NET: مصاحبهٔ انگلیسی، Span و GC، تراکنش انتقال وجه، Docker و Kubernetes.">
+  <title>هفتهٔ ۱، روز ۱ | دورهٔ آمادگی مصاحبهٔ Senior .NET</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="course.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
+  <header class="program-header">
+    <nav aria-label="ناوبری درس">
+      <a href="../../index.html#courses">همهٔ دوره‌ها</a>
+      <a href="index.html#week-01">برنامهٔ ۲۴ هفته‌ای</a>
+    </nav>
+  </header>
+
+  <main id="main-content" class="day-lesson">
+    <section class="program-intro" aria-labelledby="day-title">
+      <p class="eyebrow">هفتهٔ ۱ · روز ۱ · ۱۲۰ دقیقه</p>
+      <h1 id="day-title">از پاسخ مصاحبه تا اجرای سرویس پرداخت</h1>
+      <nav class="phase-links" aria-label="بخش‌های جلسه">
+        <a href="#english">انگلیسی و مصاحبه · ۴۰ دقیقه</a>
+        <a href="#dotnet"><bdi>.NET</bdi> و <bdi>C#</bdi> · ۳۵ دقیقه</a>
+        <a href="#design">طراحی سیستم · ۲۵ دقیقه</a>
+        <a href="#devops"><bdi>DevOps</bdi> و آزمون · ۲۰ دقیقه</a>
+      </nav>
+    </section>
+
+    <section id="english" aria-labelledby="english-title">
+      <h2 id="english-title">۱. انگلیسی و آمادگی مصاحبه <span class="lesson-time">۴۰ دقیقه</span></h2>
+
+      <article class="program-panel lesson-unit">
+        <h3>معرفی حرفه‌ای در مصاحبه</h3>
+        <p><strong>آموزش:</strong> معرفی را با نقش و تخصص شروع کن. بعد یک مثال از محصول یا تیمی که روی آن کار کرده‌ای بیاور. برای فعالیتی که از گذشته آغاز شده و هنوز ادامه دارد، می‌توانی از <bdi lang="en">Present Perfect Continuous</bdi> استفاده کنی: <bdi lang="en">subject + have/has been + verb-ing</bdi>. برای مسئولیت یک پروژهٔ تمام‌شده، <bdi lang="en">Past Simple</bdi> مناسب است.</p>
+        <p lang="en" dir="ltr">I have been working as a backend developer for several years. On my last project, I led a team of three developers.</p>
+        <p>چند سال است که به‌عنوان توسعه‌دهندهٔ بک‌اند کار می‌کنم. در پروژهٔ قبلی، تیمی سه‌نفره از توسعه‌دهندگان را هدایت کردم.</p>
+        <p>بگو <bdi lang="en">as a backend developer</bdi> یا <bdi lang="en">in backend development</bdi>. عبارت‌های <bdi lang="en">software architecture</bdi>، <bdi lang="en">fintech</bdi> و <bdi lang="en">three developers</bdi> به‌ترتیب برای معماری نرم‌افزار، فناوری مالی و سه توسعه‌دهنده به کار می‌روند.</p>
+        <h4>سؤال</h4>
+        <p lang="en" dir="ltr">Could you introduce yourself and describe your experience with .NET and team leadership?</p>
+        <p>می‌توانید خودتان را معرفی کنید و از تجربه‌تان با دات‌نت و هدایت تیم بگویید؟</p>
+        <details>
+          <summary>نمایش پاسخ نمونه</summary>
+          <p lang="en" dir="ltr">I'm a senior backend developer specializing in .NET. I've worked with ASP.NET Core Web API, Entity Framework Core, and SQL Server. In fintech, I worked on a microservices architecture, led a team of three developers, and reviewed their code.</p>
+          <p>من توسعه‌دهندهٔ ارشد بک‌اند با تخصص دات‌نت هستم. با <bdi>ASP.NET Core Web API</bdi>، <bdi>Entity Framework Core</bdi> و <bdi>SQL Server</bdi> کار کرده‌ام. در حوزهٔ فناوری مالی روی معماری <bdi>Microservices</bdi> کار کردم، تیمی سه‌نفره را هدایت کردم و کد اعضای تیم را بازبینی کردم.</p>
+        </details>
+      </article>
+
+      <article class="program-panel lesson-unit">
+        <h3>شرح یک گلوگاه در <bdi>SQL Server</bdi></h3>
+        <p><strong>آموزش:</strong> روایت را با چهار گام بساز: مسئله، روش تشخیص، اقدام و نتیجه. برای رخداد مشخص گذشته از فعل‌هایی مثل <bdi lang="en">measured</bdi>، <bdi lang="en">analyzed</bdi> و <bdi lang="en">refactored</bdi> استفاده کن. <bdi>Execution Plan</bdi> نشان می‌دهد پایگاه‌داده برای اجرای کوئری چه عملگرهایی را انتخاب کرده است.</p>
+        <dl class="lesson-terms">
+          <div><dt><bdi lang="en">Bottleneck</bdi></dt><dd>گلوگاه: بخشی که سرعت یا ظرفیت کل را محدود می‌کند. <span lang="en" dir="ltr">The database query was the bottleneck.</span></dd></div>
+          <div><dt><bdi lang="en">Scalability</bdi></dt><dd>مقیاس‌پذیری: توان پاسخ‌گویی به بار بیشتر با افزودن منابع. <span lang="en" dir="ltr">We measured scalability under higher load.</span></dd></div>
+          <div><dt><bdi lang="en">Resilience</bdi></dt><dd>تاب‌آوری: توان ادامهٔ کار یا بازیابی پس از خطا. <span lang="en" dir="ltr">The service recovered after a temporary failure.</span></dd></div>
+        </dl>
+        <h4>سؤال</h4>
+        <p lang="en" dir="ltr">Tell me about a performance bottleneck you found in SQL Server or a backend API. How did you diagnose it, and what changed?</p>
+        <p>دربارهٔ یک گلوگاه کارایی در <bdi>SQL Server</bdi> یا یک <bdi>Backend API</bdi> بگویید. چطور آن را پیدا کردید و چه تغییری ایجاد شد؟</p>
+        <details>
+          <summary>نمایش پاسخ نمونه</summary>
+          <p lang="en" dir="ltr">One query was taking about 20 seconds. I reviewed the actual execution plan and found joins involving two large tables and two reference tables. I split the work into two queries and cached the reference data because it changed infrequently. I measured the revised version at about 200 milliseconds in that comparison.</p>
+          <p>اجرای یک کوئری حدود ۲۰ ثانیه طول می‌کشید. <bdi>Actual Execution Plan</bdi> را بررسی کردم و دیدم کوئری دو جدول بزرگ و دو جدول مرجع را به هم پیوند می‌دهد. کار را به دو کوئری تقسیم کردم و دادهٔ مرجع را که کم‌تغییر بود در <bdi>Cache</bdi> گذاشتم. در همان مقایسه، نسخهٔ اصلاح‌شده را حدود ۲۰۰ میلی‌ثانیه اندازه گرفتم.</p>
+          <p>اعداد نمونه از روایت تمرین‌اند. در مصاحبه فقط اعدادی را بگو که اندازه گرفته‌ای؛ از بهتر شدن زمان یک کوئری نمی‌شود به‌تنهایی بهبود <bdi>Resilience</bdi> را نتیجه گرفت. حالا پاسخ را یک‌بار بدون خواندن متن به انگلیسی بگو.</p>
+        </details>
+      </article>
+    </section>
+
+    <section id="dotnet" aria-labelledby="dotnet-title">
+      <h2 id="dotnet-title">۲. حافظه در <bdi>.NET</bdi> و پردازش رشته <span class="lesson-time">۳۵ دقیقه</span></h2>
+      <article class="program-panel lesson-unit">
+        <h3>از تخصیص حافظه تا <code>ReadOnlySpan&lt;char&gt;</code></h3>
+        <p><strong>آموزش:</strong> فرض کن هر سطر یک فایل پرداخت با شناسه شروع می‌شود: <code>TX-42,70,IRR</code>. اگر برای خواندن شناسه روی هر سطر <code>Split</code> صدا بزنی، داده را به مجموعه‌ای از بخش‌ها تبدیل می‌کنی در حالی که فقط قطعهٔ اول را لازم داری. <code>ReadOnlySpan&lt;char&gt;</code> نمایی فقط‌خواندنی از همان کاراکترها می‌دهد. <code>Slice</code> یک نمای کوچک‌تر برمی‌گرداند و برای خود برش رشتهٔ تازه نمی‌سازد.</p>
+        <p><bdi>Garbage Collector</bdi> یا <bdi>GC</bdi> حافظهٔ اشیای مدیریت‌شده‌ای را که دیگر دسترس‌پذیر نیستند بازیابی می‌کند. اشیای تازه معمولاً از نسل صفر شروع می‌کنند؛ اشیای مانده ممکن است به نسل‌های بالاتر برسند. <bdi>Large Object Heap</bdi> یا <bdi>LOH</bdi> ناحیه‌ای برای اشیای بزرگ است. در پردازش حجیم، اول نرخ تخصیص را اندازه بگیر؛ استفاده از <code>Span</code> به‌تنهایی روی کل برنامه تضمین «بدون تخصیص» نمی‌دهد.</p>
+        <h4>سؤال</h4>
+        <p>چطور شناسهٔ قبل از نخستین کاما را بدون ساخت رشتهٔ تازه برداری؟ اگر <code>IndexOf(',')</code> مقدار <code>-1</code> یا <code>0</code> بدهد چه می‌شود؟</p>
+        <details>
+          <summary>نمایش پاسخ و کد C#</summary>
+          <pre dir="ltr"><code>static bool TryReadTransactionId(
+    ReadOnlySpan&lt;char&gt; line, out ReadOnlySpan&lt;char&gt; transactionId)
+{
+    int commaIndex = line.IndexOf(',');
+    if (commaIndex &lt;= 0)
+    {
+        transactionId = default;
+        return false;
+    }
+
+    transactionId = line.Slice(0, commaIndex);
+    return true;
+}</code></pre>
+          <p>به تابع <code>line.AsSpan()</code> بده. برای نمونهٔ بالا، نتیجهٔ <code>true</code> و یک نمای حاوی <code>TX-42</code> می‌گیری. <code>-1</code> یعنی جداکننده پیدا نشده و <code>0</code> یعنی شناسه خالی است؛ در هر دو حالت سطر را رد می‌کنیم. تابع فقط شناسه را استخراج می‌کند؛ بررسی مبلغ و سایر ستون‌ها به بخش اعتبارسنجی مربوط است. اگر شناسه را به <code>string</code> تبدیل کنی، آن تبدیل می‌تواند تخصیص ایجاد کند. اگر داده باید از مرز <code>await</code> عبور کند، <code>ReadOnlyMemory&lt;char&gt;</code> را با توجه به طول‌عمر بافر بررسی کن.</p>
+        </details>
+        <p class="lesson-source"><a href="https://learn.microsoft.com/dotnet/standard/garbage-collection/fundamentals">Microsoft Learn: مبانی GC</a> · <a href="https://learn.microsoft.com/dotnet/standard/memory-and-spans/memory-t-usage-guidelines">راهنمای Span و Memory</a></p>
+      </article>
+    </section>
+
+    <section id="design" aria-labelledby="design-title">
+      <h2 id="design-title">۳. طراحی انتقال وجه <span class="lesson-time">۲۵ دقیقه</span></h2>
+      <article class="program-panel lesson-unit">
+        <h3>برداشت همزمان، <bdi>Lost Update</bdi> و <code>rowversion</code></h3>
+        <p><strong>آموزش:</strong> اگر حساب ۱۰۰ واحد موجودی داشته باشد، دو نسخه از سرویس ممکن است همزمان همان ۱۰۰ واحد را بخوانند. اگر هر دو پس از محاسبهٔ محلی موجودی ۳۰ را بنویسند، دو خرید می‌توانند موفق گزارش شوند در حالی که فقط یک برداشت در مانده دیده می‌شود. این یک <bdi>Lost Update</bdi> است: یک به‌روزرسانی، اثر به‌روزرسانی دیگر را می‌پوشاند.</p>
+        <h4>سؤال</h4>
+        <p>با دو درخواست برداشت ۷۰ واحدی و موجودی اولیهٔ ۱۰۰، چطور مطمئن می‌شوی هر دو موفق نمی‌شوند؟ <code>rowversion</code> چه کاری انجام می‌دهد؟</p>
+        <details>
+          <summary>نمایش پاسخ و نمونهٔ SQL</summary>
+          <pre dir="ltr"><code>UPDATE dbo.Accounts
+SET Balance = Balance - @Amount
+WHERE Id = @SourceId AND Balance >= @Amount;</code></pre>
+          <p>بعد از اعتبارسنجی مبلغ مثبت، شرط موجودی را در خود <code>UPDATE</code> اعمال کن. اگر برداشت اول موجودی را به ۳۰ برساند، برداشت دوم با شرط <code>Balance &gt;= 70</code> ردیفی را تغییر نمی‌دهد. تعداد ردیف‌های تغییرکرده را بلافاصله بررسی کن. در <bdi>Optimistic Concurrency</bdi>، مقدار قبلی <code>rowversion</code> هم در شرط به‌روزرسانی قرار می‌گیرد تا تغییر همزمان تشخیص داده شود. <code>rowversion</code> توکن نسخه است و خودش قفل نمی‌گیرد.</p>
+        </details>
+      </article>
+
+      <article class="program-panel lesson-unit">
+        <h3>ترتیب قفل‌گیری و <bdi>Rollback</bdi></h3>
+        <p><strong>آموزش:</strong> انتقال دو تغییر دارد: برداشت از مبدأ و واریز به مقصد. هر دو باید در یک <bdi>Transaction</bdi> انجام شوند. اگر دو انتقال معکوس ابتدا حساب مبدأ خودشان را قفل کنند، هرکدام ممکن است منتظر قفل دیگری بماند. این چرخهٔ انتظار <bdi>Deadlock</bdi> است. گرفتن قفل با ترتیب ثابت احتمال این چرخه را کم می‌کند.</p>
+        <h4>سؤال</h4>
+        <p>در انتقال از حساب ۲۰ به حساب ۱۰، کدام را اول قفل می‌کنی؟ اگر برداشت انجام شد اما واریز شکست خورد چه می‌شود؟</p>
+        <details>
+          <summary>نمایش پاسخ نمونه</summary>
+          <p>ابتدا ۱۰ و سپس ۲۰ را قفل می‌کنم؛ جهت انتقال ترتیب را عوض نمی‌کند. اگر راهکارم <bdi>Pessimistic Locking</bdi> باشد، در همان تراکنش قفل‌ها را به ترتیب مشخص می‌گیرم، مثلاً با خواندن هر حساب به‌صورت جداگانه با <code>UPDLOCK</code>. صرف وجود <code>ORDER BY</code> در یک کوئری، ترتیب گرفتن قفل‌ها را تضمین نمی‌کند. بعد برداشت شرطی و واریز را انجام می‌دهم و فقط بعد از موفقیت هر دو <code>COMMIT</code> می‌کنم. اگر واریز شکست بخورد، <code>ROLLBACK</code> برداشت را هم برمی‌گرداند. ترتیب ثابت جای رسیدگی به خطای <bdi>Deadlock</bdi> و تلاش مجدد محدود را نمی‌گیرد.</p>
+        </details>
+      </article>
+
+      <article class="program-panel lesson-unit">
+        <h3><bdi>Idempotency</bdi> پس از <bdi>Timeout</bdi></h3>
+        <p><strong>آموزش:</strong> ممکن است سرور انتقال را ثبت کند، اما پاسخ به کاربر نرسد. <bdi>Idempotency</bdi> در این سناریو یعنی فرستادن دوبارهٔ همان درخواست نباید برداشت جدیدی ایجاد کند. کلاینت همان <code>Idempotency-Key</code> را دوباره می‌فرستد و پایگاه‌داده با قید یکتا برای محدودهٔ همان کاربر یا مشتری مانع ثبت دوباره می‌شود.</p>
+        <h4>سؤال</h4>
+        <p>اگر درخواست اول ثبت شد ولی پاسخ از بین رفت، درخواست بعدی چه می‌گیرد؟ اگر پردازش هنوز تمام نشده یا همان کلید با مبلغ متفاوت ارسال شود چه می‌کنی؟ آیا <bdi>Redis Lock</bdi> کافی است؟</p>
+        <details>
+          <summary>نمایش پاسخ نمونه</summary>
+          <p>ثبت نتیجه یا شناسهٔ پرداخت را همراه اثر انتقال در همان تراکنش انجام می‌دهم تا وقفهٔ بعد از <code>COMMIT</code> نتیجه را گم نکند. درخواست همسان نتیجهٔ ثبت‌شده را می‌گیرد. اگر پردازش مستقل و در جریان است، مطابق قرارداد وضعیت در حال پردازش را گزارش می‌دهم و اجرای دوم را شروع نمی‌کنم. اگر ورودی با درخواست قبلی فرق دارد، استفادهٔ مجدد از همان کلید را رد می‌کنم. <bdi>Redis Lock</bdi> می‌تواند هماهنگی را بهتر کند؛ چون احتمال انقضا یا قطعی دارد، درستی مالی را با تراکنش و قید یکتای پایگاه‌داده حفظ می‌کنم. اگر رویدادی هم باید منتشر شود، می‌توان قصد انتشار را با <bdi>Outbox</bdi> در همان تراکنش ذخیره کرد.</p>
+        </details>
+        <p class="lesson-source"><a href="https://learn.microsoft.com/sql/relational-databases/sql-server-deadlocks-guide">Microsoft Learn: راهنمای Deadlock</a> · <a href="https://learn.microsoft.com/ef/core/saving/concurrency">کنترل همزمانی در EF Core</a></p>
+      </article>
+    </section>
+
+    <section id="devops" aria-labelledby="devops-title">
+      <h2 id="devops-title">۴. آزمون، <bdi>Docker</bdi> و استقرار <span class="lesson-time">۲۰ دقیقه</span></h2>
+
+      <article class="program-panel lesson-unit">
+        <h3>آزمون یکپارچهٔ انتقال</h3>
+        <p><strong>آموزش:</strong> یک آزمون واحد می‌تواند قاعدهٔ «مبلغ باید مثبت باشد» را جداگانه بسنجد. آزمون یکپارچه درخواست را از <bdi>API</bdi> عبور می‌دهد تا اثر واقعی آن را در <bdi>SQL Server</bdi> آزمایشی ببیند. دادهٔ آزمون باید از آزمون‌های موازی جدا باشد.</p>
+        <h4>سؤال</h4>
+        <p>موجودی مبدأ ۱۰۰ و مقصد ۲۰ است. پس از انتقال ۷۰ و ارسال دوبارهٔ همان کلید، چه چیزهایی را بررسی می‌کنی؟</p>
+        <details>
+          <summary>نمایش پاسخ نمونه</summary>
+          <p>پاسخ اول موفق است و درخواست تکراری همان شناسهٔ انتقال را می‌گیرد. موجودی‌ها ۳۰ و ۹۰ می‌مانند و فقط یک رکورد انتقال ثبت شده است. برای سنجش <bdi>Rollback</bdi>، جداگانه شکست واریز را شبیه‌سازی می‌کنم و مطمئن می‌شوم هیچ‌کدام از مانده‌ها عوض نشده‌اند.</p>
+        </details>
+        <p class="lesson-source"><a href="https://learn.microsoft.com/aspnet/core/test/integration-tests">Microsoft Learn: آزمون یکپارچه در ASP.NET Core</a></p>
+      </article>
+
+      <article class="program-panel lesson-unit">
+        <h3><bdi>Multi-stage Build</bdi>، نسخهٔ <bdi>Image</bdi> و اجرای <bdi>Container</bdi></h3>
+        <p><strong>آموزش:</strong> <bdi>Image</bdi> بسته‌ای است که فایل‌ها و تنظیم اجرای برنامه را در خود دارد. <bdi>Container</bdi> نمونه‌ای از همان بسته است که می‌تواند اجرا یا متوقف شود. در <bdi>Multi-stage Build</bdi> نسخهٔ <code>sdk</code> برنامه را می‌سازد و نسخهٔ <code>aspnet</code> برنامهٔ وب منتشرشده را اجرا می‌کند. دستور <code>COPY --from=build</code> خروجی انتشار را از مرحلهٔ ساخت به مرحلهٔ نهایی منتقل می‌کند. در این مثال <code>Payment.Api.csproj</code> در ریشهٔ پوشهٔ ساخت است و پروژه <bdi>.NET 10</bdi> را هدف می‌گیرد.</p>
+        <pre dir="ltr"><code>FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet publish Payment.Api.csproj -c Release -o /out
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+WORKDIR /app
+COPY --from=build /out .
+ENV ASPNETCORE_HTTP_PORTS=8080
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "Payment.Api.dll"]</code></pre>
+        <h4>سؤال</h4>
+        <p>چرا مرحلهٔ نهایی از <code>aspnet</code> استفاده می‌کند؟ با ساخت دوبارهٔ یک Image با همان tag چه اتفاقی برای نسخهٔ قبلی می‌افتد؟ چه کسی <code>docker run -p 8080:80 my-app</code> را اجرا می‌کند؟</p>
+        <details>
+          <summary>نمایش پاسخ نمونه</summary>
+          <p>برای اجرای برنامهٔ وابسته به <bdi>ASP.NET Core</bdi>، ایمیج <code>aspnet</code> وابستگی‌های اجرای وب را دارد؛ نیازی به ابزارهای ساخت <code>sdk</code> نیست. حذف محتویات اضافی اندازه را کاهش می‌دهد و اجزای کمتری برای نگهداری باقی می‌گذارد.</p>
+          <p>اگر محتوای Image عوض شود، tag به Image جدید اشاره می‌کند. Image قبلی ممکن است بدون tag بماند و Containerهای قبلی خودبه‌خود تغییر نمی‌کنند. برای بازگشت، نسخه‌ها را با tag مشخص یا شناسهٔ محتوا (<bdi>Digest</bdi>) نگه دار. <code>docker image ls</code> نسخه‌های محلی را نشان می‌دهد؛ <code>docker image prune</code> به‌طور پیش‌فرض Imageهای بدون tag و بدون Container مرجع را پاک می‌کند. نگهداری نسخه در Registry سیاست جداگانه‌ای دارد.</p>
+          <p><bdi>Docker CLI</bdi> درخواست را به <bdi>Docker Engine</bdi> می‌فرستد. Engine با کمک <bdi>Container Runtime</bdi>، Container را می‌سازد و برنامهٔ تعریف‌شده در <code>ENTRYPOINT</code> آن اجرا می‌شود. در کانتینر لینوکسی، <bdi>Namespaces</bdi> محیط فرایند را جدا می‌کنند و <bdi>cgroups</bdi> برای کنترل مصرف منابع به کار می‌روند. با Backend مبتنی بر <bdi>WSL 2</bdi> در Docker Desktop، این محیط لینوکسی روی ویندوز از طریق <bdi>WSL 2</bdi> فراهم می‌شود.</p>
+          <p>در <code>-p 8080:80</code>، پورت ۸۰۸۰ میزبان به پورت ۸۰ داخل Container می‌رسد. چون مثال بالا صریحاً روی ۸۰۸۰ گوش می‌دهد، برای همین Dockerfile از <code>-p 8080:8080</code> استفاده کن. <code>EXPOSE</code> به‌تنهایی پورت را روی میزبان منتشر نمی‌کند.</p>
+        </details>
+        <p class="lesson-source"><a href="https://docs.docker.com/build/building/multi-stage/">Docker: ساخت چندمرحله‌ای</a> · <a href="https://docs.docker.com/engine/network/port-publishing/">نگاشت پورت</a></p>
+      </article>
+
+      <article class="program-panel lesson-unit">
+        <h3>از <code>git push</code> تا <bdi>Rolling Update</bdi></h3>
+        <p><strong>آموزش:</strong> در یک مسیر نمونه، بعد از <code>git push</code>، <bdi>GitLab Runner</bdi> وظایف فایل <code>.gitlab-ci.yml</code> را اجرا می‌کند: ساخت، آزمون، ساخت Image و انتشار آن در <bdi>Container Registry</bdi>. مرحلهٔ استقرار با <code>kubectl</code> یا <bdi>Helm</bdi> نسخهٔ مطلوب را به <bdi>Kubernetes API Server</bdi> اعلام می‌کند. <bdi>Deployment</bdi> و <bdi>ReplicaSet</bdi> ایجاد Podها را پیش می‌برند، <bdi>Scheduler</bdi> گرهٔ مناسب را انتخاب می‌کند و <bdi>kubelet</bdi> با Runtime برای اجرای Container روی گره کار می‌کند. <bdi>Service</bdi> دسترسی پایدار به Podها می‌دهد و <bdi>Ingress</bdi> با کنترلر مناسب می‌تواند ترافیک HTTP را به Service هدایت کند.</p>
+        <h4>سؤال</h4>
+        <p>هنگام انتشار نسخهٔ جدید، چرا ترافیک نباید بلافاصله به Pod تازه برسد؟ <code>readinessProbe</code> با <code>livenessProbe</code> و <code>startupProbe</code> چه فرقی دارد؟</p>
+        <details>
+          <summary>نمایش پاسخ نمونه</summary>
+          <p>ممکن است فرایند اجرا شده باشد اما API هنوز آمادهٔ پاسخ نباشد. اگر <code>readinessProbe</code> موفق نباشد، Pod برای دریافت ترافیک عادی Service آماده محسوب نمی‌شود. شکست <code>livenessProbe</code> پس از آستانهٔ تعریف‌شده باعث Restart کانتینر می‌شود؛ <code>startupProbe</code> برای راه‌اندازی کند است و تا موفقیتش، بررسی‌های Readiness و Liveness شروع نمی‌شوند.</p>
+          <p>در <bdi>Rolling Update</bdi>، <code>maxSurge</code> ظرفیت موقت اضافه و <code>maxUnavailable</code> تعداد مجاز Podهای خارج از دسترس را کنترل می‌کنند. این تنظیمات مدت و اثر جایگزینی را تغییر می‌دهند. جلوگیری از قطعی به Readiness درست، ظرفیت کافی، خروج امن نسخهٔ قبلی و سازگاری تغییرات داده هم وابسته است.</p>
+        </details>
+        <p class="lesson-source"><a href="https://docs.gitlab.com/ci/runners/">GitLab Runner</a> · <a href="https://kubernetes.io/docs/concepts/workloads/controllers/deployment/">Kubernetes Deployment</a> · <a href="https://kubernetes.io/docs/concepts/configuration/liveness-readiness-startup-probes/">انواع Probe</a></p>
+      </article>
+      <p><a class="button-link" href="index.html#week-01">بازگشت به برنامهٔ هفتهٔ اول</a></p>
+    </section>
+  </main>
+</body>
+</html>

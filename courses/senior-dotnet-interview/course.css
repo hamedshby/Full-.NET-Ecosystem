@@ -1,0 +1,111 @@
+.senior-program {
+  --program-width: min(70rem, calc(100% - 2rem));
+  --lesson-width: min(54rem, calc(100% - 2rem));
+  scroll-padding-top: 1rem;
+}
+
+.program-header { border-bottom: 1px solid var(--line); background: var(--surface); }
+.program-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1.5rem;
+  width: var(--program-width);
+  min-height: 4rem;
+  margin-inline: auto;
+  padding-block: .65rem;
+}
+.program-header a { color: var(--brand-strong); font-weight: 700; text-underline-offset: .2em; }
+
+.senior-program main > section {
+  width: var(--program-width);
+  padding-block: clamp(1.5rem, 3vw, 2.75rem);
+}
+.senior-program .day-lesson > section { width: var(--lesson-width); }
+.senior-program main > .program-intro {
+  margin-top: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.2rem, 4vw, 3rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, var(--surface), var(--surface-soft));
+}
+.program-intro h1 { max-width: 28ch; font-size: clamp(1.85rem, 4.6vw, 3.65rem); letter-spacing: normal; }
+.program-intro > p { max-width: 70ch; }
+.program-intro .program-status { margin-bottom: 0; color: var(--muted); }
+.program-facts, .phase-links { display: flex; flex-wrap: wrap; gap: .55rem; }
+.program-facts { padding: 0; list-style: none; }
+.program-facts li, .phase-links a, .lesson-time {
+  padding: .25rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--brand-strong);
+  font-size: .88rem;
+}
+.phase-links a { text-underline-offset: .2em; }
+.phase-links a:hover { border-color: var(--brand); }
+.day-lesson .phase-links { margin-top: 1.2rem; }
+
+.program-panel {
+  min-width: 0;
+  padding: clamp(1rem, 2.6vw, 1.6rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.routine, .weeks, .week-tracks { display: grid; gap: .85rem; }
+.routine, .week-tracks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.routine div { padding: .55rem .75rem; background: var(--surface-soft); border-radius: var(--radius-sm); }
+.routine dt, .week-tracks dt, .lesson-terms dt { font-weight: 750; }
+.routine dd, .week-tracks dd, .lesson-terms dd { margin: 0; color: var(--muted); }
+.weeks { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+.week { scroll-margin-block-start: .5rem; }
+.week:target { outline: 2px solid var(--brand); outline-offset: 3px; }
+.week h3, .lesson-unit h3 { margin-block: 0 .8rem; font-size: 1.2rem; }
+.week p, .lesson-unit p { margin-block: .65rem; }
+.week-label { display: block; margin-bottom: .32rem; color: var(--aqua); font-size: .86rem; }
+.week-tracks { padding-block: .7rem; border-block: 1px solid var(--line); font-size: .91rem; }
+
+.day-lesson h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .7rem;
+  margin: 0 0 .85rem;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+}
+.day-lesson h2 bdi { display: inline; }
+.lesson-time { font-weight: 600; }
+.lesson-unit + .lesson-unit { margin-top: .85rem; }
+.lesson-unit h4 { margin-block: .8rem .25rem; font-size: 1rem; }
+.lesson-unit details {
+  margin-top: .75rem;
+  padding: .65rem .85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+}
+.lesson-unit summary { cursor: pointer; font-weight: 750; color: var(--brand-strong); }
+.lesson-unit pre {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: .7rem;
+  padding: .8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--canvas);
+  text-align: left;
+}
+.senior-program :not(pre) > code { direction: ltr; unicode-bidi: isolate; overflow-wrap: anywhere; }
+.lesson-unit [lang="en"][dir="ltr"] { display: block; text-align: left; }
+.lesson-unit p[lang="en"] { padding-inline-start: .75rem; border-inline-start: 3px solid var(--line); }
+.lesson-terms div { margin-block: .55rem; }
+.lesson-source a { color: var(--brand-strong); text-underline-offset: .2em; }
+.lesson-source { font-size: .86rem; }
+
+@media (max-width: 43rem) {
+  .weeks { grid-template-columns: 1fr; }
+}
+@media (max-width: 30rem) {
+  .routine, .week-tracks { grid-template-columns: 1fr; }
+}
